@@ -40,6 +40,8 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+	float GetDT() const { return dt; }; 
+
 private:
 
 	void AddModule(Module* mod);

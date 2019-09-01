@@ -7,6 +7,7 @@
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
+
 ModuleSceneIntro::ModuleSceneIntro(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
 }
@@ -17,6 +18,9 @@ ModuleSceneIntro::~ModuleSceneIntro()
 // Load assets
 bool ModuleSceneIntro::Start()
 { 
+	bool my_tool_active = true; 
+	float color[4] = { 255.f, 255.f, 255.f, 255.f }; 
+
 	return true;
 }
 
@@ -24,12 +28,14 @@ bool ModuleSceneIntro::Start()
 // Load assets
 bool ModuleSceneIntro::CleanUp()
 {
-
+	
 	return true;
 }
 
 // Update
 update_status ModuleSceneIntro::Update(float dt)
 {
+
+
 	return UPDATE_CONTINUE;
 }
