@@ -68,11 +68,16 @@ bool SmileGui::GenerateGUI()
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
+	if(ImGui::Begin("Exit Panel"))
+	{          
+	if(ImGui::BeginMenu("Exit Menu"))
 	{
-		ImGui::Begin("Exit Menu");                         
+	
+		if (ImGui::MenuItem("Exit"))
+			return false;
 
-		if (ImGui::Button("Exit"))                          
-			return false; 
+		ImGui::EndMenu();
+	}
 		ImGui::End();
 	}
  
