@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Module.h"
+#include "SmileModule.h"
 
-class SmileGui : public Module
+class SmileGui : public SmileModule
 {
 public:
 	SmileGui(SmileApp* app, bool start_enabled = true);

@@ -1,6 +1,6 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
-#include "SmileRenderer.h"
+#include "SmileRenderer3D.h"
 #include "SmileGui.h"
 #include "SDL\include\SDL_opengl.h"
 #include <gl/GL.h>
@@ -15,16 +15,16 @@
 #include "imgui/imgui_impl_opengl2.h"
 
 
-SmileRenderer::SmileRenderer(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
+SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
 
 // Destructor
-SmileRenderer::~SmileRenderer()
+SmileRenderer3D::~SmileRenderer3D()
 {}
 
 // Called before render is available
-bool SmileRenderer::Init()
+bool SmileRenderer3D::Init()
 {
 	LOG("Creating 3D Renderer context");
 	bool ret = true;
@@ -105,7 +105,7 @@ bool SmileRenderer::Init()
 }
 
 // PreUpdate: clear buffer
-update_status SmileRenderer::PreUpdate(float dt)
+update_status SmileRenderer3D::PreUpdate(float dt)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -117,7 +117,7 @@ update_status SmileRenderer::PreUpdate(float dt)
 }
 
 // PostUpdate present buffer to screen
-update_status SmileRenderer::PostUpdate(float dt)
+update_status SmileRenderer3D::PostUpdate(float dt)
 {
 	App->gui->HandleRender(); 
 	SDL_GL_SwapWindow(App->window->window);
@@ -125,7 +125,7 @@ update_status SmileRenderer::PostUpdate(float dt)
 }
 
 // Called before quitting
-bool SmileRenderer::CleanUp()
+bool SmileRenderer3D::CleanUp()
 {
 	LOG("Destroying 3D Renderer");
 
@@ -135,7 +135,7 @@ bool SmileRenderer::CleanUp()
 }
 
 
-void SmileRenderer::OnResize(int width, int height)
+void SmileRenderer3D::OnResize(int width, int height)
 {
 	glViewport(0, 0, width, height);
 

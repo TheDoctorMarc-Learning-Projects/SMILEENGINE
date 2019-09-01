@@ -21,15 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ModuleAudio.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="ModuleCamera3D.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="ModuleInput.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="p2DynArray.h">
       <Filter>Source\Containers</Filter>
     </ClInclude>
@@ -42,26 +33,14 @@
     <ClInclude Include="glmath.h">
       <Filter>Source\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="ModuleSceneIntro.h">
-      <Filter>Source\Modules\Game</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Source\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="ModulePhysics3D.h">
-      <Filter>Source\Modules</Filter>
     </ClInclude>
     <ClInclude Include="p2Defs.h">
       <Filter>Source\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="Module.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Source\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="ModulePlayer.h">
-      <Filter>Source\Modules\Game</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Source\Tools\GUI</Filter>
@@ -102,20 +81,32 @@
     <ClInclude Include="SmileWindow.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="SmileRenderer.h">
+    <ClInclude Include="SmileRenderer3D.h">
       <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="SmilePhysics3D.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileInput.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileCamera3D.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileAudio.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileModule.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileScene.h">
+      <Filter>Source\Modules\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="SmilePlayer.h">
+      <Filter>Source\Modules\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ModuleAudio.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleCamera3D.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleInput.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="log.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
@@ -125,17 +116,8 @@
     <ClCompile Include="glmath.cpp">
       <Filter>Source\Containers</Filter>
     </ClCompile>
-    <ClCompile Include="ModuleSceneIntro.cpp">
-      <Filter>Source\Modules\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="ModulePhysics3D.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Source\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="ModulePlayer.cpp">
-      <Filter>Source\Modules\Game</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>Source\Tools\GUI</Filter>
@@ -170,8 +152,26 @@
     <ClCompile Include="SmileWindow.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="SmileRenderer.cpp">
+    <ClCompile Include="SmileRenderer3D.cpp">
       <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="SmilePhysics3D.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileInput.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileCamera3D.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileAudio.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileScene.cpp">
+      <Filter>Source\Modules\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SmilePlayer.cpp">
+      <Filter>Source\Modules\Game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #include "SmileApp.h"
 
-SmilePhysics3D::SmilePhysics3D(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
+SmilePhysics3D::SmilePhysics3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "Module.h"
+#include "SmileModule.h"
 #include "SmileSetup.h"
 
 #define MAX_MOUSE_BUTTONS 5
@@ -12,12 +12,12 @@ enum KEY_STATE
 	KEY_UP
 };
 
-class ModuleInput : public Module
+class SmileInput : public SmileModule
 {
 public:
 	
-	ModuleInput(SmileApp* app, bool start_enabled = true);
-	~ModuleInput();
+	SmileInput(SmileApp* app, bool start_enabled = true);
+	~SmileInput();
 
 	bool Init();
 	update_status PreUpdate(float dt);

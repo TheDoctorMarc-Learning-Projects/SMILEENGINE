@@ -1,10 +1,10 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
-#include "ModuleInput.h"
+#include "SmileInput.h"
 
 #define MAX_KEYS 300
 
-ModuleInput::ModuleInput(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
+SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	keyboard = DBG_NEW KEY_STATE[MAX_KEYS];
 	memset(keyboard, KEY_IDLE, sizeof(KEY_STATE) * MAX_KEYS);
@@ -12,13 +12,13 @@ ModuleInput::ModuleInput(SmileApp* app, bool start_enabled) : Module(app, start_
 }
 
 // Destructor
-ModuleInput::~ModuleInput()
+SmileInput::~SmileInput()
 {
 	delete[] keyboard;
 }
 
 // Called before render is available
-bool ModuleInput::Init()
+bool SmileInput::Init()
 {
 	LOG("Init SDL input event system");
 	bool ret = true;
@@ -34,7 +34,7 @@ bool ModuleInput::Init()
 }
 
 // Called every draw update
-update_status ModuleInput::PreUpdate(float dt)
+update_status SmileInput::PreUpdate(float dt)
 {
 	SDL_PumpEvents();
 
@@ -121,7 +121,7 @@ update_status ModuleInput::PreUpdate(float dt)
 }
 
 // Called before quitting
-bool ModuleInput::CleanUp()
+bool SmileInput::CleanUp()
 {
 	LOG("Quitting SDL input event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);

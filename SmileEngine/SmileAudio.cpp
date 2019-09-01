@@ -1,18 +1,18 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
-#include "ModuleAudio.h"
+#include "SmileAudio.h"
 
 #pragma comment( lib, "SDL_mixer/libx86/SDL2_mixer.lib" )
 
-ModuleAudio::ModuleAudio(SmileApp* app, bool start_enabled) : Module(app, start_enabled), music(NULL)
+SmileAudio::SmileAudio(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled), music(NULL)
 {}
 
 // Destructor
-ModuleAudio::~ModuleAudio()
+SmileAudio::~SmileAudio()
 {}
 
 // Called before render is available
-bool ModuleAudio::Init()
+bool SmileAudio::Init()
 {
 	LOG("Loading Audio Mixer");
 	bool ret = true;
@@ -45,7 +45,7 @@ bool ModuleAudio::Init()
 }
 
 // Called before quitting
-bool ModuleAudio::CleanUp()
+bool SmileAudio::CleanUp()
 {
 	LOG("Freeing sound FX, closing Mixer and Audio subsystem");
 
@@ -69,7 +69,7 @@ bool ModuleAudio::CleanUp()
 }
 
 // Play a music file
-bool ModuleAudio::PlayMusic(const char* path, float fade_time)
+bool SmileAudio::PlayMusic(const char* path, float fade_time)
 {
 	bool ret = true;
 	
@@ -120,7 +120,7 @@ bool ModuleAudio::PlayMusic(const char* path, float fade_time)
 }
 
 // Load WAV
-unsigned int ModuleAudio::LoadFx(const char* path)
+unsigned int SmileAudio::LoadFx(const char* path)
 {
 	unsigned int ret = 0;
 
@@ -140,7 +140,7 @@ unsigned int ModuleAudio::LoadFx(const char* path)
 }
 
 // Play WAV
-bool ModuleAudio::PlayFx(unsigned int id, int repeat)
+bool SmileAudio::PlayFx(unsigned int id, int repeat)
 {
 	bool ret = false;
 
@@ -158,14 +158,14 @@ bool ModuleAudio::PlayFx(unsigned int id, int repeat)
 
 
 
-void ModuleAudio::Change_Mus_Volume(int volume) {
+void SmileAudio::Change_Mus_Volume(int volume) {
 
 	mus_vol = volume;
 	Mix_VolumeMusic(mus_vol);
 
 }
 
-void ModuleAudio::Change_Fx_Volume(int channel, int volume) {
+void SmileAudio::Change_Fx_Volume(int channel, int volume) {
 	fx_vol = volume;
 	Mix_Volume(channel - 1, fx_vol);
 }

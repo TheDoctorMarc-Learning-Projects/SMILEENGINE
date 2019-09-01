@@ -2,7 +2,7 @@
 #include "SmileApp.h"
 #include "SmileWindow.h"
 
-SmileWindow::SmileWindow(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
+SmileWindow::SmileWindow(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	window = NULL;
 	screen_surface = NULL;

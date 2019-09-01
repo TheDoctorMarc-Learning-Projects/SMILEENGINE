@@ -3188,8 +3188,8 @@ const char* ImGui::GetVersion()
     return IMGUI_VERSION;
 }
 
-// Internal state access - if you want to share Dear ImGui state between modules (e.g. DLL) or allocate it yourself
-// Note that we still point to some static data and members (such as GFontAtlas), so the state instance you end up using will point to the static data within its module
+// Internal state access - if you want to share Dear ImGui state between SmileModules (e.g. DLL) or allocate it yourself
+// Note that we still point to some static data and members (such as GFontAtlas), so the state instance you end up using will point to the static data within its SmileModule
 ImGuiContext* ImGui::GetCurrentContext()
 {
     return GImGui;

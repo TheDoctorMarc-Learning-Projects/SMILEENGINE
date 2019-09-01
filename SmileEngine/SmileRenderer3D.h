@@ -1,16 +1,16 @@
 #pragma once
-#include "Module.h"
+#include "SmileModule.h"
 #include "SmileSetup.h"
 #include "glmath.h"
 #include "Light.h"
 
 #define MAX_LIGHTS 8
 
-class SmileRenderer : public Module
+class SmileRenderer3D : public SmileModule
 {
 public:
-	SmileRenderer(SmileApp* app, bool start_enabled = true);
-	~SmileRenderer();
+	SmileRenderer3D(SmileApp* app, bool start_enabled = true);
+	~SmileRenderer3D();
 
 	bool Init();
 	update_status PreUpdate(float dt);

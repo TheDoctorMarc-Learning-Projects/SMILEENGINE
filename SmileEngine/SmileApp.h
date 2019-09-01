@@ -3,35 +3,35 @@
 #include "p2List.h"
 #include "SmileSetup.h"
 #include "Timer.h"
-#include "Module.h"
+#include "SmileModule.h"
 #include "SmileWindow.h"
-#include "ModuleInput.h"
-#include "ModuleAudio.h"
-#include "ModuleSceneIntro.h"
-#include "SmileRenderer.h"
-#include "ModuleCamera3D.h"
-#include "ModulePhysics3D.h"
-#include "ModulePlayer.h"
+#include "SmileInput.h"
+#include "SmileAudio.h"
+#include "SmileSmileScene.h"
+#include "SmileRenderer3D.h"
+#include "SmileCamera3D.h"
+#include "SmilePhysics3D.h"
+#include "SmileSmilePlayer.h"
 #include "SmileGui.h"
 
 class SmileApp
 {
 public:
 	SmileWindow* window;
-	ModuleInput* input;
-	ModuleAudio* audio;
-	ModuleSceneIntro* scene_intro;
-	SmileRenderer* renderer3D;
-	ModuleCamera3D* camera;
-	ModulePhysics3D* physics;
-	ModulePlayer* player;
+	SmileInput* input;
+	SmileAudio* audio;
+	SmileSmileScene* scene_intro;
+	SmileRenderer3D* renderer3D;
+	SmileCamera3D* camera;
+	SmilePhysics3D* physics;
+	SmileSmilePlayer* player;
 	SmileGui* gui; 
 
 private:
 
 	Timer	ms_timer;
 	float	dt;
-	p2List<Module*> list_modules;
+	p2List<SmileModule*> list_SmileModules;
 
 public:
 
@@ -46,7 +46,7 @@ public:
 
 private:
 
-	void AddModule(Module* mod);
+	void AddSmileModule(SmileModule* mod);
 	void PrepareUpdate();
 	void FinishUpdate();
 };

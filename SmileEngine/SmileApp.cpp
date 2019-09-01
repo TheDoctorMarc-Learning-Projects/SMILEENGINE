@@ -4,39 +4,39 @@
 SmileApp::SmileApp()
 {
 	window = DBG_NEW SmileWindow(this);
-	input = DBG_NEW ModuleInput(this);
-	audio = DBG_NEW ModuleAudio(this, true);
-	scene_intro = DBG_NEW ModuleSceneIntro(this);
-	renderer3D = DBG_NEW SmileRenderer(this);
-	camera = DBG_NEW ModuleCamera3D(this);
-	physics = DBG_NEW ModulePhysics3D(this);
-	player = DBG_NEW ModulePlayer(this);
+	input = DBG_NEW SmileInput(this);
+	audio = DBG_NEW SmileAudio(this, true);
+	scene_intro = DBG_NEW SmileSmileScene(this);
+	renderer3D = DBG_NEW SmileRenderer3D(this);
+	camera = DBG_NEW SmileCamera3D(this);
+	physics = DBG_NEW SmilePhysics3D(this);
+	player = DBG_NEW SmileSmilePlayer(this);
 	gui = DBG_NEW SmileGui(this);
 
 
 	// The order of calls is very important!
-	// Modules will Init() Start() and Update in this order
+	// SmileModules will Init() Start() and Update in this order
 	// They will CleanUp() in reverse order
 
-	// Main Modules
-	AddModule(window);
-	AddModule(input);
-	AddModule(audio);
-	AddModule(physics);
+	// Main SmileModules
+	AddSmileModule(window);
+	AddSmileModule(input);
+	AddSmileModule(audio);
+	AddSmileModule(physics);
 	
 	// Scenes
-	AddModule(scene_intro);
-	AddModule(player);
-	AddModule(camera);
-	AddModule(gui); 
+	AddSmileModule(scene_intro);
+	AddSmileModule(player);
+	AddSmileModule(camera);
+	AddSmileModule(gui); 
 
 	// Renderer last!
-	AddModule(renderer3D);
+	AddSmileModule(renderer3D);
 }
 
 SmileApp::~SmileApp()
 {
-	p2List_item<Module*>* item = list_modules.end;
+	p2List_item<SmileModule*>* item = list_SmileModules.end;
 
 	while(item != NULL)
 	{
@@ -49,8 +49,8 @@ bool SmileApp::Init()
 {
 	bool ret = true;
 
-	// Call Init() in all modules
-	p2List_item<Module*>* item = list_modules.start;
+	// Call Init() in all SmileModules
+	p2List_item<SmileModule*>* item = list_SmileModules.start;
 
 	while(item != NULL && ret == true)
 	{
@@ -58,9 +58,9 @@ bool SmileApp::Init()
 		item = item->next;
 	}
 
-	// After all Init calls we call Start() in all modules
+	// After all Init calls we call Start() in all SmileModules
 	LOG("SmileApp Start --------------");
-	item = list_modules.start;
+	item = list_SmileModules.start;
 
 	while(item != NULL && ret == true)
 	{
@@ -84,13 +84,13 @@ void SmileApp::FinishUpdate()
 {
 }
 
-// Call PreUpdate, Update and PostUpdate on all modules
+// Call PreUpdate, Update and PostUpdate on all SmileModules
 update_status SmileApp::Update()
 {
 	update_status ret = UPDATE_CONTINUE;
 	PrepareUpdate();
 	
-	p2List_item<Module*>* item = list_modules.start;
+	p2List_item<SmileModule*>* item = list_SmileModules.start;
 	
 	while(item != NULL && ret == UPDATE_CONTINUE)
 	{
@@ -98,7 +98,7 @@ update_status SmileApp::Update()
 		item = item->next;
 	}
 
-	item = list_modules.start;
+	item = list_SmileModules.start;
 
 	while(item != NULL && ret == UPDATE_CONTINUE)
 	{
@@ -106,7 +106,7 @@ update_status SmileApp::Update()
 		item = item->next;
 	}
 
-	item = list_modules.start;
+	item = list_SmileModules.start;
 
 	while(item != NULL && ret == UPDATE_CONTINUE)
 	{
@@ -121,7 +121,7 @@ update_status SmileApp::Update()
 bool SmileApp::CleanUp()
 {
 	bool ret = true;
-	p2List_item<Module*>* item = list_modules.end;
+	p2List_item<SmileModule*>* item = list_SmileModules.end;
 
 	while(item != NULL && ret == true)
 	{
@@ -131,7 +131,7 @@ bool SmileApp::CleanUp()
 	return ret;
 }
 
-void SmileApp::AddModule(Module* mod)
+void SmileApp::AddSmileModule(SmileModule* mod)
 {
-	list_modules.add(mod);
+	list_SmileModules.add(mod);
 }

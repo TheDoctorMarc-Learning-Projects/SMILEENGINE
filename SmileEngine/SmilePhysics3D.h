@@ -1,11 +1,11 @@
 #pragma once
-#include "Module.h"
+#include "SmileModule.h"
 
-class ModulePhysics3D : public Module
+class SmilePhysics3D : public SmileModule
 {
 public:
-	ModulePhysics3D(SmileApp* app, bool start_enabled = true);
-	~ModulePhysics3D();
+	SmilePhysics3D(SmileApp* app, bool start_enabled = true);
+	~SmilePhysics3D();
 
 	bool Init();
 	bool Start();

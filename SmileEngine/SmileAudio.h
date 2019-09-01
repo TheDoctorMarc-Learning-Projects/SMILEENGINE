@@ -1,17 +1,17 @@
-#ifndef __ModuleAudio_H__
-#define __ModuleAudio_H__
+#ifndef __SmileAudio_H__
+#define __SmileAudio_H__
 
-#include "Module.h"
+#include "SmileModule.h"
 #include "SDL_mixer\include\SDL_mixer.h"
 
 #define DEFAULT_MUSIC_FADE_TIME 2.0f
 
-class ModuleAudio : public Module
+class SmileAudio : public SmileModule
 {
 public:
 
-	ModuleAudio(SmileApp* app, bool start_enabled = true);
-	~ModuleAudio();
+	SmileAudio(SmileApp* app, bool start_enabled = true);
+	~SmileAudio();
 
 	bool Init();
 	bool CleanUp();
@@ -38,4 +38,4 @@ private:
 	int fx_vol = 15;
 };
 
-#endif // __ModuleAudio_H__
+#endif // __SmileAudio_H__

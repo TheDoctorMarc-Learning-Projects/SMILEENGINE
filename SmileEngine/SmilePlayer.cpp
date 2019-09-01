@@ -1,24 +1,24 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
-#include "ModulePlayer.h"
+#include "SmileSmilePlayer.h"
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
-ModulePlayer::ModulePlayer(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
+SmileSmilePlayer::SmileSmilePlayer(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
 
-ModulePlayer::~ModulePlayer()
+SmileSmilePlayer::~SmileSmilePlayer()
 {}
 
 // Load assets
-bool ModulePlayer::Start()
+bool SmileSmilePlayer::Start()
 {
 	return true;
 }
 
 // Unload assets
-bool ModulePlayer::CleanUp()
+bool SmileSmilePlayer::CleanUp()
 {
 	LOG("Unloading player");
 
@@ -26,7 +26,7 @@ bool ModulePlayer::CleanUp()
 }
 
 // Update: draw background
-update_status ModulePlayer::Update(float dt)
+update_status SmileSmilePlayer::Update(float dt)
 {
 	return UPDATE_CONTINUE;
 }

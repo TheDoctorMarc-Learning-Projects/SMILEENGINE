@@ -1,12 +1,12 @@
 #ifndef __SmileWindow_H__
 #define __SmileWindow_H__
 
-#include "Module.h"
+#include "SmileModule.h"
 #include "SDL/include/SDL.h"
 
 class SmileApp;
 
-class SmileWindow : public Module
+class SmileWindow : public SmileModule
 {
 public:
 

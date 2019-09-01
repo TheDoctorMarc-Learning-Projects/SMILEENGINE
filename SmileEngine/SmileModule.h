@@ -3,7 +3,7 @@
 class SmileApp;
 struct PhysBody3D;
 
-class Module
+class SmileModule
 {
 private :
 	bool enabled;
@@ -11,10 +11,10 @@ private :
 public:
 	SmileApp* App;
 
-	Module(SmileApp* parent, bool start_enabled = true) : App(parent)
+	SmileModule(SmileApp* parent, bool start_enabled = true) : App(parent)
 	{}
 
-	virtual ~Module()
+	virtual ~SmileModule()
 	{}
 
 	virtual bool Init() 
