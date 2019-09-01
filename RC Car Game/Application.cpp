@@ -11,6 +11,8 @@ Application::Application()
 	camera = DBG_NEW ModuleCamera3D(this);
 	physics = DBG_NEW ModulePhysics3D(this);
 	player = DBG_NEW ModulePlayer(this);
+	gui = DBG_NEW SmileGui(this);
+
 
 	// The order of calls is very important!
 	// Modules will Init() Start() and Update in this order
@@ -25,8 +27,8 @@ Application::Application()
 	// Scenes
 	AddModule(scene_intro);
 	AddModule(player);
-	
 	AddModule(camera);
+	AddModule(gui); 
 
 	// Renderer last!
 	AddModule(renderer3D);
