@@ -64,23 +64,28 @@ update_status SmileGui::PreUpdate(float dt)
 // -----------------------------------------------------------------
 bool SmileGui::GenerateGUI()
 {
+	bool ret = true; 
+
 	bool show_demo_window = true; 
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
-	if(ImGui::Begin("Exit Panel"))
-	{          
-	if(ImGui::BeginMenu("Exit Menu"))
 	{
+		ImGui::Begin("Exit Window"); 
 	
-		if (ImGui::MenuItem("Exit"))
-			return false;
+		if (ImGui::BeginMenu("Exit Menu"))
+		{
 
-		ImGui::EndMenu();
-	}
+			if (ImGui::MenuItem("Exit"))
+				ret = false;
+
+			ImGui::EndMenu();
+		}
+				
 		ImGui::End();
 	}
  
+	return ret; 
 }
 
 // -----------------------------------------------------------------
