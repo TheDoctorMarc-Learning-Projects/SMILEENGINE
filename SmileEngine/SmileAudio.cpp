@@ -1,10 +1,10 @@
-#include "Globals.h"
-#include "Application.h"
+#include "SmileSetup.h"
+#include "SmileApp.h"
 #include "ModuleAudio.h"
 
 #pragma comment( lib, "SDL_mixer/libx86/SDL2_mixer.lib" )
 
-ModuleAudio::ModuleAudio(Application* app, bool start_enabled) : Module(app, start_enabled), music(NULL)
+ModuleAudio::ModuleAudio(SmileApp* app, bool start_enabled) : Module(app, start_enabled), music(NULL)
 {}
 
 // Destructor

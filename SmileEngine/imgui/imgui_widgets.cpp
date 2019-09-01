@@ -3874,7 +3874,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         state->UserCallbackData = NULL;
     }
 
-    // Release active ID at the end of the function (so e.g. pressing Return still does a final application of the value)
+    // Release active ID at the end of the function (so e.g. pressing Return still does a final SmileApp of the value)
     if (clear_active_id && g.ActiveId == id)
         ClearActiveID();
 

@@ -195,7 +195,7 @@
 // here.
 //
 // Each textfield keeps its own insert mode state, which is not how normal
-// applications work. To keep an app-wide insert mode, update/copy the
+// SmileApps work. To keep an app-wide insert mode, update/copy the
 // "insert_mode" field of STB_TexteditState before/after calling API functions.
 //
 // API

@@ -1,6 +1,6 @@
 #pragma once
 
-class Application;
+class SmileApp;
 struct PhysBody3D;
 
 class Module
@@ -9,9 +9,9 @@ private :
 	bool enabled;
 
 public:
-	Application* App;
+	SmileApp* App;
 
-	Module(Application* parent, bool start_enabled = true) : App(parent)
+	Module(SmileApp* parent, bool start_enabled = true) : App(parent)
 	{}
 
 	virtual ~Module()

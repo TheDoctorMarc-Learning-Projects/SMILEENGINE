@@ -2,7 +2,7 @@
 #define __PhysBody3D_H__
 
 #include "p2List.h"
-#include "Globals.h"
+#include "SmileSetup.h"
 
 class btRigidBody;
 class Module;

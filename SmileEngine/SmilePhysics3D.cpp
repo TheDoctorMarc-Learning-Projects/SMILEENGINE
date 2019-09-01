@@ -1,48 +1,48 @@
-#include "Application.h"
+#include "SmileApp.h"
 
-ModulePhysics3D::ModulePhysics3D(Application* app, bool start_enabled) : Module(app, start_enabled)
+SmilePhysics3D::SmilePhysics3D(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
 {
 }
 
 // Destructor
-ModulePhysics3D::~ModulePhysics3D()
+SmilePhysics3D::~SmilePhysics3D()
 { 
 }
 
 // Render not available yet----------------------------------
-bool ModulePhysics3D::Init()
+bool SmilePhysics3D::Init()
 {
 	return true;
 }
 
 // ---------------------------------------------------------
-bool ModulePhysics3D::Start()
+bool SmilePhysics3D::Start()
 {
 
 	return true;
 }
 
 // ---------------------------------------------------------
-update_status ModulePhysics3D::PreUpdate(float dt)
+update_status SmilePhysics3D::PreUpdate(float dt)
 {
 
 	return UPDATE_CONTINUE;
 }
 
 // ---------------------------------------------------------
-update_status ModulePhysics3D::Update(float dt)
+update_status SmilePhysics3D::Update(float dt)
 {
 	return UPDATE_CONTINUE;
 }
 
 // ---------------------------------------------------------
-update_status ModulePhysics3D::PostUpdate(float dt)
+update_status SmilePhysics3D::PostUpdate(float dt)
 {
 	return UPDATE_CONTINUE;
 }
 
 // Called before quitting
-bool ModulePhysics3D::CleanUp()
+bool SmilePhysics3D::CleanUp()
 {
 	return true;
 }

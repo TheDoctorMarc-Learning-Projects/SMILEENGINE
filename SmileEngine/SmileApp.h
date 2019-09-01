@@ -1,27 +1,27 @@
 #pragma once
 
 #include "p2List.h"
-#include "Globals.h"
+#include "SmileSetup.h"
 #include "Timer.h"
 #include "Module.h"
-#include "ModuleWindow.h"
+#include "SmileWindow.h"
 #include "ModuleInput.h"
 #include "ModuleAudio.h"
 #include "ModuleSceneIntro.h"
-#include "ModuleRenderer3D.h"
+#include "SmileRenderer.h"
 #include "ModuleCamera3D.h"
 #include "ModulePhysics3D.h"
 #include "ModulePlayer.h"
 #include "SmileGui.h"
 
-class Application
+class SmileApp
 {
 public:
-	ModuleWindow* window;
+	SmileWindow* window;
 	ModuleInput* input;
 	ModuleAudio* audio;
 	ModuleSceneIntro* scene_intro;
-	ModuleRenderer3D* renderer3D;
+	SmileRenderer* renderer3D;
 	ModuleCamera3D* camera;
 	ModulePhysics3D* physics;
 	ModulePlayer* player;
@@ -35,8 +35,8 @@ private:
 
 public:
 
-	Application();
-	~Application();
+	SmileApp();
+	~SmileApp();
 
 	bool Init();
 	update_status Update();

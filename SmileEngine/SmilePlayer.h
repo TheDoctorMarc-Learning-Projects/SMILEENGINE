@@ -4,7 +4,7 @@
 class ModulePlayer : public Module
 {
 public:
-	ModulePlayer(Application* app, bool start_enabled = true);
+	ModulePlayer(SmileApp* app, bool start_enabled = true);
 	virtual ~ModulePlayer();
 
 	bool Start();

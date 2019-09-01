@@ -1,10 +1,10 @@
-#include "Globals.h"
-#include "Application.h"
+#include "SmileSetup.h"
+#include "SmileApp.h"
 #include "ModulePlayer.h"
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
-ModulePlayer::ModulePlayer(Application* app, bool start_enabled) : Module(app, start_enabled)
+ModulePlayer::ModulePlayer(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
 {
 }
 

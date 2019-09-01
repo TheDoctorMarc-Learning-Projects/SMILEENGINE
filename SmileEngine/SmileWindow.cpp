@@ -1,20 +1,20 @@
-#include "Globals.h"
-#include "Application.h"
-#include "ModuleWindow.h"
+#include "SmileSetup.h"
+#include "SmileApp.h"
+#include "SmileWindow.h"
 
-ModuleWindow::ModuleWindow(Application* app, bool start_enabled) : Module(app, start_enabled)
+SmileWindow::SmileWindow(SmileApp* app, bool start_enabled) : Module(app, start_enabled)
 {
 	window = NULL;
 	screen_surface = NULL;
 }
 
 // Destructor
-ModuleWindow::~ModuleWindow()
+SmileWindow::~SmileWindow()
 {
 }
 
 // Called before render is available
-bool ModuleWindow::Init()
+bool SmileWindow::Init()
 {
 	LOG("Init SDL window & surface");
 	bool ret = true;
@@ -73,7 +73,7 @@ bool ModuleWindow::Init()
 }
 
 // Called before quitting
-bool ModuleWindow::CleanUp()
+bool SmileWindow::CleanUp()
 {
 	LOG("Destroying SDL window and quitting all SDL systems");
 
@@ -88,7 +88,7 @@ bool ModuleWindow::CleanUp()
 	return true;
 }
 
-void ModuleWindow::SetTitle(const char* title)
+void SmileWindow::SetTitle(const char* title)
 {
 	SDL_SetWindowTitle(window, title);
 }

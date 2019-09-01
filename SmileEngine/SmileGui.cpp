@@ -1,5 +1,5 @@
-#include "Globals.h"
-#include "Application.h"
+#include "SmileSetup.h"
+#include "SmileApp.h"
 #include "SmileGui.h"
 
 
@@ -9,15 +9,13 @@
 
 #include <gl/GL.h>
 
-SmileGui::SmileGui(Application* app, bool start_enabled) : Module(app, start_enabled)
+SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
 
-// Destructor
 SmileGui::~SmileGui()
 {
 }
-
 
 // -----------------------------------------------------------------
 bool SmileGui::Start()
@@ -43,8 +41,6 @@ bool SmileGui::Start()
 	return ret;
 }
 
-
-
 // -----------------------------------------------------------------
 update_status SmileGui::PreUpdate(float dt)
 {
@@ -62,7 +58,6 @@ update_status SmileGui::PreUpdate(float dt)
 
 	return UPDATE_CONTINUE;
 }
-
 
 // -----------------------------------------------------------------
 void SmileGui::GenerateGUI()
@@ -92,14 +87,11 @@ void SmileGui::GenerateGUI()
 		ImGui::SameLine();
 		ImGui::Text("counter = %d", counter);
 
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::Text("SmileApp average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
  
 }
-
-
-
 
 // -----------------------------------------------------------------
 bool SmileGui::CleanUp()
@@ -111,13 +103,9 @@ bool SmileGui::CleanUp()
 	return true; 
 }
 
-
-
 // ----------------------------------------------------------------- called by Render cpp PostUpdate() 
-
 void SmileGui::HandleRender()
 {
-
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	// Rendering

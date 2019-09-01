@@ -1,13 +1,13 @@
-#include "Application.h"
-#include "Globals.h"
+#include "SmileApp.h"
+#include "SmileSetup.h"
 
-Application::Application()
+SmileApp::SmileApp()
 {
-	window = DBG_NEW ModuleWindow(this);
+	window = DBG_NEW SmileWindow(this);
 	input = DBG_NEW ModuleInput(this);
 	audio = DBG_NEW ModuleAudio(this, true);
 	scene_intro = DBG_NEW ModuleSceneIntro(this);
-	renderer3D = DBG_NEW ModuleRenderer3D(this);
+	renderer3D = DBG_NEW SmileRenderer(this);
 	camera = DBG_NEW ModuleCamera3D(this);
 	physics = DBG_NEW ModulePhysics3D(this);
 	player = DBG_NEW ModulePlayer(this);
@@ -34,7 +34,7 @@ Application::Application()
 	AddModule(renderer3D);
 }
 
-Application::~Application()
+SmileApp::~SmileApp()
 {
 	p2List_item<Module*>* item = list_modules.end;
 
@@ -45,7 +45,7 @@ Application::~Application()
 	}
 }
 
-bool Application::Init()
+bool SmileApp::Init()
 {
 	bool ret = true;
 
@@ -59,7 +59,7 @@ bool Application::Init()
 	}
 
 	// After all Init calls we call Start() in all modules
-	LOG("Application Start --------------");
+	LOG("SmileApp Start --------------");
 	item = list_modules.start;
 
 	while(item != NULL && ret == true)
@@ -73,19 +73,19 @@ bool Application::Init()
 }
 
 // ---------------------------------------------
-void Application::PrepareUpdate()
+void SmileApp::PrepareUpdate()
 {
 	dt = (float)ms_timer.Read() / 1000.0f;
 	ms_timer.Start();
 }
 
 // ---------------------------------------------
-void Application::FinishUpdate()
+void SmileApp::FinishUpdate()
 {
 }
 
 // Call PreUpdate, Update and PostUpdate on all modules
-update_status Application::Update()
+update_status SmileApp::Update()
 {
 	update_status ret = UPDATE_CONTINUE;
 	PrepareUpdate();
@@ -118,7 +118,7 @@ update_status Application::Update()
 	return ret;
 }
 
-bool Application::CleanUp()
+bool SmileApp::CleanUp()
 {
 	bool ret = true;
 	p2List_item<Module*>* item = list_modules.end;
@@ -131,7 +131,7 @@ bool Application::CleanUp()
 	return ret;
 }
 
-void Application::AddModule(Module* mod)
+void SmileApp::AddModule(Module* mod)
 {
 	list_modules.add(mod);
 }

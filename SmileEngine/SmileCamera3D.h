@@ -1,13 +1,13 @@
 #pragma once
 #include "Module.h"
-#include "Globals.h"
+#include "SmileSetup.h"
 #include "glmath.h"
 
 
 class ModuleCamera3D : public Module
 {
 public:
-	ModuleCamera3D(Application* app, bool start_enabled = true);
+	ModuleCamera3D(SmileApp* app, bool start_enabled = true);
 	~ModuleCamera3D();
 
 	bool Start();

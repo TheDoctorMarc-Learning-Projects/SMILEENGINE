@@ -1,4 +1,4 @@
-#include "Globals.h"
+#include "SmileSetup.h"
 #include "Light.h"
 #include <gl/GL.h>
 //#include <gl/GLU.h>

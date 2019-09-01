@@ -1,6 +1,6 @@
 #pragma once
 #include "Module.h"
-#include "Globals.h"
+#include "SmileSetup.h"
 
 #define MAX_MOUSE_BUTTONS 5
 
@@ -16,7 +16,7 @@ class ModuleInput : public Module
 {
 public:
 	
-	ModuleInput(Application* app, bool start_enabled = true);
+	ModuleInput(SmileApp* app, bool start_enabled = true);
 	~ModuleInput();
 
 	bool Init();

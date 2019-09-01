@@ -10,7 +10,7 @@ class ModuleAudio : public Module
 {
 public:
 
-	ModuleAudio(Application* app, bool start_enabled = true);
+	ModuleAudio(SmileApp* app, bool start_enabled = true);
 	~ModuleAudio();
 
 	bool Init();

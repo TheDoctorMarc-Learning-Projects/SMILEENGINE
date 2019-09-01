@@ -1,19 +1,19 @@
-#ifndef __ModuleWindow_H__
-#define __ModuleWindow_H__
+#ifndef __SmileWindow_H__
+#define __SmileWindow_H__
 
 #include "Module.h"
 #include "SDL/include/SDL.h"
 
-class Application;
+class SmileApp;
 
-class ModuleWindow : public Module
+class SmileWindow : public Module
 {
 public:
 
-	ModuleWindow(Application* app, bool start_enabled = true);
+	SmileWindow(SmileApp* app, bool start_enabled = true);
 
 	// Destructor
-	virtual ~ModuleWindow();
+	virtual ~SmileWindow();
 
 	bool Init();
 	bool CleanUp();
@@ -28,4 +28,4 @@ public:
 	SDL_Surface* screen_surface;
 };
 
-#endif // __ModuleWindow_H__
+#endif // __SmileWindow_H__
