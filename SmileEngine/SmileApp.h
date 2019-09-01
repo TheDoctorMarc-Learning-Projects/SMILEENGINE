@@ -50,3 +50,4 @@ private:
 	void PrepareUpdate();
 	void FinishUpdate();
 };
+

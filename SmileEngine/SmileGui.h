@@ -15,5 +15,5 @@ public:
 
 
 private: 
-	void GenerateGUI(); 
+	bool GenerateGUI(); 
 };
