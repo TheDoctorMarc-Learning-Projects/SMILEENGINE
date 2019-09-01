@@ -6,11 +6,11 @@ SmileApp::SmileApp()
 	window = DBG_NEW SmileWindow(this);
 	input = DBG_NEW SmileInput(this);
 	audio = DBG_NEW SmileAudio(this, true);
-	scene_intro = DBG_NEW SmileSmileScene(this);
+	scene_intro = DBG_NEW SmileScene(this);
 	renderer3D = DBG_NEW SmileRenderer3D(this);
 	camera = DBG_NEW SmileCamera3D(this);
 	physics = DBG_NEW SmilePhysics3D(this);
-	player = DBG_NEW SmileSmilePlayer(this);
+	player = DBG_NEW SmilePlayer(this);
 	gui = DBG_NEW SmileGui(this);
 
 

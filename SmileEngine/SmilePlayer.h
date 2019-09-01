@@ -1,11 +1,11 @@
 #pragma once
 #include "SmileModule.h"
 
-class SmileSmilePlayer : public SmileModule
+class SmilePlayer : public SmileModule
 {
 public:
-	SmileSmilePlayer(SmileApp* app, bool start_enabled = true);
-	virtual ~SmileSmilePlayer();
+	SmilePlayer(SmileApp* app, bool start_enabled = true);
+	virtual ~SmilePlayer();
 
 	bool Start();
 	update_status Update(float dt);

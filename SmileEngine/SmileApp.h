@@ -7,11 +7,11 @@
 #include "SmileWindow.h"
 #include "SmileInput.h"
 #include "SmileAudio.h"
-#include "SmileSmileScene.h"
+#include "SmileScene.h"
 #include "SmileRenderer3D.h"
 #include "SmileCamera3D.h"
 #include "SmilePhysics3D.h"
-#include "SmileSmilePlayer.h"
+#include "SmilePlayer.h"
 #include "SmileGui.h"
 
 class SmileApp
@@ -20,11 +20,11 @@ public:
 	SmileWindow* window;
 	SmileInput* input;
 	SmileAudio* audio;
-	SmileSmileScene* scene_intro;
+	SmileScene* scene_intro;
 	SmileRenderer3D* renderer3D;
 	SmileCamera3D* camera;
 	SmilePhysics3D* physics;
-	SmileSmilePlayer* player;
+	SmilePlayer* player;
 	SmileGui* gui; 
 
 private:

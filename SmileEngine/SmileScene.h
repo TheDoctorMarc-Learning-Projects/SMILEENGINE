@@ -4,11 +4,11 @@
 #include "SmileSetup.h"
 #include "Primitive.h"
 
-class SmileSmileScene : public SmileModule
+class SmileScene : public SmileModule
 {
 public:
-	SmileSmileScene(SmileApp* app, bool start_enabled = true);
-	~SmileSmileScene();
+	SmileScene(SmileApp* app, bool start_enabled = true);
+	~SmileScene();
 
 	bool Start();
 	update_status Update(float dt);
