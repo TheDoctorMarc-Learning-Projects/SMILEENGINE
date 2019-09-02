@@ -1,6 +1,5 @@
 #pragma once
 
-#include "p2List.h"
 #include "SmileSetup.h"
 #include "Timer.h"
 #include "SmileModule.h"
@@ -13,6 +12,8 @@
 #include "SmilePhysics3D.h"
 #include "SmilePlayer.h"
 #include "SmileGui.h"
+
+#include <list>
 
 class SmileApp
 {
@@ -31,7 +32,7 @@ private:
 
 	Timer	ms_timer;
 	float	dt;
-	p2List<SmileModule*> list_SmileModules;
+	std::list<SmileModule*> list_Modules;
 
 public:
 
@@ -46,7 +47,7 @@ public:
 
 private:
 
-	void AddSmileModule(SmileModule* mod);
+	void AddModule(SmileModule* mod);
 	void PrepareUpdate();
 	void FinishUpdate();
 };

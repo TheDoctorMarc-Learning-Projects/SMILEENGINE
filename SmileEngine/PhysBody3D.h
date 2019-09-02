@@ -1,4 +1,4 @@
-#ifndef __PhysBody3D_H__
+/*#ifndef __PhysBody3D_H__
 #define __PhysBody3D_H__
 
 #include "p2List.h"
@@ -46,4 +46,4 @@ public:
 	bool _first_of_a_pair = NULL; 
 };
 
-#endif // __PhysBody3D_H__
+#endif // __PhysBody3D_H__*/

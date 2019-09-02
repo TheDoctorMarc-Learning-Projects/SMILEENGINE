@@ -100,15 +100,11 @@
     <ClInclude Include="SmilePhysics3D.h" />
     <ClInclude Include="SmilePlayer.h" />
     <ClInclude Include="SmileRenderer3D.h" />
-    <ClInclude Include="p2Defs.h" />
-    <ClInclude Include="p2List.h" />
     <ClInclude Include="SmileModule.h" />
     <ClInclude Include="SmileAudio.h" />
     <ClInclude Include="SmileInput.h" />
     <ClInclude Include="SmileScene.h" />
     <ClInclude Include="SmileWindow.h" />
-    <ClInclude Include="p2DynArray.h" />
-    <ClInclude Include="p2Point.h" />
     <ClInclude Include="SmileGui.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>

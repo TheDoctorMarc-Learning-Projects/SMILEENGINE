@@ -1,6 +1,5 @@
 #pragma once
 #include "SmileModule.h"
-#include "p2DynArray.h"
 #include "SmileSetup.h"
 #include "Primitive.h"
 

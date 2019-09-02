@@ -19,30 +19,28 @@ SmileApp::SmileApp()
 	// They will CleanUp() in reverse order
 
 	// Main SmileModules
-	AddSmileModule(window);
-	AddSmileModule(input);
-	AddSmileModule(audio);
-	AddSmileModule(physics);
+	AddModule(window);
+	AddModule(input);
+	AddModule(audio);
+	AddModule(physics);
 	
 	// Scenes
-	AddSmileModule(scene_intro);
-	AddSmileModule(player);
-	AddSmileModule(camera);
-	AddSmileModule(gui); 
+	AddModule(scene_intro);
+	AddModule(player);
+	AddModule(camera);
+	AddModule(gui); 
 
 	// Renderer last!
-	AddSmileModule(renderer3D);
+	AddModule(renderer3D);
 }
 
 SmileApp::~SmileApp()
 {
-	p2List_item<SmileModule*>* item = list_SmileModules.end;
-
-	while(item != NULL)
-	{
-		delete item->data;
-		item = item->prev;
-	}
+	for (auto& item : list_Modules)
+		if (item != NULL)
+			delete item; 
+	list_Modules.clear(); 
+	
 }
 
 bool SmileApp::Init()
@@ -50,24 +48,24 @@ bool SmileApp::Init()
 	bool ret = true;
 
 	// Call Init() in all SmileModules
-	p2List_item<SmileModule*>* item = list_SmileModules.start;
+	auto item = list_Modules.begin();
 
-	while(item != NULL && ret == true)
+	while (item != list_Modules.end() && ret == true)
 	{
-		ret = item->data->Init();
-		item = item->next;
+		ret = (*item)->Init();
+		++item; 
 	}
 
 	// After all Init calls we call Start() in all SmileModules
 	LOG("SmileApp Start --------------");
-	item = list_SmileModules.start;
+    item = list_Modules.begin();
 
-	while(item != NULL && ret == true)
+	while (item != list_Modules.end() && ret == true)
 	{
-		ret = item->data->Start();
-		item = item->next;
+		ret = (*item)->Start();
+		++item;
 	}
-	
+
 	ms_timer.Start();
 	return ret;
 }
@@ -90,28 +88,25 @@ update_status SmileApp::Update()
 	update_status ret = UPDATE_CONTINUE;
 	PrepareUpdate();
 	
-	p2List_item<SmileModule*>* item = list_SmileModules.start;
-	
-	while(item != NULL && ret == UPDATE_CONTINUE)
+	auto item = list_Modules.begin();
+	while (item != list_Modules.end() && ret == UPDATE_CONTINUE)
 	{
-		ret = item->data->PreUpdate(dt);
-		item = item->next;
+		ret = (*item)->PreUpdate(dt);
+		++item;
 	}
 
-	item = list_SmileModules.start;
-
-	while(item != NULL && ret == UPDATE_CONTINUE)
+	item = list_Modules.begin();
+	while (item != list_Modules.end() && ret == UPDATE_CONTINUE)
 	{
-		ret = item->data->Update(dt);
-		item = item->next;
+		ret = (*item)->Update(dt);
+		++item;
 	}
 
-	item = list_SmileModules.start;
-
-	while(item != NULL && ret == UPDATE_CONTINUE)
+	item = list_Modules.begin();
+	while (item != list_Modules.end() && ret == UPDATE_CONTINUE)
 	{
-		ret = item->data->PostUpdate(dt);
-		item = item->next;
+		ret = (*item)->PostUpdate(dt);
+		++item;
 	}
 
 	FinishUpdate();
@@ -121,17 +116,18 @@ update_status SmileApp::Update()
 bool SmileApp::CleanUp()
 {
 	bool ret = true;
-	p2List_item<SmileModule*>* item = list_SmileModules.end;
 
-	while(item != NULL && ret == true)
+	auto item = list_Modules.begin();
+	while (item != list_Modules.end() && ret == true)
 	{
-		ret = item->data->CleanUp();
-		item = item->prev;
+		ret = (*item)->CleanUp();
+		++item;
 	}
+
 	return ret;
 }
 
-void SmileApp::AddSmileModule(SmileModule* mod)
+void SmileApp::AddModule(SmileModule* mod)
 {
-	list_SmileModules.add(mod);
+	list_Modules.push_back(mod);
 }

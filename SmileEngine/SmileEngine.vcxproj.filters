@@ -21,23 +21,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="p2DynArray.h">
-      <Filter>Source\Containers</Filter>
-    </ClInclude>
-    <ClInclude Include="p2List.h">
-      <Filter>Source\Containers</Filter>
-    </ClInclude>
-    <ClInclude Include="p2Point.h">
-      <Filter>Source\Containers</Filter>
-    </ClInclude>
     <ClInclude Include="glmath.h">
       <Filter>Source\Containers</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Source\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="p2Defs.h">
-      <Filter>Source\Containers</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Source\Tools</Filter>
