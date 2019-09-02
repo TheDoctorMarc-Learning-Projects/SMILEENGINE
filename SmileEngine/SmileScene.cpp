@@ -2,7 +2,6 @@
 #include "SmileApp.h"
 #include "SmilePhysics3D.h"
 #include "Primitive.h"
-#include "PhysBody3D.h"
 #include <math.h>
 #include <gl/GL.h>
 #include <gl/GLU.h>

@@ -111,7 +111,7 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(App->camera->GetViewMatrix());
+//	glLoadMatrixf(App->camera->GetViewMatrix());
 
 	return UPDATE_CONTINUE;
 }
@@ -141,8 +141,8 @@ void SmileRenderer3D::OnResize(int width, int height)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	ProjectionMatrix = perspective(60.0f, (float)width / (float)height, 0.125f, 512.0f);
-	glLoadMatrixf(&ProjectionMatrix);
+	/*ProjectionMatrix = perspective(60.0f, (float)width / (float)height, 0.125f, 512.0f);
+	glLoadMatrixf(&ProjectionMatrix);*/
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
