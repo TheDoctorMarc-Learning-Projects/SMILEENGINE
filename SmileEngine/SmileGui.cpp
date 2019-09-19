@@ -65,11 +65,10 @@ update_status SmileGui::PreUpdate(float dt)
 bool SmileGui::GenerateGUI()
 {
 	bool ret = true; 
+	static bool show_demo_window = false;
 
-	bool show_demo_window = true; 
-	if (show_demo_window)
-		ImGui::ShowDemoWindow(&show_demo_window);
-
+	 if(show_demo_window == true)
+		 ImGui::ShowDemoWindow(&show_demo_window);
 	{
 		ImGui::Begin("Exit Window"); 
 	
@@ -78,11 +77,23 @@ bool SmileGui::GenerateGUI()
 
 			if (ImGui::MenuItem("Exit"))
 				ret = false;
+	
+			ImGui::EndMenu();
+		}
+		ImGui::End();
+
+		ImGui::Begin("Default GUI Window");
+		if (ImGui::BeginMenu("Default GUI Menu"))
+		{
+
+			if (ImGui::MenuItem("Demo Window"))
+				show_demo_window = true;
 
 			ImGui::EndMenu();
 		}
-				
+
 		ImGui::End();
+		
 	}
  
 	return ret; 
