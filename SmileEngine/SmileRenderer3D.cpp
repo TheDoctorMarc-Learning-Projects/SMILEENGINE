@@ -120,6 +120,7 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 update_status SmileRenderer3D::PostUpdate(float dt)
 {
 	App->gui->HandleRender(); 
+
 	SDL_GL_SwapWindow(App->window->window);
 	return UPDATE_CONTINUE;
 }

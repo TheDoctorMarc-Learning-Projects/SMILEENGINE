@@ -66,9 +66,6 @@
     <ClInclude Include="SmileRenderer3D.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="SmilePhysics3D.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="SmileInput.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
@@ -132,9 +129,6 @@
       <Filter>Source\Modules</Filter>
     </ClCompile>
     <ClCompile Include="SmileRenderer3D.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="SmilePhysics3D.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
     <ClCompile Include="SmileInput.cpp">

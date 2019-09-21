@@ -1,11 +1,10 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
-#include "SmilePhysics3D.h"
-#include "Primitive.h"
 #include <math.h>
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
+ 
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -35,6 +34,10 @@ bool SmileScene::CleanUp()
 update_status SmileScene::Update(float dt)
 {
 
+	// grid ground
+	Plane p(0, 1, 0, 0);
+	p.axis = true;
+	p.Render();
 
 	return UPDATE_CONTINUE;
 }

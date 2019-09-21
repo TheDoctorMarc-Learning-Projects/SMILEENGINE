@@ -96,7 +96,6 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="SmileCamera3D.h" />
-    <ClInclude Include="SmilePhysics3D.h" />
     <ClInclude Include="SmilePlayer.h" />
     <ClInclude Include="SmileRenderer3D.h" />
     <ClInclude Include="SmileModule.h" />
@@ -122,7 +121,6 @@
     <ClCompile Include="SmileAudio.cpp" />
     <ClCompile Include="SmileCamera3D.cpp" />
     <ClCompile Include="SmileInput.cpp" />
-    <ClCompile Include="SmilePhysics3D.cpp" />
     <ClCompile Include="SmilePlayer.cpp" />
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileScene.cpp" />
