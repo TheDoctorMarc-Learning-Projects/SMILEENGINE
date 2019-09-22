@@ -1,9 +1,7 @@
 #pragma once
 #include "SmileModule.h"
 #include "SmileSetup.h"
-#include "Light.h"
 
-#define MAX_LIGHTS 8
 
 class SmileRenderer3D : public SmileModule
 {

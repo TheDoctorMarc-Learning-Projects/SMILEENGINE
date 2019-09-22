@@ -1,10 +1,13 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
+#include "SmileScene.h"
 #include <math.h>
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
- 
+#include "MathGeoLib/include/MathGeoLib.h"
+#include "MathGeoLib/include/Geometry/Sphere.h"
+
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -16,8 +19,6 @@ SmileScene::~SmileScene()
 // Load assets
 bool SmileScene::Start()
 { 
-	bool my_tool_active = true; 
-	float color[4] = { 255.f, 255.f, 255.f, 255.f }; 
 
 	return true;
 }
@@ -33,11 +34,14 @@ bool SmileScene::CleanUp()
 // Update
 update_status SmileScene::Update(float dt)
 {
+    
+	math::Sphere a = math::Sphere(math::float3(0.F, 0.F, 0.F), 1);
+	math::Sphere b = math::Sphere(math::float3(0.F, 0.F, 0.F), 2);
 
-	// grid ground
-	Plane p(0, 1, 0, 0);
-	p.axis = true;
-	p.Render();
+	if (a.Intersects(b) == true) 
+		int a = 0; 
 
+
+ 
 	return UPDATE_CONTINUE;
 }

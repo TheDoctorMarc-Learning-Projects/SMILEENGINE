@@ -1,7 +1,8 @@
 #pragma once
 #include "SmileModule.h"
 #include "SmileSetup.h"
-#include "Primitive.h"
+
+
 
 class SmileScene : public SmileModule
 {
@@ -13,6 +14,4 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
-public:
-	
 };

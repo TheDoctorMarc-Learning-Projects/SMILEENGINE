@@ -21,9 +21,6 @@
     <ClInclude Include="Timer.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
@@ -90,9 +87,6 @@
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
-      <Filter>Source\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">

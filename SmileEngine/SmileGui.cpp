@@ -78,6 +78,7 @@ bool SmileGui::GenerateGUI()
 			if (ImGui::MenuItem("Exit"))
 				ret = false;
 	
+		 
 			ImGui::EndMenu();
 		}
 		ImGui::End();
