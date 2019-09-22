@@ -53,14 +53,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\MathGeoLib\include\Geometry;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\MathGeoLib\include;C:\Users\ericn\Documents\GitHub\SMILEENGINE\SmileEngine\MathGeoLib\include;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL_mixer\include;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>C:\Users\ericn\Documents\GitHub\SMILEENGINE\SmileEngine\MathGeoLib\libx86;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL_mixer\libx86;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL\libx86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL_mixer\libx86;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL\libx86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -6,8 +6,12 @@
 #include <gl/GLU.h>
 
 #include "MathGeoLib/include/MathGeoLib.h"
-#include "MathGeoLib/include/Geometry/Sphere.h"
 
+#ifdef NDEBUG //no debug
+#pragma comment (lib, "MathGeoLib/libx86/Release/MathGeoLib.lib") 
+#else
+#pragma comment (lib, "MathGeoLib/libx86/Debug/MathGeoLib.lib") 
+#endif
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
