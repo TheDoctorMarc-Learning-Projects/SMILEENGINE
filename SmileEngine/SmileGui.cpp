@@ -9,8 +9,6 @@
 
 #include <gl/GL.h>
 
-#include <random>
-#include "pcg/include/pcg_random.hpp"
 
 
 SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -25,7 +23,6 @@ SmileGui::~SmileGui()
 bool SmileGui::Start()
 {
 	bool ret = true; 
-
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();

@@ -19,6 +19,9 @@
     <Filter Include="Source\Tools\pcg">
       <UniqueIdentifier>{81d7a536-6244-460d-8bf8-932eac7d99c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\Test">
+      <UniqueIdentifier>{82d48ee8-4d0e-467f-8cbc-48ed50dd392e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -93,6 +96,9 @@
     <ClInclude Include="pcg\include\pcg_uint128.hpp">
       <Filter>Source\Tools\pcg</Filter>
     </ClInclude>
+    <ClInclude Include="SmileTestModule.h">
+      <Filter>Source\Modules\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="log.cpp">
@@ -151,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="SmilePlayer.cpp">
       <Filter>Source\Modules\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileTestModule.cpp">
+      <Filter>Source\Modules\Test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
