@@ -84,6 +84,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="pcg\include\pcg_extras.hpp" />
+    <ClInclude Include="pcg\include\pcg_random.hpp" />
+    <ClInclude Include="pcg\include\pcg_uint128.hpp" />
     <ClInclude Include="SmileApp.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="SmileSetup.h" />

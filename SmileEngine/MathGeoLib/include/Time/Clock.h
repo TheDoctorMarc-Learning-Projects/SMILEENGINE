@@ -57,7 +57,7 @@ public:
 	static int Hour();
 
 	/// @return The current clock minute, [0,59]
-	static int Min();
+	//static int Min();
 
 	/// @return The current clock second, [0,59]
 	static int Sec();

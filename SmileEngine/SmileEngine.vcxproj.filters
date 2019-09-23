@@ -16,6 +16,9 @@
     <Filter Include="Source\Tools\GUI">
       <UniqueIdentifier>{54189451-1982-439a-9ecd-59d08fd8d29c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Tools\pcg">
+      <UniqueIdentifier>{81d7a536-6244-460d-8bf8-932eac7d99c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -80,6 +83,15 @@
     </ClInclude>
     <ClInclude Include="SmilePlayer.h">
       <Filter>Source\Modules\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="pcg\include\pcg_extras.hpp">
+      <Filter>Source\Tools\pcg</Filter>
+    </ClInclude>
+    <ClInclude Include="pcg\include\pcg_random.hpp">
+      <Filter>Source\Tools\pcg</Filter>
+    </ClInclude>
+    <ClInclude Include="pcg\include\pcg_uint128.hpp">
+      <Filter>Source\Tools\pcg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@
 #pragma comment (lib, "MathGeoLib/libx86/Debug/MathGeoLib.lib") 
 #endif
 
+
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
@@ -42,8 +43,8 @@ update_status SmileScene::Update(float dt)
 	math::Sphere a = math::Sphere(math::float3(0.F, 0.F, 0.F), 1);
 	math::Sphere b = math::Sphere(math::float3(0.F, 0.F, 0.F), 2);
 
-	if (a.Intersects(b) == true) 
-		int a = 0; 
+	if (a.Intersects(b) == true)
+		LOG("An intersection between two physical objects has been detected!!"); 
 
 
  
