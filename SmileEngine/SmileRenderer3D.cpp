@@ -2,17 +2,20 @@
 #include "SmileApp.h"
 #include "SmileRenderer3D.h"
 #include "SmileGui.h"
+
+#include "Glew/include/GL/glew.h"
 #include "SDL\include\SDL_opengl.h"
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
+#pragma comment (lib, "Glew/lib/glew32.lib")    /* link OpenGL Utility lib     */
 #pragma comment (lib, "glu32.lib")    /* link OpenGL Utility lib     */
 #pragma comment (lib, "opengl32.lib") /* link Microsoft OpenGL lib   */
 
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
-#include "imgui/imgui_impl_opengl2.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 
 SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -37,7 +40,7 @@ bool SmileRenderer3D::Init()
 		LOG("OpenGL context could not be created! SDL_Error: %s\n", SDL_GetError());
 		ret = false;
 	}
-
+	glewInit();
 	
 	if(ret == true)
 	{
