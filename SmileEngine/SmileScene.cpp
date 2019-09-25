@@ -8,9 +8,9 @@
 #include "MathGeoLib/include/MathGeoLib.h"
 
 #ifdef NDEBUG //no debug
-#pragma comment (lib, "MathGeoLib/libx_86/Release/MathGeoLib.lib") 
+#pragma comment (lib, "MathGeoLib/libx86/ReleaseLib/MathGeoLib.lib") 
 #else
-#pragma comment (lib, "MathGeoLib/libx_86/Debug/MathGeoLib.lib") 
+#pragma comment (lib, "MathGeoLib/libx86/DebugLib/MathGeoLib.lib") 
 #endif
 
 
