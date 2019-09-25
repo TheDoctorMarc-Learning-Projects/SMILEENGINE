@@ -55,6 +55,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <AdditionalIncludeDirectories>C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\MathGeoLib\include\Geometry;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\MathGeoLib\include;C:\Users\ericn\Documents\GitHub\SMILEENGINE\SmileEngine\MathGeoLib\include;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL_mixer\include;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
