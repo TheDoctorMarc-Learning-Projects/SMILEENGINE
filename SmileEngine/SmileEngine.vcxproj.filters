@@ -7,9 +7,6 @@
     <Filter Include="Source\Modules">
       <UniqueIdentifier>{7b418be2-1631-4a31-9ef2-8a8b234a7339}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Game">
-      <UniqueIdentifier>{83f46af7-e02f-40c0-9e56-41d76082527b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Tools">
       <UniqueIdentifier>{7e4dfaf7-022c-4f7d-92aa-f3b3fa9d6248}</UniqueIdentifier>
     </Filter>
@@ -22,6 +19,9 @@
     <Filter Include="Source\Modules\Test">
       <UniqueIdentifier>{82d48ee8-4d0e-467f-8cbc-48ed50dd392e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\GameLogic">
+      <UniqueIdentifier>{83f46af7-e02f-40c0-9e56-41d76082527b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -31,9 +31,6 @@
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imgui.h">
-      <Filter>Source\Tools\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_opengl2.h">
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imgui_impl_sdl.h">
@@ -82,10 +79,10 @@
       <Filter>Source\Modules</Filter>
     </ClInclude>
     <ClInclude Include="SmileScene.h">
-      <Filter>Source\Modules\Game</Filter>
+      <Filter>Source\Modules\GameLogic</Filter>
     </ClInclude>
     <ClInclude Include="SmilePlayer.h">
-      <Filter>Source\Modules\Game</Filter>
+      <Filter>Source\Modules\GameLogic</Filter>
     </ClInclude>
     <ClInclude Include="pcg\include\pcg_extras.hpp">
       <Filter>Source\Tools\pcg</Filter>
@@ -98,6 +95,9 @@
     </ClInclude>
     <ClInclude Include="SmileTestModule.h">
       <Filter>Source\Modules\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_opengl3.h">
+      <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -114,9 +114,6 @@
       <Filter>Source\Tools\GUI</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_draw.cpp">
-      <Filter>Source\Tools\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_opengl2.cpp">
       <Filter>Source\Tools\GUI</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_impl_sdl.cpp">
@@ -153,13 +150,16 @@
       <Filter>Source\Modules</Filter>
     </ClCompile>
     <ClCompile Include="SmileScene.cpp">
-      <Filter>Source\Modules\Game</Filter>
+      <Filter>Source\Modules\GameLogic</Filter>
     </ClCompile>
     <ClCompile Include="SmilePlayer.cpp">
-      <Filter>Source\Modules\Game</Filter>
+      <Filter>Source\Modules\GameLogic</Filter>
     </ClCompile>
     <ClCompile Include="SmileTestModule.cpp">
       <Filter>Source\Modules\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source\Tools\GUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
