@@ -93,11 +93,11 @@
     <ClInclude Include="pcg\include\pcg_uint128.hpp">
       <Filter>Source\Tools\pcg</Filter>
     </ClInclude>
-    <ClInclude Include="SmileTestModule.h">
-      <Filter>Source\Modules\Test</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imgui_impl_opengl3.h">
       <Filter>Source\Tools\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileUtilitiesModule.h">
+      <Filter>Source\Modules\Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -155,11 +155,11 @@
     <ClCompile Include="SmilePlayer.cpp">
       <Filter>Source\Modules\GameLogic</Filter>
     </ClCompile>
-    <ClCompile Include="SmileTestModule.cpp">
-      <Filter>Source\Modules\Test</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
       <Filter>Source\Tools\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileUtilitiesModule.cpp">
+      <Filter>Source\Modules\Test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

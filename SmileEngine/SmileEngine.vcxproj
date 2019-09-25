@@ -106,7 +106,7 @@
     <ClInclude Include="SmileAudio.h" />
     <ClInclude Include="SmileInput.h" />
     <ClInclude Include="SmileScene.h" />
-    <ClInclude Include="SmileTestModule.h" />
+    <ClInclude Include="SmileUtilitiesModule.h" />
     <ClInclude Include="SmileWindow.h" />
     <ClInclude Include="SmileGui.h" />
     <ClInclude Include="Timer.h" />
@@ -128,7 +128,7 @@
     <ClCompile Include="SmilePlayer.cpp" />
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileScene.cpp" />
-    <ClCompile Include="SmileTestModule.cpp" />
+    <ClCompile Include="SmileUtilitiesModule.cpp" />
     <ClCompile Include="SmileWindow.cpp" />
     <ClCompile Include="SmileGui.cpp" />
     <ClCompile Include="Timer.cpp" />
