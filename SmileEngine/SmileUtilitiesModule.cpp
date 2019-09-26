@@ -3,7 +3,6 @@
 #include "SmileUtilitiesModule.h"
 
 #include <random>
-#include <typeinfo>
 
 
 SmileUtilitiesModule::SmileUtilitiesModule(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -75,7 +74,7 @@ std::variant<int, float> SmileUtilitiesModule::GetRandomValue(std::variant<int, 
 	std::variant<int, float> number;
 	std::variant<int, float> test = 1;
  
-	if (start.index() == test.index())
+	if (start.index() == test.index())  // the index of a variant value translates to a type (int, float, etc) 
 	{
 		std::uniform_int_distribution <int> uniform_dist(std::get<int>(start), std::get<int>(end));
 		number = uniform_dist(rng);
