@@ -32,5 +32,8 @@ int main() {
     // {"hello":"world","t":true,"f":false,"n":null,"i":123,"pi":3.1416,"a":[0,1,2,3]}
     cout << s.GetString() << endl;
 
+	std::ofstream  dst("/home/alexander/MyCompany/MyGame/Resources/res/temporal.json");
+
+
     return 0;
 }

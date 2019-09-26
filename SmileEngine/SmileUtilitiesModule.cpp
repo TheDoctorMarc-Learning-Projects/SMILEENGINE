@@ -4,9 +4,12 @@
 
 #include <random>
 
-#include "rapidjson/include/rapidjson/document.h"
+#include "rapidjson/include/rapidjson/document.h"   
 #include "rapidjson/include/rapidjson/writer.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
+
+//#include <iostream>
+#include <fstream>
 
 SmileUtilitiesModule::SmileUtilitiesModule(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -28,24 +31,38 @@ bool SmileUtilitiesModule::Start()
 
 
 	// JSON
+	rapidjson::StringBuffer s;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
-	// 1. Parse a JSON string into DOM.
-	const char* json = "{\"project\":\"rapidjson\",\"stars\":10}";
-	rapidjson::Document d;
-	d.Parse(json);
+	writer.StartObject();               // Between StartObject()/EndObject(), 
+	writer.Key("hello");                // output a key,
+	writer.String("world");             // follow by a value.
+	writer.Key("t");
+	writer.Bool(true);
+	writer.Key("f");
+	writer.Bool(false);
+	writer.Key("n");
+	writer.Null();
+	writer.Key("i");
+	writer.Uint(123);
+	writer.Key("pi");
+	writer.Double(3.1416);
+	writer.Key("a");
+	writer.StartArray();                // Between StartArray()/EndArray(),
+	for (unsigned i = 0; i < 4; i++)
+		writer.Uint(i);                 // all values are elements of the array.
+	writer.EndArray();
+	writer.EndObject();
 
-	
-	// 2. Modify it by DOM.
-	rapidjson::Value& s = d["stars"];
-	s.SetInt(s.GetInt() + 1);
+	// {"hello":"world","t":true,"f":false,"n":null,"i":123,"pi":3.1416,"a":[0,1,2,3]}
+	LOG("Generated JSON file string ----------> %s", s.GetString()); 
 
-	// 3. Stringify the DOM
-	rapidjson::StringBuffer buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-	d.Accept(writer);
+	std::ofstream ofs("./test.json", std::ofstream::out);
+	ofs << s.GetString();
+	ofs.close();
 
-	// Output {"project":"rapidjson","stars":11}
-	LOG("Parsed string: %s", buffer.GetString()); 
+
+
 
 	return true;
 }
