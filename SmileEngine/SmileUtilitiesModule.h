@@ -5,6 +5,8 @@
 
 #include "pcg/include/pcg_random.hpp"
 
+#include "rapidjson/include/rapidjson/document.h"
+
 class SmileUtilitiesModule : public SmileModule
 {
 public:
@@ -17,11 +19,14 @@ public:
 	update_status PostUpdate(float dt);
 	bool CleanUp();
 
-
-
-	// random 
+	// random, PCG
 	std::variant<int, float> GetRandomValue(std::variant<int, float> start = 0,
 		std::variant<int, float> end = INT_MAX);
+
+	// JSON 
+	rapidjson::Document ReadJSONFile(const char* path);
+	std::string ConvertJSONToChar(rapidjson::Document d);
+
 private:
 
 	pcg32 rng; 

@@ -3,14 +3,16 @@
 #include "SmileUtilitiesModule.h"
 
 #include <random>
-
-#include "rapidjson/include/rapidjson/document.h"   
+ 
 #include "rapidjson/include/rapidjson/writer.h"
+#include "rapidjson/include/rapidjson/reader.h"
+#include "rapidjson/include/rapidjson/istreamwrapper.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
 
 //#include <iostream>
 #include <fstream>
 
+ 
 SmileUtilitiesModule::SmileUtilitiesModule(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
@@ -76,6 +78,7 @@ bool SmileUtilitiesModule::CleanUp()
 // -----------------------------------------------------------------
 update_status SmileUtilitiesModule::PreUpdate(float dt)
 {
+	// dirty random tests
 	if (App->input->GetKey(SDL_SCANCODE_R) == KEY_DOWN)
 		LOG("Random value ----------> %f", std::get<float>(GetRandomValue(0.F, 500.F)));
 
@@ -84,6 +87,11 @@ update_status SmileUtilitiesModule::PreUpdate(float dt)
 
 	if (App->input->GetKey(SDL_SCANCODE_Y) == KEY_DOWN)
 		LOG("Random value ----------> %f", std::get<float>(GetRandomValue(0, 500.F)));
+
+	// dirty JSON tests
+	if (App->input->GetKey(SDL_SCANCODE_O) == KEY_DOWN)
+		LOG("JSON file string ----------> %s", ConvertJSONToChar(ReadJSONFile("./test.json")));
+		
 
 	return UPDATE_CONTINUE;
 }
@@ -103,6 +111,7 @@ update_status SmileUtilitiesModule::PostUpdate(float dt)
 }
 
 
+// ----------------------------------------------------------------- [Get a random int or float number]  
 
 std::variant<int, float> SmileUtilitiesModule::GetRandomValue(std::variant<int, float> start,
 	std::variant<int, float> end)
@@ -128,3 +137,28 @@ std::variant<int, float> SmileUtilitiesModule::GetRandomValue(std::variant<int, 
 	return number; 
 }
 
+// ----------------------------------------------------------------- [Open and return a JSON file]  
+
+
+rapidjson::Document SmileUtilitiesModule::ReadJSONFile(const char* path)
+{
+	// read the path and convert it to JSON Document
+	std::ifstream ifs(path);
+	rapidjson::IStreamWrapper isw(ifs);
+	rapidjson::Document d;
+	d.ParseStream(isw);
+
+	return d; 
+}
+
+
+std::string SmileUtilitiesModule::ConvertJSONToChar(rapidjson::Document d)
+{
+	// Stringify the DOM
+	rapidjson::StringBuffer buffer;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+	d.Accept(writer);
+
+	return std::string(buffer.GetString());
+}
+ 
