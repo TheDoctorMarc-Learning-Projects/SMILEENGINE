@@ -1,7 +1,7 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "SmileGui.h"
-
+#include "SmileApp.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
@@ -68,33 +68,63 @@ bool SmileGui::GenerateGUI()
 {
 	bool ret = true; 
 	static bool show_demo_window = false;
+	bool windowcheckbox = false;
 
-	 if(show_demo_window == true)
-		 ImGui::ShowDemoWindow(&show_demo_window);
-	{
-		ImGui::Begin("Exit Window"); 
-	
-		if (ImGui::BeginMenu("Exit Menu"))
+	 
+
+		if (ImGui::BeginMainMenuBar())
 		{
-
-			if (ImGui::MenuItem("Exit"))
-				ret = false;
-	
-		 
-			ImGui::EndMenu();
-		}
-		ImGui::End();
-
-		ImGui::Begin("Default GUI Window");
-		if (ImGui::BeginMenu("Default GUI Menu"))
-		{
-
-			if (ImGui::MenuItem("Demo Window"))
-				show_demo_window = true;
-
-			ImGui::EndMenu();
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Quit"))
+					ret = false;
+				ImGui::EndMenu();
+			}
+			
+			ImGui::EndMainMenuBar();
 		}
 
+		if (ImGui::Begin("Configuration")) {
+			ImGuiIO& io = ImGui::GetIO();
+			if (ImGui::BeginMenu("Options")) {
+				ImGui::MenuItem("Set Defaults");
+
+					ImGui::MenuItem("Load");
+
+					ImGui::MenuItem("Load");
+
+					ImGui::EndMenu();
+			}
+			if (ImGui::CollapsingHeader("Application")) {
+				static char str0[128] = "Smile Engine";
+				ImGui::InputText("App Name", str0, IM_ARRAYSIZE(str0));
+				static char str1[128] = "UPC CITM";
+				ImGui::InputText("Organitzation", str1, IM_ARRAYSIZE(str1));
+				static int i1 = 0;
+				ImGui::SliderInt("Max FPS", &i1, 0, 120);
+				ImGui::Text("Limit Framerate: %i", i1);
+				
+				char title[25];
+				sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
+				ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+				sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
+				ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));			
+				
+			}
+			if (ImGui::CollapsingHeader("Window")) {
+				ImGui::Checkbox("Active", &windowcheckbox);
+			}
+			if (ImGui::CollapsingHeader("File System")) {
+				
+			}
+			if (ImGui::CollapsingHeader("Input")) {
+				
+			}
+			if (ImGui::CollapsingHeader("Hardware")) {
+				
+			}
+		
+		
 		ImGui::End();
 		
 	}

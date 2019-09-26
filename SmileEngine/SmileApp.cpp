@@ -76,6 +76,19 @@ void SmileApp::PrepareUpdate()
 {
 	dt = (float)ms_timer.Read() / 1000.0f;
 	ms_timer.Start();
+
+	////FPS_LOG
+	fps_log.push_back(1 / dt);
+	if (fps_log.size() > 100)
+	{
+		fps_log.erase(fps_log.begin());
+	}
+	////MS_LOG
+	ms_log.push_back(dt * 1000);
+	if (ms_log.size() > 100)
+	{
+		ms_log.erase(ms_log.begin());
+	}
 }
 
 // ---------------------------------------------

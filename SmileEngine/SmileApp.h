@@ -2,6 +2,7 @@
 
 #include "SmileSetup.h"
 #include "Timer.h"
+#include <vector>
 #include "SmileModule.h"
 #include "SmileWindow.h"
 #include "SmileInput.h"
@@ -31,11 +32,14 @@ public:
 private:
 
 	Timer	ms_timer;
+	
 	float	dt;
 	std::list<SmileModule*> list_Modules;
 
 public:
-
+	std::vector<float> fps_log;
+	std::vector<float> ms_log;
+	
 	SmileApp();
 	~SmileApp();
 
