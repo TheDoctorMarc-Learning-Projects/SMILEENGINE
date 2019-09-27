@@ -31,13 +31,13 @@ public:
 		std::variant<int, float> end = INT_MAX);
 
 	// JSON 
-	rapidjson::Document& ReturnJSONFile(const char* path);
-	std::string ConvertJSONToChar(rapidjson::Document& d);
+	const rapidjson::Document& ReturnJSONFile(const char* path);
+	std::string ConvertJSONToChar(const  rapidjson::Document& d);
 
 	void FillFunctionsMap(); 
 
 private: 
-	void SetGameConfigParameters(rapidjson::Document& d);
+	void SetGameConfigParameters(const rapidjson::Document& d);
 
 private:
 	pcg32 rng; 

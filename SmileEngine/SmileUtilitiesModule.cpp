@@ -7,8 +7,10 @@
  
 #include "rapidjson/include/rapidjson/writer.h"
 #include "rapidjson/include/rapidjson/reader.h"
-#include "rapidjson/include/rapidjson/istreamwrapper.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
+
+
+#include "rapidjson/include/rapidjson/filereadstream.h"
 
 //#include <iostream>
 #include <fstream>
@@ -35,8 +37,15 @@ bool SmileUtilitiesModule::Start()
 	// Make a random number engine 
 	rng.seed(seed_source); 
 
-	SetGameConfigParameters(ReturnJSONFile("./config.json")); 
+	
 	// JSON
+	/*const rapidjson::Document& doc = ReturnJSONFile("Game/config.json");
+
+	for (auto& obj : doc.GetObject())
+		configFunctionsMap[obj.name.GetString()](obj.value.GetType());
+
+	//SetGameConfigParameters(doc);*/
+
 	/*rapidjson::StringBuffer s;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
@@ -94,7 +103,7 @@ update_status SmileUtilitiesModule::PreUpdate(float dt)
 
 	// dirty JSON tests
 	if (App->input->GetKey(SDL_SCANCODE_O) == KEY_DOWN)
-		LOG("JSON file string ----------> %s", ConvertJSONToChar(ReturnJSONFile("./config.json")));
+		LOG("JSON file string ----------> %s", ConvertJSONToChar(ReturnJSONFile("Game/config.json")));
 		
 
 	return UPDATE_CONTINUE;
@@ -142,21 +151,20 @@ std::variant<int, float> SmileUtilitiesModule::GetRandomValue(std::variant<int, 
 }
 
 // ----------------------------------------------------------------- [Open and return a JSON file]  
-
-
-rapidjson::Document& SmileUtilitiesModule::ReturnJSONFile(const char* path)
+const rapidjson::Document& SmileUtilitiesModule::ReturnJSONFile(const char* path)
 {
 	// read the path and convert it to JSON Document
-	std::ifstream ifs(path);
-	rapidjson::IStreamWrapper isw(ifs);
+	FILE* pFile = fopen(path, "rb");
+	char buffer[65536];
+	rapidjson::FileReadStream is(pFile, buffer, sizeof(buffer));
 	rapidjson::Document d;
-	d.ParseStream(isw);
+	d.ParseStream<0, rapidjson::UTF8<>, rapidjson::FileReadStream>(is);
 
 	return d; 
 }
 
 // ----------------------------------------------------------------- [Convert the JSON file to a string]  
-std::string SmileUtilitiesModule::ConvertJSONToChar(rapidjson::Document& d)
+std::string SmileUtilitiesModule::ConvertJSONToChar(const rapidjson::Document& d)
 {
 	// Stringify the DOM
 	rapidjson::StringBuffer buffer;
@@ -167,7 +175,7 @@ std::string SmileUtilitiesModule::ConvertJSONToChar(rapidjson::Document& d)
 }
  
 // ----------------------------------------------------------------- [Test to use JSON genericaly to call various config functions] 
-void SmileUtilitiesModule::SetGameConfigParameters(rapidjson::Document& d)
+void SmileUtilitiesModule::SetGameConfigParameters(const rapidjson::Document& d)
 {
 
 	for (auto& obj : d.GetObject())
