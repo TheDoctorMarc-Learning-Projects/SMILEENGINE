@@ -56,3 +56,5 @@ private:
 	void FinishUpdate();
 };
 
+extern SmileApp *App;
+

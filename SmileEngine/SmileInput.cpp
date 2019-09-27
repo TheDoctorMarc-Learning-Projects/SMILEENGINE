@@ -2,6 +2,10 @@
 #include "SmileApp.h"
 #include "SmileInput.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #define MAX_KEYS 300
 
 SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -88,6 +92,7 @@ update_status SmileInput::PreUpdate(float dt)
 	SDL_Event e;
 	while(SDL_PollEvent(&e))
 	{
+		ImGui_ImplSDL2_ProcessEvent(&e);
 		switch(e.type)
 		{
 			case SDL_MOUSEWHEEL:

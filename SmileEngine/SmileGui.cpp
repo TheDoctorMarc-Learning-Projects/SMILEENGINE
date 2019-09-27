@@ -2,7 +2,7 @@
 #include "SmileApp.h"
 #include "SmileGui.h"
 #include "SmileApp.h"
-
+#include "SmileWindow.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -98,6 +98,7 @@ bool SmileGui::GenerateGUI()
 			if (ImGui::CollapsingHeader("Application")) {
 				static char str0[128] = "Smile Engine";
 				ImGui::InputText("App Name", str0, IM_ARRAYSIZE(str0));
+				App->window->SetTitle(str0);
 				static char str1[128] = "UPC CITM";
 				ImGui::InputText("Organitzation", str1, IM_ARRAYSIZE(str1));
 				static int i1 = 0;
