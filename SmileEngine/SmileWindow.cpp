@@ -92,3 +92,5 @@ void SmileWindow::SetTitle(const char* title)
 {
 	SDL_SetWindowTitle(window, title);
 }
+
+ 

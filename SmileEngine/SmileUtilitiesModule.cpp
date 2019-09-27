@@ -1,6 +1,7 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "SmileUtilitiesModule.h"
+#include "SmileWindow.h"
 
 #include <random>
  
@@ -15,10 +16,13 @@
  
 SmileUtilitiesModule::SmileUtilitiesModule(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
+	FillFunctionsMap(); 
 }
 
 SmileUtilitiesModule::~SmileUtilitiesModule()
-{}
+{
+	configFunctionsMap.clear(); 
+}
 
 // -----------------------------------------------------------------
 bool SmileUtilitiesModule::Start()
@@ -31,9 +35,9 @@ bool SmileUtilitiesModule::Start()
 	// Make a random number engine 
 	rng.seed(seed_source); 
 
-
+	SetGameConfigParameters(ReturnJSONFile("./config.json")); 
 	// JSON
-	rapidjson::StringBuffer s;
+	/*rapidjson::StringBuffer s;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
 	writer.StartObject();               // Between StartObject()/EndObject(), 
@@ -61,7 +65,7 @@ bool SmileUtilitiesModule::Start()
 
 	std::ofstream ofs("./test.json", std::ofstream::out);
 	ofs << s.GetString();
-	ofs.close();
+	ofs.close();*/
 
 
 
@@ -90,7 +94,7 @@ update_status SmileUtilitiesModule::PreUpdate(float dt)
 
 	// dirty JSON tests
 	if (App->input->GetKey(SDL_SCANCODE_O) == KEY_DOWN)
-		LOG("JSON file string ----------> %s", ConvertJSONToChar(ReadJSONFile("./test.json")));
+		LOG("JSON file string ----------> %s", ConvertJSONToChar(ReturnJSONFile("./config.json")));
 		
 
 	return UPDATE_CONTINUE;
@@ -140,7 +144,7 @@ std::variant<int, float> SmileUtilitiesModule::GetRandomValue(std::variant<int, 
 // ----------------------------------------------------------------- [Open and return a JSON file]  
 
 
-rapidjson::Document SmileUtilitiesModule::ReadJSONFile(const char* path)
+rapidjson::Document& SmileUtilitiesModule::ReturnJSONFile(const char* path)
 {
 	// read the path and convert it to JSON Document
 	std::ifstream ifs(path);
@@ -151,8 +155,8 @@ rapidjson::Document SmileUtilitiesModule::ReadJSONFile(const char* path)
 	return d; 
 }
 
-
-std::string SmileUtilitiesModule::ConvertJSONToChar(rapidjson::Document d)
+// ----------------------------------------------------------------- [Convert the JSON file to a string]  
+std::string SmileUtilitiesModule::ConvertJSONToChar(rapidjson::Document& d)
 {
 	// Stringify the DOM
 	rapidjson::StringBuffer buffer;
@@ -162,3 +166,38 @@ std::string SmileUtilitiesModule::ConvertJSONToChar(rapidjson::Document d)
 	return std::string(buffer.GetString());
 }
  
+// ----------------------------------------------------------------- [Test to use JSON genericaly to call various config functions] 
+void SmileUtilitiesModule::SetGameConfigParameters(rapidjson::Document& d)
+{
+
+	for (auto& obj : d.GetObject())
+		configFunctionsMap[obj.name.GetString()](obj.value.GetType());
+
+	 
+}
+
+// ----------------------------------------------------------------- [Test to use JSON genericaly to call various config functions] 
+
+void SmileUtilitiesModule::FillFunctionsMap()
+{
+
+	configFunctionsMap =
+	{
+		//{"window", &ChangeWindowSize},
+		{"fullscreen", &ChangeWindowFullScreen},
+	}; 
+
+
+}
+
+/*void ChangeWindowSize(std::any value)
+{
+	int[] a = std::any_cast<int[]>(value); 
+
+	App->renderer3D->OnResize(a, b)
+}*/
+
+void ChangeWindowFullScreen(std::any value)
+{
+	App->window->SetWindowFullScreen(std::any_cast<bool>(value)); 
+}

@@ -26,6 +26,12 @@ public:
 
 	//The surface contained by the window
 	SDL_Surface* screen_surface;
+
+	void SetWindowFullScreen(bool fullscreen)
+	{
+		Uint32 flags = (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0; 
+		SDL_SetWindowFullscreen(window, flags); 
+	}
 };
 
 #endif // __SmileWindow_H__

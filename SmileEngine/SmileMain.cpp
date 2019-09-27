@@ -15,13 +15,14 @@ enum main_states
 	MAIN_EXIT
 };
 
+SmileApp* App = NULL;
+
 int main(int argc, char ** argv)
 {
 	LOG("Starting game '%s'...", TITLE);
 
 	int main_return = EXIT_FAILURE;
 	main_states state = MAIN_CREATION;
-	SmileApp* App = NULL;
 
 	while (state != MAIN_EXIT)
 	{
