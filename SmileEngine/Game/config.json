@@ -1,1 +1,5 @@
-{"fullscreen":"true","window":[500,500]}
+{
+  
+  "cursor": false,
+  "window": [ 500, 500 ]
+}

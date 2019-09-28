@@ -1,6 +1,7 @@
 #pragma once
 #include "SmileModule.h"
 #include "SmileSetup.h"
+#include "SDL/include/SDL.h"
 
 #define MAX_MOUSE_BUTTONS 5
 
@@ -56,6 +57,11 @@ public:
 	int GetMouseYMotion() const
 	{
 		return mouse_y_motion;
+	}
+
+public: 
+	void EjectCDROM() {
+
 	}
 
 private:

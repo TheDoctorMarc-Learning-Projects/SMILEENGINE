@@ -9,10 +9,13 @@
 
 #include "rapidjson/include/rapidjson/document.h"
 
+#define JSONFileMaxBufferSize 5000
+
 typedef void (*function) (std::any);
 
-void ChangeWindowSize(std::any); 
-void ChangeWindowFullScreen(std::any); 
+void ShowCursor(std::any);
+void ChangeWindowFullScreen(std::any);
+
 
 class SmileUtilitiesModule : public SmileModule
 {
@@ -31,15 +34,16 @@ public:
 		std::variant<int, float> end = INT_MAX);
 
 	// JSON 
-	const rapidjson::Document& ReturnJSONFile(const char* path);
-	std::string ConvertJSONToChar(const  rapidjson::Document& d);
+	void ReturnJSONFile(const char* path, rapidjson::Document& fill);
 
-	void FillFunctionsMap(); 
+	void FillFunctionsMap();
+
 
 private: 
 	void SetGameConfigParameters(const rapidjson::Document& d);
 
 private:
-	pcg32 rng; 
+	pcg32 rng;
 	std::map<std::string, function> configFunctionsMap;
+
 };
