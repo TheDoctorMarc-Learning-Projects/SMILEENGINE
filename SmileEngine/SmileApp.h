@@ -27,7 +27,7 @@ public:
 	SmileCamera3D* camera;
 	SmilePlayer* player;
 	SmileGui* gui; 
-	SmileUtilitiesModule* test; 
+	SmileUtilitiesModule* utilities;
 
 private:
 

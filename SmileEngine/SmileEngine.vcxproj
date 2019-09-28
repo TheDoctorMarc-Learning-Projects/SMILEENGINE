@@ -86,9 +86,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="JSONParser.h" />
     <ClInclude Include="pcg\include\pcg_extras.hpp" />
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
+    <ClInclude Include="RNG.h" />
     <ClInclude Include="SmileApp.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="SmileSetup.h" />
@@ -110,9 +112,12 @@
     <ClInclude Include="SmileWindow.h" />
     <ClInclude Include="SmileGui.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="JSONParser.cpp" />
+    <ClCompile Include="RNG.cpp" />
     <ClCompile Include="SmileApp.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />

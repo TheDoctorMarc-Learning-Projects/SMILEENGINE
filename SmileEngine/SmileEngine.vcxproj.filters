@@ -16,11 +16,11 @@
     <Filter Include="Source\Tools\pcg">
       <UniqueIdentifier>{81d7a536-6244-460d-8bf8-932eac7d99c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Test">
-      <UniqueIdentifier>{82d48ee8-4d0e-467f-8cbc-48ed50dd392e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\GameLogic">
       <UniqueIdentifier>{83f46af7-e02f-40c0-9e56-41d76082527b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Utilities">
+      <UniqueIdentifier>{82d48ee8-4d0e-467f-8cbc-48ed50dd392e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +97,16 @@
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
     <ClInclude Include="SmileUtilitiesModule.h">
-      <Filter>Source\Modules\Test</Filter>
+      <Filter>Source\Modules\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONParser.h">
+      <Filter>Source\Modules\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Source\Modules\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="RNG.h">
+      <Filter>Source\Modules\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +168,13 @@
       <Filter>Source\Tools\GUI</Filter>
     </ClCompile>
     <ClCompile Include="SmileUtilitiesModule.cpp">
-      <Filter>Source\Modules\Test</Filter>
+      <Filter>Source\Modules\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONParser.cpp">
+      <Filter>Source\Modules\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="RNG.cpp">
+      <Filter>Source\Modules\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ SmileApp::SmileApp()
 	camera = DBG_NEW SmileCamera3D(this);
 	player = DBG_NEW SmilePlayer(this);
 	gui = DBG_NEW SmileGui(this);
-	test = DBG_NEW SmileUtilitiesModule(this); 
+	utilities = DBG_NEW SmileUtilitiesModule(this); 
 
 	// The order of calls is very important!
 	// SmileModules will Init() Start() and Update in this order
@@ -28,8 +28,8 @@ SmileApp::SmileApp()
 	AddModule(camera);
 	AddModule(gui); 
 
-	// Test --> Delete it in builds
-	AddModule(test); 
+	// Test 
+	AddModule(utilities);
 
 	// Renderer last!
 	AddModule(renderer3D);
