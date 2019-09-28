@@ -1,7 +1,7 @@
 #pragma once
 #include "SmileModule.h"
 #include "SmileSetup.h"
-
+#include "glmath.h"
 
 class SmileRenderer3D : public SmileModule
 {
@@ -18,6 +18,7 @@ public:
 
 public:
 	SDL_GLContext context;
- 
+	mat3x3 NormalMatrix;
+	mat4x4 ModelMatrix, ViewMatrix, ProjectionMatrix;
 
 };

@@ -112,6 +112,54 @@ bool SmileGui::GenerateGUI()
 				ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));			
 				
 			}
+			if (ImGui::CollapsingHeader("Rendering")) {
+				static bool depth, cullFace, lightning, ColorMaterial, Texture2D = false; 
+				if (ImGui::Checkbox("Depth", &depth))
+				{
+					if(depth)
+						glEnable(GL_DEPTH_TEST);
+					else
+						glDisable(GL_DEPTH_TEST);
+					
+				}
+					
+				if (ImGui::Checkbox("Cull face", &cullFace))
+				{
+					if (cullFace)
+						glEnable(GL_CULL_FACE);
+					else
+						glDisable(GL_CULL_FACE);
+				}
+				 
+				if (ImGui::Checkbox("Lightning", &lightning))
+				{
+					if (lightning)
+						glEnable(GL_LIGHTING);
+					else
+						glDisable(GL_LIGHTING);
+				}
+				 
+ 
+				if (ImGui::Checkbox("Color material", &ColorMaterial))
+				{
+					if (ColorMaterial)
+						glEnable(GL_COLOR_MATERIAL);
+					else
+						glDisable(GL_COLOR_MATERIAL);
+				}
+			 
+				if (ImGui::Checkbox("Texture 2D", &Texture2D))
+				{
+					if (Texture2D)
+						glEnable(GL_TEXTURE_2D);
+					else
+						glDisable(GL_TEXTURE_2D);
+				}
+		 
+				
+			}
+
+			
 			if (ImGui::CollapsingHeader("Window")) {
 				ImGui::Checkbox("Active", &windowcheckbox);
 			}
@@ -124,7 +172,6 @@ bool SmileGui::GenerateGUI()
 			if (ImGui::CollapsingHeader("Hardware")) {
 				
 			}
-		
 		
 		ImGui::End();
 		
