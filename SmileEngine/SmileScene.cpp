@@ -47,7 +47,6 @@ update_status SmileScene::Update(float dt)
 	if (a.Intersects(b) == true)
 //		LOG("An intersection between two physical objects has been detected!!"); 
 
-
  
 	return UPDATE_CONTINUE;
 }
