@@ -20,6 +20,18 @@ public:
 
 	void SetTitle(const char* title);
 
+public: 
+	void SetWindowSize(int w, int h)
+	{
+		SDL_SetWindowSize(window, w, h);
+	};
+
+	/*void SetWindowFullScreen(bool fullscreen)  // TODO: broken
+    {
+	Uint32 flags = (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
+	SDL_SetWindowFullscreen(window, flags);
+    }*/
+
 public:
 	//The window we'll be rendering to
 	SDL_Window* window;
@@ -27,11 +39,7 @@ public:
 	//The surface contained by the window
 	SDL_Surface* screen_surface;
 
-	/*void SetWindowFullScreen(bool fullscreen)  // TODO: broken 
-	{
-		Uint32 flags = (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0; 
-		SDL_SetWindowFullscreen(window, flags); 
-	}*/
+
 };
 
 #endif // __SmileWindow_H__

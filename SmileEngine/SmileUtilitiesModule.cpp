@@ -23,7 +23,8 @@ SmileUtilitiesModule::SmileUtilitiesModule(SmileApp* app, bool start_enabled) : 
 
 SmileUtilitiesModule::~SmileUtilitiesModule()
 {
-	configFunctionsMap.clear(); 
+	singleParamConfigFunctionMap.clear();
+	multipleParamConfigFunctionMap.clear(); 
 }
 
 // -----------------------------------------------------------------
@@ -40,7 +41,7 @@ bool SmileUtilitiesModule::Start()
 	
 	// JSON
 	rapidjson::Document doc; 
-	ReturnJSONFile("config.json", doc);
+	ParseJSONFile("config.json", doc);
 	SetGameConfigParameters(doc);
 
 	return true;
@@ -111,7 +112,7 @@ std::variant<int, float> SmileUtilitiesModule::GetRandomValue(std::variant<int, 
 }
 
 // ----------------------------------------------------------------- [Open and return a JSON file]  
-void SmileUtilitiesModule::ReturnJSONFile(const char* path, rapidjson::Document& fill)
+void SmileUtilitiesModule::ParseJSONFile(const char* path, rapidjson::Document& fill)
 {
 	// 1) read the path and convert it to JSON Document
 	FILE* pFile = fopen(path, "rb");
@@ -128,28 +129,67 @@ void SmileUtilitiesModule::SetGameConfigParameters(const rapidjson::Document& d)
 	{
 		const char* name = obj.name.GetString();
 		std::string strName = name;
-		std::any value;
+		std::any value; 
+		std::variant<std::vector<int>, std::vector<float>> arrayValues; 
+		bool isArray = false; 
 
 		if (obj.value.IsBool())
 		{
 			bool v = d[name].GetBool();
 			value = std::make_any<bool>(v);
-			configFunctionsMap[strName](value);
 		}
 		else if (obj.value.IsInt())
 		{
 			int v = d[name].GetInt();
 			value = std::make_any<int>(v);
-			configFunctionsMap[strName](value);
 		}
 		else if (obj.value.IsFloat())
 		{
 			float v = d[name].GetFloat();
 			value = std::make_any<float>(v);
-			configFunctionsMap[strName](value);
+		}
+		else if (obj.value.IsArray())
+		{
+			isArray = true;
+			bool isIntArray = true; 
+			std::vector<int> iVec; 
+			std::vector<float> fVec;
+
+			for (auto& v : d[name].GetArray())
+			{
+				if (v.IsInt())
+					iVec.push_back(v.GetInt());
+				else if (v.IsFloat())
+				{
+					isIntArray = false; 
+					fVec.push_back(v.GetFloat());
+				}
+				
+			}
+ 
+			if (isIntArray == true)
+			{
+				arrayValues = iVec;
+				iVec.clear(); 
+			}
+				
+			else if (isIntArray == false)
+			{
+				arrayValues = fVec;
+				fVec.clear();
+			}
+
+			multipleParamConfigFunctionMap[strName](arrayValues);
+
+			if (isIntArray)
+				std::get<std::vector<int>>(arrayValues).clear(); 
+			else
+				std::get<std::vector<float>>(arrayValues).clear();
 		}
 
-		// TODO: arrays
+		if(isArray == false)
+			singleParamConfigFunctionMap[strName](value);
+	
 
 	}
 
@@ -160,12 +200,15 @@ void SmileUtilitiesModule::SetGameConfigParameters(const rapidjson::Document& d)
 void SmileUtilitiesModule::FillFunctionsMap()
 {
 
-	configFunctionsMap =
+	singleParamConfigFunctionMap =
 	{
-		//{"window", &ChangeWindowSize},
 		{"cursor", &ShowCursor},
 	};
 
+	multipleParamConfigFunctionMap =
+	{
+	    {"window", &SetWindowSize},
+	}; 
 
 }
 
@@ -179,4 +222,10 @@ void ShowCursor(std::any value)
 {
 	int show = (std::any_cast<bool>(value) == true) ? 1 : 0; 
 	SDL_ShowCursor(show); 
+}
+
+void SetWindowSize(std::variant<std::vector<int>, std::vector<float>> values)
+{
+	std::vector<int> realValues = std::get<std::vector<int>>(values);
+	App->window->SetWindowSize(realValues.at(0), realValues.at(1));
 }

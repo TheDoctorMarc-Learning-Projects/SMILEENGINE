@@ -11,11 +11,12 @@
 
 #define JSONFileMaxBufferSize 5000
 
-typedef void (*function) (std::any);
+typedef void (*functionA) (std::any);
+typedef void (*functionB) (std::variant<std::vector<int>, std::vector<float>>);
 
 void ShowCursor(std::any);
 void ChangeWindowFullScreen(std::any);
-
+void SetWindowSize(std::variant<std::vector<int>, std::vector<float>>);
 
 class SmileUtilitiesModule : public SmileModule
 {
@@ -34,8 +35,7 @@ public:
 		std::variant<int, float> end = INT_MAX);
 
 	// JSON 
-	void ReturnJSONFile(const char* path, rapidjson::Document& fill);
-
+	void ParseJSONFile(const char* path, rapidjson::Document& fill);
 	void FillFunctionsMap();
 
 
@@ -44,6 +44,7 @@ private:
 
 private:
 	pcg32 rng;
-	std::map<std::string, function> configFunctionsMap;
+	std::map<std::string, functionA> singleParamConfigFunctionMap;
+	std::map<std::string, functionB> multipleParamConfigFunctionMap;
 
 };
