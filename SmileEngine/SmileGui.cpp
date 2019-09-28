@@ -113,7 +113,7 @@ bool SmileGui::GenerateGUI()
 				
 			}
 			if (ImGui::CollapsingHeader("Rendering")) {
-				static bool depth, cullFace, lightning, ColorMaterial, Texture2D = false; 
+				static bool depth, cullFace, lightning, ColorMaterial, Texture2D, ambient, diffuse = false; 
 				if (ImGui::Checkbox("Depth", &depth))
 				{
 					if(depth)
@@ -156,6 +156,24 @@ bool SmileGui::GenerateGUI()
 						glDisable(GL_TEXTURE_2D);
 				}
 		 
+				if (ImGui::Checkbox("Texture 2D", &ambient))
+				{
+					if (ambient)
+						glEnable(GL_AMBIENT);
+					else
+						glDisable(GL_AMBIENT);
+				}
+
+
+				if (ImGui::Checkbox("Texture 2D", &diffuse))
+				{
+					if (diffuse)
+						glEnable(GL_DIFFUSE);
+					else
+						glDisable(GL_DIFFUSE);
+				}
+
+				
 				
 			}
 
