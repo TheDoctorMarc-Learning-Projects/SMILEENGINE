@@ -108,6 +108,9 @@
     <ClInclude Include="RNG.h">
       <Filter>Source\Modules\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="glmath.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="log.cpp">
@@ -175,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="RNG.cpp">
       <Filter>Source\Modules\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="glmath.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -114,7 +114,7 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
-//	glLoadMatrixf(App->camera->GetViewMatrix());
+	glLoadMatrixf(App->camera->GetViewMatrix());
 
 	return UPDATE_CONTINUE;
 }
@@ -122,6 +122,9 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 // PostUpdate present buffer to screen
 update_status SmileRenderer3D::PostUpdate(float dt)
 {
+
+	// TODO: draw geometry here 
+
 	App->gui->HandleRender(); 
 
 	SDL_GL_SwapWindow(App->window->window);

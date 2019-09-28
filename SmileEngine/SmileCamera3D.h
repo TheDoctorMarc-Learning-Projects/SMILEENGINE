@@ -1,7 +1,7 @@
 #pragma once
 #include "SmileModule.h"
 #include "SmileSetup.h"
-
+#include "glmath.h"
 
 
 class SmileCamera3D : public SmileModule
@@ -14,5 +14,20 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
-private: 
+	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference = false);
+	void LookAt(const vec3& Spot);
+	void Move(const vec3& Movement);
+	float* GetViewMatrix();
+
+private:
+
+	void CalculateViewMatrix();
+
+public:
+
+	vec3 X, Y, Z, Position, Reference;
+
+private:
+
+	mat4x4 ViewMatrix, ViewMatrixInverse;
 };
