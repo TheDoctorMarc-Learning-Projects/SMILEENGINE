@@ -17,11 +17,6 @@ bool JSONParser::Initialize()
 {
 	FillFunctionsMap();
 
-	rapidjson::Document doc;
-	ParseJSONFile("config.json", doc);
-	SetGameConfigParameters(doc);
-	
-	return true; 
 }
 
 // -----------------------------------------------------------------
@@ -44,7 +39,7 @@ void JSONParser::ParseJSONFile(const char* path, rapidjson::Document& fill)
 }
 
 // ----------------------------------------------------------------- [Read JSON objects and call their functions] 
-void JSONParser::SetGameConfigParameters(const rapidjson::Document& d)
+void JSONParser::ExecuteSimpleJSONFunctions(const rapidjson::Document& d)
 {
 	for (auto& obj : d.GetObject())
 	{
@@ -127,11 +122,6 @@ void JSONParser::FillFunctionsMap()
 		{"cursor", &ShowCursor},
 	};
 
-	multipleParamConfigFunctionMap =
-	{
-		{"window", &SetWindowSize},
-	};
-
 }
 
 void ShowCursor(std::any value)
@@ -140,8 +130,3 @@ void ShowCursor(std::any value)
 	SDL_ShowCursor(show);
 }
 
-void SetWindowSize(std::variant<std::vector<int>, std::vector<float>> values)
-{
-	std::vector<int> realValues = std::get<std::vector<int>>(values);
-	App->window->SetWindowSize(realValues.at(0), realValues.at(1));
-}

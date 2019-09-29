@@ -5,6 +5,7 @@
 #include <map>
 #include <any>
 #include "rapidjson/include/rapidjson/document.h"
+#include "rapidjson/include/rapidjson/pointer.h"
 
 #define JSONFileMaxBufferSize 5000
 
@@ -21,10 +22,11 @@ public:
 	bool Initialize(); 
     bool ShutDown();
 
-private: 
 	void ParseJSONFile(const char* path, rapidjson::Document& fill);
+
+private: 
 	void FillFunctionsMap();
-	void SetGameConfigParameters(const rapidjson::Document& d);
+	void ExecuteSimpleJSONFunctions(const rapidjson::Document& d);
 
 private:
 	std::map<std::string, functionA> singleParamConfigFunctionMap;

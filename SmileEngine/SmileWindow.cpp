@@ -1,6 +1,8 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "SmileWindow.h"
+#include "SmileUtilitiesModule.h"
+#include "JSONParser.h"
 
 SmileWindow::SmileWindow(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -19,6 +21,12 @@ bool SmileWindow::Init()
 	LOG("Init SDL window & surface");
 	bool ret = true;
 
+
+	rapidjson::Document doc;
+	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile("config.json", doc);
+
+
+
 	if(SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		LOG("SDL_VIDEO could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -26,31 +34,37 @@ bool SmileWindow::Init()
 	}
 	else
 	{
+		int scale = rapidjson::GetValueByPointer(doc, "/Window/Scale")->GetInt(); 
+		int width = rapidjson::GetValueByPointer(doc, "/Window/Width")->GetInt() * scale;
+		int height = rapidjson::GetValueByPointer(doc, "/Window/Height")->GetInt() * scale;
+		bool fullscreen = rapidjson::GetValueByPointer(doc, "/Window/Fullscreen")->GetBool();
+		bool borderless = rapidjson::GetValueByPointer(doc, "/Window/Borderless")->GetBool();
+		bool resizable = rapidjson::GetValueByPointer(doc, "/Window/Resizable")->GetBool();
+		bool fullscreenDesktpp = rapidjson::GetValueByPointer(doc, "/Window/FullDesktop")->GetBool();
+
 		//Create window
-		int width = SCREEN_WIDTH * SCREEN_SIZE;
-		int height = SCREEN_HEIGHT * SCREEN_SIZE;
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 
 		//Use OpenGL 2.1
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-		if(WIN_FULLSCREEN == true)
+		if(fullscreen == true)
 		{
 			flags |= SDL_WINDOW_FULLSCREEN;
 		}
 
-		if(WIN_RESIZABLE == true)
+		if(resizable == true)
 		{
 			flags |= SDL_WINDOW_RESIZABLE;
 		}
 
-		if(WIN_BORDERLESS == true)
+		if(borderless == true)
 		{
 			flags |= SDL_WINDOW_BORDERLESS;
 		}
 
-		if(WIN_FULLSCREEN_DESKTOP == true)
+		if(fullscreenDesktpp == true)
 		{
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
