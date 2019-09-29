@@ -12,9 +12,7 @@
 typedef void (*functionA) (std::any); // JSON objects will trigger this function with a bool, inf, float etc argument
 typedef void (*functionB) (std::variant<std::vector<int>, std::vector<float>>); // same as above but with an array argument
 
-void ShowCursor(std::any);
-void ChangeWindowFullScreen(std::any);
-void SetWindowSize(std::variant<std::vector<int>, std::vector<float>>);
+// delcare functions if needed 
 
 class JSONParser : public Utility
 {

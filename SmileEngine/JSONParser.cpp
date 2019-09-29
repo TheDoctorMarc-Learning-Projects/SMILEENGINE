@@ -117,17 +117,9 @@ void JSONParser::ExecuteSimpleJSONFunctions(const rapidjson::Document& d)
 // ----------------------------------------------------------------- [Use JSON genericaly to call various config functions] 
 void JSONParser::FillFunctionsMap()
 {
-
-	singleParamConfigFunctionMap =
-	{
-		{"cursor", &ShowCursor},
-	};
+ 
+	// push functions to the map if needed
 
 }
 
-void ShowCursor(std::any value)
-{
-	int show = (std::any_cast<bool>(value) == true) ? 1 : 0;
-	SDL_ShowCursor(show);
-}
-
+ 

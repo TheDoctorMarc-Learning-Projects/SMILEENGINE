@@ -263,7 +263,7 @@ static void ImGui_ImplSDL2_UpdateMouseCursor()
     if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
         return;
 
- /*   ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+    ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
     if (io.MouseDrawCursor || imgui_cursor == ImGuiMouseCursor_None)
     {
         // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
@@ -274,7 +274,7 @@ static void ImGui_ImplSDL2_UpdateMouseCursor()
         // Show OS mouse cursor
         SDL_SetCursor(g_MouseCursors[imgui_cursor] ? g_MouseCursors[imgui_cursor] : g_MouseCursors[ImGuiMouseCursor_Arrow]);
         SDL_ShowCursor(SDL_TRUE);
-    }*/
+    }
 }
 
 static void ImGui_ImplSDL2_UpdateGamepads()
