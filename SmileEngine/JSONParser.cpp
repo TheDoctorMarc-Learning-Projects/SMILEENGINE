@@ -10,7 +10,7 @@
 
 #include "rapidjson/include/rapidjson/filereadstream.h"
 
-#include <fstream>
+ 
 
 
 bool JSONParser::Initialize()
