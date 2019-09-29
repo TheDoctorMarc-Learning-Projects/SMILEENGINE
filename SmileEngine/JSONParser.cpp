@@ -17,6 +17,7 @@ bool JSONParser::Initialize()
 {
 	FillFunctionsMap();
 
+	return true; 
 }
 
 // -----------------------------------------------------------------

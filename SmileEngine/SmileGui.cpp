@@ -9,14 +9,20 @@
 
 #include <gl/GL.h>
 
-
-
 SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
+	FillMenuFunctionsVector();
+}
+
+void SmileGui::FillMenuFunctionsVector()
+{
+	menuFunctions.push_back(&MainMenuBar);
+	menuFunctions.push_back(&Configuration); 
 }
 
 SmileGui::~SmileGui()
 {
+	menuFunctions.clear(); 
 }
 
 // -----------------------------------------------------------------
@@ -67,142 +73,11 @@ update_status SmileGui::PreUpdate(float dt)
 bool SmileGui::GenerateGUI()
 {
 	bool ret = true; 
-	static bool show_demo_window = false;
-	bool windowcheckbox = false;
 
-	 
+	for (auto& func : menuFunctions)
+		func(ret); 
 
-		if (ImGui::BeginMainMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("Quit"))
-					ret = false;
-				ImGui::EndMenu();
-			}
-			
-			ImGui::EndMainMenuBar();
-		}
-
-		if (ImGui::Begin("Configuration")) {
-			ImGuiIO& io = ImGui::GetIO();
-			if (ImGui::BeginMenu("Options")) {
-				ImGui::MenuItem("Set Defaults");
-
-					ImGui::MenuItem("Load");
-
-					ImGui::MenuItem("Load");
-
-					ImGui::EndMenu();
-			}
-			if (ImGui::CollapsingHeader("Application")) {
-				static char str0[128] = "Smile Engine";
-				ImGui::InputText("App Name", str0, IM_ARRAYSIZE(str0));
-				App->window->SetTitle(str0);
-				static char str1[128] = "UPC CITM";
-				ImGui::InputText("Organitzation", str1, IM_ARRAYSIZE(str1));
-				static int i1 = 0;
-				ImGui::SliderInt("Max FPS", &i1, 0, 120);
-				ImGui::Text("Limit Framerate: %i", i1);
-				
-				char title[25];
-				sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
-				ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
-				sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
-				ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));			
-				
-			}
-			if (ImGui::CollapsingHeader("Rendering")) {
-				static bool depth, cullFace, lightning, ColorMaterial, Texture2D, ambient, diffuse, wireframe = false; 
-				if (ImGui::Checkbox("Depth", &depth))
-				{
-					if(depth)
-						glEnable(GL_DEPTH_TEST);
-					else
-						glDisable(GL_DEPTH_TEST);
-					
-				}
-					
-				if (ImGui::Checkbox("Cull face", &cullFace))
-				{
-					if (cullFace)
-						glEnable(GL_CULL_FACE);
-					else
-						glDisable(GL_CULL_FACE);
-				}
-				 
-				if (ImGui::Checkbox("Lightning", &lightning))
-				{
-					if (lightning)
-						glEnable(GL_LIGHTING);
-					else
-						glDisable(GL_LIGHTING);
-				}
-				 
- 
-				if (ImGui::Checkbox("Color material", &ColorMaterial))
-				{
-					if (ColorMaterial)
-						glEnable(GL_COLOR_MATERIAL);
-					else
-						glDisable(GL_COLOR_MATERIAL);
-				}
-			 
-				if (ImGui::Checkbox("Texture 2D", &Texture2D))
-				{
-					if (Texture2D)
-						glEnable(GL_TEXTURE_2D);
-					else
-						glDisable(GL_TEXTURE_2D);
-				}
-		 
-				if (ImGui::Checkbox("Ambient", &ambient))
-				{
-					if (ambient)
-						glEnable(GL_AMBIENT);
-					else
-						glDisable(GL_AMBIENT);
-				}
-
-
-				if (ImGui::Checkbox("Diffuse", &diffuse))
-				{
-					if (diffuse)
-						glEnable(GL_DIFFUSE);
-					else
-						glDisable(GL_DIFFUSE);
-				}
-
-
-				if (ImGui::Checkbox("Wireframe", &wireframe))
-				{
-					if (wireframe)
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					else
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-
-				
-				
-			}
-
-			
-			if (ImGui::CollapsingHeader("Window")) {
-				ImGui::Checkbox("Active", &windowcheckbox);
-			}
-			if (ImGui::CollapsingHeader("File System")) {
-				
-			}
-			if (ImGui::CollapsingHeader("Input")) {
-				
-			}
-			if (ImGui::CollapsingHeader("Hardware")) {
-				
-			}
 		
-		ImGui::End();
-		
-	}
  
 	return ret; 
 }
@@ -228,4 +103,147 @@ void SmileGui::HandleRender()
 	//glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+}
+
+// ----------------------------------------------------------------- [Configuration]
+void MainMenuBar(bool& ret)
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Quit"))
+				ret = false;
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
+}
+
+// ----------------------------------------------------------------- [Configuration]
+void Configuration(bool& ret)
+{
+	static bool show_demo_window = false;
+	bool windowcheckbox = false;
+
+	if (ImGui::Begin("Configuration")) {
+		ImGuiIO& io = ImGui::GetIO();
+		if (ImGui::BeginMenu("Options")) {
+			ImGui::MenuItem("Set Defaults");
+
+			ImGui::MenuItem("Load");
+
+			ImGui::MenuItem("Load");
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::CollapsingHeader("Application")) {
+			static char str0[128] = "Smile Engine";
+			ImGui::InputText("App Name", str0, IM_ARRAYSIZE(str0));
+			App->window->SetTitle(str0);
+			static char str1[128] = "UPC CITM";
+			ImGui::InputText("Organitzation", str1, IM_ARRAYSIZE(str1));
+			static int i1 = 0;
+			ImGui::SliderInt("Max FPS", &i1, 0, 120);
+			ImGui::Text("Limit Framerate: %i", i1);
+
+			char title[25];
+			sprintf_s(title, 25, "Framerate %.1f", App->fps_log[App->fps_log.size() - 1]);
+			ImGui::PlotHistogram("##framerate", &App->fps_log[0], App->fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+			sprintf_s(title, 25, "Milliseconds %.1f", App->ms_log[App->ms_log.size() - 1]);
+			ImGui::PlotHistogram("##milliseconds", &App->ms_log[0], App->ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
+
+		}
+		if (ImGui::CollapsingHeader("Rendering")) {
+			static bool depth, cullFace, lightning, ColorMaterial, Texture2D, ambient, diffuse, wireframe = false;
+			if (ImGui::Checkbox("Depth", &depth))
+			{
+				if (depth)
+					glEnable(GL_DEPTH_TEST);
+				else
+					glDisable(GL_DEPTH_TEST);
+
+			}
+
+			if (ImGui::Checkbox("Cull face", &cullFace))
+			{
+				if (cullFace)
+					glEnable(GL_CULL_FACE);
+				else
+					glDisable(GL_CULL_FACE);
+			}
+
+			if (ImGui::Checkbox("Lightning", &lightning))
+			{
+				if (lightning)
+					glEnable(GL_LIGHTING);
+				else
+					glDisable(GL_LIGHTING);
+			}
+
+
+			if (ImGui::Checkbox("Color material", &ColorMaterial))
+			{
+				if (ColorMaterial)
+					glEnable(GL_COLOR_MATERIAL);
+				else
+					glDisable(GL_COLOR_MATERIAL);
+			}
+
+			if (ImGui::Checkbox("Texture 2D", &Texture2D))
+			{
+				if (Texture2D)
+					glEnable(GL_TEXTURE_2D);
+				else
+					glDisable(GL_TEXTURE_2D);
+			}
+
+			if (ImGui::Checkbox("Ambient", &ambient))
+			{
+				if (ambient)
+					glEnable(GL_AMBIENT);
+				else
+					glDisable(GL_AMBIENT);
+			}
+
+
+			if (ImGui::Checkbox("Diffuse", &diffuse))
+			{
+				if (diffuse)
+					glEnable(GL_DIFFUSE);
+				else
+					glDisable(GL_DIFFUSE);
+			}
+
+
+			if (ImGui::Checkbox("Wireframe", &wireframe))
+			{
+				if (wireframe)
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				else
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+
+
+
+		}
+
+
+		if (ImGui::CollapsingHeader("Window")) {
+			ImGui::Checkbox("Active", &windowcheckbox);
+		}
+		if (ImGui::CollapsingHeader("File System")) {
+
+		}
+		if (ImGui::CollapsingHeader("Input")) {
+
+		}
+		if (ImGui::CollapsingHeader("Hardware")) {
+
+		}
+
+		ImGui::End();
+
+	}
 }
