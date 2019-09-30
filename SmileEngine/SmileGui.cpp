@@ -9,20 +9,45 @@
 
 #include <gl/GL.h>
 
+// ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
+namespace panelData
+{
+	namespace consoleSpace
+	{
+		static ImGuiTextBuffer startupLogBuffer;
+		void Execute(bool& ret);
+		void ShutDown() { startupLogBuffer.clear(); };
+	}
+	namespace configSpace
+	{
+		void Execute(bool& ret);
+	}
+	namespace mainMenuSpace
+	{
+		void Execute(bool& ret);
+	}
+
+}
+
+// -----------------------------------------------------------------
 SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	FillMenuFunctionsVector();
 }
 
+// -----------------------------------------------------------------
 void SmileGui::FillMenuFunctionsVector()
 {
-	menuFunctions.push_back(&MainMenuBar);
-	menuFunctions.push_back(&Configuration); 
+	menuFunctions.push_back(&panelData::consoleSpace::Execute);
+	menuFunctions.push_back(&panelData::configSpace::Execute);
+	menuFunctions.push_back(&panelData::mainMenuSpace::Execute);
 }
 
+// -----------------------------------------------------------------
 SmileGui::~SmileGui()
 {
 	menuFunctions.clear(); 
+	panelData::consoleSpace::ShutDown(); 
 }
 
 // -----------------------------------------------------------------
@@ -76,8 +101,6 @@ bool SmileGui::GenerateGUI()
 
 	for (auto& func : menuFunctions)
 		func(ret); 
-
-		
  
 	return ret; 
 }
@@ -105,8 +128,8 @@ void SmileGui::HandleRender()
 
 }
 
-// ----------------------------------------------------------------- [Configuration]
-void MainMenuBar(bool& ret)
+// ----------------------------------------------------------------- [Main Menu Bar]
+void panelData::mainMenuSpace::Execute(bool& ret)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -122,7 +145,7 @@ void MainMenuBar(bool& ret)
 }
 
 // ----------------------------------------------------------------- [Configuration]
-void Configuration(bool& ret)
+void panelData::configSpace::Execute(bool& ret)
 {
 	static bool show_demo_window = false;
 	bool windowcheckbox = false;
@@ -246,4 +269,63 @@ void Configuration(bool& ret)
 		ImGui::End();
 
 	}
+}
+
+
+// ----------------------------------------------------------------- [Console]
+void SmileGui::Log(const char* log)
+{
+	panelData::consoleSpace::startupLogBuffer.append(log); 
+}
+
+void panelData::consoleSpace::Execute(bool& ret)
+{
+	static ImGuiTextFilter     Filter; 
+	static bool consoleWindow; 
+	static bool scrollToBottom = true; 
+	
+	ImGui::Begin("Console", &consoleWindow);
+
+	if (ImGui::Button("Clear"))
+	{
+		panelData::consoleSpace::startupLogBuffer.clear();
+	}
+	ImGui::SameLine();
+	bool copy = ImGui::Button("Copy");
+	ImGui::SameLine();
+	Filter.Draw("Filter", -100.0f);
+	ImGui::Separator();
+	ImGui::BeginChild("scrolling");
+	//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
+	if (copy) ImGui::LogToClipboard();
+
+
+	//if (Filter.IsActive())
+	//{
+	//	const char* buf_begin = Buf.begin();
+	//	const char* line = buf_begin;
+	//	/*for (int line_no = 0; line != NULL; line_no++)
+	//	{
+	//		const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
+	//		if (Filter.PassFilter(line, line_end))
+	//			ImGui::TextUnformatted(line, line_end);
+	//		line = line_end && line_end[1] ? line_end + 1 : NULL;
+	//	}*/
+	//}
+	//else
+	//{
+	ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
+	//}
+
+	if (scrollToBottom)
+	{
+		ImGui::SetScrollHereY(); 
+		scrollToBottom = false;
+	}
+		
+
+	//ImGui::PopStyleVar();
+	ImGui::EndChild();
+	ImGui::End();
+	 
 }

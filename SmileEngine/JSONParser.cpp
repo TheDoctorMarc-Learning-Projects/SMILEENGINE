@@ -7,16 +7,12 @@
 #include "rapidjson/include/rapidjson/reader.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
 
-
 #include "rapidjson/include/rapidjson/filereadstream.h"
-
-#include <fstream>
 
 
 bool JSONParser::Initialize()
 {
 	FillFunctionsMap();
-
 	return true; 
 }
 
@@ -25,7 +21,6 @@ bool JSONParser::ShutDown()
 {
 	singleParamConfigFunctionMap.clear();
 	multipleParamConfigFunctionMap.clear();
-
 	return true; 
 }
 

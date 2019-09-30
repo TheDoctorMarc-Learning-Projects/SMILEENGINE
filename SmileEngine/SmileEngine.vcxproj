@@ -135,6 +135,7 @@
     <ClCompile Include="SmilePlayer.cpp" />
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileScene.cpp" />
+    <ClCompile Include="SmileSetup.cpp" />
     <ClCompile Include="SmileUtilitiesModule.cpp" />
     <ClCompile Include="SmileWindow.cpp" />
     <ClCompile Include="SmileGui.cpp" />

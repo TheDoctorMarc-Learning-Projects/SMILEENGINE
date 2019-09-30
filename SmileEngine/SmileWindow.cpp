@@ -21,11 +21,8 @@ bool SmileWindow::Init()
 	LOG("Init SDL window & surface");
 	bool ret = true;
 
-
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile("config.json", doc);
-
-
 
 	if(SDL_Init(SDL_INIT_VIDEO) < 0)
 	{

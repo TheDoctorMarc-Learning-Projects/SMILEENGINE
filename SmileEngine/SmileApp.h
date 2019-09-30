@@ -34,6 +34,7 @@ private:
 	Timer	ms_timer;
 	
 	float	dt;
+	bool    terminated;
 	std::list<SmileModule*> list_Modules;
 
 public:
@@ -48,7 +49,6 @@ public:
 	bool CleanUp();
 
 	float GetDT() const { return dt; }; 
-
 private:
 
 	void AddModule(SmileModule* mod);
