@@ -16,6 +16,7 @@ namespace panelData
 	{
 		static ImGuiTextBuffer startupLogBuffer;
 		void Execute(bool& ret);
+		void ShutDown() { startupLogBuffer.clear(); };
 	}
 	namespace configSpace
 	{
@@ -46,7 +47,7 @@ void SmileGui::FillMenuFunctionsVector()
 SmileGui::~SmileGui()
 {
 	menuFunctions.clear(); 
-	panelData::consoleSpace::startupLogBuffer.clear();
+	panelData::consoleSpace::ShutDown(); 
 }
 
 // -----------------------------------------------------------------
