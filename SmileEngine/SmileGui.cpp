@@ -9,22 +9,44 @@
 
 #include <gl/GL.h>
 
+// ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
+namespace panelData
+{
+	namespace consoleSpace
+	{
+		static ImGuiTextBuffer startupLogBuffer;
+		void Execute(bool& ret);
+	}
+	namespace configSpace
+	{
+		void Execute(bool& ret);
+	}
+	namespace mainMenuSpace
+	{
+		void Execute(bool& ret);
+	}
+
+}
+
+// -----------------------------------------------------------------
 SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	FillMenuFunctionsVector();
 }
 
+// -----------------------------------------------------------------
 void SmileGui::FillMenuFunctionsVector()
 {
-	menuFunctions.push_back(&MainMenuBar);
-	menuFunctions.push_back(&Configuration); 
-	menuFunctions.push_back(&Console);
+	menuFunctions.push_back(&panelData::consoleSpace::Execute);
+	menuFunctions.push_back(&panelData::configSpace::Execute);
+	menuFunctions.push_back(&panelData::mainMenuSpace::Execute);
 }
 
+// -----------------------------------------------------------------
 SmileGui::~SmileGui()
 {
 	menuFunctions.clear(); 
-	panelVars::startupLogBuffer.clear();
+	panelData::consoleSpace::startupLogBuffer.clear();
 }
 
 // -----------------------------------------------------------------
@@ -106,7 +128,7 @@ void SmileGui::HandleRender()
 }
 
 // ----------------------------------------------------------------- [Main Menu Bar]
-void MainMenuBar(bool& ret)
+void panelData::mainMenuSpace::Execute(bool& ret)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -122,7 +144,7 @@ void MainMenuBar(bool& ret)
 }
 
 // ----------------------------------------------------------------- [Configuration]
-void Configuration(bool& ret)
+void panelData::configSpace::Execute(bool& ret)
 {
 	static bool show_demo_window = false;
 	bool windowcheckbox = false;
@@ -252,20 +274,20 @@ void Configuration(bool& ret)
 // ----------------------------------------------------------------- [Console]
 void SmileGui::Log(const char* log)
 {
-	panelVars::startupLogBuffer.append(log);
+	panelData::consoleSpace::startupLogBuffer.append(log); 
 }
 
-void Console(bool& ret)
+void panelData::consoleSpace::Execute(bool& ret)
 {
 	static ImGuiTextFilter     Filter; 
 	static bool consoleWindow; 
 	static bool scrollToBottom = true; 
-	//	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+	
 	ImGui::Begin("Console", &consoleWindow);
 
 	if (ImGui::Button("Clear"))
 	{
-		panelVars::startupLogBuffer.clear();
+		panelData::consoleSpace::startupLogBuffer.clear();
 	}
 	ImGui::SameLine();
 	bool copy = ImGui::Button("Copy");
@@ -291,7 +313,7 @@ void Console(bool& ret)
 	//}
 	//else
 	//{
-	ImGui::TextUnformatted(panelVars::startupLogBuffer.begin());
+	ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
 	//}
 
 	if (scrollToBottom)

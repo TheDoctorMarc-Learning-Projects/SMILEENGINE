@@ -3,15 +3,6 @@
 #include "ImGui/imgui.h"
 #include <vector>
 
-static void Configuration(bool& ret);
-static void MainMenuBar(bool& ret); 
-static void Console(bool& ret);
-
-namespace panelVars
-{
-	static ImGuiTextBuffer startupLogBuffer;
-}
-
 class SmileGui : public SmileModule
 {
 public:
@@ -26,6 +17,8 @@ public:
 private: 
 	void FillMenuFunctionsVector(); 
 	bool GenerateGUI(); 
+
+private: 
 	std::vector<void(*)(bool&)> menuFunctions;
 	
 	friend class SmileSetup;
