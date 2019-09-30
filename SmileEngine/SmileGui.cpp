@@ -133,10 +133,53 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
+		bool showdemowindow = true;
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("Quit"))
 				ret = false;
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("View"))
+		{
+			if (ImGui::MenuItem("Configuration")) {
+				//Todo show/hide config panel
+				
+			}
+			
+			if (ImGui::MenuItem("Console")) {
+				//Todo show/hide console panel
+			}
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Help"))
+		{
+			if (ImGui::MenuItem("Gui Demo")) {
+				showdemowindow = true;
+				if(showdemowindow)
+					ImGui::ShowDemoWindow(&showdemowindow);
+
+				//TODO The demo window doesnt appears
+
+			}
+			if (ImGui::MenuItem("Documentation")) {
+				ShellExecuteA(NULL, "open", "https://github.com/thedoctormarc/SMILEENGINE", NULL, NULL, SW_SHOWNORMAL);
+				//Change url to the wiki
+			
+			}
+			if (ImGui::MenuItem("Download Latest")) {
+				ShellExecuteA(NULL, "open", "https://github.com/thedoctormarc/SMILEENGINE/releases", NULL, NULL, SW_SHOWNORMAL);
+
+			}
+			if (ImGui::MenuItem("Report a bug")) {
+				ShellExecuteA(NULL, "open", "https://github.com/thedoctormarc/SMILEENGINE/issues", NULL, NULL, SW_SHOWNORMAL);
+			}
+			if (ImGui::MenuItem("About")) {
+				//TODO
+
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -148,10 +191,12 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 void panelData::configSpace::Execute(bool& ret)
 {
 	static bool show_demo_window = false;
-	bool windowcheckbox = false;
+	
+	
+	
 
-	if (ImGui::Begin("Configuration")) {
-		ImGuiIO& io = ImGui::GetIO();
+	ImGui::Begin("Configuration");
+	ImGuiIO& io = ImGui::GetIO();
 		if (ImGui::BeginMenu("Options")) {
 			ImGui::MenuItem("Set Defaults");
 
@@ -254,21 +299,139 @@ void panelData::configSpace::Execute(bool& ret)
 
 
 		if (ImGui::CollapsingHeader("Window")) {
+			bool windowcheckbox = false;
+			bool fullscreen_box = false;
+			bool resizable_box = false;
+			bool borderless_box = false;
+			bool fulldesktop_box = false;
 			ImGui::Checkbox("Active", &windowcheckbox);
+			
+			ImGui::Text("Icon:");
+			float br = 1.000;
+			int width = 1.000;
+			int height = 1.000;
+			//int refresh_rate = ;
+			//TODO path for the icon
+			ImGui::SliderFloat("Brightness", &br, 0.000, 1.000);
+			ImGui::SliderInt("Width", &width, 640, 1920);
+			ImGui::SliderInt("Height", &height, 480, 1080);
+			ImGui::Text("Refresh Rate:");
+			//ImGui::SameLine();
+			//ImGui::TextColored({ 255,255,0,255 }, "%i", refresh_rate);
+			ImGui::Checkbox("FullScreen", &fullscreen_box);
+			ImGui::SameLine();
+			ImGui::Checkbox("Resizable", &resizable_box);
+			ImGui::Checkbox("Borderless", &borderless_box);
+			ImGui::SameLine();
+			ImGui::Checkbox("Full Desktop", &fulldesktop_box);
+			
 		}
 		if (ImGui::CollapsingHeader("File System")) {
+			ImGui::Text("Base Path:");
+
+			ImGui::Text("Read Path:");
+
+			ImGui::Text("Write Path:");
 
 		}
 		if (ImGui::CollapsingHeader("Input")) {
-
+			bool inputcheckbox = true;
+			ImGui::Checkbox("Active", &inputcheckbox);
+			ImGui::Text("Mouse Position: ");
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, "%i,%i", App->input->GetMouseX(), App->input->GetMouseY());
+			ImGui::Text("Mouse Motion: ");
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, "%i,%i", App->input->GetMouseXMotion(), App->input->GetMouseYMotion());
+			ImGui::Text("Mouse Wheel: ");
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, "%i", App->input->GetMouseZ());
 		}
 		if (ImGui::CollapsingHeader("Hardware")) {
+			bool hardwarecheckbox = false;
+			int core = SDL_GetCPUCount();
+			int cache_size = SDL_GetCPUCacheLineSize();
+			float ram = SDL_GetSystemRAM();
+			ImGui::Checkbox("Active", &hardwarecheckbox);
+			ImGui::Text("SDL Version:");
+			ImGui::Text("CPUs:");
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, "%i", core);
+			ImGui::Text("System RAM:");
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, "%.1f Gb", ram/1000);
 
+			bool rdtsc = SDL_HasRDTSC();
+			bool mmx = SDL_HasMMX();
+			bool sse = SDL_HasSSE();
+			bool sse2 = SDL_HasSSE2();
+			bool sse3 = SDL_HasSSE3();
+			bool sse41 = SDL_HasSSE41();
+			bool sse42 = SDL_HasSSE42();
+			bool avx = SDL_HasAVX();
+			bool avx2 = SDL_HasAVX2();
+
+
+			ImGui::Text("Caps:");
+			ImGui::SameLine();
+			if (rdtsc)
+				ImGui::TextColored({ 255,255,0,255 }, "RDTSC,");
+			ImGui::SameLine();
+			if (mmx)
+				ImGui::TextColored({ 255,255,0,255 }, "MMX,");
+			ImGui::SameLine();
+			if (sse)
+				ImGui::TextColored({ 255,255,0,255 }, "SSE,");
+			ImGui::SameLine();
+			if (sse2)
+				ImGui::TextColored({ 255,255,0,255 }, "SSE2,");
+			ImGui::SameLine();
+			if (sse3)
+				ImGui::TextColored({ 255,255,0,255 }, "SSE3,");
+			ImGui::SameLine();
+			if (sse41)
+				ImGui::TextColored({ 255,255,0,255 }, "SSE41,");
+			ImGui::SameLine();
+			if (sse42)
+				ImGui::TextColored({ 255,255,0,255 }, "SSE42,");
+			ImGui::SameLine();
+			if (avx)
+				ImGui::TextColored({ 255,255,0,255 }, "AVX,");
+			ImGui::SameLine();
+			if (avx2)
+				ImGui::TextColored({ 255,255,0,255 }, "AVX2");
+			const char* gpu = (const char*)glGetString(GL_VENDOR);
+			ImGui::Text("GPU:");
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, gpu);
+
+			const char* brand = (const char*)glGetString(GL_RENDERER);
+			ImGui::Text("Brand:");
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, brand);
+
+			/*float vram_budget = ;
+			float vram_usage = ;
+			float vram_available = ;
+			float vram_reserved = ;*/
+
+			ImGui::Text("VRAM Budget:");
+			//ImGui::SameLine();
+			//ImGui::TextColored({ 255,255,0,255 }, vram_budget);
+			ImGui::Text("VRAM Usage:");
+			//ImGui::SameLine();
+			//ImGui::TextColored({ 255,255,0,255 }, vram_usage);
+			ImGui::Text("VRAM Available:");
+			//ImGui::SameLine();
+			//ImGui::TextColored({ 255,255,0,255 }, vram_available);
+			ImGui::Text("VRAM Reserved:");
+			//ImGui::SameLine();
+			//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
 		}
 
 		ImGui::End();
-
-	}
+		
+	
 }
 
 
@@ -328,4 +491,47 @@ void panelData::consoleSpace::Execute(bool& ret)
 	ImGui::EndChild();
 	ImGui::End();
 	 
+}
+
+void SmileGui::CapsInformation() {
+	
+	bool rdtsc = SDL_HasRDTSC();
+	bool mmx = SDL_HasMMX();
+	bool sse = SDL_HasSSE();
+	bool sse2 = SDL_HasSSE2();
+	bool sse3 = SDL_HasSSE3();
+	bool sse41 = SDL_HasSSE41();
+	bool sse42 = SDL_HasSSE42();
+	bool avx = SDL_HasAVX();
+	bool avx2 = SDL_HasAVX2();
+
+	
+	ImGui::Text("Caps:");
+	ImGui::SameLine();
+	if (rdtsc)
+		ImGui::TextColored({ 255,255,0,255 }, "RDTSC,");
+	ImGui::SameLine();
+	if (mmx)
+		ImGui::TextColored({ 255,255,0,255 }, "MMX,");
+	ImGui::SameLine();
+	if (sse)
+		ImGui::TextColored({ 255,255,0,255 }, "SSE,");
+	ImGui::SameLine();
+	if (sse2)
+		ImGui::TextColored({ 255,255,0,255 }, "SSE2,");
+	ImGui::SameLine();
+	if (sse3)
+		ImGui::TextColored({ 255,255,0,255 }, "SSE3,");
+	ImGui::SameLine();
+	if (sse41)
+		ImGui::TextColored({ 255,255,0,255 }, "SSE41,");
+	ImGui::SameLine();
+	if (sse42)
+		ImGui::TextColored({ 255,255,0,255 }, "SSE42,");
+	ImGui::SameLine();
+	if (avx)
+		ImGui::TextColored({ 255,255,0,255 }, "AVX,");
+	ImGui::SameLine();
+	if (avx2)
+		ImGui::TextColored({ 255,255,0,255 }, "AVX2");
 }

@@ -28,10 +28,10 @@ bool JSONParser::ShutDown()
 void JSONParser::ParseJSONFile(const char* path, rapidjson::Document& fill)
 {
 	// 1) read the path and convert it to JSON Document
-	FILE* pFile = fopen(path, "rb");
+	/*FILE* pFile = fopen(path, "rb");
 	char buffer[JSONFileMaxBufferSize];
 	rapidjson::FileReadStream is(pFile, buffer, sizeof(buffer));
-	fill.ParseStream<0, rapidjson::UTF8<>, rapidjson::FileReadStream>(is);
+	fill.ParseStream<0, rapidjson::UTF8<>, rapidjson::FileReadStream>(is);*/
 }
 
 // ----------------------------------------------------------------- [Read JSON objects and call their functions] 
