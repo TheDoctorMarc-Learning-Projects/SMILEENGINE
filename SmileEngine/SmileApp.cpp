@@ -41,7 +41,6 @@ SmileApp::~SmileApp()
 		if (item != NULL)
 			delete item; 
 	list_Modules.clear(); 
-	
 }
 
 bool SmileApp::Init()

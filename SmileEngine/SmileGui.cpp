@@ -24,7 +24,7 @@ void SmileGui::FillMenuFunctionsVector()
 SmileGui::~SmileGui()
 {
 	menuFunctions.clear(); 
-	startupLogBuffer.clear(); 
+	panelVars::startupLogBuffer.clear();
 }
 
 // -----------------------------------------------------------------
@@ -252,7 +252,7 @@ void Configuration(bool& ret)
 // ----------------------------------------------------------------- [Console]
 void SmileGui::Log(const char* log)
 {
-	startupLogBuffer.append(log); 
+	panelVars::startupLogBuffer.append(log);
 }
 
 void Console(bool& ret)
@@ -265,7 +265,7 @@ void Console(bool& ret)
 
 	if (ImGui::Button("Clear"))
 	{
-		App->gui->GetStartUpBuffer().clear(); 
+		panelVars::startupLogBuffer.clear();
 	}
 	ImGui::SameLine();
 	bool copy = ImGui::Button("Copy");
@@ -291,7 +291,7 @@ void Console(bool& ret)
 	//}
 	//else
 	//{
-	ImGui::TextUnformatted(App->gui->GetStartUpBuffer().begin());
+	ImGui::TextUnformatted(panelVars::startupLogBuffer.begin());
 	//}
 
 	if (scrollToBottom)

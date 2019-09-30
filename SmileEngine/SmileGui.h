@@ -7,6 +7,11 @@ static void Configuration(bool& ret);
 static void MainMenuBar(bool& ret); 
 static void Console(bool& ret);
 
+namespace panelVars
+{
+	static ImGuiTextBuffer startupLogBuffer;
+}
+
 class SmileGui : public SmileModule
 {
 public:
@@ -17,17 +22,11 @@ public:
 	void HandleRender(); 
 	void Log(const char* log);
 	bool CleanUp();
-
-	ImGuiTextBuffer GetStartUpBuffer() { return startupLogBuffer; }; 
+	
 private: 
 	void FillMenuFunctionsVector(); 
-
-
-private: 
 	bool GenerateGUI(); 
-
 	std::vector<void(*)(bool&)> menuFunctions;
-	ImGuiTextBuffer startupLogBuffer;
 	
 	friend class SmileSetup;
 };
