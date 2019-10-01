@@ -195,9 +195,6 @@ void panelData::configSpace::Execute(bool& ret)
 {
 	static bool show_demo_window = false;
 	
-	
-	
-
 	ImGui::Begin("Configuration");
 	ImGuiIO& io = ImGui::GetIO();
 		if (ImGui::BeginMenu("Options")) {
