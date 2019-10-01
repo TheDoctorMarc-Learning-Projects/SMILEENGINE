@@ -9,6 +9,9 @@
 
 #include <gl/GL.h>
 
+#include <fstream>
+#include "JSONParser.h"
+
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
 {
@@ -157,7 +160,54 @@ void panelData::configSpace::Execute(bool& ret)
 
 			ImGui::MenuItem("Load");
 
-			ImGui::MenuItem("Load");
+			
+			if (ImGui::MenuItem("Save"))
+			{
+				std::ofstream saveConfigFile("config.json"); 
+				rapidjson::StringBuffer buffer;
+				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+				
+ 
+				// window 
+				writer.StartObject();
+				writer.Key("Window");
+
+				writer.StartArray(); 
+
+				writer.StartObject();
+				
+				writer.Key("Width");
+				writer.Int(std::get<int>(App->window->GetWindowParameter("Width")));
+			
+				writer.Key("Height");
+				writer.Int(std::get<int>(App->window->GetWindowParameter("Height")));
+	
+				writer.Key("Scale");
+				writer.Int(std::get<int>(App->window->GetWindowParameter("Scale")));
+
+				writer.Key("Fullscreen");
+				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Fullscreen")));
+		
+				writer.Key("Borderless");
+				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Borderless")));
+
+				writer.Key("Resizable");
+				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Resizable")));
+			
+				writer.Key("FullDesktop");
+				writer.Bool(std::get<bool>(App->window->GetWindowParameter("FullDesktop")));
+
+				writer.EndObject();
+
+				writer.EndArray();
+
+				writer.EndObject(); 
+
+				const char* output = buffer.GetString();
+				std::string strOutput(output); 
+				saveConfigFile << output;
+				saveConfigFile.close(); 
+			}
 
 			ImGui::EndMenu();
 		}

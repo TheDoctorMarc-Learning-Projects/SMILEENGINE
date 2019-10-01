@@ -4,7 +4,20 @@
 #include "SmileModule.h"
 #include "SDL/include/SDL.h"
 
+#include <map>
+#include <variant>
+#include <string>
+
 class SmileApp;
+
+struct windowParams
+{
+	int Width, Height, Scale;
+	bool Fullscreen, Borderless, Resizable, FullDesktop;
+
+	std::map<std::string, std::variant<int, bool>> map; 
+
+};
 
 class SmileWindow : public SmileModule
 {
@@ -24,13 +37,23 @@ public:
 	void SetWindowSize(int w, int h)
 	{
 		SDL_SetWindowSize(window, w, h);
+		windowVariables.Width = w; 
+		windowVariables.Height = h;
 	};
 
-	/*void SetWindowFullScreen(bool fullscreen)  // TODO: broken
-    {
-	Uint32 flags = (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
-	SDL_SetWindowFullscreen(window, flags);
-    }*/
+	std::variant<int, bool> GetWindowParameter(std::string name)
+	{
+		auto item = windowVariables.map.find(name);
+		if (item != windowVariables.map.end())
+			return windowVariables.map.at(name);
+		return (int)NAN;
+	}; 
+
+	int GetTotalParams()
+	{
+		return windowVariables.map.size(); 
+	}
+	 
 
 public:
 	//The window we'll be rendering to
@@ -38,6 +61,9 @@ public:
 
 	//The surface contained by the window
 	SDL_Surface* screen_surface;
+
+private: 
+	windowParams windowVariables; 
 
 
 };

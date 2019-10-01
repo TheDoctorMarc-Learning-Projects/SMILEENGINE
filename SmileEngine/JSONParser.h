@@ -7,6 +7,10 @@
 #include "rapidjson/include/rapidjson/document.h"
 #include "rapidjson/include/rapidjson/pointer.h"
 
+// so you can write in other files  
+#include "rapidjson/include/rapidjson/writer.h"
+#include "rapidjson/include/rapidjson/stringbuffer.h"
+
 #define JSONFileMaxBufferSize 5000
 
 typedef void (*functionA) (std::any); // JSON objects will trigger this function with a bool, inf, float etc argument

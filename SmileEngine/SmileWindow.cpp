@@ -13,6 +13,7 @@ SmileWindow::SmileWindow(SmileApp* app, bool start_enabled) : SmileModule(app, s
 // Destructor
 SmileWindow::~SmileWindow()
 {
+	windowVariables.map.clear(); 
 }
 
 // Called before render is available
@@ -31,13 +32,24 @@ bool SmileWindow::Init()
 	}
 	else
 	{
-		int scale = rapidjson::GetValueByPointer(doc, "/Window/Scale")->GetInt(); 
-		int width = rapidjson::GetValueByPointer(doc, "/Window/Width")->GetInt() * scale;
-		int height = rapidjson::GetValueByPointer(doc, "/Window/Height")->GetInt() * scale;
-		bool fullscreen = rapidjson::GetValueByPointer(doc, "/Window/Fullscreen")->GetBool();
-		bool borderless = rapidjson::GetValueByPointer(doc, "/Window/Borderless")->GetBool();
-		bool resizable = rapidjson::GetValueByPointer(doc, "/Window/Resizable")->GetBool();
-		bool fullscreenDesktpp = rapidjson::GetValueByPointer(doc, "/Window/FullDesktop")->GetBool();
+		windowVariables.Scale = rapidjson::GetValueByPointer(doc, "/Window/0/Scale")->GetInt(); 
+		windowVariables.Width = rapidjson::GetValueByPointer(doc, "/Window/0/Width")->GetInt() * windowVariables.Scale;
+		windowVariables.Height = rapidjson::GetValueByPointer(doc, "/Window/0/Height")->GetInt() * windowVariables.Scale;
+		windowVariables.Fullscreen = rapidjson::GetValueByPointer(doc, "/Window/0/Fullscreen")->GetBool();
+		windowVariables.Borderless = rapidjson::GetValueByPointer(doc, "/Window/0/Borderless")->GetBool();
+		windowVariables.Resizable = rapidjson::GetValueByPointer(doc, "/Window/0/Resizable")->GetBool();
+		windowVariables.FullDesktop = rapidjson::GetValueByPointer(doc, "/Window/0/FullDesktop")->GetBool();
+
+		windowVariables.map =
+		{
+			{"Width", windowVariables.Width},
+			{"Height", windowVariables.Height},
+			{"Scale", windowVariables.Scale},
+			{"Fullscreen", windowVariables.Fullscreen},
+			{"Borderless", windowVariables.Borderless},
+			{"Resizable", windowVariables.Resizable},
+			{"FullDesktop", windowVariables.FullDesktop},
+		};
 
 		//Create window
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
@@ -46,27 +58,27 @@ bool SmileWindow::Init()
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-		if(fullscreen == true)
+		if(windowVariables.Fullscreen == true)
 		{
 			flags |= SDL_WINDOW_FULLSCREEN;
 		}
 
-		if(resizable == true)
+		if(windowVariables.Resizable == true)
 		{
 			flags |= SDL_WINDOW_RESIZABLE;
 		}
 
-		if(borderless == true)
+		if(windowVariables.Borderless == true)
 		{
 			flags |= SDL_WINDOW_BORDERLESS;
 		}
 
-		if(fullscreenDesktpp == true)
+		if(windowVariables.FullDesktop == true)
 		{
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
 
-		window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
+		window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowVariables.Width, windowVariables.Height, flags);
 
 		if(window == NULL)
 		{
