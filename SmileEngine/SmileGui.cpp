@@ -33,7 +33,7 @@ namespace panelData
 		namespace GeometryGeneratorGui
 		{
 			void Execute();
-			void ShowObjectMenu(std::string name); 
+			static std::vector<float> ShowObjectMenu(std::string name); // returns the inputed values
 		}
 	}
 
@@ -218,14 +218,27 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 				objectMenu = true;
 		}
 			
-		if(objectMenu == true)
+		if (objectMenu == true)
+		{
 			ShowObjectMenu(objName);  // TODO: when pressing a button to create the object, "objectMenu" is put to false
+
+		
+			/*static std::vector<float> values = ShowObjectMenu(objName);
+
+			if (ImGui::MenuItem("Create"))
+			{
+				//	GeometryGenerator::GenerateObject(objName, values.size() + 2, );  // TODO: pass the values, they MUST be floats passed one by one. 
+				objectMenu = false;
+				values.clear();
+			}*/
+		}
+			
 
 		ImGui::EndMenu(); 
 	}
 }
 
-void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string name)
+static std::vector<float> panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string name)
 {
 	int max = GeometryGenerator::GetObjectParameterCount(name);
 
@@ -242,6 +255,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string 
 
 	// TODO: clear this vector when hiding the menu
 	 
+	return values; 
 }
 
 // ----------------------------------------------------------------- [Configuration]

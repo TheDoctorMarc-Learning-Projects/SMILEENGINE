@@ -85,7 +85,7 @@ namespace GeometryGenerator
 	}
 
 	// ----------------------------------------------------------------- [Generate any geometry object given a valid name and arguments] 
-	void GenerateObject(std::string name, int n_args, ...) // pass this function arguments ORDERED to call a particular object constructor: n_args = name + n_args + the rest
+	void GenerateObject(std::string name, int n_args, ...) // pass this function arguments ORDERED to call a particular object constructor: n_args = name + n_args + object params
 	{
 		// 1) find if there exists an object type with the name
 		auto type = typeMap.find(name);
