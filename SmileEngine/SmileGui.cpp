@@ -3,14 +3,16 @@
 #include "SmileGui.h"
 #include "SmileApp.h"
 #include "SmileWindow.h"
+
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
-
 #include <gl/GL.h>
 
 #include <fstream>
+
 #include "JSONParser.h"
+#include "GeometryGenerator.h"
 
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
@@ -36,6 +38,7 @@ namespace panelData
 SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	FillMenuFunctionsVector();
+	GeometryGenerator::PopulateMap(true); 
 }
 
 // -----------------------------------------------------------------
@@ -51,6 +54,7 @@ SmileGui::~SmileGui()
 {
 	menuFunctions.clear(); 
 	panelData::consoleSpace::ShutDown(); 
+	GeometryGenerator::PopulateMap(false);
 }
 
 // -----------------------------------------------------------------
@@ -137,6 +141,11 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		{
 			if (ImGui::MenuItem("Quit"))
 				ret = false;
+
+			if (ImGui::MenuItem("Capsule"))
+				GeometryGenerator::GenerateObject("Capsule", 9, 0.f, 0.5f, 0.f, 1.f, 2.f, 3.f, 10); 
+
+
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("View"))
@@ -198,7 +207,6 @@ void panelData::configSpace::Execute(bool& ret)
 
 			ImGui::MenuItem("Load");
 
-			
 			if (ImGui::MenuItem("Save"))
 			{
 				std::ofstream saveConfigFile("config.json"); 

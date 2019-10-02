@@ -18,6 +18,8 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 
+
+
 SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
