@@ -10,7 +10,6 @@
 #include <gl/GL.h>
 
 #include <fstream>
-
 #include "JSONParser.h"
 #include "GeometryGenerator.h"
 
@@ -30,6 +29,12 @@ namespace panelData
 	namespace mainMenuSpace
 	{
 		void Execute(bool& ret);
+
+		namespace GeometryGeneratorGui
+		{
+			void Execute();
+			void ShowObjectMenu(std::string name); 
+		}
 	}
 
 }
@@ -142,12 +147,14 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 			if (ImGui::MenuItem("Quit"))
 				ret = false;
 
-			if (ImGui::MenuItem("Capsule"))
-				GeometryGenerator::GenerateObject("Capsule", 9, 0.f, 0.5f, 0.f, 1.f, 2.f, 3.f, 10); 
-
 
 			ImGui::EndMenu();
 		}
+
+	
+		GeometryGeneratorGui::Execute(); // CAUTION: this is a menu
+
+
 		if (ImGui::BeginMenu("View"))
 		{
 			if (ImGui::MenuItem("Configuration")) {
@@ -193,6 +200,48 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 
 		ImGui::EndMainMenuBar();
 	}
+}
+
+// ----------------------------------------------------------------- [Main Menu Bar: Geometry Generator GUI]
+void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
+{
+	if (ImGui::BeginMenu("Geometry"))
+	{
+		static char objName[128] = "Insert name";
+		static bool objectMenu = false; 
+
+		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName)); 
+		
+		if (ImGui::MenuItem("Creation Menu"))
+		{
+			if (GeometryGenerator::DoesObjectExist(objName))
+				objectMenu = true;
+		}
+			
+		if(objectMenu == true)
+			ShowObjectMenu(objName);  // TODO: when pressing a button to create the object, "objectMenu" is put to false
+
+		ImGui::EndMenu(); 
+	}
+}
+
+void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string name)
+{
+	int max = GeometryGenerator::GetObjectParameterCount(name);
+
+	static std::vector<float> values; 
+
+	for (int i = 1; i <= max; ++i)
+		values.push_back(0.F); 
+
+	for (int i = 1; i <= max; ++i)
+	{
+		const char* label = GeometryGenerator::parameterMap.at(name).second.at(i - 1).c_str();
+		ImGui::SliderFloat(label, &values.at(i - 1), -10.f, 10.f);   // TODO: with radius it should be positive. Define or map max & min values too :/ 
+	}
+
+	// TODO: clear this vector when hiding the menu
+	 
 }
 
 // ----------------------------------------------------------------- [Configuration]

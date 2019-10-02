@@ -22,51 +22,99 @@
 
 namespace GeometryGenerator
 {
-	std::unordered_map<std::string, math::GeomType> objectMapType;
+	// -----------------------------------------------------------------
+	std::unordered_map<std::string, math::GeomType> typeMap;
+	std::unordered_map<std::string, std::pair<int, std::vector<std::string>>> parameterMap;  // name, num of params, name of params
 
 	void PopulateMap(bool create = true)
 	{
-		if (create == true)
+		if (create == true) // TODO: keep populating the maps
 		{
-			objectMapType =
+			typeMap =
 			{
 				{"Capsule", math::GeomType::GTCapsule},
 				{"Circle", math::GeomType::GTCircle},
 			};
+
+			std::vector<std::string> capsuleParam = { "TopX", "TopY", "TopZ", "BottomX", "BottomY", "BottomZ", "Radius" }; 
+			parameterMap =
+			{
+				{"Capsule", std::pair(7, capsuleParam)},
+			};
+
 		}
 		else
-			objectMapType.clear();
+		{
+			typeMap.clear();
+			for (auto& x : parameterMap)
+				x.second.second.clear();
+			parameterMap.clear(); 
+		}
+			
 
 	};
 
-	void GenerateObject(std::string name, int n_args, ...) // pass this function arguments ORDERED to call a particular object constructor
+	// ----------------------------------------------------------------- [See if an associated object type exists in the map]
+	bool DoesObjectExist(std::string name)
+	{
+		auto type = typeMap.find(name);
+		if (type != typeMap.end())
+			return true; 
+		return false; 
+	}
+
+	// ----------------------------------------------------------------- [Get the parameter string vector for a given object name]
+	std::vector<std::string> GetObjectParameters(std::string name)
+	{
+		auto item = parameterMap.find(name);
+		if (item != parameterMap.end())
+			return (*item).second.second; 
+	
+		std::vector<std::string> error = { "error" };
+
+		return error; 
+	}
+
+	// ----------------------------------------------------------------- [Get the number of arguments for a given object name]
+	int GetObjectParameterCount(std::string name)
+	{
+		auto item = parameterMap.find(name);
+		if (item != parameterMap.end())
+			return (*item).second.first; 
+		return (int)NAN; 
+	}
+
+	// ----------------------------------------------------------------- [Generate any geometry object given a valid name and arguments] 
+	void GenerateObject(std::string name, int n_args, ...) // pass this function arguments ORDERED to call a particular object constructor: n_args = name + n_args + the rest
 	{
 		// 1) find if there exists an object type with the name
-		auto type = objectMapType.find(name);
-		if (type == objectMapType.end())
+		auto type = typeMap.find(name);
+		if (type == typeMap.end())
 		{
 			if (isupper(name[0]) == false)
 				if (App)
 					App->gui->Log("The object name must begin with upper case");
 			return;
 		}
-		math::GeomType wantedType = objectMapType.at(name);
+		math::GeomType wantedType = typeMap.at(name);
 
-		// 2) Retrieve the data -> it HAS to be passed by order and it can't be math::float3 because it can't be passed to va_arg
+		// 2) Retrieve the data. 
+		// It HAS to be floats passed by order. It can't be "math::float3" because "va_arg" won't accept it as argument
 		std::vector<float> data;
 		va_list ap;
 
 		va_start(ap, n_args);
 		for (int i = 3; i <= n_args; ++i)
 		{
-			float variable = (float)va_arg(ap, double);  // TODO: this gets a 0 xd
+			float variable = (float)va_arg(ap, double);   
 			data.push_back(variable);
 		}
 		va_end(ap);
 
+		if (data.size() != GetObjectParameterCount(name))
+			return; 
 
-		// 3) Generate the object -> use a pre-selected constructor with the previous data
-
+		// 3) Generate the object -> use a pre-selected constructor with the previous data: they have to match
 		switch (wantedType)
 		{
 			/*case math::GTPoint:
