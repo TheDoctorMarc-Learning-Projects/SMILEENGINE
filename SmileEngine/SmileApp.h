@@ -6,7 +6,6 @@
 #include "SmileModule.h"
 #include "SmileWindow.h"
 #include "SmileInput.h"
-#include "SmileAudio.h"
 #include "SmileScene.h"
 #include "SmileRenderer3D.h"
 #include "SmileCamera3D.h"
@@ -21,7 +20,6 @@ class SmileApp
 public:
 	SmileWindow* window;
 	SmileInput* input;
-	SmileAudio* audio;
 	SmileScene* scene_intro;
 	SmileRenderer3D* renderer3D;
 	SmileCamera3D* camera;

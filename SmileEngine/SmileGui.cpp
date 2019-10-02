@@ -121,22 +121,18 @@ bool SmileGui::CleanUp()
 // ----------------------------------------------------------------- called by Render cpp PostUpdate() 
 void SmileGui::HandleRender()
 {
-	//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-	// Rendering
 	ImGui::Render();
-	glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
-	//glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 }
 
 // ----------------------------------------------------------------- [Main Menu Bar]
 void panelData::mainMenuSpace::Execute(bool& ret)
 {
+	static bool showdemowindow = false;
+
 	if (ImGui::BeginMainMenuBar())
 	{
-		bool showdemowindow = true;
+		
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("Quit"))

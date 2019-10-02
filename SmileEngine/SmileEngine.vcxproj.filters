@@ -72,9 +72,6 @@
     <ClInclude Include="SmileCamera3D.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="SmileAudio.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="SmileModule.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
@@ -109,6 +106,9 @@
       <Filter>Source\Modules\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="glmath.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
   </ItemGroup>
@@ -158,9 +158,6 @@
     <ClCompile Include="SmileCamera3D.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="SmileAudio.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="SmileScene.cpp">
       <Filter>Source\Modules\GameLogic</Filter>
     </ClCompile>
@@ -184,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="SmileSetup.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
