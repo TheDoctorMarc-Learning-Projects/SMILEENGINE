@@ -2,7 +2,7 @@
 #include "SmileModule.h"
 #include "SmileSetup.h"
 
-
+#include "parshapes/par_shapes.h"
 
 class SmileScene : public SmileModule
 {
@@ -14,4 +14,11 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
+private: 
+	void DrawGrid(); 
+
+	// test
+	par_shapes_mesh* testCube = nullptr;
+	uint vertexID = 0; 
+	uint indexID = vertexID; 
 };

@@ -196,6 +196,9 @@ void par_shapes_compute_normals(par_shapes_mesh* m);
 // -----------------------------------------------------------------------------
 
 #ifdef PAR_SHAPES_IMPLEMENTATION
+//#ifndef  PAR_SHAPES_IMPLEMENTATION
+//#define PAR_SHAPES_IMPLEMENTATION
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>

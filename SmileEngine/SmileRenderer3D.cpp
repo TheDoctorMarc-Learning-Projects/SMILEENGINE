@@ -135,25 +135,7 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 update_status SmileRenderer3D::PostUpdate(float dt)
 {
 
-	// TODO: draw geometry here 
-
-
-	// dirty tests for the mom
-	glBegin(GL_TRIANGLE_STRIP);
-	glColor3f(1, 0, 0);
-	glVertex3f(0, 0, 0);
-	glVertex3f(1, 0, 0);
-	glVertex3f(0, 1, 0);
-	glEnd(); 
-
-	glLineWidth(10.0f);
-	glBegin(GL_LINES);
-	glColor3f(0.f, 1.f, 0.f);
-	glVertex3f(0.f, -2.5f, 0.f);
-	glVertex3f(0.f, 2.5f, 0.f);
-	glEnd();
-	 
-
+	// TODO: call geometry draw here 
 
     App->gui->HandleRender(); 
 

@@ -34,7 +34,7 @@ namespace GeometryGenerator
 
 		void PopulateMap(bool create = true)
 		{
-			if (create == true) // TODO: keep populating the maps
+			if (create == true)  
 			{
 				typeMap =
 				{
