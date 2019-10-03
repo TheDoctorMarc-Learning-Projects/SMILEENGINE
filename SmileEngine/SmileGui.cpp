@@ -33,8 +33,9 @@ namespace panelData
 		namespace GeometryGeneratorGui
 		{
 			std::vector<float> objectParams; 
-			void ShowObjectMenu(std::string name); // assigns the inputed values
 			void Execute();
+			void ShowObjectMenu(std::string name); // assigns the inputed values
+			void ShutDown() { objectParams.clear(); };
 		}
 	}
 
@@ -44,7 +45,7 @@ namespace panelData
 SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	FillMenuFunctionsVector();
-	GeometryGenerator::PopulateMap(true); 
+	GeometryGenerator::MathGeoLib::PopulateMap(true); 
 }
 
 // -----------------------------------------------------------------
@@ -59,8 +60,9 @@ void SmileGui::FillMenuFunctionsVector()
 SmileGui::~SmileGui()
 {
 	menuFunctions.clear(); 
-	panelData::consoleSpace::ShutDown(); 
-	GeometryGenerator::PopulateMap(false);
+	panelData::consoleSpace::ShutDown();
+	panelData::mainMenuSpace::GeometryGeneratorGui::ShutDown();
+	GeometryGenerator::MathGeoLib::PopulateMap(false);
 }
 
 // -----------------------------------------------------------------
@@ -218,7 +220,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		// The specific object creation menu **
 		if (ImGui::MenuItem("Creation Menu"))
 		{
-			if (GeometryGenerator::DoesObjectExist(objName))
+			if (GeometryGenerator::MathGeoLib::DoesObjectExist(objName))
 			{
 				objectMenu = true;
 				strncpy(lastValidName, objName, 128);
@@ -231,7 +233,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		{
 			static ImVec4 col(0.f, 255.f, 1.f, 255.f);
 			static char text[128];
-			GeometryGenerator::GetAllObjectTypesChar(text);
+			GeometryGenerator::MathGeoLib::GetAllObjectTypesChar(text);
 			ImGui::TextColored(col, text);
 		}
 
@@ -242,7 +244,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 
 			if (ImGui::MenuItem("Create"))
 			{
-				GeometryGenerator::GenerateObject(objName, objectParams);  
+				GeometryGenerator::MathGeoLib::GenerateObject(objName, objectParams);  
 				objectMenu = false;
 				objectParams.clear();
 			}
@@ -256,7 +258,14 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 				
 
 		}
+
+		// - - - - - - - - - - - - - - - [par shapes]
+		/*static par_shapes_mesh* supaMesh; 
+
+		if (ImGui::MenuItem("Par shapes rtest"))
+			supaMesh = GeometryGenerator::ParShapes::TestFunction();*/
 			
+
 
 		ImGui::EndMenu(); 
 	}
@@ -264,14 +273,14 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 
 void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string name)
 {
-	int max = GeometryGenerator::GetObjectParameterCount(name);
+	int max = GeometryGenerator::MathGeoLib::GetObjectParameterCount(name);
 
 	for (int i = 1; i <= max; ++i)
 		objectParams.push_back(0.F);
 
 	for (int i = 1; i <= max; ++i)
 	{
-		const char* label = GeometryGenerator::parameterMap.at(name).second.at(i - 1).c_str();
+		const char* label = GeometryGenerator::MathGeoLib::parameterMap.at(name).second.at(i - 1).c_str();
 		ImGui::SliderFloat(label, &objectParams.at(i - 1), -10.f, 10.f);   // TODO: with radius it should be positive. Define or map max & min values too :/ 
 	}
 }
