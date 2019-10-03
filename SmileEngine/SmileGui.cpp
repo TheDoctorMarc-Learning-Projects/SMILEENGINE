@@ -18,7 +18,7 @@ namespace panelData
 {
 	namespace consoleSpace
 	{
-		static ImGuiTextBuffer startupLogBuffer;
+		ImGuiTextBuffer startupLogBuffer;
 		void Execute(bool& ret);
 		void ShutDown() { startupLogBuffer.clear(); };
 	}
@@ -32,8 +32,9 @@ namespace panelData
 
 		namespace GeometryGeneratorGui
 		{
+			std::vector<float> objectParams; 
+			void ShowObjectMenu(std::string name); // assigns the inputed values
 			void Execute();
-			static std::vector<float> ShowObjectMenu(std::string name); // returns the inputed values
 		}
 	}
 
@@ -208,29 +209,52 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 	if (ImGui::BeginMenu("Geometry"))
 	{
 		static char objName[128] = "Insert name";
+		static char lastValidName[128] = ""; 
 		static bool objectMenu = false; 
 
+		// The object name input 
 		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName)); 
 		
+		// The specific object creation menu **
 		if (ImGui::MenuItem("Creation Menu"))
 		{
 			if (GeometryGenerator::DoesObjectExist(objName))
+			{
 				objectMenu = true;
+				strncpy(lastValidName, objName, 128);
+			}
+
 		}
-			
+
+		// the types information string 
+		if (objectMenu == false)
+		{
+			static ImVec4 col(0.f, 255.f, 1.f, 255.f);
+			static char text[128];
+			GeometryGenerator::GetAllObjectTypesChar(text);
+			ImGui::TextColored(col, text);
+		}
+
+		// ** The specific object creation menu
 		if (objectMenu == true)
 		{
-			ShowObjectMenu(objName);  // TODO: when pressing a button to create the object, "objectMenu" is put to false
-
-		
-			/*static std::vector<float> values = ShowObjectMenu(objName);
+			ShowObjectMenu(objName);  
 
 			if (ImGui::MenuItem("Create"))
 			{
-				//	GeometryGenerator::GenerateObject(objName, values.size() + 2, );  // TODO: pass the values, they MUST be floats passed one by one. 
+				GeometryGenerator::GenerateObject(objName, objectParams);  
 				objectMenu = false;
-				values.clear();
-			}*/
+				objectParams.clear();
+			}
+
+			if (ImGui::MenuItem("Back"))
+			{
+				objectMenu = false;
+
+				// TODO: get last valid object name and reset params to 0.F
+			}
+				
+
 		}
 			
 
@@ -238,24 +262,18 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 	}
 }
 
-static std::vector<float> panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string name)
+void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string name)
 {
 	int max = GeometryGenerator::GetObjectParameterCount(name);
 
-	static std::vector<float> values; 
-
 	for (int i = 1; i <= max; ++i)
-		values.push_back(0.F); 
+		objectParams.push_back(0.F);
 
 	for (int i = 1; i <= max; ++i)
 	{
 		const char* label = GeometryGenerator::parameterMap.at(name).second.at(i - 1).c_str();
-		ImGui::SliderFloat(label, &values.at(i - 1), -10.f, 10.f);   // TODO: with radius it should be positive. Define or map max & min values too :/ 
+		ImGui::SliderFloat(label, &objectParams.at(i - 1), -10.f, 10.f);   // TODO: with radius it should be positive. Define or map max & min values too :/ 
 	}
-
-	// TODO: clear this vector when hiding the menu
-	 
-	return values; 
 }
 
 // ----------------------------------------------------------------- [Configuration]

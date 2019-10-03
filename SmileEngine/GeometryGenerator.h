@@ -63,6 +63,18 @@ namespace GeometryGenerator
 		return false; 
 	}
 
+	void GetAllObjectTypesChar(char(&array)[128])
+	{
+		strcpy(array, "Permited types:");
+		strcat(array, "\n");
+
+		for (auto& string : typeMap)
+		{
+			strcat(array, string.first.c_str());
+			strcat(array, "\n");
+		}
+	}
+
 	// ----------------------------------------------------------------- [Get the parameter string vector for a given object name]
 	std::vector<std::string> GetObjectParameters(std::string name)
 	{
@@ -85,7 +97,7 @@ namespace GeometryGenerator
 	}
 
 	// ----------------------------------------------------------------- [Generate any geometry object given a valid name and arguments] 
-	void GenerateObject(std::string name, int n_args, ...) // pass this function arguments ORDERED to call a particular object constructor: n_args = name + n_args + object params
+	void GenerateObject(std::string name, std::vector<float> data) // pass this function arguments ORDERED to call a particular object constructor
 	{
 		// 1) find if there exists an object type with the name
 		auto type = typeMap.find(name);
@@ -98,23 +110,10 @@ namespace GeometryGenerator
 		}
 		math::GeomType wantedType = typeMap.at(name);
 
-		// 2) Retrieve the data. 
-		// It HAS to be floats passed by order. It can't be "math::float3" because "va_arg" won't accept it as argument
-		std::vector<float> data;
-		va_list ap;
-
-		va_start(ap, n_args);
-		for (int i = 3; i <= n_args; ++i)
-		{
-			float variable = (float)va_arg(ap, double);   
-			data.push_back(variable);
-		}
-		va_end(ap);
-
 		if (data.size() != GetObjectParameterCount(name))
 			return; 
 
-		// 3) Generate the object -> use a pre-selected constructor with the previous data: they have to match
+		// 2) Generate the object -> use a pre-selected constructor with the previous data: they have to match
 		switch (wantedType)
 		{
 			/*case math::GTPoint:
