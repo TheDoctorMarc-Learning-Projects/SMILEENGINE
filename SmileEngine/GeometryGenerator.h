@@ -34,12 +34,33 @@ namespace GeometryGenerator
 			{
 				{"Capsule", math::GeomType::GTCapsule},
 				{"Circle", math::GeomType::GTCircle},
+				{"Line", math::GeomType::GTLine},
+				{"Line Segment", math::GeomType::GTLineSegment},
+				{"Plane", math::GeomType::GTPlane},
+				{"Ray", math::GeomType::GTRay},
+				{"Sphere", math::GeomType::GTSphere},
+				{"Triangle", math::GeomType::GTTriangle},
 			};
 
 			std::vector<std::string> capsuleParam = { "TopX", "TopY", "TopZ", "BottomX", "BottomY", "BottomZ", "Radius" }; 
+			std::vector<std::string> circleParam = { "CenterX", "CenterY", "CenterZ", "NormalX", "NormalY", "NormalZ", "Radius" };
+			std::vector<std::string> lineParam = { "PositionX", "PositionY", "PositionZ", "DirectionX", "DirectionY", "DirectionZ" }; 
+			std::vector<std::string> lineSegmentParam = { "PointA_X", "PointA_Y", "PointA_Z", "PointB_X", "PointB_Y", "PointB_Z" };
+			std::vector<std::string> planeParam = { "PointX", "PointY", "PointZ", "NormalX", "NormalY", "NormalZ" };
+			std::vector<std::string> rayParam = lineParam; 
+			std::vector<std::string> sphereParam = lineSegmentParam; 
+			std::vector<std::string> triangleSegmentParam = { "PointA_X", "PointA_Y", "PointA_Z", "PointB_X", "PointB_Y", "PointB_Z", "PointC_X", "PointC_Y", "PointC_Z" };
+
 			parameterMap =
 			{
 				{"Capsule", std::pair(7, capsuleParam)},
+				{"Circle", std::pair(7, circleParam)},
+				{"Line", std::pair(6, lineParam)},
+				{"Line Segment", std::pair(6, lineSegmentParam)},
+				{"Plane", std::pair(6, planeParam)},
+				{"Ray", std::pair(6, rayParam)},
+				{"Sphere", std::pair(6, sphereParam)},
+				{"Triangle", std::pair(9, triangleSegmentParam)},
 			};
 
 		}
@@ -65,7 +86,7 @@ namespace GeometryGenerator
 
 	void GetAllObjectTypesChar(char(&array)[128])
 	{
-		strcpy(array, "Permited types:");
+		strcpy(array, "Available types:");
 		strcat(array, "\n");
 
 		for (auto& string : typeMap)
@@ -114,6 +135,8 @@ namespace GeometryGenerator
 			return; 
 
 		// 2) Generate the object -> use a pre-selected constructor with the previous data: they have to match
+
+		// TODO: normalize line dir and ray dir
 		switch (wantedType)
 		{
 			/*case math::GTPoint:
@@ -124,26 +147,33 @@ namespace GeometryGenerator
 			math::Capsule(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5)), data.at(6));
 			break;
 		case math::GTCircle:
+			math::Circle(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5)), data.at(6));
 			break;
-		case math::GTFrustum:
-			break;
+	/*	case math::GTFrustum:
+			break;*/
 		case math::GTLine:
+			math::Line(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5))); 
 			break;
 		case math::GTLineSegment:
+			math::LineSegment(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5)));
 			break;
-		case math::GTOBB:
-			break;
+		/*case math::GTOBB:
+			break;*/
 		case math::GTPlane:
+			math::Plane(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5)));
 			break;
-		case math::GTPolygon:
+		/*case math::GTPolygon:
 			break;
 		case math::GTPolyhedron:
-			break;
+			break;*/
 		case math::GTRay:
+			math::Ray(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5)));
 			break;
 		case math::GTSphere:
+			math::Sphere(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5)));
 			break;
 		case math::GTTriangle:
+			math::Triangle(math::float3(data.at(0), data.at(1), data.at(2)), math::float3(data.at(3), data.at(4), data.at(5)), math::float3(data.at(6), data.at(7), data.at(8)));
 			break;
 		default:
 			break;
