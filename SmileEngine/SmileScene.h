@@ -19,6 +19,8 @@ private:
 
 	// test
 	par_shapes_mesh* testCube = nullptr;
+	uint* vertexIDarray = nullptr; 
+	uint* indexIDarray = nullptr;
 	uint vertexID = 0; 
 	uint indexID = vertexID; 
 };
