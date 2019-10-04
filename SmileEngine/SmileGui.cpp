@@ -16,6 +16,8 @@
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
 {
+	bool configuration_view = false;
+	bool console_view = false;
 	namespace consoleSpace
 	{
 		ImGuiTextBuffer startupLogBuffer;
@@ -157,17 +159,16 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 	
 		GeometryGeneratorGui::Execute(); // CAUTION: this is a menu
 
-
+		
 		if (ImGui::BeginMenu("View"))
 		{
-			if (ImGui::MenuItem("Configuration")) {
-				//Todo show/hide config panel
-				
-			}
 			
-			if (ImGui::MenuItem("Console")) {
-				//Todo show/hide console panel
-			}
+			if (ImGui::MenuItem("Configuration")) 
+				configuration_view = !configuration_view;
+			
+			if (ImGui::MenuItem("Console"))
+				console_view = !console_view;
+			
 
 			ImGui::EndMenu();
 		}
@@ -289,9 +290,9 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string 
 void panelData::configSpace::Execute(bool& ret)
 {
 	static bool show_demo_window = false;
-	
-	ImGui::Begin("Configuration");
-	ImGuiIO& io = ImGui::GetIO();
+	if (configuration_view == true) {
+		ImGui::Begin("Configuration");
+		ImGuiIO& io = ImGui::GetIO();
 		if (ImGui::BeginMenu("Options")) {
 			ImGui::MenuItem("Set Defaults");
 
@@ -299,37 +300,37 @@ void panelData::configSpace::Execute(bool& ret)
 
 			if (ImGui::MenuItem("Save"))
 			{
-				std::ofstream saveConfigFile("config.json"); 
+				std::ofstream saveConfigFile("config.json");
 				rapidjson::StringBuffer buffer;
 				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-				
- 
+
+
 				// window 
 				writer.StartObject();
 				writer.Key("Window");
 
-				writer.StartArray(); 
+				writer.StartArray();
 
 				writer.StartObject();
-				
+
 				writer.Key("Width");
 				writer.Int(std::get<int>(App->window->GetWindowParameter("Width")));
-			
+
 				writer.Key("Height");
 				writer.Int(std::get<int>(App->window->GetWindowParameter("Height")));
-	
+
 				writer.Key("Scale");
 				writer.Int(std::get<int>(App->window->GetWindowParameter("Scale")));
 
 				writer.Key("Fullscreen");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Fullscreen")));
-		
+
 				writer.Key("Borderless");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Borderless")));
 
 				writer.Key("Resizable");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Resizable")));
-			
+
 				writer.Key("FullDesktop");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("FullDesktop")));
 
@@ -337,12 +338,12 @@ void panelData::configSpace::Execute(bool& ret)
 
 				writer.EndArray();
 
-				writer.EndObject(); 
+				writer.EndObject();
 
 				const char* output = buffer.GetString();
-				std::string strOutput(output); 
+				std::string strOutput(output);
 				saveConfigFile << output;
-				saveConfigFile.close(); 
+				saveConfigFile.close();
 			}
 
 			ImGui::EndMenu();
@@ -446,7 +447,7 @@ void panelData::configSpace::Execute(bool& ret)
 			bool borderless_box = false;
 			bool fulldesktop_box = false;
 			ImGui::Checkbox("Active", &windowcheckbox);
-			
+
 			ImGui::Text("Icon:");
 			float br = 1.000;
 			int width = 1.000;
@@ -465,7 +466,7 @@ void panelData::configSpace::Execute(bool& ret)
 			ImGui::Checkbox("Borderless", &borderless_box);
 			ImGui::SameLine();
 			ImGui::Checkbox("Full Desktop", &fulldesktop_box);
-			
+
 		}
 		if (ImGui::CollapsingHeader("File System")) {
 			ImGui::Text("Base Path:");
@@ -500,7 +501,7 @@ void panelData::configSpace::Execute(bool& ret)
 			ImGui::TextColored({ 255,255,0,255 }, "%i", core);
 			ImGui::Text("System RAM:");
 			ImGui::SameLine();
-			ImGui::TextColored({ 255,255,0,255 }, "%.1f Gb", ram/1000);
+			ImGui::TextColored({ 255,255,0,255 }, "%.1f Gb", ram / 1000);
 
 			bool rdtsc = SDL_HasRDTSC();
 			bool mmx = SDL_HasMMX();
@@ -569,9 +570,9 @@ void panelData::configSpace::Execute(bool& ret)
 			//ImGui::SameLine();
 			//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
 		}
-
-		ImGui::End();
-		
+	
+	ImGui::End();
+}
 	
 }
 
@@ -587,50 +588,51 @@ void panelData::consoleSpace::Execute(bool& ret)
 	static ImGuiTextFilter     Filter; 
 	static bool consoleWindow; 
 	static bool scrollToBottom = true; 
-	
-	ImGui::Begin("Console", &consoleWindow);
+	if (console_view == true) {
+		ImGui::Begin("Console", &consoleWindow);
 
-	if (ImGui::Button("Clear"))
-	{
-		panelData::consoleSpace::startupLogBuffer.clear();
+		if (ImGui::Button("Clear"))
+		{
+			panelData::consoleSpace::startupLogBuffer.clear();
+		}
+		ImGui::SameLine();
+		bool copy = ImGui::Button("Copy");
+		ImGui::SameLine();
+		Filter.Draw("Filter", -100.0f);
+		ImGui::Separator();
+		ImGui::BeginChild("scrolling");
+		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
+		if (copy) ImGui::LogToClipboard();
+
+
+		//if (Filter.IsActive())
+		//{
+		//	const char* buf_begin = Buf.begin();
+		//	const char* line = buf_begin;
+		//	/*for (int line_no = 0; line != NULL; line_no++)
+		//	{
+		//		const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
+		//		if (Filter.PassFilter(line, line_end))
+		//			ImGui::TextUnformatted(line, line_end);
+		//		line = line_end && line_end[1] ? line_end + 1 : NULL;
+		//	}*/
+		//}
+		//else
+		//{
+		ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
+		//}
+
+		if (scrollToBottom)
+		{
+			ImGui::SetScrollHereY();
+			scrollToBottom = false;
+		}
+
+
+		//ImGui::PopStyleVar();
+		ImGui::EndChild();
+		ImGui::End();
 	}
-	ImGui::SameLine();
-	bool copy = ImGui::Button("Copy");
-	ImGui::SameLine();
-	Filter.Draw("Filter", -100.0f);
-	ImGui::Separator();
-	ImGui::BeginChild("scrolling");
-	//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
-	if (copy) ImGui::LogToClipboard();
-
-
-	//if (Filter.IsActive())
-	//{
-	//	const char* buf_begin = Buf.begin();
-	//	const char* line = buf_begin;
-	//	/*for (int line_no = 0; line != NULL; line_no++)
-	//	{
-	//		const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
-	//		if (Filter.PassFilter(line, line_end))
-	//			ImGui::TextUnformatted(line, line_end);
-	//		line = line_end && line_end[1] ? line_end + 1 : NULL;
-	//	}*/
-	//}
-	//else
-	//{
-	ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
-	//}
-
-	if (scrollToBottom)
-	{
-		ImGui::SetScrollHereY(); 
-		scrollToBottom = false;
-	}
-		
-
-	//ImGui::PopStyleVar();
-	ImGui::EndChild();
-	ImGui::End();
 	 
 }
 
