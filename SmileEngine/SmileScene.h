@@ -4,6 +4,9 @@
 
 #include "parshapes/par_shapes.h"
 
+#define ACCESS_TO_IMPORTER
+
+
 class SmileScene : public SmileModule
 {
 public:
