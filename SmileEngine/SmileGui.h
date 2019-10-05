@@ -3,6 +3,8 @@
 #include "ImGui/imgui.h"
 #include <vector>
 
+#define ACCESS_TO_GEOMETRY
+
 class SmileGui : public SmileModule
 {
 public:

@@ -5,11 +5,9 @@ SmileApp::SmileApp()
 {
 	window = DBG_NEW SmileWindow(this);
 	input = DBG_NEW SmileInput(this);
-	audio = DBG_NEW SmileAudio(this, true);
 	scene_intro = DBG_NEW SmileScene(this);
 	renderer3D = DBG_NEW SmileRenderer3D(this);
 	camera = DBG_NEW SmileCamera3D(this);
-	player = DBG_NEW SmilePlayer(this);
 	gui = DBG_NEW SmileGui(this);
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 
@@ -20,11 +18,9 @@ SmileApp::SmileApp()
 	// Main SmileModules
 	AddModule(window);
 	AddModule(input);
-	AddModule(audio);
-	
+
 	// Scenes
 	AddModule(scene_intro);
-	AddModule(player);
 	AddModule(camera);
 	AddModule(gui); 
 
