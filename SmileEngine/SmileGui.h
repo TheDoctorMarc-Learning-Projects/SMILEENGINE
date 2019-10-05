@@ -13,7 +13,7 @@ public:
 	void HandleRender(); 
 	void Log(const char* log);
 	bool CleanUp();
-	void CapsInformation();
+	
 	
 private: 
 	void FillMenuFunctionsVector(); 

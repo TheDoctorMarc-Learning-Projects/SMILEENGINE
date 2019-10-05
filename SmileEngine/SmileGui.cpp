@@ -24,6 +24,7 @@ namespace panelData
 	namespace configSpace
 	{
 		void Execute(bool& ret);
+		void CapsInformation();
 	}
 	namespace mainMenuSpace
 	{
@@ -355,23 +356,75 @@ void panelData::configSpace::Execute(bool& ret)
 			
 			ImGui::Text("Icon:");
 			float br = 1.000;
-			int width = 1.000;
-			int height = 1.000;
+			int width = App->window->windowVariables.Width;
+			
+			int height = App->window->windowVariables.Height;
 			//int refresh_rate = ;
 			//TODO path for the icon
-			ImGui::SliderFloat("Brightness", &br, 0.000, 1.000);
-			ImGui::SliderInt("Width", &width, 640, 1920);
-			ImGui::SliderInt("Height", &height, 480, 1080);
+			//Brightness
+			if(ImGui::SliderFloat("Brightness", &br, 0.000, 1.000))
+				SDL_SetWindowBrightness(App->window->window, br);
+			//Width
+			if (ImGui::SliderInt("Width", &width, 640, 1920))
+			{
+				SDL_SetWindowSize(App->window->window, width, height);
+				App->renderer3D->OnResize(width, height);
+			}
+			//Height
+			if (ImGui::SliderInt("Height", &height, 480, 1080))
+			{
+				SDL_SetWindowSize(App->window->window, width, height);
+				App->renderer3D->OnResize(width, height);
+			}
+			
+			
+			//Refresh rate
+			SDL_DisplayMode display_mode;
+			int display_index = SDL_GetWindowDisplayIndex(App->window->window);
+			SDL_GetDesktopDisplayMode(display_index, &display_mode);
 			ImGui::Text("Refresh Rate:");
-			//ImGui::SameLine();
-			//ImGui::TextColored({ 255,255,0,255 }, "%i", refresh_rate);
+			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, "%i", display_mode.refresh_rate);
+			//Fullscreen checkbox
 			ImGui::Checkbox("FullScreen", &fullscreen_box);
 			ImGui::SameLine();
+			if (fullscreen_box)
+			{
+				SDL_SetWindowFullscreen(App->window->window, SDL_WINDOW_FULLSCREEN);
+			}
+			else 
+			{
+				SDL_SetWindowFullscreen(App->window->window, 0);
+			}
+			// Resizable checkbox
 			ImGui::Checkbox("Resizable", &resizable_box);
+			
+			if (resizable_box)
+			{
+				SDL_SetWindowResizable(App->window->window, (SDL_bool)false);
+			}
+			else
+			{
+				SDL_SetWindowResizable(App->window->window, (SDL_bool)true);
+			}
 			ImGui::Checkbox("Borderless", &borderless_box);
+			if (borderless_box)
+			{
+				SDL_SetWindowBordered(App->window->window, (SDL_bool)false);
+			}
+			else {
+				SDL_SetWindowBordered(App->window->window, (SDL_bool)true);
+			}
 			ImGui::SameLine();
 			ImGui::Checkbox("Full Desktop", &fulldesktop_box);
-			
+			if (fulldesktop_box)
+			{
+				SDL_SetWindowFullscreen(App->window->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			}
+			else
+			{
+				SDL_SetWindowFullscreen(App->window->window, 0);
+			}
 		}
 		if (ImGui::CollapsingHeader("File System")) {
 			ImGui::Text("Base Path:");
@@ -407,73 +460,8 @@ void panelData::configSpace::Execute(bool& ret)
 			ImGui::Text("System RAM:");
 			ImGui::SameLine();
 			ImGui::TextColored({ 255,255,0,255 }, "%.1f Gb", ram/1000);
-
-			bool rdtsc = SDL_HasRDTSC();
-			bool mmx = SDL_HasMMX();
-			bool sse = SDL_HasSSE();
-			bool sse2 = SDL_HasSSE2();
-			bool sse3 = SDL_HasSSE3();
-			bool sse41 = SDL_HasSSE41();
-			bool sse42 = SDL_HasSSE42();
-			bool avx = SDL_HasAVX();
-			bool avx2 = SDL_HasAVX2();
-
-
-			ImGui::Text("Caps:");
-			ImGui::SameLine();
-			if (rdtsc)
-				ImGui::TextColored({ 255,255,0,255 }, "RDTSC,");
-			ImGui::SameLine();
-			if (mmx)
-				ImGui::TextColored({ 255,255,0,255 }, "MMX,");
-			ImGui::SameLine();
-			if (sse)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE,");
-			ImGui::SameLine();
-			if (sse2)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE2,");
-			ImGui::SameLine();
-			if (sse3)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE3,");
-			ImGui::SameLine();
-			if (sse41)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE41,");
-			ImGui::SameLine();
-			if (sse42)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE42,");
-			ImGui::SameLine();
-			if (avx)
-				ImGui::TextColored({ 255,255,0,255 }, "AVX,");
-			ImGui::SameLine();
-			if (avx2)
-				ImGui::TextColored({ 255,255,0,255 }, "AVX2");
-			const char* gpu = (const char*)glGetString(GL_VENDOR);
-			ImGui::Text("GPU:");
-			ImGui::SameLine();
-			ImGui::TextColored({ 255,255,0,255 }, gpu);
-
-			const char* brand = (const char*)glGetString(GL_RENDERER);
-			ImGui::Text("Brand:");
-			ImGui::SameLine();
-			ImGui::TextColored({ 255,255,0,255 }, brand);
-
-			/*float vram_budget = ;
-			float vram_usage = ;
-			float vram_available = ;
-			float vram_reserved = ;*/
-
-			ImGui::Text("VRAM Budget:");
-			//ImGui::SameLine();
-			//ImGui::TextColored({ 255,255,0,255 }, vram_budget);
-			ImGui::Text("VRAM Usage:");
-			//ImGui::SameLine();
-			//ImGui::TextColored({ 255,255,0,255 }, vram_usage);
-			ImGui::Text("VRAM Available:");
-			//ImGui::SameLine();
-			//ImGui::TextColored({ 255,255,0,255 }, vram_available);
-			ImGui::Text("VRAM Reserved:");
-			//ImGui::SameLine();
-			//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
+			CapsInformation();
+			
 		}
 
 		ImGui::End();
@@ -540,7 +528,7 @@ void panelData::consoleSpace::Execute(bool& ret)
 	 
 }
 
-void SmileGui::CapsInformation() {
+void panelData::configSpace::CapsInformation() {
 	
 	bool rdtsc = SDL_HasRDTSC();
 	bool mmx = SDL_HasMMX();
@@ -552,7 +540,7 @@ void SmileGui::CapsInformation() {
 	bool avx = SDL_HasAVX();
 	bool avx2 = SDL_HasAVX2();
 
-	
+
 	ImGui::Text("Caps:");
 	ImGui::SameLine();
 	if (rdtsc)
@@ -581,4 +569,31 @@ void SmileGui::CapsInformation() {
 	ImGui::SameLine();
 	if (avx2)
 		ImGui::TextColored({ 255,255,0,255 }, "AVX2");
+	const char* gpu = (const char*)glGetString(GL_VENDOR);
+	ImGui::Text("GPU:");
+	ImGui::SameLine();
+	ImGui::TextColored({ 255,255,0,255 }, gpu);
+
+	const char* brand = (const char*)glGetString(GL_RENDERER);
+	ImGui::Text("Brand:");
+	ImGui::SameLine();
+	ImGui::TextColored({ 255,255,0,255 }, brand);
+
+	/*float vram_budget = ;
+	float vram_usage = ;
+	float vram_available = ;
+	float vram_reserved = ;*/
+
+	ImGui::Text("VRAM Budget:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_budget);
+	ImGui::Text("VRAM Usage:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_usage);
+	ImGui::Text("VRAM Available:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_available);
+	ImGui::Text("VRAM Reserved:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
 }
