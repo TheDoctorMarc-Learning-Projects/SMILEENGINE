@@ -6,6 +6,14 @@
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+
+#define WIN32_LEAN_AND_MEAN
+#include<windows.h>
+#include <mmsystem.h>
+#pragma comment (lib, "winmm.lib")
+#include <stdlib.h>
+
+
 #define MAX_KEYS 300
 
 SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -131,4 +139,11 @@ bool SmileInput::CleanUp()
 	LOG("Quitting SDL input event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
+}
+
+void SmileInput::ButCanItRunCrysis()
+{
+	mciSendString("set cdaudio door open", 0, 0, 0);
+	MessageBox(nullptr, TEXT("No, it can't"), TEXT("Incoming message:"), MB_OK);
+	App->gui->Log("\nCould not run Crysis"); 
 }

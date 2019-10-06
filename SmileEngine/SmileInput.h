@@ -60,9 +60,7 @@ public:
 	}
 
 public: 
-	void EjectCDROM() {
-
-	}
+	void ButCanItRunCrysis(); 
 
 private:
 	KEY_STATE* keyboard;

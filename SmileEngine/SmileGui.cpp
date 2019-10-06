@@ -197,6 +197,9 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 				//TODO
 
 			}
+			if (ImGui::MenuItem("But can it run Crysis?"))
+				App->input->ButCanItRunCrysis(); 
+
 
 			ImGui::EndMenu();
 		}
