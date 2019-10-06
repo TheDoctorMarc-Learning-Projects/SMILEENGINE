@@ -9,7 +9,6 @@
 #include "SmileScene.h"
 #include "SmileRenderer3D.h"
 #include "SmileCamera3D.h"
-#include "SmilePlayer.h"
 #include "SmileGui.h"
 #include "SmileUtilitiesModule.h"
 
@@ -23,7 +22,6 @@ public:
 	SmileScene* scene_intro;
 	SmileRenderer3D* renderer3D;
 	SmileCamera3D* camera;
-	SmilePlayer* player;
 	SmileGui* gui; 
 	SmileUtilitiesModule* utilities;
 

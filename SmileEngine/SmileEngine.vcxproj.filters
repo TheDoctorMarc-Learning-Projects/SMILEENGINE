@@ -78,9 +78,6 @@
     <ClInclude Include="SmileScene.h">
       <Filter>Source\Modules\GameLogic</Filter>
     </ClInclude>
-    <ClInclude Include="SmilePlayer.h">
-      <Filter>Source\Modules\GameLogic</Filter>
-    </ClInclude>
     <ClInclude Include="pcg\include\pcg_extras.hpp">
       <Filter>Source\Tools\pcg</Filter>
     </ClInclude>
@@ -112,7 +109,10 @@
       <Filter>Source\Tools</Filter>
     </ClInclude>
     <ClInclude Include="GeometryGenerator.h">
-      <Filter>Source\Tools</Filter>
+      <Filter>Source\Modules\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Importer.h">
+      <Filter>Source\Modules\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -159,9 +159,6 @@
       <Filter>Source\Modules</Filter>
     </ClCompile>
     <ClCompile Include="SmileScene.cpp">
-      <Filter>Source\Modules\GameLogic</Filter>
-    </ClCompile>
-    <ClCompile Include="SmilePlayer.cpp">
       <Filter>Source\Modules\GameLogic</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp">

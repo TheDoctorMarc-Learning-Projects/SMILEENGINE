@@ -16,6 +16,8 @@
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
 {
+	bool configuration_view = false;
+	bool console_view = false;
 	namespace consoleSpace
 	{
 		ImGuiTextBuffer startupLogBuffer;
@@ -25,6 +27,7 @@ namespace panelData
 	namespace configSpace
 	{
 		void Execute(bool& ret);
+		void CapsInformation();
 	}
 	namespace mainMenuSpace
 	{
@@ -157,17 +160,16 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 	
 		GeometryGeneratorGui::Execute(); // CAUTION: this is a menu
 
-
+		
 		if (ImGui::BeginMenu("View"))
 		{
-			if (ImGui::MenuItem("Configuration")) {
-				//Todo show/hide config panel
-				
-			}
 			
-			if (ImGui::MenuItem("Console")) {
-				//Todo show/hide console panel
-			}
+			if (ImGui::MenuItem("Configuration")) 
+				configuration_view = !configuration_view;
+			
+			if (ImGui::MenuItem("Console"))
+				console_view = !console_view;
+			
 
 			ImGui::EndMenu();
 		}
@@ -292,9 +294,9 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string 
 void panelData::configSpace::Execute(bool& ret)
 {
 	static bool show_demo_window = false;
-	
-	ImGui::Begin("Configuration");
-	ImGuiIO& io = ImGui::GetIO();
+	if (configuration_view == true) {
+		ImGui::Begin("Configuration");
+		ImGuiIO& io = ImGui::GetIO();
 		if (ImGui::BeginMenu("Options")) {
 			ImGui::MenuItem("Set Defaults");
 
@@ -302,37 +304,37 @@ void panelData::configSpace::Execute(bool& ret)
 
 			if (ImGui::MenuItem("Save"))
 			{
-				std::ofstream saveConfigFile("config.json"); 
+				std::ofstream saveConfigFile("config.json");
 				rapidjson::StringBuffer buffer;
 				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-				
- 
+
+
 				// window 
 				writer.StartObject();
 				writer.Key("Window");
 
-				writer.StartArray(); 
+				writer.StartArray();
 
 				writer.StartObject();
-				
+
 				writer.Key("Width");
 				writer.Int(std::get<int>(App->window->GetWindowParameter("Width")));
-			
+
 				writer.Key("Height");
 				writer.Int(std::get<int>(App->window->GetWindowParameter("Height")));
-	
+
 				writer.Key("Scale");
 				writer.Int(std::get<int>(App->window->GetWindowParameter("Scale")));
 
 				writer.Key("Fullscreen");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Fullscreen")));
-		
+
 				writer.Key("Borderless");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Borderless")));
 
 				writer.Key("Resizable");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Resizable")));
-			
+
 				writer.Key("FullDesktop");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("FullDesktop")));
 
@@ -340,12 +342,12 @@ void panelData::configSpace::Execute(bool& ret)
 
 				writer.EndArray();
 
-				writer.EndObject(); 
+				writer.EndObject();
 
 				const char* output = buffer.GetString();
-				std::string strOutput(output); 
+				std::string strOutput(output);
 				saveConfigFile << output;
-				saveConfigFile.close(); 
+				saveConfigFile.close();
 			}
 
 			ImGui::EndMenu();
@@ -449,26 +451,83 @@ void panelData::configSpace::Execute(bool& ret)
 			bool borderless_box = false;
 			bool fulldesktop_box = false;
 			ImGui::Checkbox("Active", &windowcheckbox);
-			
+
 			ImGui::Text("Icon:");
 			float br = 1.000;
-			int width = 1.000;
-			int height = 1.000;
+			int width = App->window->windowVariables.Width;
+
+			int height = App->window->windowVariables.Height;
 			//int refresh_rate = ;
 			//TODO path for the icon
-			ImGui::SliderFloat("Brightness", &br, 0.000, 1.000);
-			ImGui::SliderInt("Width", &width, 640, 1920);
-			ImGui::SliderInt("Height", &height, 480, 1080);
+			//Brightness
+			if (ImGui::SliderFloat("Brightness", &br, 0.000, 1.000))
+				SDL_SetWindowBrightness(App->window->window, br);
+			//Width
+			if (ImGui::SliderInt("Width", &width, 640, 1920))
+			{
+				SDL_SetWindowSize(App->window->window, width, height);
+				App->renderer3D->OnResize(width, height);
+			}
+			//Height
+			if (ImGui::SliderInt("Height", &height, 480, 1080))
+			{
+				SDL_SetWindowSize(App->window->window, width, height);
+				App->renderer3D->OnResize(width, height);
+			}
+
+
+			//Refresh rate
+			SDL_DisplayMode display_mode;
+			int display_index = SDL_GetWindowDisplayIndex(App->window->window);
+			SDL_GetDesktopDisplayMode(display_index, &display_mode);
 			ImGui::Text("Refresh Rate:");
-			//ImGui::SameLine();
-			//ImGui::TextColored({ 255,255,0,255 }, "%i", refresh_rate);
-			ImGui::Checkbox("FullScreen", &fullscreen_box);
 			ImGui::SameLine();
+			ImGui::TextColored({ 255,255,0,255 }, "%i", display_mode.refresh_rate);
+			//Fullscreen checkbox
+			if (ImGui::Checkbox("FullScreen", &fullscreen_box))
+			{
+				fullscreen_box = !fullscreen_box;
+				if (fullscreen_box)
+				{
+					SDL_SetWindowFullscreen(App->window->window, SDL_WINDOW_FULLSCREEN);
+				}
+				else
+				{
+					SDL_SetWindowFullscreen(App->window->window, 0);
+				}
+			}
+			ImGui::SameLine();
+			// Resizable checkbox
 			ImGui::Checkbox("Resizable", &resizable_box);
+			
+			if (resizable_box)
+			{
+				SDL_SetWindowResizable(App->window->window, (SDL_bool)false);
+			}
+			else
+			{
+				SDL_SetWindowResizable(App->window->window, (SDL_bool)true);
+			}
 			ImGui::Checkbox("Borderless", &borderless_box);
+			if (borderless_box)
+			{
+				SDL_SetWindowBordered(App->window->window, (SDL_bool)false);
+			}
+			else {
+				SDL_SetWindowBordered(App->window->window, (SDL_bool)true);
+			}
 			ImGui::SameLine();
 			ImGui::Checkbox("Full Desktop", &fulldesktop_box);
-			
+
+			if (fulldesktop_box)
+			{
+				SDL_SetWindowFullscreen(App->window->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			}
+			else
+			{
+				SDL_SetWindowFullscreen(App->window->window, 0);
+			}
+
 		}
 		if (ImGui::CollapsingHeader("File System")) {
 			ImGui::Text("Base Path:");
@@ -503,47 +562,12 @@ void panelData::configSpace::Execute(bool& ret)
 			ImGui::TextColored({ 255,255,0,255 }, "%i", core);
 			ImGui::Text("System RAM:");
 			ImGui::SameLine();
+
 			ImGui::TextColored({ 255,255,0,255 }, "%.1f Gb", ram/1000);
+			CapsInformation();
+			
 
-			bool rdtsc = SDL_HasRDTSC();
-			bool mmx = SDL_HasMMX();
-			bool sse = SDL_HasSSE();
-			bool sse2 = SDL_HasSSE2();
-			bool sse3 = SDL_HasSSE3();
-			bool sse41 = SDL_HasSSE41();
-			bool sse42 = SDL_HasSSE42();
-			bool avx = SDL_HasAVX();
-			bool avx2 = SDL_HasAVX2();
-
-
-			ImGui::Text("Caps:");
-			ImGui::SameLine();
-			if (rdtsc)
-				ImGui::TextColored({ 255,255,0,255 }, "RDTSC,");
-			ImGui::SameLine();
-			if (mmx)
-				ImGui::TextColored({ 255,255,0,255 }, "MMX,");
-			ImGui::SameLine();
-			if (sse)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE,");
-			ImGui::SameLine();
-			if (sse2)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE2,");
-			ImGui::SameLine();
-			if (sse3)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE3,");
-			ImGui::SameLine();
-			if (sse41)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE41,");
-			ImGui::SameLine();
-			if (sse42)
-				ImGui::TextColored({ 255,255,0,255 }, "SSE42,");
-			ImGui::SameLine();
-			if (avx)
-				ImGui::TextColored({ 255,255,0,255 }, "AVX,");
-			ImGui::SameLine();
-			if (avx2)
-				ImGui::TextColored({ 255,255,0,255 }, "AVX2");
+			
 			const char* gpu = (const char*)glGetString(GL_VENDOR);
 			ImGui::Text("GPU:");
 			ImGui::SameLine();
@@ -571,10 +595,11 @@ void panelData::configSpace::Execute(bool& ret)
 			ImGui::Text("VRAM Reserved:");
 			//ImGui::SameLine();
 			//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
-		}
 
-		ImGui::End();
-		
+		}
+	
+	ImGui::End();
+}
 	
 }
 
@@ -590,54 +615,55 @@ void panelData::consoleSpace::Execute(bool& ret)
 	static ImGuiTextFilter     Filter; 
 	static bool consoleWindow; 
 	static bool scrollToBottom = true; 
-	
-	ImGui::Begin("Console", &consoleWindow);
+	if (console_view == true) {
+		ImGui::Begin("Console", &consoleWindow);
 
-	if (ImGui::Button("Clear"))
-	{
-		panelData::consoleSpace::startupLogBuffer.clear();
+		if (ImGui::Button("Clear"))
+		{
+			panelData::consoleSpace::startupLogBuffer.clear();
+		}
+		ImGui::SameLine();
+		bool copy = ImGui::Button("Copy");
+		ImGui::SameLine();
+		Filter.Draw("Filter", -100.0f);
+		ImGui::Separator();
+		ImGui::BeginChild("scrolling");
+		//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
+		if (copy) ImGui::LogToClipboard();
+
+
+		//if (Filter.IsActive())
+		//{
+		//	const char* buf_begin = Buf.begin();
+		//	const char* line = buf_begin;
+		//	/*for (int line_no = 0; line != NULL; line_no++)
+		//	{
+		//		const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
+		//		if (Filter.PassFilter(line, line_end))
+		//			ImGui::TextUnformatted(line, line_end);
+		//		line = line_end && line_end[1] ? line_end + 1 : NULL;
+		//	}*/
+		//}
+		//else
+		//{
+		ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
+		//}
+
+		if (scrollToBottom)
+		{
+			ImGui::SetScrollHereY();
+			scrollToBottom = false;
+		}
+
+
+		//ImGui::PopStyleVar();
+		ImGui::EndChild();
+		ImGui::End();
 	}
-	ImGui::SameLine();
-	bool copy = ImGui::Button("Copy");
-	ImGui::SameLine();
-	Filter.Draw("Filter", -100.0f);
-	ImGui::Separator();
-	ImGui::BeginChild("scrolling");
-	//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
-	if (copy) ImGui::LogToClipboard();
-
-
-	//if (Filter.IsActive())
-	//{
-	//	const char* buf_begin = Buf.begin();
-	//	const char* line = buf_begin;
-	//	/*for (int line_no = 0; line != NULL; line_no++)
-	//	{
-	//		const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
-	//		if (Filter.PassFilter(line, line_end))
-	//			ImGui::TextUnformatted(line, line_end);
-	//		line = line_end && line_end[1] ? line_end + 1 : NULL;
-	//	}*/
-	//}
-	//else
-	//{
-	ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
-	//}
-
-	if (scrollToBottom)
-	{
-		ImGui::SetScrollHereY(); 
-		scrollToBottom = false;
-	}
-		
-
-	//ImGui::PopStyleVar();
-	ImGui::EndChild();
-	ImGui::End();
 	 
 }
 
-void SmileGui::CapsInformation() {
+void panelData::configSpace::CapsInformation() {
 	
 	bool rdtsc = SDL_HasRDTSC();
 	bool mmx = SDL_HasMMX();
@@ -649,7 +675,7 @@ void SmileGui::CapsInformation() {
 	bool avx = SDL_HasAVX();
 	bool avx2 = SDL_HasAVX2();
 
-	
+
 	ImGui::Text("Caps:");
 	ImGui::SameLine();
 	if (rdtsc)
@@ -678,4 +704,31 @@ void SmileGui::CapsInformation() {
 	ImGui::SameLine();
 	if (avx2)
 		ImGui::TextColored({ 255,255,0,255 }, "AVX2");
+	const char* gpu = (const char*)glGetString(GL_VENDOR);
+	ImGui::Text("GPU:");
+	ImGui::SameLine();
+	ImGui::TextColored({ 255,255,0,255 }, gpu);
+
+	const char* brand = (const char*)glGetString(GL_RENDERER);
+	ImGui::Text("Brand:");
+	ImGui::SameLine();
+	ImGui::TextColored({ 255,255,0,255 }, brand);
+
+	/*float vram_budget = ;
+	float vram_usage = ;
+	float vram_available = ;
+	float vram_reserved = ;*/
+
+	ImGui::Text("VRAM Budget:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_budget);
+	ImGui::Text("VRAM Usage:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_usage);
+	ImGui::Text("VRAM Available:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_available);
+	ImGui::Text("VRAM Reserved:");
+	//ImGui::SameLine();
+	//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
 }

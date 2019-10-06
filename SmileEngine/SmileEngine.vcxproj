@@ -89,6 +89,7 @@
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="glmath.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="Importer.h" />
     <ClInclude Include="JSONParser.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="pcg\include\pcg_extras.hpp" />
@@ -106,7 +107,6 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="SmileCamera3D.h" />
-    <ClInclude Include="SmilePlayer.h" />
     <ClInclude Include="SmileRenderer3D.h" />
     <ClInclude Include="SmileModule.h" />
     <ClInclude Include="SmileInput.h" />
@@ -133,7 +133,6 @@
     <ClCompile Include="SmileMain.cpp" />
     <ClCompile Include="SmileCamera3D.cpp" />
     <ClCompile Include="SmileInput.cpp" />
-    <ClCompile Include="SmilePlayer.cpp" />
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileScene.cpp" />
     <ClCompile Include="SmileSetup.cpp" />

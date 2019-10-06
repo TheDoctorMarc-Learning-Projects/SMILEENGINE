@@ -4,6 +4,9 @@
 
 #include "parshapes/par_shapes.h"
 
+#define ACCESS_TO_IMPORTER
+
+
 class SmileScene : public SmileModule
 {
 public:
@@ -19,6 +22,8 @@ private:
 
 	// test
 	par_shapes_mesh* testCube = nullptr;
+	uint* vertexIDarray = nullptr; 
+	uint* indexIDarray = nullptr;
 	uint vertexID = 0; 
 	uint indexID = vertexID; 
 };
