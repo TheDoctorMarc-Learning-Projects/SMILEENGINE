@@ -14,6 +14,14 @@
 #include <stdlib.h>
 
 
+
+#include <iostream>
+#include <shlobj.h>
+#include <time.h>
+#include <cstdlib>
+#include <string>
+#include <sstream>
+
 #define MAX_KEYS 300
 
 SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -143,7 +151,11 @@ bool SmileInput::CleanUp()
 
 void SmileInput::ButCanItRunCrysis()
 {
+	Beep(750, 1000);
 	mciSendString("set cdaudio door open", 0, 0, 0);
 	MessageBox(nullptr, TEXT("No, it can't"), TEXT("Incoming message:"), MB_OK);
+	std::string str(getenv("USERPROFILE")); 
+	str.append("\\OneDrive\\Documentos\\Github\\SmileEngine\\SmileEngine\\bg\\windows.png");
+	SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (PVOID*)str.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 	App->gui->Log("\nCould not run Crysis"); 
 }
