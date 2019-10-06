@@ -32,14 +32,7 @@ bool SmileScene::Start()
 	testCube = par_shapes_create_cube(); 
 
 	// Vertex buffer
-	glGenBuffers(1, &vertexID);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * testCube->npoints * 3, &testCube->points[0], GL_STATIC_DRAW);
-
-	// Index buffer
-	glGenBuffers(1, &indexID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * testCube->ntriangles * 3, &testCube->triangles[0], GL_STATIC_DRAW);
+	App->fbx->ReadMeshData("Assets/warrior.FBX");
 
 	return true;
 }
@@ -59,17 +52,11 @@ update_status SmileScene::Update(float dt)
     
 	DrawGrid();
  
-	glColor3f(0.f, 0.f, 1.f);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// Test: drawing a par_shapes cube 
-	glEnableClientState(GL_VERTEX_ARRAY);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vertexID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
-	glDrawElements(GL_TRIANGLES, testCube->ntriangles * 3, GL_UNSIGNED_SHORT, NULL);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
+	if(App->input->GetKey(SDL_SCANCODE_P)==KEY_DOWN)
+		App->fbx->ReadMeshData("Assets/warrior.FBX");
  
 	return UPDATE_CONTINUE;
 }
@@ -79,3 +66,5 @@ void SmileScene::DrawGrid()
 	
 	// TODO
 }
+
+

@@ -10,6 +10,7 @@ SmileApp::SmileApp()
 	camera = DBG_NEW SmileCamera3D(this);
 	gui = DBG_NEW SmileGui(this);
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
+	fbx = DBG_NEW SmileFBX(this);
 
 	// The order of calls is very important!
 	// SmileModules will Init() Start() and Update in this order
@@ -18,7 +19,7 @@ SmileApp::SmileApp()
 	// Main SmileModules
 	AddModule(window);
 	AddModule(input);
-
+	AddModule(fbx);
 	// Scenes
 	AddModule(scene_intro);
 	AddModule(camera);

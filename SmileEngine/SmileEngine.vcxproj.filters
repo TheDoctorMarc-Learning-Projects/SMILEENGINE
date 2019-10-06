@@ -114,6 +114,9 @@
     <ClInclude Include="Importer.h">
       <Filter>Source\Modules\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="SmileFBX.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -181,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileFBX.cpp">
+      <Filter>Source\Modules</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

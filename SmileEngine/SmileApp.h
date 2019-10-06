@@ -11,6 +11,7 @@
 #include "SmileCamera3D.h"
 #include "SmileGui.h"
 #include "SmileUtilitiesModule.h"
+#include "SmileFBX.h"
 
 #include <list>
 
@@ -24,6 +25,7 @@ public:
 	SmileCamera3D* camera;
 	SmileGui* gui; 
 	SmileUtilitiesModule* utilities;
+	SmileFBX* fbx;
 
 private:
 

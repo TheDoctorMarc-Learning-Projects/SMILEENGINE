@@ -1,10 +1,11 @@
 #pragma once
 #include "SmileModule.h"
 #include "SmileSetup.h"
-
+#include "SmileFBX.h"
 #include "parshapes/par_shapes.h"
 
 #define ACCESS_TO_IMPORTER
+
 
 
 class SmileScene : public SmileModule
@@ -19,6 +20,7 @@ public:
 
 private: 
 	void DrawGrid(); 
+	void DrawMeshes(Mesh mesh_info);
 
 	// test
 	par_shapes_mesh* testCube = nullptr;
@@ -26,4 +28,5 @@ private:
 	uint* indexIDarray = nullptr;
 	uint vertexID = 0; 
 	uint indexID = vertexID; 
+
 };

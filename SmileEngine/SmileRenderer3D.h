@@ -3,6 +3,7 @@
 #include "SmileSetup.h"
 #include "glmath.h"
 #include "Light.h"
+#include <list>
 
 #define MAX_LIGHTS 8
 
@@ -18,8 +19,10 @@ public:
 	bool CleanUp();
 
 	void OnResize(int width, int height);
+	void DrawMesh();
 
 public:
+	std::list<Mesh*> meshes;
 	SDL_GLContext context;
 	Light lights[MAX_LIGHTS];
 	mat3x3 NormalMatrix;

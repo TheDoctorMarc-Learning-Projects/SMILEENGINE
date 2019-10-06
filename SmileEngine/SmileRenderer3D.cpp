@@ -138,7 +138,7 @@ update_status SmileRenderer3D::PostUpdate(float dt)
 	// TODO: call geometry draw here 
 
     App->gui->HandleRender(); 
-
+	DrawMesh();
 	SDL_GL_SwapWindow(App->window->window);
 	return UPDATE_CONTINUE;
 }
@@ -165,4 +165,14 @@ void SmileRenderer3D::OnResize(int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+}
+
+void SmileRenderer3D::DrawMesh()
+{
+	std::list <Mesh*> ::const_iterator item = meshes.begin();
+	for (item; item != meshes.end(); item++)
+	{
+		App->fbx->DrawFBX((*item));
+	}
+
 }
