@@ -42,7 +42,9 @@ bool SmileScene::Start()
 bool SmileScene::CleanUp()
 {
 	//par_shapes_free_mesh(testCube); 
-	meshes.clear(); 
+	for (auto& fbx : fbxs)
+		fbx.meshes.clear(); 
+	fbxs.clear(); 
 
 	return true;
 }
@@ -53,7 +55,7 @@ update_status SmileScene::Update(float dt)
     
 	DrawGrid();
  
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// Test: drawing a par_shapes cube 
 	/*if(App->input->GetKey(SDL_SCANCODE_P)==KEY_DOWN)
@@ -70,7 +72,9 @@ void SmileScene::DrawGrid()
 
 void SmileScene::DrawMeshes()
 {
-	for (auto& mesh : meshes)
-		App->fbx->DrawMesh(mesh); 
+	for(auto& fbx : fbxs)
+		for (auto& mesh : fbx.meshes)
+			App->fbx->DrawMesh(mesh);
+
 }
 

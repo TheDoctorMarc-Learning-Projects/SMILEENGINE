@@ -8,11 +8,7 @@
 #include "parshapes/par_shapes.h"
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
-//#ifndef ACCESS_TO_IMPORTER
-//#error This file is for inclusion in the scene module only
-//#endif 
-
-#undef ACCESS_TO_IMPORTER 
+#include <list>
 
 struct Mesh {
 	uint id_index = 0;
@@ -22,6 +18,10 @@ struct Mesh {
 	uint id_vertex = 0;
 	uint num_vertex = 0;
 	float* vertex = nullptr;
+};
+
+struct FBX {
+	std::list<Mesh> meshes;
 };
 
 class SmileFBX : public SmileModule

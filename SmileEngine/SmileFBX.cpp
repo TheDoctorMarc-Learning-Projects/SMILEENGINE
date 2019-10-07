@@ -41,7 +41,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 	if (scene != nullptr && scene->HasMeshes()) 
 	{
-
+		FBX fbx_info; 
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
 			aiMesh* new_mesh = scene->mMeshes[i];
@@ -67,16 +67,18 @@ void SmileFBX::ReadFBXData(const char* path) {
 					
 				}
 			}
-			glGenBuffers(1, /*(GLuint*)*/ & (mesh_info.id_vertex));
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_vertex));
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_vertex);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_vertex * 3, mesh_info.vertex, GL_STATIC_DRAW);
 
 			// Index buffer
-			glGenBuffers(1, /*(GLuint*)*/ & (mesh_info.id_index));
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_index));
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_index);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_index /** 3*/, mesh_info.index, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_index, mesh_info.index, GL_STATIC_DRAW);
 
-			App->scene_intro->meshes.push_back(mesh_info);
+
+			fbx_info.meshes.push_back(mesh_info); 
+			App->scene_intro->fbxs.push_back(fbx_info);
 		}
 		// Vertex Buffer
 		

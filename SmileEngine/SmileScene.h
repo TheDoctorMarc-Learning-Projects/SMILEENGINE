@@ -5,10 +5,6 @@
 #include "parshapes/par_shapes.h"
 #include <list>
 
-#define ACCESS_TO_IMPORTER
-
-
-
 class SmileScene : public SmileModule
 {
 public:
@@ -24,7 +20,7 @@ private:
 
 public: 
 	void DrawMeshes();
-	std::list<Mesh> meshes;
+	std::list<FBX> fbxs;
 
 
 	/*// test
