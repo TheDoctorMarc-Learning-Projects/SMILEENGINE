@@ -128,10 +128,18 @@ update_status SmileInput::PreUpdate(float dt)
 			break;
 
 			case SDL_WINDOWEVENT:
-			{
 				if(e.window.event == SDL_WINDOWEVENT_RESIZED)
 					App->renderer3D->OnResize(e.window.data1, e.window.data2);
+			break; 
+
+			case SDL_DROPFILE:
+			{
+				App->fbx->ReadFBXData(e.drop.file);
+				SDL_free(e.drop.file);
+				break;
 			}
+
+
 		}
 	}
 

@@ -95,9 +95,9 @@ bool SmileGui::Start()
 // -----------------------------------------------------------------
 update_status SmileGui::PreUpdate(float dt)
 {
-	SDL_Event event;
+	/*SDL_Event event;
 	while (SDL_PollEvent(&event))
-		ImGui_ImplSDL2_ProcessEvent(&event);
+		ImGui_ImplSDL2_ProcessEvent(&event);*/
 
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
