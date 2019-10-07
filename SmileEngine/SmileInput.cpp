@@ -154,7 +154,7 @@ void SmileInput::ButCanItRunCrysis()
 	Beep(750, 1000);
 	mciSendString("set cdaudio door open", 0, 0, 0);
 	MessageBox(nullptr, TEXT("No, it can't"), TEXT("Incoming message:"), MB_OK);
-	std::string str(getenv("USERPROFILE")); 
+	std::string str(getenv("USERPROFILE"));  // TODO: get the relative path and transform it to absolute 
 	str.append("\\OneDrive\\Documentos\\Github\\SmileEngine\\SmileEngine\\bg\\windows.png");
 	SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (PVOID*)str.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 	App->gui->Log("\nCould not run Crysis"); 

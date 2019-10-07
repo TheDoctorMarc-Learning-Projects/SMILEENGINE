@@ -31,14 +31,8 @@ public:
 	~SmileFBX();
 	bool Start();
 	bool CleanUp();
-	void ReleaseFBX(const aiScene*& scene) { if (scene && scene != nullptr) aiReleaseImport(scene); };
-	void ReadMeshData(const char* path);
-	void DrawFBX(Mesh* mesh);
+	void ReadFBXData(const char* path);
+	void DrawMesh(Mesh& mesh);
 	
-
-public:
-	
-	Mesh mesh_info;
-
 };
 

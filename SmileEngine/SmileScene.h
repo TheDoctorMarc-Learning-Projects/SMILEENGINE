@@ -3,6 +3,7 @@
 #include "SmileSetup.h"
 #include "SmileFBX.h"
 #include "parshapes/par_shapes.h"
+#include <list>
 
 #define ACCESS_TO_IMPORTER
 
@@ -20,13 +21,17 @@ public:
 
 private: 
 	void DrawGrid(); 
-	void DrawMeshes(Mesh mesh_info);
 
-	// test
+public: 
+	void DrawMeshes();
+	std::list<Mesh> meshes;
+
+
+	/*// test
 	par_shapes_mesh* testCube = nullptr;
 	uint* vertexIDarray = nullptr; 
 	uint* indexIDarray = nullptr;
 	uint vertexID = 0; 
-	uint indexID = vertexID; 
+	uint indexID = vertexID; */
 
 };

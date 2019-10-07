@@ -35,7 +35,7 @@ bool SmileFBX::CleanUp()
 	return true;
 }
 
-void SmileFBX::ReadMeshData(const char* path) {
+void SmileFBX::ReadFBXData(const char* path) {
 
 	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
 
@@ -45,6 +45,7 @@ void SmileFBX::ReadMeshData(const char* path) {
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
 			aiMesh* new_mesh = scene->mMeshes[i];
+			Mesh mesh_info; 
 			mesh_info.num_vertex = new_mesh->mNumVertices;
 			mesh_info.vertex = new float[mesh_info.num_vertex * 3];
 			memcpy(mesh_info.vertex, new_mesh->mVertices, sizeof(float) * mesh_info.num_vertex * 3);
@@ -66,20 +67,19 @@ void SmileFBX::ReadMeshData(const char* path) {
 					
 				}
 			}
-			glGenBuffers(1, (GLuint*) & (mesh_info.id_vertex));
+			glGenBuffers(1, /*(GLuint*)*/ & (mesh_info.id_vertex));
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_vertex);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_vertex * 3, mesh_info.vertex, GL_STATIC_DRAW);
 
 			// Index buffer
-			glGenBuffers(1, (GLuint*) & (mesh_info.id_index));
+			glGenBuffers(1, /*(GLuint*)*/ & (mesh_info.id_index));
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_index);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * mesh_info.num_index * 3, mesh_info.index, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_index /** 3*/, mesh_info.index, GL_STATIC_DRAW);
 
-			App->renderer3D->meshes.push_back(&mesh_info);
+			App->scene_intro->meshes.push_back(mesh_info);
 		}
 		// Vertex Buffer
 		
-
 		aiReleaseImport(scene);
 	}
 	else
@@ -88,19 +88,14 @@ void SmileFBX::ReadMeshData(const char* path) {
 	}
 }
 
-void SmileFBX::DrawFBX(Mesh* mesh)
+void SmileFBX::DrawMesh(Mesh& mesh)
 {
-
 	glEnableClientState(GL_VERTEX_ARRAY);
 
-	glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_vertex);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.id_vertex);
 	glVertexPointer(3, GL_FLOAT, 0, NULL);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_index);
-
-	glDrawElements(GL_TRIANGLES, mesh_info.num_index, GL_UNSIGNED_SHORT, NULL);
-
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.id_index);
+	glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 }

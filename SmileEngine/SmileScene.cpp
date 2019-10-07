@@ -29,10 +29,10 @@ SmileScene::~SmileScene()
 // Load assets
 bool SmileScene::Start()
 { 
-	testCube = par_shapes_create_cube(); 
+	//testCube = par_shapes_create_cube(); 
 
 	// Vertex buffer
-	App->fbx->ReadMeshData("Assets/warrior.FBX");
+	App->fbx->ReadFBXData("..//Assets/warrior.FBX");
 
 	return true;
 }
@@ -41,7 +41,8 @@ bool SmileScene::Start()
 // Load assets
 bool SmileScene::CleanUp()
 {
-	par_shapes_free_mesh(testCube); 
+	//par_shapes_free_mesh(testCube); 
+	meshes.clear(); 
 
 	return true;
 }
@@ -55,8 +56,8 @@ update_status SmileScene::Update(float dt)
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// Test: drawing a par_shapes cube 
-	if(App->input->GetKey(SDL_SCANCODE_P)==KEY_DOWN)
-		App->fbx->ReadMeshData("Assets/warrior.FBX");
+	/*if(App->input->GetKey(SDL_SCANCODE_P)==KEY_DOWN)
+		App->fbx->ReadFBXData("..//Assets/warrior.FBX");*/
  
 	return UPDATE_CONTINUE;
 }
@@ -67,4 +68,9 @@ void SmileScene::DrawGrid()
 	// TODO
 }
 
+void SmileScene::DrawMeshes()
+{
+	for (auto& mesh : meshes)
+		App->fbx->DrawMesh(mesh); 
+}
 
