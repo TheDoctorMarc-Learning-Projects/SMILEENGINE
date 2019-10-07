@@ -13,14 +13,14 @@
 #pragma comment (lib, "winmm.lib")
 #include <stdlib.h>
 
-
-
 #include <iostream>
 #include <shlobj.h>
 #include <time.h>
 #include <cstdlib>
 #include <string>
 #include <sstream>
+
+#include <filesystem>
 
 #define MAX_KEYS 300
 
@@ -159,11 +159,14 @@ bool SmileInput::CleanUp()
 
 void SmileInput::ButCanItRunCrysis()
 {
-	Beep(750, 1000);
+	Beep(1500, 1000);
 	mciSendString("set cdaudio door open", 0, 0, 0);
 	MessageBox(nullptr, TEXT("No, it can't"), TEXT("Incoming message:"), MB_OK);
-	std::string str(getenv("USERPROFILE"));  // TODO: get the relative path and transform it to absolute 
-	str.append("\\OneDrive\\Documentos\\Github\\SmileEngine\\SmileEngine\\bg\\windows.png");
+
+	const std::filesystem::path& relativePath = "..//bg/windows.png"; 
+	std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
+    std::string str = absolutePath.string(); 
 	SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (PVOID*)str.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+
 	App->gui->Log("\nCould not run Crysis"); 
 }
