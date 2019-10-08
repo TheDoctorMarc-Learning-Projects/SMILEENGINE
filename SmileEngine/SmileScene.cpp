@@ -30,6 +30,7 @@ SmileScene::~SmileScene()
 bool SmileScene::Start()
 { 
 	//testCube = par_shapes_create_cube(); 
+	
 
 	return true;
 }

@@ -44,6 +44,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 		FBX fbx_info; 
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
+
 			aiMesh* new_mesh = scene->mMeshes[i];
 			Mesh mesh_info; 
 			mesh_info.num_vertex = new_mesh->mNumVertices;
@@ -66,6 +67,12 @@ void SmileFBX::ReadFBXData(const char* path) {
 					}
 					
 				}
+				if (new_mesh->HasNormals())
+				{
+					mesh_info.num_normals = new_mesh->mNumVertices;
+					mesh_info.normals = new float[mesh_info.num_vertex * 3];
+					memcpy(mesh_info.normals, new_mesh->mNormals, sizeof(float)* mesh_info.num_normals * 3);
+				}
 			}
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_vertex));
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_vertex);
@@ -75,6 +82,10 @@ void SmileFBX::ReadFBXData(const char* path) {
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_index));
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_index);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_index, mesh_info.index, GL_STATIC_DRAW);
+
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_normals));
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_normals);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_normals, mesh_info.normals, GL_STATIC_DRAW);
 
 
 			fbx_info.meshes.push_back(mesh_info); 
@@ -96,6 +107,7 @@ void SmileFBX::DrawMesh(Mesh& mesh)
 
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.id_vertex);
 	glVertexPointer(3, GL_FLOAT, 0, NULL);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.id_index);
 	glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
 

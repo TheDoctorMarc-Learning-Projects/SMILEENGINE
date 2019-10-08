@@ -15,6 +15,10 @@ struct Mesh {
 	uint num_index = 0;
 	uint* index = nullptr;
 
+	uint num_normals = 0;
+	uint id_normals = 0;
+	float* normals = nullptr;
+
 	uint id_vertex = 0;
 	uint num_vertex = 0;
 	float* vertex = nullptr;
