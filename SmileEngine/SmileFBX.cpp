@@ -110,32 +110,48 @@ void SmileFBX::ReadFBXData(const char* path) {
 void SmileFBX::DrawMesh(Mesh& mesh)
 {
 	glColor3f(0.3f, 0.3f, 0.3f);
-	glEnableClientState(GL_VERTEX_ARRAY);
 
+	// Cient states
+	glEnableClientState(GL_VERTEX_ARRAY); 
+	glEnableClientState(GL_NORMAL_ARRAY);
+
+	// TODO: normal buffer 
+	if (mesh.normals != nullptr)
+	{
+		glBindBuffer(GL_NORMAL_ARRAY, mesh.id_normals);
+		glNormalPointer(GL_FLOAT, 3, NULL);
+	}
+
+	// vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.id_vertex);
 	glVertexPointer(3, GL_FLOAT, 0, NULL);
 
+	// index buffer 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.id_index);
 	glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
 
-
-	// TODO: normal buffer 
-
+	// Cient states
+	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 
-	glColor3f(0.f, 1.0f, 0.f); 
-	static float normalFactor = 20.f; 
 	// draw normals
-	for (int i = 0; i < mesh.num_normals * 3; i+=3)
+	if (mesh.normals != nullptr)
 	{
-		glBegin(GL_LINES); 
+		glColor3f(0.f, 1.0f, 0.f);
+		static float normalFactor = 20.f;
 
-		vec3 normalVec = normalize({ mesh.normals[i], mesh.normals[i + 1], mesh.normals[i + 2] });
-		glVertex3f(mesh.vertex[i], mesh.vertex[i + 1], mesh.vertex[i + 2]); 
-		glVertex3f(mesh.vertex[i] + normalVec.x, mesh.vertex[i + 1] + normalVec.y, mesh.vertex[i + 2] + normalVec.z);
+		for (int i = 0; i < mesh.num_normals * 3; i += 3)
+		{
+			glBegin(GL_LINES);
 
-		glEnd(); 
+			vec3 normalVec = normalize({ mesh.normals[i], mesh.normals[i + 1], mesh.normals[i + 2] });
+			glVertex3f(mesh.vertex[i], mesh.vertex[i + 1], mesh.vertex[i + 2]);
+			glVertex3f(mesh.vertex[i] + normalVec.x, mesh.vertex[i + 1] + normalVec.y, mesh.vertex[i + 2] + normalVec.z);
+
+			glEnd();
+		}
 	}
+
 
 }
