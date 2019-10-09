@@ -51,6 +51,8 @@ void SmileFBX::ReadFBXData(const char* path) {
 			mesh_info.vertex = new float[mesh_info.num_vertex * 3];
 			memcpy(mesh_info.vertex, new_mesh->mVertices, sizeof(float) * mesh_info.num_vertex * 3);
 			LOG("New Mesh with %d vertices", mesh_info.num_vertex);
+
+		
 			if (new_mesh->HasFaces())
 			{
 				mesh_info.num_index = new_mesh->mNumFaces * 3;
@@ -67,13 +69,17 @@ void SmileFBX::ReadFBXData(const char* path) {
 					}
 					
 				}
-				if (new_mesh->HasNormals())
-				{
-					mesh_info.num_normals = new_mesh->mNumVertices;
-					mesh_info.normals = new float[mesh_info.num_vertex * 3];
-					memcpy(mesh_info.normals, new_mesh->mNormals, sizeof(float)* mesh_info.num_normals * 3);
-				}
+			
 			}
+
+			if (new_mesh->HasNormals())
+			{
+				mesh_info.num_normals = new_mesh->mNumVertices;
+				mesh_info.normals = new float[mesh_info.num_vertex * 3];
+				memcpy(mesh_info.normals, new_mesh->mNormals, sizeof(float) * mesh_info.num_normals * 3);
+			}
+
+
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_vertex));
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_vertex);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_vertex * 3, mesh_info.vertex, GL_STATIC_DRAW);
@@ -85,7 +91,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_normals));
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_normals);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_normals, mesh_info.normals, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * mesh_info.num_normals * 3, mesh_info.normals, GL_STATIC_DRAW);
 
 
 			fbx_info.meshes.push_back(mesh_info); 
@@ -103,6 +109,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 void SmileFBX::DrawMesh(Mesh& mesh)
 {
+	glColor3f(0.3f, 0.3f, 0.3f);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.id_vertex);
@@ -112,4 +119,20 @@ void SmileFBX::DrawMesh(Mesh& mesh)
 	glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
+
+
+	glColor3f(0.f, 1.0f, 0.f); 
+	static float normalFactor = 20.f; 
+	// draw normals
+	for (int i = 0; i < mesh.num_normals * 3; i+=3)
+	{
+		glBegin(GL_LINES); 
+
+		vec3 normalVec = normalize({ mesh.normals[i], mesh.normals[i + 1], mesh.normals[i + 2] });
+		glVertex3f(mesh.vertex[i], mesh.vertex[i + 1], mesh.vertex[i + 2]); 
+		glVertex3f(mesh.vertex[i] + normalVec.x, mesh.vertex[i + 1] + normalVec.y, mesh.vertex[i + 2] + normalVec.z);
+
+		glEnd(); 
+	}
+
 }
