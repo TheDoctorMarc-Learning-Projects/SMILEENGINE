@@ -33,7 +33,7 @@ struct Mesh {
 	float* UVs = nullptr;
 
 	uint id_texture = 0;
-	const void* texture = nullptr; 
+	//const void* texture = nullptr; 
 };
 
 struct FBX {

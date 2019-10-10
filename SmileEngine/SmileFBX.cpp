@@ -95,17 +95,22 @@ void SmileFBX::ReadFBXData(const char* path) {
 			}
 
 			// UVs
-			if (new_mesh->HasTextureCoords(0))
+			for (int i = 0; i < new_mesh->GetNumUVChannels(); ++i)
 			{
-				mesh_info.UVs = new float[new_mesh->mNumVertices * 3];
-				memcpy(mesh_info.UVs, (float*)new_mesh->mTextureCoords[0], sizeof(float) * new_mesh->mNumVertices * 3);
+				if (new_mesh->HasTextureCoords(i))
+				{
+					mesh_info.num_UVs = new_mesh->mNumVertices;
+					mesh_info.UVs = new float[mesh_info.num_UVs * 2];
+					memcpy(mesh_info.UVs, (float*)new_mesh->mTextureCoords[i], sizeof(float) * 2);
+				}
 
-				mesh_info.num_UVs = new_mesh->GetNumUVChannels();
-				glGenBuffers(1, (GLuint*) & (mesh_info.id_UVs));
-				glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_UVs);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_UVs * 2, mesh_info.UVs, GL_STATIC_DRAW);
 			}
 
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_UVs));
+			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_UVs);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_UVs * 2, mesh_info.UVs, GL_STATIC_DRAW);
+
+				
 		
 
 			// WIP testing Lenna image 
@@ -162,9 +167,10 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
     // texture buffer
 	if (mesh.texture != nullptr)
 	{
-		glBindVertexArray(mesh.id_texture);
+		/*glBindVertexArray(mesh.id_texture);
 		glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
+		glBindTexture(GL_TEXTURE_2D, mesh.id_texture);
 	}
 
 	// normal buffer
@@ -213,20 +219,35 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 
 void SmileFBX::FreeMeshBuffers(Mesh& mesh)
 {
-	glDeleteBuffers(1, (GLuint*)& mesh.vertex); 
-	glDeleteBuffers(1, (GLuint*)& mesh.index);
+	if (mesh.vertex != nullptr)
+	{
+		glDeleteBuffers(1, (GLuint*)& mesh.vertex);
+		delete[] mesh.vertex;
+	}
 
-	if(mesh.normals != nullptr)
+	if (mesh.index != nullptr)
+	{
+		glDeleteBuffers(1, (GLuint*)& mesh.index);
+		delete[] mesh.index;
+	}
+	
+	if (mesh.normals != nullptr)
+	{
 		glDeleteBuffers(1, (GLuint*)& mesh.normals);
-
+		delete[] mesh.normals;
+	}
+	
 	// TODO: texture
 	if (mesh.UVs != nullptr)
+	{
 		glDeleteBuffers(1, (GLuint*)& mesh.UVs);
-
+		delete[] mesh.UVs;
+	}
+		
 	if (mesh.texture != nullptr)
 	{
-		ilDeleteImage((ILuint)mesh.id_texture);
 		glDeleteBuffers(1, (GLuint*)& mesh.texture);
+		//delete[] mesh.texture;
 	}
 		
 }
@@ -240,10 +261,13 @@ void SmileFBX::AssignTextureImageToMesh(const char* path, Mesh& mesh)
 
 	path = "..//Assets/Images/Lenna.png";  // overwrite for the mom in the case of drag & drop the texture .png
 	ILboolean success = ilLoadImage(path);
+	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE); 
 
 	static ILuint Width = ilGetInteger(IL_IMAGE_WIDTH);
 	static ILuint Height = ilGetInteger(IL_IMAGE_HEIGHT);
 	mesh.texture = ilGetData(); 
+
+	// TODO: get GL_RGB or GL_RGBA properly (.pngs do not have the A value) 
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, (GLuint*)& mesh.id_texture);
@@ -253,5 +277,8 @@ void SmileFBX::AssignTextureImageToMesh(const char* path, Mesh& mesh)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);*/
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLuint)Width, (GLuint)Height,
-		0, GL_RGB, GL_UNSIGNED_BYTE, mesh.texture);
+		0, GL_RGB, GL_UNSIGNED_BYTE, ilGetData() /*mesh.texture*/);
+
+
+	ilDeleteImage((ILuint)mesh.id_texture);
 }
