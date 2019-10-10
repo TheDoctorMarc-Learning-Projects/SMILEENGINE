@@ -25,9 +25,9 @@ struct Mesh {
 	uint num_vertex = 0;
 	float* vertex = nullptr;
 
-	/*uint id_color = 0;
+	uint id_color = 0;
 	uint num_color = 0;
-	float* color = nullptr;*/
+	float* color = nullptr;
 
 	uint id_UVs = 0;
 	uint num_UVs = 0;

@@ -110,17 +110,26 @@ void SmileFBX::ReadFBXData(const char* path) {
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_UVs);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_UVs * 2, mesh_info.UVs, GL_STATIC_DRAW);
 
-				
-		
-
-			// WIP testing Lenna image 
-			/*if (new_mesh->HasTextureCoords(0))
+			// colors 
+			if (new_mesh->GetNumColorChannels() > 0)
 			{
-				static const char* path = "..//Assets/Images/Lenna.png";
-				AssignTextureImageToMesh(path, mesh_info); 
+				for (int i = 0; i < new_mesh->GetNumColorChannels(); ++i)
+				{
+					if (new_mesh->HasVertexColors(i))
+					{
+						mesh_info.num_color = new_mesh->mNumVertices;
+						mesh_info.color = new float[mesh_info.num_color * 3];  // TODO: do not assume RBG, may be RGBA (xd)  
+						memcpy(mesh_info.color, new_mesh->mColors[i], sizeof(float) * mesh_info.num_color * 3);
+					}
+				
+				}
 			}
-			*/
-
+			
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_color));
+			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_color);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_color * 3, mesh_info.color, GL_STATIC_DRAW);
+		
+ 
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_vertex));
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_vertex);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_vertex * 3, mesh_info.vertex, GL_STATIC_DRAW);
@@ -154,7 +163,7 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_TEXTURE_BUFFER);
-	
+	glEnableClientState(GL_COLOR_ARRAY); 
 
 	// UV buffer
 	if (mesh.UVs != nullptr)
@@ -163,6 +172,12 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 		glTexCoordPointer(2, GL_FLOAT, 0, NULL);
 
 	}
+
+	// color buffer 
+	/*if (mesh.color != nullptr) {
+		glBindBuffer(GL_COLOR_ARRAY, mesh.id_color);
+		glColorPointer(3, GL_FLOAT, 8 * sizeof(GLfloat), 0);
+	}*/
 
     // texture buffer
 	if (mesh.texture != nullptr)
@@ -195,6 +210,7 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 
 
 	// Cient states
+	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_BUFFER);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -242,7 +258,12 @@ void SmileFBX::FreeMeshBuffers(Mesh& mesh)
 		delete[] mesh.normals;
 	}
 	
-	// TODO: texture
+	if (mesh.color != nullptr)
+	{
+		glDeleteBuffers(1, (GLuint*)& mesh.color);
+		delete[] mesh.color;
+	}
+
 	if (mesh.UVs != nullptr)
 	{
 		glDeleteBuffers(1, (GLuint*)& mesh.UVs);
