@@ -10,6 +10,7 @@
 
 #include <list>
 
+
 struct Mesh {
 	uint id_index = 0;
 	uint num_index = 0;
@@ -28,7 +29,7 @@ struct Mesh {
 	uint num_UVs = 0;
 	float* UVs = nullptr;
 
-
+	uint id_image = 0;
 	float* texture = nullptr; 
 };
 

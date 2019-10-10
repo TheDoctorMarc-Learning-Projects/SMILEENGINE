@@ -102,9 +102,9 @@ void SmileFBX::ReadFBXData(const char* path) {
 			if (new_mesh->HasTextureCoords(0))
 			{
 				// Devil stuff
-				ILuint ImgId = 0;
-				ilGenImages(1, &ImgId);
-				ilBindImage(ImgId);
+				ilGenImages(1,  &(ILuint) mesh_info.id_image);
+				ilBindImage((ILuint) mesh_info.id_image);
+				ilutGLBindTexImage();
 
 				static const char* path = "..//Assets/Images/Lenna.png";
 				ILboolean success =  ilLoadImage(path); 
@@ -113,6 +113,11 @@ void SmileFBX::ReadFBXData(const char* path) {
 				/*ilBindImage(0);
 				ilDeleteImage(ImgId);*/
 
+				static ILuint Width, Height;
+				Width = ilGetInteger(IL_IMAGE_WIDTH);
+				Height = ilGetInteger(IL_IMAGE_HEIGHT);
+			
+
 				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 				glGenTextures(1, (GLuint*)& path);
 				glBindTexture(GL_TEXTURE_2D, (GLuint)& path);
@@ -120,7 +125,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 100, 100,
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height,
 					0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)mesh_info.texture);
 			}
 
