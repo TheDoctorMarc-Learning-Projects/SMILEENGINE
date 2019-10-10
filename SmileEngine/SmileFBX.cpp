@@ -5,11 +5,15 @@
 #include "Assimp/include/scene.h"
 #include "Assimp/include/postprocess.h"
 #include "Assimp/include/cfileio.h"
-
-
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
+#include "DevIL/include/IL/il.h"
+#include "DevIL/include/IL/ilu.h"
+#include "DevIL/include/IL/ilut.h"
 
+#pragma comment (lib, "DevIL/libx86/DevIL.lib")
+#pragma comment (lib, "DevIL/libx86/ILU.lib")
+#pragma comment (lib, "DevIL/libx86/ILUT.lib")
 
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
 {
@@ -25,6 +29,11 @@ bool SmileFBX::Start()
 	struct aiLogStream stream;
 	stream = aiGetPredefinedLogStream(aiDefaultLogStream_DEBUGGER, nullptr);
 	aiAttachLogStream(&stream);
+
+	// Devil
+	ilInit(); 
+	iluInit(); 
+	//ilutRenderer(ILUT_OPENGL); 
 
 	return ret;
 }
@@ -77,6 +86,42 @@ void SmileFBX::ReadFBXData(const char* path) {
 				mesh_info.num_normals = new_mesh->mNumVertices;
 				mesh_info.normals = new float[mesh_info.num_vertex * 3];
 				memcpy(mesh_info.normals, new_mesh->mNormals, sizeof(float) * mesh_info.num_normals * 3);
+
+				glGenBuffers(1, (GLuint*) & (mesh_info.id_normals));
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_normals);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * mesh_info.num_normals * 3, mesh_info.normals, GL_STATIC_DRAW);
+
+			}
+
+			mesh_info.num_UVs = new_mesh->GetNumUVChannels();
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_UVs));
+			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_UVs);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_UVs * 2, mesh_info.UVs, GL_STATIC_DRAW);
+
+			// WIP testing Lenna image 
+			if (new_mesh->HasTextureCoords(0))
+			{
+				// Devil stuff
+				ILuint ImgId = 0;
+				ilGenImages(1, &ImgId);
+				ilBindImage(ImgId);
+
+				static const char* path = "..//Assets/Images/Lenna.png";
+				ILboolean success =  ilLoadImage(path); 
+				 
+				// delete: 
+				/*ilBindImage(0);
+				ilDeleteImage(ImgId);*/
+
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				glGenTextures(1, (GLuint*)& path);
+				glBindTexture(GL_TEXTURE_2D, (GLuint)& path);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 100, 100,
+					0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)mesh_info.texture);
 			}
 
 
@@ -89,10 +134,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_index);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_index, mesh_info.index, GL_STATIC_DRAW);
 
-			glGenBuffers(1, (GLuint*) & (mesh_info.id_normals));
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_normals);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * mesh_info.num_normals * 3, mesh_info.normals, GL_STATIC_DRAW);
-
+			
 
 			fbx_info.meshes.push_back(mesh_info); 
 			App->scene_intro->fbxs.push_back(fbx_info);
@@ -154,4 +196,12 @@ void SmileFBX::DrawMesh(Mesh& mesh)
 	}
 
 
+}
+void SmileFBX::FreeMeshBuffers(Mesh& mesh)
+{
+	glDeleteBuffers(1, (GLuint*)& mesh.vertex); 
+	glDeleteBuffers(1, (GLuint*)& mesh.index);
+
+	if(mesh.normals != nullptr)
+		glDeleteBuffers(1, (GLuint*)& mesh.normals);
 }

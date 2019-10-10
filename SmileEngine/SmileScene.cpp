@@ -41,7 +41,11 @@ bool SmileScene::CleanUp()
 {
 	//par_shapes_free_mesh(testCube); 
 	for (auto& fbx : fbxs)
-		fbx.meshes.clear(); 
+	{
+		for (auto& mesh : fbx.meshes)
+			App->fbx->FreeMeshBuffers(mesh); 
+		fbx.meshes.clear();
+	}
 	fbxs.clear(); 
 
 	return true;

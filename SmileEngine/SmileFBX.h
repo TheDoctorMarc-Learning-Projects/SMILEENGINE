@@ -22,6 +22,14 @@ struct Mesh {
 	uint id_vertex = 0;
 	uint num_vertex = 0;
 	float* vertex = nullptr;
+
+
+	uint id_UVs = 0;
+	uint num_UVs = 0;
+	float* UVs = nullptr;
+
+
+	float* texture = nullptr; 
 };
 
 struct FBX {
@@ -37,6 +45,7 @@ public:
 	bool CleanUp();
 	void ReadFBXData(const char* path);
 	void DrawMesh(Mesh& mesh);
+	void FreeMeshBuffers(Mesh& mesh); 
 	
 };
 
