@@ -62,6 +62,9 @@ public:
 public: 
 	void ButCanItRunCrysis(); 
 
+private: 
+	void DropFileExtensionDecider(const char* path); 
+
 private:
 	KEY_STATE* keyboard;
 	KEY_STATE mouse_buttons[MAX_MOUSE_BUTTONS];

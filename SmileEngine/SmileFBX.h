@@ -24,17 +24,20 @@ struct Mesh {
 	uint num_vertex = 0;
 	float* vertex = nullptr;
 
+	/*uint id_color = 0;
+	uint num_color = 0;
+	float* color = nullptr;*/
 
 	uint id_UVs = 0;
 	uint num_UVs = 0;
 	float* UVs = nullptr;
 
-	uint id_image = 0;
-	float* texture = nullptr; 
+	uint id_texture = 0;
+	const void* texture = nullptr; 
 };
 
 struct FBX {
-	std::list<Mesh> meshes;
+	std::vector<Mesh> meshes;
 };
 
 class SmileFBX : public SmileModule
@@ -47,6 +50,7 @@ public:
 	void ReadFBXData(const char* path);
 	void DrawMesh(Mesh& mesh);
 	void FreeMeshBuffers(Mesh& mesh); 
+	void AssignTextureImageToMesh(const char* path, Mesh& mesh); 
 	
 };
 

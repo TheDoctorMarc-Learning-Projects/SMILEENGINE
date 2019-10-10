@@ -370,7 +370,10 @@ void panelData::configSpace::Execute(bool& ret)
 
 		}
 		if (ImGui::CollapsingHeader("Rendering")) {
-			static bool depth, cullFace, lightning, ColorMaterial, Texture2D, ambient, diffuse, wireframe = false;
+			static bool cullFace = false, wireframe = false, depth = true, lightning = true,
+				ColorMaterial = true, Texture2D = true, ambient = true, diffuse = true; 
+
+
 			if (ImGui::Checkbox("Depth", &depth))
 			{
 				if (depth)

@@ -3,7 +3,7 @@
 #include "SmileSetup.h"
 #include "SmileFBX.h"
 #include "parshapes/par_shapes.h"
-#include <list>
+#include <vector>
 
 class SmileScene : public SmileModule
 {
@@ -20,7 +20,7 @@ private:
 
 public: 
 	void DrawMeshes();
-	std::list<FBX> fbxs;
+	std::vector<FBX> fbxs;
 
 
 	/*// test

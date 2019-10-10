@@ -134,7 +134,7 @@ update_status SmileInput::PreUpdate(float dt)
 
 			case SDL_DROPFILE:
 			{
-				App->fbx->ReadFBXData(e.drop.file);
+				DropFileExtensionDecider(e.drop.file); 
 				SDL_free(e.drop.file);
 				break;
 			}
@@ -155,6 +155,23 @@ bool SmileInput::CleanUp()
 	LOG("Quitting SDL input event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
+}
+
+// TODO: calculate the mouse pos when dropping the file and pass this the first mesh from a raycast spectator -> scene
+void SmileInput::DropFileExtensionDecider(const char* path)
+{
+	std::string extension = "null";
+	std::string filename(path); 
+	std::string::size_type index = filename.rfind('.');
+
+	if (index != std::string::npos)
+		extension = filename.substr(index + 1);
+	
+	if (extension == "FBX")
+		App->fbx->ReadFBXData(path);
+	else if (extension == "png")
+		App->fbx->AssignTextureImageToMesh(path, App->scene_intro->fbxs.at(0).meshes.at(0)); // TODO: change this with the real mesh
+		
 }
 
 void SmileInput::ButCanItRunCrysis()
