@@ -7,7 +7,7 @@
 #include "Assimp/include/cfileio.h"
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
-#include "DevIL/include/IL/il.h"
+//
 #include "DevIL/include/IL/ilu.h"
 #include "DevIL/include/IL/ilut.h"
 
@@ -153,7 +153,7 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 	glEnableClientState(GL_VERTEX_ARRAY); 
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_TEXTURE_2D_ARRAY); 
+	glEnableClientState(GL_TEXTURE_BUFFER);
 	
 
 	// UV buffer
@@ -167,10 +167,15 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
     // texture buffer
 	if (mesh.texture != nullptr)
 	{
-		/*glBindVertexArray(mesh.id_texture);
-		glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
-		glBindVertexArray(0);*/
+		// TODO: i don't know how, but we must change the vertex array to contain rgb and normal data: 
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+
+		glBindBuffer(GL_TEXTURE_BUFFER, mesh.id_texture);
 		glBindTexture(GL_TEXTURE_2D, mesh.id_texture);
+		glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
+
+		glDisableVertexAttribArray(2);
 	}
 
 	// normal buffer
@@ -190,7 +195,7 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 
 
 	// Cient states
-	glDisableClientState(GL_TEXTURE_2D_ARRAY);
+	glDisableClientState(GL_TEXTURE_BUFFER);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -245,11 +250,8 @@ void SmileFBX::FreeMeshBuffers(Mesh& mesh)
 	}
 		
 	if (mesh.texture != nullptr)
-	{
-		glDeleteBuffers(1, (GLuint*)& mesh.texture);
-		//delete[] mesh.texture;
-	}
-		
+		glDeleteTextures(1, (GLuint*)& mesh.texture);
+
 }
 
 // TODO: somehow know beforehand to which mesh the cursor dropped the texture file into, and pass it here
@@ -272,12 +274,13 @@ void SmileFBX::AssignTextureImageToMesh(const char* path, Mesh& mesh)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, (GLuint*)& mesh.id_texture);
 	glBindTexture(GL_TEXTURE_2D, (GLuint)& mesh.id_texture);
-	/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);*/
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLuint)Width, (GLuint)Height,
-		0, GL_RGB, GL_UNSIGNED_BYTE, ilGetData() /*mesh.texture*/);
+		0, GL_RGB, GL_UNSIGNED_BYTE, mesh.texture);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 
 	ilDeleteImage((ILuint)mesh.id_texture);

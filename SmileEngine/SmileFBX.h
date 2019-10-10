@@ -10,6 +10,7 @@
 
 #include <list>
 
+#include "DevIL/include/IL/il.h"
 
 struct Mesh {
 	uint id_index = 0;
@@ -33,7 +34,7 @@ struct Mesh {
 	float* UVs = nullptr;
 
 	uint id_texture = 0;
-	//const void* texture = nullptr; 
+	ILubyte* texture = nullptr;
 };
 
 struct FBX {
