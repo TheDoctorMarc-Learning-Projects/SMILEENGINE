@@ -89,7 +89,6 @@
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="glmath.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="Importer.h" />
     <ClInclude Include="JSONParser.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="pcg\include\pcg_extras.hpp" />

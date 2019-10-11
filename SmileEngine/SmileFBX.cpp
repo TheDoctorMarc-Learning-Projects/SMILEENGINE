@@ -7,7 +7,6 @@
 #include "Assimp/include/cfileio.h"
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
-//
 #include "DevIL/include/IL/ilu.h"
 #include "DevIL/include/IL/ilut.h"
 
@@ -33,7 +32,7 @@ bool SmileFBX::Start()
 	// Devil
 	ilInit(); 
 	iluInit(); 
-	//ilutRenderer(ILUT_OPENGL); 
+	ilutRenderer(ILUT_OPENGL); 
 
 	return ret;
 }
@@ -54,6 +53,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
 
+			// Vertexs
 			aiMesh* new_mesh = scene->mMeshes[i];
 			Mesh mesh_info; 
 			mesh_info.num_vertex = new_mesh->mNumVertices;
@@ -61,7 +61,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 			memcpy(mesh_info.vertex, new_mesh->mVertices, sizeof(float) * mesh_info.num_vertex * 3);
 			LOG("New Mesh with %d vertices", mesh_info.num_vertex);
 
-		
+		    // Indexes
 			if (new_mesh->HasFaces())
 			{
 				mesh_info.num_index = new_mesh->mNumFaces * 3;
@@ -88,10 +88,6 @@ void SmileFBX::ReadFBXData(const char* path) {
 				mesh_info.normals = new float[mesh_info.num_vertex * 3];
 				memcpy(mesh_info.normals, new_mesh->mNormals, sizeof(float) * mesh_info.num_normals * 3);
 
-				glGenBuffers(1, (GLuint*) & (mesh_info.id_normals));
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_normals);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * mesh_info.num_normals * 3, mesh_info.normals, GL_STATIC_DRAW);
-
 			}
 
 			// UVs
@@ -106,9 +102,6 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 			}
 
-			glGenBuffers(1, (GLuint*) & (mesh_info.id_UVs));
-			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_UVs);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_UVs * 2, mesh_info.UVs, GL_STATIC_DRAW);
 
 			// colors 
 			if (new_mesh->GetNumColorChannels() > 0)
@@ -124,17 +117,28 @@ void SmileFBX::ReadFBXData(const char* path) {
 				
 				}
 			}
+
+			// Normals Buffer
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_normals));
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_normals);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * mesh_info.num_normals * 3, mesh_info.normals, GL_STATIC_DRAW);
 			
+			// Uvs vBuffer
+			glGenBuffers(1, (GLuint*) & (mesh_info.id_UVs));
+			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_UVs);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_UVs * 2, mesh_info.UVs, GL_STATIC_DRAW);
+
+			// Color Buffer
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_color));
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_color);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_color * 3, mesh_info.color, GL_STATIC_DRAW);
 		
- 
+			// Vertex Buffer
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_vertex));
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_info.id_vertex);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info.num_vertex * 3, mesh_info.vertex, GL_STATIC_DRAW);
 
-			// Index buffer
+			// Index Buffer
 			glGenBuffers(1, (GLuint*) & (mesh_info.id_index));
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info.id_index);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_index, mesh_info.index, GL_STATIC_DRAW);
@@ -144,7 +148,6 @@ void SmileFBX::ReadFBXData(const char* path) {
 			fbx_info.meshes.push_back(mesh_info); 
 			App->scene_intro->fbxs.push_back(fbx_info);
 		}
-		// Vertex Buffer
 		
 		aiReleaseImport(scene);
 	}
@@ -162,8 +165,8 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 	glEnableClientState(GL_VERTEX_ARRAY); 
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_TEXTURE_BUFFER);
-	glEnableClientState(GL_COLOR_ARRAY); 
+	//glEnableClientState(GL_TEXTURE_BUFFER);
+	//glEnableClientState(GL_COLOR_ARRAY); 
 
 	// UV buffer
 	if (mesh.UVs != nullptr)
@@ -181,17 +184,8 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 
     // texture buffer
 	if (mesh.texture != nullptr)
-	{
-		// TODO: i don't know how, but we must change the vertex array to contain rgb and normal data: 
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-
-		glBindBuffer(GL_TEXTURE_BUFFER, mesh.id_texture);
 		glBindTexture(GL_TEXTURE_2D, mesh.id_texture);
-		glDrawElements(GL_TRIANGLES, mesh.num_index * 3, GL_UNSIGNED_INT, NULL);
 
-		glDisableVertexAttribArray(2);
-	}
 
 	// normal buffer
 	if (mesh.normals != nullptr)
@@ -210,8 +204,9 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 
 
 	// Cient states
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_BUFFER);
+	//glDisableClientState(GL_COLOR_ARRAY);
+	//glDisableClientState(GL_TEXTURE_BUFFER);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -271,7 +266,11 @@ void SmileFBX::FreeMeshBuffers(Mesh& mesh)
 	}
 		
 	if (mesh.texture != nullptr)
+	{
 		glDeleteTextures(1, (GLuint*)& mesh.texture);
+		//delete[] mesh.texture; 
+	}
+	
 
 }
 
@@ -294,12 +293,12 @@ void SmileFBX::AssignTextureImageToMesh(const char* path, Mesh& mesh)
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, (GLuint*)& mesh.id_texture);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)& mesh.id_texture);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)mesh.id_texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLuint)Width, (GLuint)Height,
+	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)Width, (GLuint)Height,
 		0, GL_RGB, GL_UNSIGNED_BYTE, mesh.texture);
 	glGenerateMipmap(GL_TEXTURE_2D);
 

@@ -111,9 +111,6 @@
     <ClInclude Include="GeometryGenerator.h">
       <Filter>Source\Modules\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Importer.h">
-      <Filter>Source\Modules\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="SmileFBX.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
