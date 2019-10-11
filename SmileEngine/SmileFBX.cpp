@@ -91,17 +91,26 @@ void SmileFBX::ReadFBXData(const char* path) {
 			}
 
 			// UVs
-			for (int i = 0; i < new_mesh->GetNumUVChannels(); ++i)
+			for (int ind = 0; ind < new_mesh->GetNumUVChannels(); ++ind)
 			{
-				if (new_mesh->HasTextureCoords(i))
+				if (new_mesh->HasTextureCoords(ind))
 				{
 					mesh_info.num_UVs = new_mesh->mNumVertices;
 					mesh_info.UVs = new float[mesh_info.num_UVs * 2];
-					memcpy(mesh_info.UVs, (float*)new_mesh->mTextureCoords[i], sizeof(float) * 2);
+
+					uint j = 0;
+					for (uint i = 0; i < new_mesh->mNumVertices; ++i) 
+					{
+
+						//there are two for each vertex
+						memcpy(&mesh_info.UVs[j], &new_mesh->mTextureCoords[ind][i].x, sizeof(float));
+						memcpy(&mesh_info.UVs[j + 1], &new_mesh->mTextureCoords[ind][i].y, sizeof(float));
+						j += 2;
+					}
+			 
 				}
 
 			}
-
 
 			// colors 
 			if (new_mesh->GetNumColorChannels() > 0)
@@ -144,7 +153,6 @@ void SmileFBX::ReadFBXData(const char* path) {
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info.num_index, mesh_info.index, GL_STATIC_DRAW);
 
 			
-
 			fbx_info.meshes.push_back(mesh_info); 
 			App->scene_intro->fbxs.push_back(fbx_info);
 		}
@@ -157,10 +165,8 @@ void SmileFBX::ReadFBXData(const char* path) {
 	}
 }
 
-void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
+void SmileFBX::DrawMesh(Mesh& mesh) 	
 {
-	glColor3f(0.3f, 0.3f, 0.3f);
-
 	// Cient states
 	glEnableClientState(GL_VERTEX_ARRAY); 
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -185,7 +191,8 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
     // texture buffer
 	if (mesh.texture != nullptr)
 		glBindTexture(GL_TEXTURE_2D, mesh.id_texture);
-
+	else
+		glColor3f(0.3f, 0.3f, 0.3f);
 
 	// normal buffer
 	if (mesh.normals != nullptr)
@@ -213,7 +220,7 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 
 
 	// draw normals
-	if (mesh.normals != nullptr)
+	/*if (mesh.normals != nullptr)
 	{
 		glColor3f(0.f, 1.0f, 0.f);
 		static float normalFactor = 20.f;
@@ -228,7 +235,7 @@ void SmileFBX::DrawMesh(Mesh& mesh) 	// TODO: textureeeeeessss
 
 			glEnd();
 		}
-	}
+	}*/
 
 
 }
