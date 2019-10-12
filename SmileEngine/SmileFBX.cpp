@@ -192,6 +192,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 			
 			fbx_info->meshes.push_back(mesh_info); 
+			App->camera->FitMeshToCamera(mesh_info); 
 		}
 		
 		App->scene_intro->fbxs.push_back(fbx_info);
