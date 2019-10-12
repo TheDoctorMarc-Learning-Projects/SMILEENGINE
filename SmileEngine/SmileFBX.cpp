@@ -97,7 +97,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 			}
 
-			mesh_info.ComputeMeshCenter(); 
+			mesh_info.ComputeMeshSpatialData(); 
 
 		    // Indexes
 			if (new_mesh->HasFaces())

@@ -55,21 +55,27 @@ private:
 	float minmaxCoords[minMaxCoords::TOTAL_COORDS]; 
 
 	vec3 meshCenter; 
+	double meshBoundingSphereRadius; 
 
-	
-public: 
-	void ComputeMeshCenter()
+	void ComputeMeshSpatialData()
 	{
+		// center 
 		float c_X = (minmaxCoords[minMaxCoords::MIN_X] + minmaxCoords[minMaxCoords::MAX_X]) / 2;
 		float c_Y = (minmaxCoords[minMaxCoords::MIN_Y] + minmaxCoords[minMaxCoords::MAX_Y]) / 2;
 		float c_Z = (minmaxCoords[minMaxCoords::MIN_Z] + minmaxCoords[minMaxCoords::MAX_Z]) / 2;
 		meshCenter = vec3(c_X, c_Y, c_Z);
+
+		// sphere radius = module of -> (distance between opposite vertices) / 2
+		vec3 min_Vec(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]); 
+		vec3 max_Vec(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]); 
+		vec3 rad_Vec = (max_Vec - min_Vec) / 2;
+		meshBoundingSphereRadius = sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y); 
 	};
 
-	vec3 GetMeshCenter() const 
-	{
-		return meshCenter; 
-	}; 
+public:
+
+	vec3 GetMeshCenter() const { return meshCenter; }; 
+	double GetMeshSphereRadius() const { return meshBoundingSphereRadius; };
 
 	friend class SmileFBX; 
 };

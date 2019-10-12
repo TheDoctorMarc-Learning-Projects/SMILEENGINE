@@ -50,12 +50,13 @@ update_status SmileCamera3D::PreUpdate(float dt)
 // -----------------------------------------------------------------
 update_status SmileCamera3D::Update(float dt)
 {
-	vec3 newPos(0, 0, 0);
-	float speed = 10.0f * dt;
 	// Focus an object ----------------
 	if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
 		if (App->scene_intro->selected_mesh != nullptr)
-			LookAt(App->scene_intro->selected_mesh->GetMeshCenter()); 
+			FitMeshToCamera(App->scene_intro->selected_mesh);
+
+	vec3 newPos(0, 0, 0);
+	float speed = 10.0f * dt;
 
 	// FPS-Like free movement  ----------------
 	if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
@@ -186,3 +187,21 @@ void SmileCamera3D::CalculateViewMatrix()
 	ViewMatrix = mat4x4(X.x, Y.x, Z.x, 0.0f, X.y, Y.y, Z.y, 0.0f, X.z, Y.z, Z.z, 0.0f, -dot(X, Position), -dot(Y, Position), -dot(Z, Position), 1.0f);
 	ViewMatrixInverse = inverse(ViewMatrix);
 }
+
+// -----------------------------------------------------------------
+void SmileCamera3D::FitMeshToCamera(Mesh* mesh)
+{
+	// Compute the distance the camera should be to fit the entire bounding sphere
+	LookAt(mesh->GetMeshCenter());
+
+	double camDistance = (mesh->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
+	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(mesh->GetMeshCenter().x, mesh->GetMeshCenter().y, mesh->GetMeshCenter().z)); 
+	dir.Normalize();
+	vec3 dirVec3(dir.x, dir.y, dir.z);
+	vec3 wantedPos = mesh->GetMeshCenter() + dirVec3 * camDistance;
+	
+	Move(vec3(wantedPos - Position));
+}
+ 
+
+	 

@@ -21,6 +21,7 @@ public:
 	float* GetViewMatrix();
 	float* GetViewMatrixInverse();
 
+	void FitMeshToCamera(Mesh* mesh); 
 private:
 
 	void CalculateViewMatrix();

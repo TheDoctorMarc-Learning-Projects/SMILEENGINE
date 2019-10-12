@@ -5,6 +5,7 @@
 #include "Light.h"
 
 #define MAX_LIGHTS 8
+#define FOV_Y 60.f
 
 class SmileRenderer3D : public SmileModule
 {
