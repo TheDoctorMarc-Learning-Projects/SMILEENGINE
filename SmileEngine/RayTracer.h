@@ -29,10 +29,10 @@ namespace rayTracer
 	bool AssignSelectedMeshOnMouseClick(int mouse_x, int mouse_y)
 	{
 		// translate from window coordinates to inverted Y in OpenGL 
-		float mouse_X_GL, mouse_y_GL; 
-		GLfloat mouse_z_GL;
+		float mouse_X_GL, mouse_Y_GL; 
+		GLfloat mouse_Z_GL;
 		mouse_X_GL = mouse_x;
-		mouse_y_GL = std::get<int>(App->window->GetWindowParameter("Height")) - mouse_y; 
+		mouse_Y_GL = std::get<int>(App->window->GetWindowParameter("Height")) - mouse_y; 
 		
 		// Get matrixes and also a Z component to the mouse click
 		GLint viewport[4];
@@ -43,11 +43,11 @@ namespace rayTracer
 		glGetDoublev(GL_MODELVIEW_MATRIX, mvMatrix);
 		glGetDoublev(GL_PROJECTION_MATRIX, projMatrix);
 
-		glReadPixels(mouse_X_GL, mouse_y_GL, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse_z_GL);
+		glReadPixels(mouse_X_GL, mouse_Y_GL, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse_Z_GL);
 
 		// Unproject to find the final point coordinates in the world
 		GLdouble fPos[3]; 
-		gluUnProject(mouse_X_GL, mouse_y_GL, mouse_z_GL, mvMatrix, projMatrix, viewport, &fPos[0], &fPos[1], &fPos[2]);
+		gluUnProject(mouse_X_GL, mouse_Y_GL, mouse_Z_GL, mvMatrix, projMatrix, viewport, &fPos[0], &fPos[1], &fPos[2]);
 		math::float3 fPosMath(fPos[0], fPos[1], fPos[2]);
 		
 		// trace a ray (line) from the camera to the point 

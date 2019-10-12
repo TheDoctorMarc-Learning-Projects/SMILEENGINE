@@ -52,6 +52,10 @@ update_status SmileCamera3D::Update(float dt)
 {
 	vec3 newPos(0, 0, 0);
 	float speed = 10.0f * dt;
+	// Focus an object ----------------
+	if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
+		if (App->scene_intro->selected_mesh != nullptr)
+			LookAt(App->scene_intro->selected_mesh->GetMeshCenter()); 
 
 	// FPS-Like free movement  ----------------
 	if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)

@@ -61,6 +61,44 @@ void SmileFBX::ReadFBXData(const char* path) {
 			memcpy(mesh_info.vertex, new_mesh->mVertices, sizeof(float) * mesh_info.num_vertex * 3);
 			LOG("New Mesh with %d vertices", mesh_info.num_vertex);
 
+			// Get the minimum and maximum x,y,z to create a bounding box 
+			for (uint i = 0; i < mesh_info.num_vertex; i+=3) 
+			{
+				// first, initialize the min-max coords to the first vertex, 
+				// in order to compare the following ones with it
+				if (i == 0)
+				{
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_X] = mesh_info.vertex[i];
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_X] = mesh_info.vertex[i];
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_Y] = mesh_info.vertex[i + 1];
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_Y] = mesh_info.vertex[i + 1];
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_Z] = mesh_info.vertex[i + 2];
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_Z] = mesh_info.vertex[i + 2];
+					continue; 
+				}
+
+				// find min-max X coord
+				if (mesh_info.vertex[i] < mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_X])
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_X] = mesh_info.vertex[i]; 
+				else if (mesh_info.vertex[i] > mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_X])
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_X] = mesh_info.vertex[i];
+
+				// find min-max Y coord
+				if (mesh_info.vertex[i + 1] < mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_Y])
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_Y] = mesh_info.vertex[i + 1];
+				else if (mesh_info.vertex[i + 1] > mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_Y])
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_Y] = mesh_info.vertex[i + 1];
+
+				// find min-max Z coord
+				if (mesh_info.vertex[i + 2] < mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_Z])
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MIN_Z] = mesh_info.vertex[i + 2];
+				else if (mesh_info.vertex[i + 2] > mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_Z])
+					mesh_info.minmaxCoords[mesh_info.minMaxCoords::MAX_Z] = mesh_info.vertex[i + 2];
+
+			}
+
+			mesh_info.ComputeMeshCenter(); 
+
 		    // Indexes
 			if (new_mesh->HasFaces())
 			{

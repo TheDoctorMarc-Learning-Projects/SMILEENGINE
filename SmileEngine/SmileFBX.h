@@ -12,6 +12,9 @@
 
 #include "DevIL/include/IL/il.h"
 
+#include "glmath.h"
+
+
 struct Mesh { // TODO: do this generically with a template  	
 	uint id_index = 0;
 	uint num_index = 0;
@@ -37,7 +40,38 @@ struct Mesh { // TODO: do this generically with a template
 	ILubyte* texture = nullptr;
 
 	// AABB
-	//mat3x3 AABB; 
+private: 
+	enum minMaxCoords : uint
+	{
+		MIN_X,
+		MIN_Y,
+		MIN_Z,
+		MAX_X,
+		MAX_Y,
+		MAX_Z,
+		TOTAL_COORDS
+	};
+
+	float minmaxCoords[minMaxCoords::TOTAL_COORDS]; 
+
+	vec3 meshCenter; 
+
+	
+public: 
+	void ComputeMeshCenter()
+	{
+		float c_X = (minmaxCoords[minMaxCoords::MIN_X] + minmaxCoords[minMaxCoords::MAX_X]) / 2;
+		float c_Y = (minmaxCoords[minMaxCoords::MIN_Y] + minmaxCoords[minMaxCoords::MAX_Y]) / 2;
+		float c_Z = (minmaxCoords[minMaxCoords::MIN_Z] + minmaxCoords[minMaxCoords::MAX_Z]) / 2;
+		meshCenter = vec3(c_X, c_Y, c_Z);
+	};
+
+	vec3 GetMeshCenter() const 
+	{
+		return meshCenter; 
+	}; 
+
+	friend class SmileFBX; 
 };
 
 struct FBX { // TODO: make this become a GameObject 
