@@ -49,16 +49,16 @@ namespace rayTracer
 		GLdouble fPos[3]; 
 		gluUnProject(mouse_X_GL, mouse_y_GL, mouse_z_GL, mvMatrix, projMatrix, viewport, &fPos[0], &fPos[1], &fPos[2]);
 		math::float3 fPosMath(fPos[0], fPos[1], fPos[2]);
-
-		// Loop meshes in the screen and find an intersection
-		// trace a ray (line) from the point in an arbitrary direction
-		// if the ray crosses the mesh 2 times = it must be outside vs one time = inside
-		static math::float3 randomDir(1, 0, 1); 
-		math::Ray ray = math::Ray(fPosMath, randomDir);
+		
+		// trace a ray (line) from the camera to the point 
+		math::float3 cameraPos(App->camera->Position.x, App->camera->Position.y, App->camera->Position.z);
+		math::float3 dir = (fPosMath - cameraPos).Normalized();
+		math::Ray ray = math::Ray(cameraPos, dir);
 		uint nIntersections = 0; 
 		int foundAt[2] = { INT_MAX, INT_MAX }; // will store fbx and mesh index eg. "fbs.at(1).meshes.at(3)"
 		int k = 0, j = 0; 
 
+		// Loop meshes in the screen and find an intersection
 		for (auto& fbx : App->scene_intro->fbxs)
 		{
 			for (auto& mesh : fbx.meshes)
@@ -73,15 +73,13 @@ namespace rayTracer
 					
 					// check if the arbitrary ray interesects with the face (triangle) 
 					if (ray.Intersects(tri))
-						nIntersections++;
+					{
+						foundAt[0] = k; 
+						foundAt[1] = j;
+					}
+						
+				
 				}
-
-				// if the number of intersections is 1, then the point must be inside 
-				if (nIntersections == 1)
-				{
-					foundAt[0] = k; foundAt[1] = j;
-				}
-					
 
 				++j; 
 			}
@@ -92,11 +90,13 @@ namespace rayTracer
 		if (foundAt[0] != INT_MAX && foundAt[1] != INT_MAX)
 		{
 			App->scene_intro->selected_mesh = &App->scene_intro->fbxs.at(foundAt[0]).meshes.at(foundAt[1]);
+			LOG("Selected Mesh in the scene :)"); 
 			return true; 
 		}	
 		else
 		{
 			App->scene_intro->selected_mesh = nullptr;
+			LOG("Unselected Mesh in the scene :o");
 			return false; 
 		}
 			
