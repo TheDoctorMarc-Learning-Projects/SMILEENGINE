@@ -377,10 +377,18 @@ void panelData::configSpace::Execute(bool& ret)
 			if (ImGui::Checkbox("Depth", &depth))
 			{
 				if (depth)
+				{
 					glEnable(GL_DEPTH_TEST);
+					glDepthMask(GL_TRUE);
+					glDepthFunc(GL_LEQUAL);
+					glDepthRange(0.0f, 1.0f);
+				}
 				else
+				{
 					glDisable(GL_DEPTH_TEST);
-
+					glDepthMask(GL_FALSE);
+				}
+				
 			}
 
 			if (ImGui::Checkbox("Cull face", &cullFace))

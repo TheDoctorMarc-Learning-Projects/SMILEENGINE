@@ -2,6 +2,7 @@
 #include "SmileApp.h"
 #include "SmileCamera3D.h"
 #include "QuickMath.h"
+#include "RayTracer.h"
 
 SmileCamera3D::SmileCamera3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -33,6 +34,17 @@ bool SmileCamera3D::CleanUp()
 	LOG("Cleaning camera");
 
 	return true;
+}
+
+// ----------------------------------------------------------------- 
+// This must be done before clearing the Depth buffer in the Render PreUpdate
+update_status SmileCamera3D::PreUpdate(float dt)
+{
+	// Check if the user clicks to select object 
+	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
+		rayTracer::AssignSelectedMeshOnMouseClick(App->input->GetMouseX(), App->input->GetMouseY());
+
+	return UPDATE_CONTINUE;
 }
 
 // -----------------------------------------------------------------
@@ -155,6 +167,13 @@ void SmileCamera3D::Move(const vec3& Movement)
 float* SmileCamera3D::GetViewMatrix()
 {
 	return &ViewMatrix;
+}
+
+
+// -----------------------------------------------------------------
+float* SmileCamera3D::GetViewMatrixInverse()
+{
+	return &ViewMatrixInverse;
 }
 
 // -----------------------------------------------------------------

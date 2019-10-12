@@ -95,6 +95,7 @@
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
     <ClInclude Include="QuickMath.h" />
+    <ClInclude Include="RayTracer.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="SmileApp.h" />
     <ClInclude Include="Color.h" />

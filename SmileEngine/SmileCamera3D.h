@@ -11,6 +11,7 @@ public:
 	~SmileCamera3D();
 
 	bool Start();
+	update_status PreUpdate(float dt);
 	update_status Update(float dt);
 	bool CleanUp();
 
@@ -18,6 +19,7 @@ public:
 	void LookAt(const vec3& Spot);
 	void Move(const vec3& Movement);
 	float* GetViewMatrix();
+	float* GetViewMatrixInverse();
 
 private:
 

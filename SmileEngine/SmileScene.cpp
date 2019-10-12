@@ -9,14 +9,7 @@
 
 #include "Glew/include/GL/glew.h"
 
-#include "MathGeoLib/include/MathGeoLib.h"
 
-
-#ifdef NDEBUG //no debug
-#pragma comment (lib, "MathGeoLib/libx86/ReleaseLib/MathGeoLib.lib") 
-#else
-#pragma comment (lib, "MathGeoLib/libx86/DebugLib/MathGeoLib.lib") 
-#endif
 
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -29,8 +22,6 @@ SmileScene::~SmileScene()
 // Load assets
 bool SmileScene::Start()
 { 
-	//testCube = par_shapes_create_cube(); 
-	
 
 	return true;
 }

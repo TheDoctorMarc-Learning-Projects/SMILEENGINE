@@ -12,7 +12,7 @@
 
 #include "DevIL/include/IL/il.h"
 
-struct Mesh {
+struct Mesh { // TODO: do this generically with a template  	
 	uint id_index = 0;
 	uint num_index = 0;
 	uint* index = nullptr;
@@ -35,9 +35,12 @@ struct Mesh {
 
 	uint id_texture = 0;
 	ILubyte* texture = nullptr;
+
+	// AABB
+	//mat3x3 AABB; 
 };
 
-struct FBX {
+struct FBX { // TODO: make this become a GameObject 
 	std::vector<Mesh> meshes;
 };
 
