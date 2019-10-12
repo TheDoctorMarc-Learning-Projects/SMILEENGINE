@@ -1,6 +1,6 @@
 #include "SmileSetup.h"
-#include "SmileApp.h"
-#include "SmileCamera3D.h"
+//#include "SmileApp.h" // already included by raytracer 
+//#include "SmileCamera3D.h" // already included by raytracer 
 #include "QuickMath.h"
 #include "RayTracer.h"
 
@@ -42,7 +42,7 @@ update_status SmileCamera3D::PreUpdate(float dt)
 {
 	// Check if the user clicks to select object 
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
-		rayTracer::AssignSelectedMeshOnMouseClick(App->input->GetMouseX(), App->input->GetMouseY());
+		rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), true);
 
 	return UPDATE_CONTINUE;
 }
@@ -191,15 +191,17 @@ void SmileCamera3D::CalculateViewMatrix()
 // -----------------------------------------------------------------
 void SmileCamera3D::FitMeshToCamera(Mesh* mesh)
 {
-	// Compute the distance the camera should be to fit the entire bounding sphere
+	// look at the mesh center
 	LookAt(mesh->GetMeshCenter());
 
+	// calculate the distance with the center
 	double camDistance = (mesh->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
 	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(mesh->GetMeshCenter().x, mesh->GetMeshCenter().y, mesh->GetMeshCenter().z)); 
 	dir.Normalize();
 	vec3 dirVec3(dir.x, dir.y, dir.z);
-	vec3 wantedPos = mesh->GetMeshCenter() + dirVec3 * camDistance;
 	
+	// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
+	vec3 wantedPos = mesh->GetMeshCenter() + dirVec3 * camDistance;
 	Move(vec3(wantedPos - Position));
 }
  

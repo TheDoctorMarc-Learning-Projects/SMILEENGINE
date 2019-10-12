@@ -1,6 +1,6 @@
 #pragma once
 
-namespace quickMath
+namespace quickMath // Two plus two is four, minus one that's three, quick maths
 {
 	template<typename num>
 	num Sign(num n)

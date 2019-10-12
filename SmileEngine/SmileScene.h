@@ -20,7 +20,7 @@ private:
 
 public: 
 	void DrawMeshes();
-	std::vector<FBX> fbxs;
+	std::vector<FBX*> fbxs;
 	Mesh* selected_mesh = nullptr; 
 
 	/*// test

@@ -19,8 +19,9 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
-
 #include <filesystem>
+
+#include "RayTracer.h"
 
 #define MAX_KEYS 300
 
@@ -170,7 +171,11 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 	if (extension == "FBX" || extension == "fbx")
 		App->fbx->ReadFBXData(path);
 	else if (extension == "PNG" || extension == "png" || extension == "jpg")
-		App->fbx->AssignTextureImageToMesh(path, App->scene_intro->fbxs.at(0).meshes.at(0)); // TODO: change this with the real mesh
+	{
+		Mesh* hoveredMesh = rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY()); 
+		if (hoveredMesh != nullptr)
+			App->fbx->AssignTextureImageToMesh(path, hoveredMesh); 
+	}
 		
 }
 

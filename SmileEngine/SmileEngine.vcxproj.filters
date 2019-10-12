@@ -191,5 +191,8 @@
     <ClCompile Include="SmileFBX.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="RayTracer.cpp">
+      <Filter>Source\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

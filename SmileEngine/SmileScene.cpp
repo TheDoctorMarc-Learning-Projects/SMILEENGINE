@@ -33,9 +33,14 @@ bool SmileScene::CleanUp()
 	//par_shapes_free_mesh(testCube); 
 	for (auto& fbx : fbxs)
 	{
-		for (auto& mesh : fbx.meshes)
-			App->fbx->FreeMeshBuffers(mesh); 
-		fbx.meshes.clear();
+		for (auto& mesh : fbx->meshes)
+		{
+			App->fbx->FreeMeshBuffers(mesh);
+			RELEASE(mesh); 
+		}
+			
+		fbx->meshes.clear();
+		RELEASE(fbx);
 	}
 	fbxs.clear(); 
 
@@ -60,7 +65,7 @@ void SmileScene::DrawGrid()
 void SmileScene::DrawMeshes()
 {
 	for(auto& fbx : fbxs)
-		for (auto& mesh : fbx.meshes)
+		for (auto& mesh : fbx->meshes)
 			App->fbx->DrawMesh(mesh);
 
 }

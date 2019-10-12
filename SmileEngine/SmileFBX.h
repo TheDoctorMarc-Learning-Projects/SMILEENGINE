@@ -15,7 +15,12 @@
 #include "glmath.h"
 
 
-struct Mesh { // TODO: do this generically with a template  	
+class Mesh { // TODO: do this generically with a template  	
+
+public: 
+	Mesh() {};
+	~Mesh() {};
+
 	uint id_index = 0;
 	uint num_index = 0;
 	uint* index = nullptr;
@@ -81,7 +86,7 @@ public:
 };
 
 struct FBX { // TODO: make this become a GameObject 
-	std::vector<Mesh> meshes;
+	std::vector<Mesh*> meshes;
 };
 
 class SmileFBX : public SmileModule
@@ -92,9 +97,9 @@ public:
 	bool Start();
 	bool CleanUp();
 	void ReadFBXData(const char* path);
-	void DrawMesh(Mesh& mesh);
-	void FreeMeshBuffers(Mesh& mesh); 
-	void AssignTextureImageToMesh(const char* path, Mesh& mesh); 
+	void DrawMesh(Mesh* mesh);
+	void FreeMeshBuffers(Mesh* mesh); 
+	void AssignTextureImageToMesh(const char* path, Mesh* mesh); 
 	
 };
 

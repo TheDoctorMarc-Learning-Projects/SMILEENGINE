@@ -124,6 +124,7 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="JSONParser.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="RayTracer.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="SmileApp.cpp" />
     <ClCompile Include="Color.cpp" />
