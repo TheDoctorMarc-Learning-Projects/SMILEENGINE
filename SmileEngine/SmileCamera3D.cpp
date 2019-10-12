@@ -1,6 +1,7 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "SmileCamera3D.h"
+#include "QuickMath.h"
 
 SmileCamera3D::SmileCamera3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -43,19 +44,33 @@ update_status SmileCamera3D::Update(float dt)
 	// Now we can make this movememnt frame rate independant!
 
 	vec3 newPos(0, 0, 0);
-	float speed = 30.0f * dt;
-	if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
+	float speed = 10.0f * dt;
+	/*if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
 		speed = 60.0f * dt;
 
-	/*if(App->input->GetKey(SDL_SCANCODE_R) == KEY_REPEAT) newPos.y += speed;
-	if(App->input->GetKey(SDL_SCANCODE_F) == KEY_REPEAT) newPos.y -= speed;*/
+	if(App->input->GetKey(SDL_SCANCODE_R) == KEY_REPEAT) newPos.y += speed;
+	if(App->input->GetKey(SDL_SCANCODE_F) == KEY_REPEAT) newPos.y -= speed;
 
 	if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) newPos -= Z * speed;
 	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) newPos += Z * speed;
 
 
 	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) newPos -= X * speed;
-	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) newPos += X * speed;
+	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) newPos += X * speed;*/
+
+	int zScroll = -App->input->GetMouseZ();
+	int xWheel = -App->input->GetMouseXMotion(); 
+	int yWheel = App->input->GetMouseYMotion();
+	KEY_STATE mouseMiddle = App->input->GetMouseButton(SDL_BUTTON_MIDDLE);
+	 
+	if (xWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
+		newPos += X * speed * quickMath::Sign(xWheel);
+
+	if (yWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
+		newPos += Y * speed * quickMath::Sign(yWheel);
+
+	if (zScroll != 0)
+		newPos += Z * speed * quickMath::Sign(zScroll);
 
 	Position += newPos;
 	Reference += newPos;
@@ -64,25 +79,22 @@ update_status SmileCamera3D::Update(float dt)
 
 	if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
 	{
-		int dx = -App->input->GetMouseXMotion();
-		int dy = -App->input->GetMouseYMotion();
-
 		float Sensitivity = 0.25f;
 
 		Position -= Reference;
 
-		if (dx != 0)
+		if (xWheel != 0)
 		{
-			float DeltaX = (float)dx * Sensitivity;
+			float DeltaX = (float)xWheel * Sensitivity;
 
 			X = rotate(X, DeltaX, vec3(0.0f, 1.0f, 0.0f));
 			Y = rotate(Y, DeltaX, vec3(0.0f, 1.0f, 0.0f));
 			Z = rotate(Z, DeltaX, vec3(0.0f, 1.0f, 0.0f));
 		}
 
-		if (dy != 0)
+		if (yWheel != 0)
 		{
-			float DeltaY = (float)dy * Sensitivity;
+			float DeltaY = -(float)yWheel * Sensitivity;
 
 			Y = rotate(Y, DeltaY, X);
 			Z = rotate(Z, DeltaY, X);

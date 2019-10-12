@@ -114,6 +114,9 @@
     <ClInclude Include="SmileFBX.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="QuickMath.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">

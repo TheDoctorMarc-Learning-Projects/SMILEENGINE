@@ -46,10 +46,10 @@ bool SmileFBX::CleanUp()
 void SmileFBX::ReadFBXData(const char* path) {
 
 	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
+	FBX fbx_info;
 
 	if (scene != nullptr && scene->HasMeshes()) 
 	{
-		FBX fbx_info; 
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
 
@@ -154,9 +154,9 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 			
 			fbx_info.meshes.push_back(mesh_info); 
-			App->scene_intro->fbxs.push_back(fbx_info);
 		}
 		
+		App->scene_intro->fbxs.push_back(fbx_info);
 		aiReleaseImport(scene);
 	}
 	else
@@ -198,7 +198,7 @@ void SmileFBX::DrawMesh(Mesh& mesh)
 	if (mesh.normals != nullptr)
 	{
 		glBindBuffer(GL_NORMAL_ARRAY, mesh.id_normals);
-		glNormalPointer(GL_FLOAT, 3, NULL);
+		glNormalPointer(GL_FLOAT, 0, NULL);
 	}
 
 	// vertex buffer
