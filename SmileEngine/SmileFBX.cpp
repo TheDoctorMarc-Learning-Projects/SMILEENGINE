@@ -284,11 +284,15 @@ void SmileFBX::FreeMeshBuffers(Mesh& mesh)
 // TODO: somehow know beforehand to which mesh the cursor dropped the texture file into, and pass it here
 void SmileFBX::AssignTextureImageToMesh(const char* path, Mesh& mesh)
 {	 
+	// Check if mesh had an image already 
+	if (mesh.texture != nullptr)
+		glDeleteTextures(1, (GLuint*)& mesh.texture);
+	
+
 	// Devil stuff
 	ilGenImages(1, &(ILuint)mesh.id_texture);
 	ilBindImage((ILuint)mesh.id_texture);
 
-	path = "..//Assets/Images/Lenna.png";  // overwrite for the mom in the case of drag & drop the texture .png
 	ILboolean success = ilLoadImage(path);
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE); 
 

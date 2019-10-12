@@ -38,26 +38,22 @@ bool SmileCamera3D::CleanUp()
 // -----------------------------------------------------------------
 update_status SmileCamera3D::Update(float dt)
 {
-
-
-	// Implement a debug camera with keys and mouse
-	// Now we can make this movememnt frame rate independant!
-
 	vec3 newPos(0, 0, 0);
 	float speed = 10.0f * dt;
-	/*if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
-		speed = 60.0f * dt;
 
-	if(App->input->GetKey(SDL_SCANCODE_R) == KEY_REPEAT) newPos.y += speed;
-	if(App->input->GetKey(SDL_SCANCODE_F) == KEY_REPEAT) newPos.y -= speed;
+	// FPS-Like free movement  ----------------
+	if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
+		speed *= 2; 
 
 	if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) newPos -= Z * speed;
 	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) newPos += Z * speed;
 
 
 	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) newPos -= X * speed;
-	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) newPos += X * speed;*/
+	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) newPos += X * speed;
 
+
+	// Zoom, Pan ----------------
 	int zScroll = -App->input->GetMouseZ();
 	int xWheel = -App->input->GetMouseXMotion(); 
 	int yWheel = App->input->GetMouseYMotion();
@@ -75,8 +71,7 @@ update_status SmileCamera3D::Update(float dt)
 	Position += newPos;
 	Reference += newPos;
 
-	// Mouse motion ----------------
-
+	// Rotation ----------------
 	if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
 	{
 		float Sensitivity = 0.25f;

@@ -169,7 +169,7 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 	
 	if (extension == "FBX" || extension == "fbx")
 		App->fbx->ReadFBXData(path);
-	else if (extension == "PNG" || extension == "png")
+	else if (extension == "PNG" || extension == "png" || extension == "jpg")
 		App->fbx->AssignTextureImageToMesh(path, App->scene_intro->fbxs.at(0).meshes.at(0)); // TODO: change this with the real mesh
 		
 }
