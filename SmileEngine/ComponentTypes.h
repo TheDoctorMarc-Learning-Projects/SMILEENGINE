@@ -2,6 +2,7 @@
 
 #include <map>
 #include <tuple>
+
 enum COMPONENT_TYPE : unsigned int
 {
 	TRANSFORM,
@@ -16,4 +17,4 @@ enum COMPONENT_TYPE : unsigned int
 // 2nd bool = can it have it each mesh? 
 // 3rd bool = can there be more than 1 instance per GameObject / Mesh?  
 
-std::map<COMPONENT_TYPE, std::tuple<bool, bool, bool>> uniquenessMap;    // to access use std::get with 0, 1, 2 for the bools
+const std::map<COMPONENT_TYPE, std::tuple<bool, bool, bool>> uniquenessMap;    // to access use std::get with 0, 1, 2 for the bools

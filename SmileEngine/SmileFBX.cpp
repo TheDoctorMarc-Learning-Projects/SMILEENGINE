@@ -177,7 +177,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 					for (uint i = 0; i < nTex; ++i)
 					{
 						aiString tex_path;
-						scene->mMaterials[nTex]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
+						scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
 						
 						AssignTextureImageToMesh(tex_path.data, mesh_info); 
 					}

@@ -1,6 +1,8 @@
 #pragma once
-class SmileApp;
 
+#include "SmileSetup.h"
+
+class SmileApp;
 class SmileModule
 {
 private:
