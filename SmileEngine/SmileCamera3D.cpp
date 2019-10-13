@@ -189,20 +189,28 @@ void SmileCamera3D::CalculateViewMatrix()
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::FitMeshToCamera(Mesh* mesh)
+void SmileCamera3D::FitMeshToCamera(ComponentMesh* mesh)
 {
 	// look at the mesh center
-	LookAt(mesh->GetMeshCenter());
+	ModelMeshData* data = mesh->GetMeshData(); 
 
-	// calculate the distance with the center
-	double camDistance = (mesh->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
-	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(mesh->GetMeshCenter().x, mesh->GetMeshCenter().y, mesh->GetMeshCenter().z)); 
-	dir.Normalize();
-	vec3 dirVec3(dir.x, dir.y, dir.z);
-	
-	// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
-	vec3 wantedPos = mesh->GetMeshCenter() + dirVec3 * camDistance;
-	Move(vec3(wantedPos - Position));
+	if (data != nullptr)
+	{
+		vec3 center = data->GetMeshCenter(); 
+
+		LookAt(center);
+
+		// calculate the distance with the center
+		double camDistance = (data->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
+		math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(center.x, center.y, center.z));
+		dir.Normalize();
+		vec3 dirVec3(dir.x, dir.y, dir.z);
+
+		// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
+		vec3 wantedPos = center + dirVec3 * camDistance;
+		Move(vec3(wantedPos - Position));
+	}
+
 }
  
 

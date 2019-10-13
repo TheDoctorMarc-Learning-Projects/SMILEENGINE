@@ -2,6 +2,7 @@
 #include "SmileModule.h"
 #include "SmileSetup.h"
 #include "glmath.h"
+#include "ComponentMesh.h"
 
 class SmileCamera3D : public SmileModule
 {
@@ -20,7 +21,7 @@ public:
 	float* GetViewMatrix();
 	float* GetViewMatrixInverse();
 
-	void FitMeshToCamera(Mesh* mesh); 
+	void FitMeshToCamera(ComponentMesh* mesh);
 private:
 
 	void CalculateViewMatrix();

@@ -24,7 +24,9 @@
 #pragma comment (lib, "MathGeoLib/libx86/DebugLib/MathGeoLib.lib") 
 #endif
 
+#include "ComponentMesh.h"
+
 namespace rayTracer
 {
-	Mesh* MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked = false); // if you just want to assign the mesh as the selected in the scene, pass it true
+	ComponentMesh* MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked = false); // if you just want to assign the mesh as the selected in the scene, pass it true
 }

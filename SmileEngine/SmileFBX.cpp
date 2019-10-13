@@ -14,6 +14,8 @@
 #pragma comment (lib, "DevIL/libx86/ILU.lib")
 #pragma comment (lib, "DevIL/libx86/ILUT.lib")
 
+#include "GameObject.h"
+
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
 {
 
@@ -46,7 +48,7 @@ bool SmileFBX::CleanUp()
 void SmileFBX::ReadFBXData(const char* path) {
 
 	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
-	FBX* fbx_info = DBG_NEW FBX();
+	GameObject* object = DBG_NEW GameObject(); 
 
 	if (scene != nullptr && scene->HasMeshes()) 
 	{
@@ -55,7 +57,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 			// Vertexs
 			aiMesh* new_mesh = scene->mMeshes[i];
-			Mesh* mesh_info = DBG_NEW Mesh(); 
+			ModelMeshData* mesh_info = DBG_NEW ModelMeshData();
 			mesh_info->num_vertex = new_mesh->mNumVertices;
 			mesh_info->vertex = new float[mesh_info->num_vertex * 3];
 			memcpy(mesh_info->vertex, new_mesh->mVertices, sizeof(float) * mesh_info->num_vertex * 3);
@@ -167,7 +169,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 			}
 
 			// Texture
-			if (scene->HasMaterials())
+			/*if (scene->HasMaterials())
 			{
 				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
 				{
@@ -182,7 +184,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 						AssignTextureImageToMesh(tex_path.data, mesh_info); 
 					}
 				}
-			}
+			}*/
 
 
 
@@ -211,12 +213,13 @@ void SmileFBX::ReadFBXData(const char* path) {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info->id_index);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info->num_index, mesh_info->index, GL_STATIC_DRAW);
 
-			
-			fbx_info->meshes.push_back(mesh_info); 
-			App->camera->FitMeshToCamera(mesh_info); 
+			// create a component mesh with the mesh info and then add it to the gameobject
+			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info); 
+			object->AddComponent(mesh);
+			App->camera->FitMeshToCamera(mesh);
 		}
-		
-		App->scene_intro->fbxs.push_back(fbx_info);
+
+		App->scene_intro->objects.push_back(object); 
 		aiReleaseImport(scene);
 	}
 	else
@@ -225,197 +228,3 @@ void SmileFBX::ReadFBXData(const char* path) {
 	}
 }
 
-void SmileFBX::DrawMesh(Mesh* mesh) 	
-{
-	// Cient states
-	glEnableClientState(GL_VERTEX_ARRAY); 
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	//glEnableClientState(GL_TEXTURE_BUFFER);
-	//glEnableClientState(GL_COLOR_ARRAY); 
-
-	// UV buffer
-	if (mesh->UVs != nullptr)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, mesh->id_UVs);
-		glTexCoordPointer(2, GL_FLOAT, 0, NULL);
-
-	}
-
-	// color buffer 
-	/*if (mesh->color != nullptr) {
-		glBindBuffer(GL_COLOR_ARRAY, mesh->id_color);
-		glColorPointer(3, GL_FLOAT, 8 * sizeof(GLfloat), 0);
-	}*/
-
-    // texture buffer
-	if (mesh->texture != nullptr)
-		glBindTexture(GL_TEXTURE_2D, mesh->id_texture);
-	else
-		glColor3f(0.3f, 0.3f, 0.3f);
-
-	// normal buffer
-	if (mesh->normals != nullptr)
-	{
-		glBindBuffer(GL_NORMAL_ARRAY, mesh->id_normals);
-		glNormalPointer(GL_FLOAT, 0, NULL);
-	}
-
-	// vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->id_vertex);
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
-
-	// index buffer 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->id_index);
-	glDrawElements(GL_TRIANGLES, mesh->num_index * 3, GL_UNSIGNED_INT, NULL);
-
-
-	// Cient states
-	//glDisableClientState(GL_COLOR_ARRAY);
-	//glDisableClientState(GL_TEXTURE_BUFFER);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-
-
-	// draw normals
-	if (debug) {
-		if (mesh->normals != nullptr)
-		{
-			glColor3f(0.f, 1.0f, 0.f);
-			static float normalFactor = 20.f;
-
-			for (int i = 0; i < mesh->num_normals * 3; i += 3)
-			{
-				glBegin(GL_LINES);
-
-				vec3 normalVec = normalize({ mesh->normals[i], mesh->normals[i + 1], mesh->normals[i + 2] });
-				glVertex3f(mesh->vertex[i], mesh->vertex[i + 1], mesh->vertex[i + 2]);
-				glVertex3f(mesh->vertex[i] + normalVec.x, mesh->vertex[i + 1] + normalVec.y, mesh->vertex[i + 2] + normalVec.z);
-
-				glEnd();
-			}
-			// draw face normals
-
-			float size = 5.f;
-			for (int i = 0; i < mesh->num_normals; i += 3) {
-
-				glBegin(GL_LINES);
-				glColor3f(0, 1, 0);
-
-				float vec1_x = mesh->vertex[mesh->index[i] * 3];
-				float vec1_y = mesh->vertex[(mesh->index[i] * 3) + 1];
-				float vec1_z = mesh->vertex[(mesh->index[i] * 3) + 2];
-
-
-				float vec2_x = mesh->vertex[mesh->index[i + 1] * 3];
-				float vec2_y = mesh->vertex[(mesh->index[i + 1] * 3) + 1];
-				float vec2_z = mesh->vertex[(mesh->index[i + 1] * 3) + 2];
-
-				float vec3_x = mesh->vertex[mesh->index[i + 2] * 3];
-				float vec3_y = mesh->vertex[(mesh->index[i + 2] * 3) + 1];
-				float vec3_z = mesh->vertex[(mesh->index[i + 2] * 3) + 2];
-
-				float mid_x = (vec1_x + vec2_x + vec3_x) / 3;
-				float mid_y = (vec1_y + vec2_y + vec3_y) / 3;
-				float mid_z = (vec1_z + vec2_z + vec3_z) / 3;
-
-				vec3 face_center = { mid_x, mid_y, mid_z };
-
-				vec3 vec_v1_center = face_center - vec3(vec1_x, vec1_y, vec1_z);
-				vec3 vec_v2_center = face_center - vec3(vec2_x, vec2_y, vec2_z);
-
-				vec3 normal_vec = cross(vec_v1_center, vec_v2_center);
-				vec3 normalized_normal_vec = normalize(normal_vec);
-
-				glVertex3f(mid_x, mid_y, mid_z);
-
-				glVertex3f(mid_x + normalized_normal_vec.x * size, mid_y + normalized_normal_vec.y * size, mid_z + normalized_normal_vec.z * size);
-
-				glEnd();
-			}
-
-		}
-	}
-	
-
-
-}
-
-void SmileFBX::FreeMeshBuffers(Mesh* mesh)
-{
-	if (mesh->vertex != nullptr)
-	{
-		glDeleteBuffers(1, (GLuint*)& mesh->vertex);
-		delete[] mesh->vertex;
-	}
-
-	if (mesh->index != nullptr)
-	{
-		glDeleteBuffers(1, (GLuint*)& mesh->index);
-		delete[] mesh->index;
-	}
-	
-	if (mesh->normals != nullptr)
-	{
-		glDeleteBuffers(1, (GLuint*)& mesh->normals);
-		delete[] mesh->normals;
-	}
-	
-	if (mesh->color != nullptr)
-	{
-		glDeleteBuffers(1, (GLuint*)& mesh->color);
-		delete[] mesh->color;
-	}
-
-	if (mesh->UVs != nullptr)
-	{
-		glDeleteBuffers(1, (GLuint*)& mesh->UVs);
-		delete[] mesh->UVs;
-	}
-		
-	if (mesh->texture != nullptr)
-	{
-		glDeleteTextures(1, (GLuint*)& mesh->texture);
-		//delete[] mesh->texture; 
-	}
-	
-
-}
-
-// TODO: somehow know beforehand to which mesh the cursor dropped the texture file into, and pass it here
-void SmileFBX::AssignTextureImageToMesh(const char* path, Mesh* mesh)
-{	 
-	// Check if mesh had an image already 
-	/*if (mesh->texture != nullptr)
-		glDeleteTextures(1, (GLuint*)& mesh->texture);*/ // TODO: re-work this 
-	
-
-	// Devil stuff
-	ilGenImages(1, &(ILuint)mesh->id_texture);
-	ilBindImage((ILuint)mesh->id_texture);
-
-	ILboolean success = ilLoadImage(path);
-	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE); 
-
-	static ILuint Width = ilGetInteger(IL_IMAGE_WIDTH);
-	static ILuint Height = ilGetInteger(IL_IMAGE_HEIGHT);
-	mesh->texture = ilGetData(); 
-
-	// TODO: get GL_RGB or GL_RGBA properly (.pngs do not have the A value) 
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, (GLuint*)& mesh->id_texture);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)mesh->id_texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)Width, (GLuint)Height,
-		0, GL_RGB, GL_UNSIGNED_BYTE, mesh->texture);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-
-	ilDeleteImage((ILuint)mesh->id_texture);
-}

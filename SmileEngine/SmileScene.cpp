@@ -30,19 +30,12 @@ bool SmileScene::Start()
 // Load assets
 bool SmileScene::CleanUp()
 {
-	//par_shapes_free_mesh(testCube); 
-	for (auto& fbx : fbxs)
+	for (auto& gameObject : objects)
 	{
-		for (auto& mesh : fbx->meshes)
-		{
-			App->fbx->FreeMeshBuffers(mesh);
-			RELEASE(mesh); 
-		}
-			
-		fbx->meshes.clear();
-		RELEASE(fbx);
+		gameObject->CleanUp(); 
+		RELEASE(gameObject); 
 	}
-	fbxs.clear(); 
+	objects.clear();
 
 	return true;
 }
@@ -64,9 +57,8 @@ void SmileScene::DrawGrid()
 
 void SmileScene::DrawMeshes()
 {
-	for(auto& fbx : fbxs)
-		for (auto& mesh : fbx->meshes)
-			App->fbx->DrawMesh(mesh);
+	for (auto& gameObject : objects)
+		gameObject->DrawMeshes(); 
 
 }
 

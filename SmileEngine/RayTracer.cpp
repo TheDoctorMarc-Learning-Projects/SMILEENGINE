@@ -1,6 +1,6 @@
 #include "RayTracer.h"
 
-Mesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
+ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
 {
 	// 1) Translate from window coordinates to inverted Y in OpenGL 
 	float mouse_X_GL, mouse_Y_GL;
@@ -46,15 +46,19 @@ Mesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
 	int foundAt[2] = { INT_MAX, INT_MAX };
 	int k = 0, j = 0;
 
-	for (auto& fbx : App->scene_intro->fbxs)
+	for (auto& gameObject : App->scene_intro->objects)
 	{
-		for (auto& mesh : fbx->meshes)
+		std::vector<Component*> meshes = std::get<std::vector<Component*>>(gameObject->GetComponent(MESH));
+
+		for (auto& mesh : meshes)
 		{
-			for (int i = 0; i < mesh->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
+			ModelMeshData* mesh_info = dynamic_cast<ComponentMesh*>(mesh)->GetMeshData(); 
+
+			for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 			{
-				math::float3 v1(mesh->vertex[i], mesh->vertex[i + 1], mesh->vertex[i + 2]);
-				math::float3 v2(mesh->vertex[i + 3], mesh->vertex[i + 4], mesh->vertex[i + 5]);
-				math::float3 v3(mesh->vertex[i + 6], mesh->vertex[i + 7], mesh->vertex[i + 8]);
+				math::float3 v1(mesh_info->vertex[i], mesh_info->vertex[i + 1], mesh_info->vertex[i + 2]);
+				math::float3 v2(mesh_info->vertex[i + 3], mesh_info->vertex[i + 4], mesh_info->vertex[i + 5]);
+				math::float3 v3(mesh_info->vertex[i + 6], mesh_info->vertex[i + 7], mesh_info->vertex[i + 8]);
 
 				math::Triangle tri = math::Triangle(v1, v2, v3);
 
@@ -77,13 +81,17 @@ Mesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
 	// 7) If clicked inside an object, select it, otherwise unselect the current selected
 	if (foundAt[0] != INT_MAX && foundAt[1] != INT_MAX)
 	{
+		GameObject* targetObject = App->scene_intro->objects.at(foundAt[0]);
+		ComponentMesh* targetMesh =
+			dynamic_cast<ComponentMesh*>(std::get<std::vector<Component*>>(targetObject->GetComponent(MESH)).at(foundAt[1]));
+
 		if (assignClicked)
 		{
-			App->scene_intro->selected_mesh = App->scene_intro->fbxs.at(foundAt[0])->meshes.at(foundAt[1]);
+			App->scene_intro->selected_mesh = targetMesh; 
 			LOG("Selected Mesh in the scene :)");
 		}
 		
-		return App->scene_intro->fbxs.at(foundAt[0])->meshes.at(foundAt[1]);
+		return targetMesh; 
 	}
 	else
 	{

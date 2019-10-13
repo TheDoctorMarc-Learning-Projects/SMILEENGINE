@@ -23,6 +23,9 @@
 
 #include "RayTracer.h"
 
+#include "ComponentMesh.h"
+#include "SmileGameObjectManager.h"
+
 #define MAX_KEYS 300
 
 SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -172,9 +175,9 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 		App->fbx->ReadFBXData(path);
 	else if (extension == "PNG" || extension == "png" || extension == "jpg")
 	{
-		Mesh* hoveredMesh = rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY()); 
+		ComponentMesh* hoveredMesh = rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY()); 
 		if (hoveredMesh != nullptr)
-			App->fbx->AssignTextureImageToMesh(path, hoveredMesh); 
+			App->object_manager->AssignTextureImageToMesh(path, hoveredMesh); 
 	}
 		
 }

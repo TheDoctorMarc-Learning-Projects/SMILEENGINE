@@ -5,11 +5,13 @@
 
 GameObject::GameObject()
 {
+	FillComponentBuffers(); 
 	AddComponent((Component*) DBG_NEW ComponentTransform());
 }
 
 GameObject::GameObject(Component* comp)
 {
+	FillComponentBuffers();
 	if (comp->type != TRANSFORM)
 		GameObject::GameObject(); 
 
@@ -19,6 +21,8 @@ GameObject::GameObject(Component* comp)
 
 GameObject::GameObject(std::vector<Component*> components)
 {
+	FillComponentBuffers();
+
 	bool foundTransform = false; 
 	
 	for (auto& comp : components)
@@ -32,6 +36,15 @@ GameObject::GameObject(std::vector<Component*> components)
 	if (foundTransform == false)
 		GameObject::GameObject(); 
 }
+
+void GameObject::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
+{
+	components[TRANSFORM] = DBG_NEW Component();  // one
+	components[MESH] = std::vector<Component*>(); // multiple
+	components[MATERIAL] = DBG_NEW Component();  // placeholder
+	components[LIGHT] = std::vector<Component*>(); // multiple
+}
+
 
 void GameObject::Enable()
 {
@@ -107,8 +120,8 @@ void GameObject::CleanUp()
 			vComp.clear(); 
 		}
 	}
-
-	delete[] components; 
+	 
+	//delete[] components; 
 }
 
 
@@ -120,18 +133,21 @@ bool GameObject::AddComponent(Component* comp)
 		if (std::get<0>(uniquenessMap.at(comp->type)) == false)
 			return false; 
 
-		// Check if the component is unique 
-		if (std::get<2>(uniquenessMap.at(comp->type)) == true)
+		// Check if there cannot be more than one instance of that object
+		if (std::get<2>(uniquenessMap.at(comp->type)) == false)
 		{
 			// Check if there already exists a component of that type
 			if (std::get<Component*>(components[comp->type]) != nullptr)
 				std::get<Component*>(components[comp->type])->CleanUp();
 
 			std::get<Component*>(components[comp->type]) = comp;
+
+			goto Enable; 
 		}
-		else // if it is not unique, push it to that component type list 
+		else // if there can me more than one, push it to that component type list 
 			std::get<std::vector<Component*>>(components[comp->type]).push_back(comp); 
 	
+		Enable: 
 		comp->parent = this;
 		comp->Enable();
 
@@ -149,18 +165,21 @@ bool GameObject::AddComponentToMesh(Component* comp, ComponentMesh* mesh)
 		if (std::get<1>(uniquenessMap.at(comp->type)) == false)
 			return false;
 
-		// Check if the component is unique 
-		if (std::get<2>(uniquenessMap.at(comp->type)) == true)
+		// Check if there cannot be more than one instance of that object
+		if (std::get<2>(uniquenessMap.at(comp->type)) == false)
 		{
 			// Check if there already exists a component of that type
 			if (std::get<Component*>(mesh->components[comp->type]) != nullptr)
 				std::get<Component*>(mesh->components[comp->type])->CleanUp();
 
 			std::get<Component*>(mesh->components[comp->type]) = comp;
+
+			goto Enable;
 		}
-		else // if it is not unique, push it to that component type list 
+		else // if there can me more than one, push it to that component type list 
 			std::get<std::vector<Component*>>(mesh->components[comp->type]).push_back(comp);
 
+		Enable:
 		comp->parent = this;
 		comp->Enable();
 
@@ -168,4 +187,13 @@ bool GameObject::AddComponentToMesh(Component* comp, ComponentMesh* mesh)
 	}
 
 	return false; 
+}
+
+void GameObject::DrawMeshes()
+{
+	 // we asume that the buffer at the MESH type is a vector of components 
+	std::vector<Component*> meshes = std::get<std::vector<Component*>>(components[MESH]);
+
+	for (auto& mesh : meshes)
+		dynamic_cast<ComponentMesh*>(mesh)->Draw(); 
 }

@@ -31,6 +31,9 @@
     <Filter Include="Source\Modules\Objects\Components">
       <UniqueIdentifier>{b0f2f073-f558-468c-be37-2b482c0f11d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\Objects\Components\Help">
+      <UniqueIdentifier>{390fd344-c8f1-4f58-84d3-191b3812c0fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -141,11 +144,11 @@
     <ClInclude Include="ComponentTransform.h">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentTypes.h">
-      <Filter>Source\Modules\Objects\Components</Filter>
-    </ClInclude>
     <ClInclude Include="SmileGameObjectManager.h">
       <Filter>Source\Modules\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTypes.h">
+      <Filter>Source\Modules\Objects\Components\Help</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -229,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="SmileGameObjectManager.cpp">
       <Filter>Source\Modules\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentMesh.cpp">
+      <Filter>Source\Modules\Objects\Components</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

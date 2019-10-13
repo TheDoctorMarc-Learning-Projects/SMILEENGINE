@@ -2,7 +2,8 @@
 #include "SmileModule.h"
 #include "SmileSetup.h"
 #include "SmileFBX.h"
-#include "parshapes/par_shapes.h"
+#include "GameObject.h"
+#include "ComponentMesh.h"
 #include <vector>
 
 class SmileScene : public SmileModule
@@ -20,8 +21,8 @@ private:
 
 public: 
 	void DrawMeshes();
-	std::vector<FBX*> fbxs;
-	Mesh* selected_mesh = nullptr; 
+	std::vector<GameObject*> objects;
+	ComponentMesh* selected_mesh = nullptr;
 
 	/*// test
 	par_shapes_mesh* testCube = nullptr;

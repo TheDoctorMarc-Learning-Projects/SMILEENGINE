@@ -3,7 +3,7 @@
 #include "GameObject.h"
 
 // ----------------------------------------------------------------- [Component]
-class Component : public GameObject
+class Component  
 {
 public:
 
@@ -11,7 +11,7 @@ public:
 	Component(GameObject* parent) : parent(parent) {};
 	~Component() {}
 
-private:
+public:
 	virtual void Enable() { active = true; };
 	virtual void Update() {};
 	virtual void Disable() { active = false; };
