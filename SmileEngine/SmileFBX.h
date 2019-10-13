@@ -104,6 +104,8 @@ public:
 	void DrawMesh(Mesh* mesh);
 	void FreeMeshBuffers(Mesh* mesh); 
 	void AssignTextureImageToMesh(const char* path, Mesh* mesh); 
+public:
+	bool debug = false;
 	
 };
 

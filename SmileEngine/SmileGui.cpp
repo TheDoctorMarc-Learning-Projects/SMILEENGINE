@@ -144,6 +144,7 @@ void SmileGui::HandleRender()
 void panelData::mainMenuSpace::Execute(bool& ret)
 {
 	static bool showdemowindow = false;
+	static bool showabout = false;
 
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -176,12 +177,7 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		if (ImGui::BeginMenu("Help"))
 		{
 			if (ImGui::MenuItem("Gui Demo")) {
-				showdemowindow = true;
-				if(showdemowindow)
-					ImGui::ShowDemoWindow(&showdemowindow);
-
-				//TODO The demo window doesnt appears
-
+				showdemowindow = !showdemowindow;
 			}
 			if (ImGui::MenuItem("Documentation")) {
 				ShellExecuteA(NULL, "open", "https://github.com/thedoctormarc/SMILEENGINE", NULL, NULL, SW_SHOWNORMAL);
@@ -196,7 +192,7 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 				ShellExecuteA(NULL, "open", "https://github.com/thedoctormarc/SMILEENGINE/issues", NULL, NULL, SW_SHOWNORMAL);
 			}
 			if (ImGui::MenuItem("About")) {
-				//TODO
+				showabout = !showabout;
 
 			}
 			if (ImGui::MenuItem("But can it run Crysis?"))
@@ -208,6 +204,25 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 
 		ImGui::EndMainMenuBar();
 	}
+	if(showdemowindow)
+		ImGui::ShowDemoWindow(&showdemowindow);
+
+	if (showabout)
+	{
+		if (ImGui::Begin("About"), &showabout)
+		{
+			ImGui::TextWrapped("MIT License Copyright 2019 Marc Doctor and Eric Navarro");
+			ImGui::NewLine();
+			ImGui::TextWrapped("Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:");
+			ImGui::NewLine();
+			ImGui::TextWrapped("The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.");
+			ImGui::NewLine();
+			ImGui::TextWrapped("THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.");
+		}
+		ImGui::End();
+	}
+		
+	
 }
 
 // ----------------------------------------------------------------- [Main Menu Bar: Geometry Generator GUI]
@@ -373,6 +388,8 @@ void panelData::configSpace::Execute(bool& ret)
 			static bool cullFace = false, wireframe = false, depth = true, lightning = true,
 				ColorMaterial = true, Texture2D = true, ambient = true, diffuse = true; 
 
+			if (ImGui::Checkbox("Vertex Normals", &App->fbx->debug));
+		
 
 			if (ImGui::Checkbox("Depth", &depth))
 			{
