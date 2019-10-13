@@ -373,6 +373,8 @@ void panelData::configSpace::Execute(bool& ret)
 			static bool cullFace = false, wireframe = false, depth = true, lightning = true,
 				ColorMaterial = true, Texture2D = true, ambient = true, diffuse = true; 
 
+			if (ImGui::Checkbox("Vertex Normals", &App->fbx->debug));
+		
 
 			if (ImGui::Checkbox("Depth", &depth))
 			{

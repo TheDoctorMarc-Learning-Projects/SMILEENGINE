@@ -259,22 +259,65 @@ void SmileFBX::DrawMesh(Mesh* mesh)
 
 
 	// draw normals
-	/*if (mesh->normals != nullptr)
-	{
-		glColor3f(0.f, 1.0f, 0.f);
-		static float normalFactor = 20.f;
-
-		for (int i = 0; i < mesh->num_normals * 3; i += 3)
+	if (debug) {
+		if (mesh->normals != nullptr)
 		{
-			glBegin(GL_LINES);
+			glColor3f(0.f, 1.0f, 0.f);
+			static float normalFactor = 20.f;
 
-			vec3 normalVec = normalize({ mesh->normals[i], mesh->normals[i + 1], mesh->normals[i + 2] });
-			glVertex3f(mesh->vertex[i], mesh->vertex[i + 1], mesh->vertex[i + 2]);
-			glVertex3f(mesh->vertex[i] + normalVec.x, mesh->vertex[i + 1] + normalVec.y, mesh->vertex[i + 2] + normalVec.z);
+			for (int i = 0; i < mesh->num_normals * 3; i += 3)
+			{
+				glBegin(GL_LINES);
 
-			glEnd();
+				vec3 normalVec = normalize({ mesh->normals[i], mesh->normals[i + 1], mesh->normals[i + 2] });
+				glVertex3f(mesh->vertex[i], mesh->vertex[i + 1], mesh->vertex[i + 2]);
+				glVertex3f(mesh->vertex[i] + normalVec.x, mesh->vertex[i + 1] + normalVec.y, mesh->vertex[i + 2] + normalVec.z);
+
+				glEnd();
+			}
+			// draw face normals
+
+			float size = 5.f;
+			for (int i = 0; i < mesh->num_normals; i += 3) {
+
+				glBegin(GL_LINES);
+				glColor3f(0, 1, 0);
+
+				float vec1_x = mesh->vertex[mesh->index[i] * 3];
+				float vec1_y = mesh->vertex[(mesh->index[i] * 3) + 1];
+				float vec1_z = mesh->vertex[(mesh->index[i] * 3) + 2];
+
+
+				float vec2_x = mesh->vertex[mesh->index[i + 1] * 3];
+				float vec2_y = mesh->vertex[(mesh->index[i + 1] * 3) + 1];
+				float vec2_z = mesh->vertex[(mesh->index[i + 1] * 3) + 2];
+
+				float vec3_x = mesh->vertex[mesh->index[i + 2] * 3];
+				float vec3_y = mesh->vertex[(mesh->index[i + 2] * 3) + 1];
+				float vec3_z = mesh->vertex[(mesh->index[i + 2] * 3) + 2];
+
+				float mid_x = (vec1_x + vec2_x + vec3_x) / 3;
+				float mid_y = (vec1_y + vec2_y + vec3_y) / 3;
+				float mid_z = (vec1_z + vec2_z + vec3_z) / 3;
+
+				vec3 face_center = { mid_x, mid_y, mid_z };
+
+				vec3 vec_v1_center = face_center - vec3(vec1_x, vec1_y, vec1_z);
+				vec3 vec_v2_center = face_center - vec3(vec2_x, vec2_y, vec2_z);
+
+				vec3 normal_vec = cross(vec_v1_center, vec_v2_center);
+				vec3 normalized_normal_vec = normalize(normal_vec);
+
+				glVertex3f(mid_x, mid_y, mid_z);
+
+				glVertex3f(mid_x + normalized_normal_vec.x * size, mid_y + normalized_normal_vec.y * size, mid_z + normalized_normal_vec.z * size);
+
+				glEnd();
+			}
+
 		}
-	}*/
+	}
+	
 
 
 }
