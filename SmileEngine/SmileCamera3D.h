@@ -3,7 +3,6 @@
 #include "SmileSetup.h"
 #include "glmath.h"
 
-
 class SmileCamera3D : public SmileModule
 {
 public:

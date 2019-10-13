@@ -58,9 +58,10 @@ private:
 	};
 
 	float minmaxCoords[minMaxCoords::TOTAL_COORDS]; 
+	float boundingBox[8]; // TODO
 
 	vec3 meshCenter; 
-	double meshBoundingSphereRadius; 
+	double meshBoundingSphereRadius = 0; 
 
 	void ComputeMeshSpatialData()
 	{
@@ -75,6 +76,9 @@ private:
 		vec3 max_Vec(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]); 
 		vec3 rad_Vec = (max_Vec - min_Vec) / 2;
 		meshBoundingSphereRadius = sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y); 
+
+		// TODO: bounding box, store the 8 vertices and draw them 
+
 	};
 
 public:

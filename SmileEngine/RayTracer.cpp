@@ -17,7 +17,20 @@ Mesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
 	glGetDoublev(GL_MODELVIEW_MATRIX, mvMatrix);
 	glGetDoublev(GL_PROJECTION_MATRIX, projMatrix);
 
+	glPixelStorei(GL_PACK_ALIGNMENT, 1); 
 	glReadPixels(mouse_X_GL, mouse_Y_GL, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse_Z_GL);
+
+	// To Optimize, if the mouse Z depth is 1.f (the max, in the horizon), skip calculus and return nullptr
+	if ((float)mouse_Z_GL == 1.f)
+	{
+		if (assignClicked)
+		{
+			App->scene_intro->selected_mesh = nullptr;
+			LOG("Unselected Mesh in the scene :o");
+		}
+
+		return nullptr;
+	}
 
 	// 3) Unproject to find the final point coordinates in the world
 	GLdouble fPos[3];
@@ -50,6 +63,7 @@ Mesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
 				{
 					foundAt[0] = k;
 					foundAt[1] = j;
+					goto Resolve; 
 				}
 
 			}
@@ -59,21 +73,26 @@ Mesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
 		++k;
 	}
 
+    Resolve:
 	// 7) If clicked inside an object, select it, otherwise unselect the current selected
 	if (foundAt[0] != INT_MAX && foundAt[1] != INT_MAX)
 	{
 		if (assignClicked)
+		{
 			App->scene_intro->selected_mesh = App->scene_intro->fbxs.at(foundAt[0])->meshes.at(foundAt[1]);
-
-		LOG("Selected Mesh in the scene :)");
+			LOG("Selected Mesh in the scene :)");
+		}
+		
 		return App->scene_intro->fbxs.at(foundAt[0])->meshes.at(foundAt[1]);
 	}
 	else
 	{
 		if (assignClicked)
+		{
 			App->scene_intro->selected_mesh = nullptr;
+			LOG("Unselected Mesh in the scene :o");
+		}
 
-		LOG("Unselected Mesh in the scene :o");
 		return nullptr;
 	}
 

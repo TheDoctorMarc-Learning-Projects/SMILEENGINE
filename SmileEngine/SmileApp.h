@@ -1,8 +1,10 @@
 #pragma once
 
-#include "SmileSetup.h"
 #include "Timer.h"
 #include <vector>
+#include <list>
+
+#include "SmileSetup.h"
 #include "SmileModule.h"
 #include "SmileWindow.h"
 #include "SmileInput.h"
@@ -12,8 +14,7 @@
 #include "SmileGui.h"
 #include "SmileUtilitiesModule.h"
 #include "SmileFBX.h"
-
-#include <list>
+#include "SmileGameObjectManager.h" 
 
 class SmileApp
 {
@@ -26,6 +27,7 @@ public:
 	SmileGui* gui; 
 	SmileUtilitiesModule* utilities;
 	SmileFBX* fbx;
+	SmileGameObjectManager* object_manager;
 
 private:
 

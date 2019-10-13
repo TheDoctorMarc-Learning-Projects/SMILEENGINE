@@ -1,5 +1,17 @@
 #include "SmileApp.h"
-#include "SmileSetup.h"
+
+class SmileSetup;
+class SmileModule;
+class SmileWindow;
+class SmileInput;
+class SmileScene;
+class SmileRenderer3D;
+class SmileCamera3D;
+class SmileGui;
+class SmileUtiliesModule;
+class SmileFBX;
+class SmileGameObjectManager;
+
 
 SmileApp::SmileApp()
 {
@@ -11,23 +23,19 @@ SmileApp::SmileApp()
 	gui = DBG_NEW SmileGui(this);
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 	fbx = DBG_NEW SmileFBX(this);
-
-	// The order of calls is very important!
-	// SmileModules will Init() Start() and Update in this order
-	// They will CleanUp() in reverse order
-
+	object_manager = DBG_NEW SmileGameObjectManager(this);
+	 
 	// Main SmileModules
 	AddModule(window);
 	AddModule(input);
 	AddModule(fbx);
 	// Scenes
+	AddModule(object_manager);
 	AddModule(scene_intro);
 	AddModule(camera);
 	AddModule(gui); 
-
 	// Test 
 	AddModule(utilities);
-
 	// Renderer last!
 	AddModule(renderer3D);
 }
@@ -36,8 +44,9 @@ SmileApp::~SmileApp()
 {
 	for (auto& item : list_Modules)
 		if (item != NULL)
-			delete item; 
+			RELEASE(item); 
 	list_Modules.clear(); 
+
 }
 
 bool SmileApp::Init()

@@ -150,20 +150,41 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 			}
 
-			// colors 
-			if (new_mesh->GetNumColorChannels() > 0)
+			// Colors 
+			if (new_mesh->HasVertexColors(0))  
 			{
-				for (int i = 0; i < new_mesh->GetNumColorChannels(); ++i)
+				mesh_info->num_color = new_mesh->mNumVertices;
+				mesh_info->color = new float[mesh_info->num_color * 4];
+				uint j = 0;
+				for (uint i = 0; i < new_mesh->mNumVertices; ++i)
 				{
-					if (new_mesh->HasVertexColors(i))
-					{
-						mesh_info->num_color = new_mesh->mNumVertices;
-						mesh_info->color = new float[mesh_info->num_color * 3];  // TODO: do not assume RBG, may be RGBA (xd)  
-						memcpy(mesh_info->color, new_mesh->mColors[i], sizeof(float) * mesh_info->num_color * 3);
-					}
-				
+					memcpy(&mesh_info->color[j], &new_mesh->mColors[0][i].r, sizeof(float));
+					memcpy(&mesh_info->color[j + 1], &new_mesh->mColors[0][i].g, sizeof(float)); //row var needed
+					memcpy(&mesh_info->color[j + 2], &new_mesh->mColors[0][i].b, sizeof(float));
+					memcpy(&mesh_info->color[j + 3], &new_mesh->mColors[0][i].a, sizeof(float));
+					j += 4;
 				}
 			}
+
+			// Texture
+			if (scene->HasMaterials())
+			{
+				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
+				{
+					const aiMaterial* material = scene->mMaterials[i];
+					uint nTex = material->GetTextureCount(aiTextureType_DIFFUSE);  
+
+					for (uint i = 0; i < nTex; ++i)
+					{
+						aiString tex_path;
+						scene->mMaterials[nTex]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
+						
+						AssignTextureImageToMesh(tex_path.data, mesh_info); 
+					}
+				}
+			}
+
+
 
 			// Normals Buffer
 			glGenBuffers(1, (GLuint*) & (mesh_info->id_normals));
@@ -324,8 +345,8 @@ void SmileFBX::FreeMeshBuffers(Mesh* mesh)
 void SmileFBX::AssignTextureImageToMesh(const char* path, Mesh* mesh)
 {	 
 	// Check if mesh had an image already 
-	if (mesh->texture != nullptr)
-		glDeleteTextures(1, (GLuint*)& mesh->texture);
+	/*if (mesh->texture != nullptr)
+		glDeleteTextures(1, (GLuint*)& mesh->texture);*/ // TODO: re-work this 
 	
 
 	// Devil stuff

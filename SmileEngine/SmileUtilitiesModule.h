@@ -10,6 +10,8 @@ public:
 	SmileUtilitiesModule(SmileApp* app, bool start_enabled = true);
 	~SmileUtilitiesModule();
 
+public: 
+
 	bool Start();
 	update_status PreUpdate(float dt);
 	update_status Update(float dt);

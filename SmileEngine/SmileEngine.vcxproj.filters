@@ -22,6 +22,15 @@
     <Filter Include="Source\Modules\Utilities">
       <UniqueIdentifier>{82d48ee8-4d0e-467f-8cbc-48ed50dd392e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\Basic">
+      <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects">
+      <UniqueIdentifier>{3525823e-24ba-42d6-a254-34ae1c308690}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\Components">
+      <UniqueIdentifier>{b0f2f073-f558-468c-be37-2b482c0f11d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -48,9 +57,6 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="SmileGui.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="Color.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
@@ -59,21 +65,6 @@
     </ClInclude>
     <ClInclude Include="SmileSetup.h">
       <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileWindow.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileRenderer3D.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileInput.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileCamera3D.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileModule.h">
-      <Filter>Source\Modules</Filter>
     </ClInclude>
     <ClInclude Include="SmileScene.h">
       <Filter>Source\Modules\GameLogic</Filter>
@@ -111,14 +102,50 @@
     <ClInclude Include="GeometryGenerator.h">
       <Filter>Source\Modules\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="SmileFBX.h">
-      <Filter>Source\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="QuickMath.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
     <ClInclude Include="RayTracer.h">
       <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileFBX.h">
+      <Filter>Source\Modules\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileCamera3D.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileGui.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileInput.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileModule.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileRenderer3D.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileWindow.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Source\Modules\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Source\Modules\Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentMesh.h">
+      <Filter>Source\Modules\Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTransform.h">
+      <Filter>Source\Modules\Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTypes.h">
+      <Filter>Source\Modules\Objects\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileGameObjectManager.h">
+      <Filter>Source\Modules\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -140,9 +167,6 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source\Tools\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="SmileGui.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="Color.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
@@ -151,18 +175,6 @@
     </ClCompile>
     <ClCompile Include="SmileMain.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileWindow.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileRenderer3D.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileInput.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileCamera3D.cpp">
-      <Filter>Source\Modules</Filter>
     </ClCompile>
     <ClCompile Include="SmileScene.cpp">
       <Filter>Source\Modules\GameLogic</Filter>
@@ -188,11 +200,35 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="SmileFBX.cpp">
-      <Filter>Source\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="RayTracer.cpp">
       <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileFBX.cpp">
+      <Filter>Source\Modules\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileCamera3D.cpp">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileGui.cpp">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileInput.cpp">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileRenderer3D.cpp">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileWindow.cpp">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source\Modules\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentTransform.cpp">
+      <Filter>Source\Modules\Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileGameObjectManager.cpp">
+      <Filter>Source\Modules\Objects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
