@@ -15,6 +15,7 @@
 #pragma comment (lib, "DevIL/libx86/ILUT.lib")
 
 #include "GameObject.h"
+#include <filesystem> // TODO: filesystem
 
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
 {
@@ -48,16 +49,17 @@ bool SmileFBX::CleanUp()
 void SmileFBX::ReadFBXData(const char* path) {
 
 	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
-	GameObject* object = DBG_NEW GameObject(); 
 
 	if (scene != nullptr && scene->HasMeshes()) 
 	{
+		GameObject* object = DBG_NEW GameObject();
+
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
-
-			// Vertexs
 			aiMesh* new_mesh = scene->mMeshes[i];
 			ModelMeshData* mesh_info = DBG_NEW ModelMeshData();
+
+			// Vertexs
 			mesh_info->num_vertex = new_mesh->mNumVertices;
 			mesh_info->vertex = new float[mesh_info->num_vertex * 3];
 			memcpy(mesh_info->vertex, new_mesh->mVertices, sizeof(float) * mesh_info->num_vertex * 3);
@@ -111,10 +113,11 @@ void SmileFBX::ReadFBXData(const char* path) {
 					if (new_mesh->mFaces[i].mNumIndices != 3)
 					{
 						LOG("WARNING, geometry face with != 3 indices!");
+						memset(&mesh_info->index[i * 3], 0, sizeof(uint) * 3);
 					}
 					else
 					{
-						memcpy(&mesh_info->index[i * 3], new_mesh->mFaces[i].mIndices, 3 * sizeof(float));
+						memcpy(&mesh_info->index[i * 3], &new_mesh->mFaces[i].mIndices[0], sizeof(uint) * 3);
 					}
 					
 				}
@@ -168,25 +171,6 @@ void SmileFBX::ReadFBXData(const char* path) {
 				}
 			}
 
-			// Texture
-			/*if (scene->HasMaterials())
-			{
-				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
-				{
-					const aiMaterial* material = scene->mMaterials[i];
-					uint nTex = material->GetTextureCount(aiTextureType_DIFFUSE);  
-
-					for (uint i = 0; i < nTex; ++i)
-					{
-						aiString tex_path;
-						scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
-						
-						AssignTextureImageToMesh(tex_path.data, mesh_info); 
-					}
-				}
-			}*/
-
-
 
 			// Normals Buffer
 			glGenBuffers(1, (GLuint*) & (mesh_info->id_normals));
@@ -217,6 +201,28 @@ void SmileFBX::ReadFBXData(const char* path) {
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info); 
 			object->AddComponent(mesh);
 			App->camera->FitMeshToCamera(mesh);
+
+
+			// Texture last, once the mesh is created
+			if (scene->HasMaterials())
+			{
+				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
+				{
+					const aiMaterial* material = scene->mMaterials[i];
+					uint nTex = material->GetTextureCount(aiTextureType_DIFFUSE);
+
+					for (uint i = 0; i < nTex; ++i)
+					{
+						aiString tex_path;
+						scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
+
+						std::string assetsPath("..//Assets/"); assetsPath += tex_path.data; 
+						App->object_manager->AssignTextureImageToMesh(assetsPath.c_str(), mesh);
+					}
+				}
+			}
+			
+
 		}
 
 		App->scene_intro->objects.push_back(object); 

@@ -17,7 +17,6 @@ ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignCli
 	glGetDoublev(GL_MODELVIEW_MATRIX, mvMatrix);
 	glGetDoublev(GL_PROJECTION_MATRIX, projMatrix);
 
-	glPixelStorei(GL_PACK_ALIGNMENT, 1); 
 	glReadPixels(mouse_X_GL, mouse_Y_GL, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse_Z_GL);
 
 	// To Optimize, if the mouse Z depth is 1.f (the max, in the horizon), skip calculus and return nullptr
@@ -81,9 +80,8 @@ ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignCli
 	// 7) If clicked inside an object, select it, otherwise unselect the current selected
 	if (foundAt[0] != INT_MAX && foundAt[1] != INT_MAX)
 	{
-		GameObject* targetObject = App->scene_intro->objects.at(foundAt[0]);
 		ComponentMesh* targetMesh =
-			dynamic_cast<ComponentMesh*>(std::get<std::vector<Component*>>(targetObject->GetComponent(MESH)).at(foundAt[1]));
+			dynamic_cast<ComponentMesh*>(std::get<std::vector<Component*>>(App->scene_intro->objects.at(foundAt[0])->GetComponent(MESH)).at(foundAt[1])); // oh damn beautiful 
 
 		if (assignClicked)
 		{

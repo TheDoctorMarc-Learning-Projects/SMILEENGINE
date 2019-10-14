@@ -24,6 +24,9 @@
 
 #include "SmileApp.h"
 
+#include "GameObject.h"
+#include "ComponentMesh.h"
+
 namespace GeometryGenerator
 {
 	namespace MathGeoLib
@@ -189,14 +192,6 @@ namespace GeometryGenerator
 		};
 	}
 	
-	namespace ParShapes
-	{
-		/*par_shapes_mesh* TestFunction()
-		{
-	        return par_shapes_create_cube();
-		}*/
-	}
-
 	
   
 }

@@ -84,7 +84,7 @@ void ComponentMesh::Draw()
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 
-		// draw normals
+		/*// draw normals
 		if (model_mesh->normals != nullptr)
 		{
 			glColor3f(0.f, 1.0f, 0.f);
@@ -140,7 +140,7 @@ void ComponentMesh::Draw()
 				glEnd();
 			}
 
-		}
+		}*/
 	}
 }
 

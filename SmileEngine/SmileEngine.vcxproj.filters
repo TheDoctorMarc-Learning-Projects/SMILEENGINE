@@ -102,9 +102,6 @@
     <ClInclude Include="Light.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="GeometryGenerator.h">
-      <Filter>Source\Modules\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="QuickMath.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
@@ -149,6 +146,9 @@
     </ClInclude>
     <ClInclude Include="ComponentTypes.h">
       <Filter>Source\Modules\Objects\Components\Help</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryGenerator.h">
+      <Filter>Source\Modules\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
