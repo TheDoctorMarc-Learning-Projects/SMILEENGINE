@@ -11,7 +11,6 @@
 
 #include <fstream>
 #include "JSONParser.h"
-#include "GeometryGenerator.h"
 
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
@@ -35,10 +34,7 @@ namespace panelData
 
 		namespace GeometryGeneratorGui
 		{
-			std::vector<float> objectParams; 
 			void Execute();
-			void ShowObjectMenu(std::string name); // assigns the inputed values
-			void ShutDown() { objectParams.clear(); };
 		}
 	}
 
@@ -48,7 +44,6 @@ namespace panelData
 SmileGui::SmileGui(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	FillMenuFunctionsVector();
-	GeometryGenerator::MathGeoLib::PopulateMap(true); 
 }
 
 // -----------------------------------------------------------------
@@ -64,8 +59,6 @@ SmileGui::~SmileGui()
 {
 	menuFunctions.clear(); 
 	panelData::consoleSpace::ShutDown();
-	panelData::mainMenuSpace::GeometryGeneratorGui::ShutDown();
-	GeometryGenerator::MathGeoLib::PopulateMap(false);
 }
 
 // -----------------------------------------------------------------
@@ -238,22 +231,20 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 				App->scene_intro->selected_mesh->AssignCheckersTexture();
 
 		}
+
+		static char objName[128] = "Insert name";
+		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName));
+
+		if (ImGui::MenuItem("Create Object"))
+		{
+			par_shapes_mesh* primitive = App->object_manager->GeneratePrimitive(std::string(objName));
+
+			if (primitive != nullptr)
+				App->object_manager->CreateGameObject(DBG_NEW ComponentMesh(primitive));
+		
+		}
 		
 		ImGui::EndMenu(); 
-	}
-}
-
-void panelData::mainMenuSpace::GeometryGeneratorGui::ShowObjectMenu(std::string name)
-{
-	int max = GeometryGenerator::MathGeoLib::GetObjectParameterCount(name);
-
-	for (int i = 1; i <= max; ++i)
-		objectParams.push_back(0.F);
-
-	for (int i = 1; i <= max; ++i)
-	{
-		const char* label = GeometryGenerator::MathGeoLib::parameterMap.at(name).second.at(i - 1).c_str();
-		ImGui::SliderFloat(label, &objectParams.at(i - 1), -10.f, 10.f);   // TODO: with radius it should be positive. Define or map max & min values too :/ 
 	}
 }
 

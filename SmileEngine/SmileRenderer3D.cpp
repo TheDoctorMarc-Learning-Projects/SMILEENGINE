@@ -130,7 +130,7 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 // PostUpdate present buffer to screen
 update_status SmileRenderer3D::PostUpdate(float dt)
 {
-	App->scene_intro->DrawMeshes(); 
+	App->scene_intro->UpdateGameObjects();
     App->gui->HandleRender(); 
 	SDL_GL_SwapWindow(App->window->window);
 	return UPDATE_CONTINUE;

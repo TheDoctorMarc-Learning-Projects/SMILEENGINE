@@ -1,8 +1,10 @@
 #pragma once
 
 #include "GameObject.h"
+#include <variant>
 
 // ----------------------------------------------------------------- [Component]
+class ComponentMesh; 
 class Component  
 {
 public:
@@ -20,7 +22,7 @@ public:
 public:
 	COMPONENT_TYPE type = COMPONENT_TYPE::NO_TYPE;
 	bool active = false;
-	GameObject* parent = nullptr;
+	std::variant<GameObject*, ComponentMesh*> parent;
 	bool unique = true;
 
 public:

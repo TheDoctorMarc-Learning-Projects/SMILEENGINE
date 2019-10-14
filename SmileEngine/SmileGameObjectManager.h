@@ -2,6 +2,13 @@
 
 #include "SmileModule.h"
 #include "ComponentMesh.h"
+#include "parshapes/par_shapes.h"
+#include <map>
+#include <string>
+
+par_shapes_mesh* CreateSphere();
+par_shapes_mesh* CreateCube();
+// TODO; 
 
 class SmileGameObjectManager : public SmileModule
 {
@@ -13,8 +20,24 @@ public:
 	update_status Update(float dt);
 	bool CleanUp(); 
 
+	// Component Mesh tools
 	void AssignTextureImageToMesh(const char* path, ComponentMesh* mesh)
 	{ 
 		mesh->AssignTexture(path); 
 	};
+
+	// Pàr shapes mesh tools
+	par_shapes_mesh* GeneratePrimitive(std::string type);
+
+	// GameObject tools
+	GameObject* CreateGameObject(); 
+	GameObject* CreateGameObject(Component* comp);
+	GameObject* CreateGameObject(std::vector<Component*> comps);
+
+private: 
+	void FillMaps(); 
+
+private: 
+	std::map<std::string, par_shapes_mesh*(*)()> primitiveMap;
+
 };

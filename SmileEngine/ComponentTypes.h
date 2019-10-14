@@ -25,4 +25,6 @@ const std::map<COMPONENT_TYPE, std::tuple<bool, bool, bool>> uniquenessMap
 		{ COMPONENT_TYPE::MATERIAL,  std::tuple(false, true, false) },
 		{ COMPONENT_TYPE::LIGHT,  std::tuple(true, false, false) },
 }; 
-// to access use std::get with 0, 1, 2 for the bools
+// to access the tuple use std::get with 0, 1, 2 for each bool eg. std::get<0>(...)
+
+ 

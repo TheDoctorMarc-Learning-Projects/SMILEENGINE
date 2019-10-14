@@ -56,10 +56,10 @@ void SmileScene::DrawGrid()
 	// TODO
 }
 
-void SmileScene::DrawMeshes()
+void SmileScene::UpdateGameObjects()
 {
 	for (auto& gameObject : objects)
-		gameObject->DrawMeshes(); 
+		gameObject->Update(); 
 
 }
 

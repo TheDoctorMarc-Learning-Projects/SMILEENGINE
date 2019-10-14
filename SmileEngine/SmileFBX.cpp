@@ -169,40 +169,12 @@ void SmileFBX::ReadFBXData(const char* path) {
 				}
 			}
 
-
-			// Normals Buffer
-			glGenBuffers(1, (GLuint*) & (mesh_info->id_normals));
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info->id_normals);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * mesh_info->num_normals * 3, mesh_info->normals, GL_STATIC_DRAW);
-			
-			// Uvs vBuffer
-			glGenBuffers(1, (GLuint*) & (mesh_info->id_UVs));
-			glBindBuffer(GL_ARRAY_BUFFER, mesh_info->id_UVs);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info->num_UVs * 2, mesh_info->UVs, GL_STATIC_DRAW);
-
-			// Color Buffer
-			glGenBuffers(1, (GLuint*) & (mesh_info->id_color));
-			glBindBuffer(GL_ARRAY_BUFFER, mesh_info->id_color);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info->num_color * 3, mesh_info->color, GL_STATIC_DRAW);
-		
-			// Vertex Buffer
-			glGenBuffers(1, (GLuint*) & (mesh_info->id_vertex));
-			glBindBuffer(GL_ARRAY_BUFFER, mesh_info->id_vertex);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_info->num_vertex * 3, mesh_info->vertex, GL_STATIC_DRAW);
-
-			// Index Buffer
-			glGenBuffers(1, (GLuint*) & (mesh_info->id_index));
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_info->id_index);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * mesh_info->num_index, mesh_info->index, GL_STATIC_DRAW);
-
-			// create a component mesh with the mesh info and then add it to the gameobject
+			// create a component mesh with the mesh info  
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info); 
-			object->AddComponent(mesh);
-			App->camera->FitMeshToCamera(mesh);
-
-
+			// Generate mesh buffers
+			mesh->GenerateBuffers(); 
 			// Texture last, once the mesh is created
-			/*if (scene->HasMaterials())
+			if (scene->HasMaterials())
 			{
 				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
 				{
@@ -214,12 +186,15 @@ void SmileFBX::ReadFBXData(const char* path) {
 						aiString tex_path;
 						scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
 
-						std::string assetsPath("..//Assets/"); assetsPath += tex_path.data; 
+						std::string assetsPath("..//Assets/"); assetsPath += tex_path.data;
 						App->object_manager->AssignTextureImageToMesh(assetsPath.c_str(), mesh);
 					}
 				}
-			}*/
-			
+			}
+			// Add the Mesh to the GameObject
+			object->AddComponent(mesh);
+			// Fit the camera to the mesh (yea, the function name is reversed)
+			App->camera->FitMeshToCamera(mesh);
 
 		}
 
@@ -231,4 +206,3 @@ void SmileFBX::ReadFBXData(const char* path) {
 		LOG("Error loading FBX %s", path);
 	}
 }
-

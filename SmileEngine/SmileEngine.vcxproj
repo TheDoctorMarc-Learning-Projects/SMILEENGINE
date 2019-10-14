@@ -91,7 +91,6 @@
     <ClInclude Include="ComponentTransform.h" />
     <ClInclude Include="ComponentTypes.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="glmath.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="JSONParser.h" />

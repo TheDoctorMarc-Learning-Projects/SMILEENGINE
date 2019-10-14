@@ -70,7 +70,7 @@ private:
 		vec3 min_Vec(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]);
 		vec3 max_Vec(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
 		vec3 rad_Vec = (max_Vec - min_Vec) / 2;
-		meshBoundingSphereRadius = sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
+		meshBoundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
 
 		// TODO: bounding box, store the 8 vertices and draw them 
 
@@ -81,7 +81,8 @@ public:
 	vec3 GetMeshCenter() const { return meshCenter; };
 	double GetMeshSphereRadius() const { return meshBoundingSphereRadius; };
 
-	friend class SmileFBX; 
+	friend class SmileFBX;
+	friend class ComponentMesh; 
 };
 
 // ----------------------------------------------------------------- [Mesh]
@@ -91,11 +92,6 @@ public:
 	ComponentMesh(par_shapes_mesh*); 
 	ComponentMesh(ModelMeshData*);
 	~ComponentMesh();
-
-	// TODO: same logic with components as GameObject (Enable, Disable, Update, CleanUp)
-	// TODO: the mesh can either be "OpenGL importer related" or a par_shapes_mesh
-	// TODO: use the geometry generator to create a GameObject that cointains a ComponentMesh with the par_shapes
-	// TODO: use another constructor to recieve a mesh from the old Mesh structure + bring it to this header 
 
 public: 
     // Just like the GameObject:
@@ -112,13 +108,19 @@ public:
 	ModelMeshData* GetMeshData() const { return model_mesh; };
 
 private: 
+	// components array
 	void FillComponentBuffers();
+
+	//generate a mesh form a par shapes
+	void GenerateModelMeshFromParShapes(par_shapes_mesh*);
+	void ComputeSpatialData(); 
+	void GenerateBuffers(); 
 
 private:
 	// The Mesh component is the only one that, like the GmaeObject, has yet another component buffer 
 	std::variant<Component*, std::vector<Component*>> components[COMPONENT_TYPE::MAX_COMPONENT_TYPES]; 
 	ModelMeshData* model_mesh = nullptr; 
-	par_shapes_mesh* primitive_mesh = nullptr; 
 
 	friend class GameObject;
+	friend class SmileFBX; 
 };
