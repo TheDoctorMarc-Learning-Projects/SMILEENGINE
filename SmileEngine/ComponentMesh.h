@@ -107,6 +107,8 @@ public:
 	// If it has a mesh loaded from an FBX ("model_mesh"): 
 	void Draw();
 	void AssignTexture(const char* path); 
+	void AssignCheckersTexture();  // maybe this could become a generic function that recieves a Glubyte  
+
 	ModelMeshData* GetMeshData() const { return model_mesh; };
 
 private: 

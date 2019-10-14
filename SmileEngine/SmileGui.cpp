@@ -117,6 +117,8 @@ bool SmileGui::GenerateGUI()
 {
 	bool ret = true; 
 
+	inMenu = ImGui::IsAnyItemHovered(); 
+
 	for (auto& func : menuFunctions)
 		func(ret); 
  
@@ -230,63 +232,13 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 {
 	if (ImGui::BeginMenu("Geometry"))
 	{
-		static char objName[128] = "Insert name";
-		static char lastValidName[128] = ""; 
-		static bool objectMenu = false; 
+		if (ImGui::MenuItem("Assign checkers texture"))
+		{
+			if (App->scene_intro->selected_mesh != nullptr)
+				App->scene_intro->selected_mesh->AssignCheckersTexture();
 
-		// The object name input 
-		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName)); 
+		}
 		
-		// The specific object creation menu **
-		if (ImGui::MenuItem("Creation Menu"))
-		{
-			if (GeometryGenerator::MathGeoLib::DoesObjectExist(objName))
-			{
-				objectMenu = true;
-				strncpy(lastValidName, objName, 128);
-			}
-
-		}
-
-		// the types information string 
-		if (objectMenu == false)
-		{
-			static ImVec4 col(0.f, 255.f, 1.f, 255.f);
-			static char text[128];
-			GeometryGenerator::MathGeoLib::GetAllObjectTypesChar(text);
-			ImGui::TextColored(col, text);
-		}
-
-		// ** The specific object creation menu
-		if (objectMenu == true)
-		{
-			ShowObjectMenu(objName);  
-
-			if (ImGui::MenuItem("Create"))
-			{
-				GeometryGenerator::MathGeoLib::GenerateObject(objName, objectParams);  
-				objectMenu = false;
-				objectParams.clear();
-			}
-
-			if (ImGui::MenuItem("Back"))
-			{
-				objectMenu = false;
-
-				// TODO: get last valid object name and reset params to 0.F
-			}
-				
-
-		}
-
-		// - - - - - - - - - - - - - - - [par shapes]
-		/*static par_shapes_mesh* supaMesh; 
-
-		if (ImGui::MenuItem("Par shapes rtest"))
-			supaMesh = GeometryGenerator::ParShapes::TestFunction();*/
-			
-
-
 		ImGui::EndMenu(); 
 	}
 }

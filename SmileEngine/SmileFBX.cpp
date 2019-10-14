@@ -144,8 +144,6 @@ void SmileFBX::ReadFBXData(const char* path) {
 					uint j = 0;
 					for (uint i = 0; i < new_mesh->mNumVertices; ++i) 
 					{
-
-						//there are two for each vertex
 						memcpy(&mesh_info->UVs[j], &new_mesh->mTextureCoords[ind][i].x, sizeof(float));
 						memcpy(&mesh_info->UVs[j + 1], &new_mesh->mTextureCoords[ind][i].y, sizeof(float));
 						j += 2;

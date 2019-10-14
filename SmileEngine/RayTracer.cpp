@@ -1,7 +1,13 @@
 #include "RayTracer.h"
+#include "SmileApp.h"
+#include "SmileGui.h"
 
 ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
 {
+	// 0) Skip if click was while a gui menu is open
+	if (App->gui->IsMouseOverTheGui() == true)
+		return nullptr; 
+
 	// 1) Translate from window coordinates to inverted Y in OpenGL 
 	float mouse_X_GL, mouse_Y_GL;
 	GLfloat mouse_Z_GL;

@@ -1,6 +1,7 @@
 #include "ComponentMesh.h"
 
 #include "Glew/include/GL/glew.h" 
+#include "DevIL/include/IL/ilu.h"
 
 ComponentMesh::ComponentMesh(par_shapes_mesh* mesh) : primitive_mesh(mesh)
 {
@@ -284,7 +285,7 @@ void ComponentMesh::AssignTexture(const char* path)
 {
 	
 
-	if (model_mesh != nullptr)
+	if (model_mesh != nullptr) // TODO: not only the model mesh, also par shapes
 	{
 		// Check if mesh had an image already 
 	/*if (mesh->texture != nullptr)
@@ -298,24 +299,25 @@ void ComponentMesh::AssignTexture(const char* path)
 
 		if ((bool)success)
 		{
+			iluFlipImage();
 			ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-
-			static ILuint Width = ilGetInteger(IL_IMAGE_WIDTH);
-			static ILuint Height = ilGetInteger(IL_IMAGE_HEIGHT);
-			model_mesh->texture = ilGetData();
-
-			// TODO: get GL_RGB or GL_RGBA properly (.pngs do not have the A value) 
-
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		
 			glGenTextures(1, (GLuint*)& model_mesh->id_texture);
 			glBindTexture(GL_TEXTURE_2D, (GLuint)model_mesh->id_texture);
+
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)Width, (GLuint)Height,
-				0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE, model_mesh->texture);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)ilGetInteger(IL_IMAGE_WIDTH),
+				(GLuint)ilGetInteger(IL_IMAGE_HEIGHT),	0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE, 
+				ilGetData());
+
+			model_mesh->texture = ilGetData(); 
+
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 		}
@@ -324,4 +326,59 @@ void ComponentMesh::AssignTexture(const char* path)
 		ilDeleteImage((ILuint)model_mesh->id_texture);
 	}
 	
+}
+
+
+// -----------------------------------------------------------------
+void ComponentMesh::AssignCheckersTexture()
+{
+#ifndef CHECKERS_SIZE
+#define CHECKERS_SIZE 20
+#endif 
+
+	if (model_mesh != nullptr) // TODO: not only the model mesh, also par shapes
+	{
+		// Devil stuff
+		ilGenImages(1, &(ILuint)model_mesh->id_texture);
+		ilBindImage((ILuint)model_mesh->id_texture);
+
+		// Generated the checkered image
+		GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
+		for (int i = 0; i < 20; i++) {
+			for (int j = 0; j < 20; j++) {
+				int c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
+				checkImage[i][j][0] = (GLubyte)c;
+				checkImage[i][j][1] = (GLubyte)c;
+				checkImage[i][j][2] = (GLubyte)c;
+				checkImage[i][j][3] = (GLubyte)255;
+			}
+		}
+
+		iluFlipImage();
+		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+
+		glGenTextures(1, (GLuint*)& model_mesh->id_texture);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)model_mesh->id_texture);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CHECKERS_SIZE,
+			CHECKERS_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+			checkImage);
+
+		model_mesh->texture = (ILubyte*)checkImage; 
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		ilDeleteImage((ILuint)model_mesh->id_texture);
+		
+	}
+
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "SmileModule.h"
-#include "ImGui/imgui.h"
 #include <vector>
 
 #define ACCESS_TO_GEOMETRY
@@ -16,6 +15,7 @@ public:
 	void Log(const char* log);
 	bool CleanUp();
 	
+	bool IsMouseOverTheGui() const { return inMenu; }; 
 	
 private: 
 	void FillMenuFunctionsVector(); 
@@ -23,7 +23,8 @@ private:
 
 private: 
 	std::vector<void(*)(bool&)> menuFunctions;
-	
+	bool inMenu = false;
+
 	friend class SmileSetup;
 };
 
