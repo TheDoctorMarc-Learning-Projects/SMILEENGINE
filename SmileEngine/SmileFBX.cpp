@@ -204,7 +204,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 
 			// Texture last, once the mesh is created
-			if (scene->HasMaterials())
+			/*if (scene->HasMaterials())
 			{
 				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
 				{
@@ -220,7 +220,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 						App->object_manager->AssignTextureImageToMesh(assetsPath.c_str(), mesh);
 					}
 				}
-			}
+			}*/
 			
 
 		}

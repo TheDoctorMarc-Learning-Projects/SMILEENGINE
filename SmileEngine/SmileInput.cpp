@@ -173,7 +173,7 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 	
 	if (extension == "FBX" || extension == "fbx")
 		App->fbx->ReadFBXData(path);
-	else if (extension == "PNG" || extension == "png" || extension == "jpg")
+	else if (extension == "PNG" || extension == "png" || extension == "jpg" || extension == "dds" || extension == "DDS")
 	{
 		ComponentMesh* hoveredMesh = rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY()); 
 		if (hoveredMesh != nullptr)

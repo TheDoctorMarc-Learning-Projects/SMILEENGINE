@@ -295,26 +295,32 @@ void ComponentMesh::AssignTexture(const char* path)
 		ilBindImage((ILuint)model_mesh->id_texture);
 
 		ILboolean success = ilLoadImage(path);
-		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
-		static ILuint Width = ilGetInteger(IL_IMAGE_WIDTH);
-		static ILuint Height = ilGetInteger(IL_IMAGE_HEIGHT);
-		model_mesh->texture = ilGetData();
+		if ((bool)success)
+		{
+			ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
-		// TODO: get GL_RGB or GL_RGBA properly (.pngs do not have the A value) 
+			static ILuint Width = ilGetInteger(IL_IMAGE_WIDTH);
+			static ILuint Height = ilGetInteger(IL_IMAGE_HEIGHT);
+			model_mesh->texture = ilGetData();
 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glGenTextures(1, (GLuint*)& model_mesh->id_texture);
-		glBindTexture(GL_TEXTURE_2D, (GLuint)model_mesh->id_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)Width, (GLuint)Height,
-			0, GL_RGB, GL_UNSIGNED_BYTE, model_mesh->texture);
-		glGenerateMipmap(GL_TEXTURE_2D);
+			// TODO: get GL_RGB or GL_RGBA properly (.pngs do not have the A value) 
 
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			glGenTextures(1, (GLuint*)& model_mesh->id_texture);
+			glBindTexture(GL_TEXTURE_2D, (GLuint)model_mesh->id_texture);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)Width, (GLuint)Height,
+				0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE, model_mesh->texture);
+			glGenerateMipmap(GL_TEXTURE_2D);
 
+		}
+		
+		glBindTexture(GL_TEXTURE_2D, 0);
 		ilDeleteImage((ILuint)model_mesh->id_texture);
 	}
 	
