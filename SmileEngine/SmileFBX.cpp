@@ -194,7 +194,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 			// Add the Mesh to the GameObject
 			object->AddComponent(mesh);
 			// Fit the camera to the mesh (yea, the function name is reversed)
-			App->camera->FitMeshToCamera(mesh);
+			App->camera->FitCameraToMesh(mesh);
 
 		}
 

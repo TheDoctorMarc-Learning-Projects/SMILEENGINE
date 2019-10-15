@@ -22,7 +22,7 @@ SmileScene::~SmileScene()
 // Load assets
 bool SmileScene::Start()
 { 
-	//App->fbx->ReadFBXData("..//Assets/BakerHouse.fbx"); 
+	App->fbx->ReadFBXData("..//Assets/BakerHouse.fbx"); 
 
 	return true;
 }

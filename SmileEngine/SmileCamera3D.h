@@ -4,7 +4,10 @@
 #include "glmath.h"
 #include "ComponentMesh.h"
 
-#define MIN_DIST_TO_MESH 1.f 
+#define MIN_DIST_TO_MESH 5.F
+#define MAX_FRAME_SPEED 10.F
+#define EXPONENTIAL_ZOOM_FACTOR 1.5F
+#define DEFAULT_SPEED 30.F
 
 class SmileCamera3D : public SmileModule
 {
@@ -24,7 +27,7 @@ public:
 	float* GetViewMatrixInverse();
 
 	void FitCameraToMesh(ComponentMesh* mesh);
-	float GetScrollSpeed(float dt); 
+	float GetScrollSpeed(float dt, float zScroll); 
 
 private:
 
