@@ -395,33 +395,42 @@ void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 	{
 		par_shapes_unweld(mesh, true);
 		par_shapes_compute_normals(mesh);
-		par_shapes_translate(mesh, 0.0f, 0.0f, 0.0f);
-
+		par_shapes_translate(mesh, 0.0f, 0.0f, 0.0f); // TODO: do this with the gameobject transform
+	
 		model_mesh = DBG_NEW ModelMeshData();
 
 		model_mesh->num_vertex = mesh->npoints;
-		model_mesh->vertex = mesh->points;
+		model_mesh->vertex = new float[model_mesh->num_vertex * 3];
+		memcpy(model_mesh->vertex, mesh->points, sizeof(float) * model_mesh->num_vertex * 3);
 
-		model_mesh->num_index = mesh->ntriangles;
-		model_mesh->index = (uint*)mesh->triangles;
+		model_mesh->num_index = mesh->ntriangles * 3;
+		model_mesh->index = new uint[model_mesh->num_index * 3];
+		memcpy(model_mesh->index, mesh->triangles, sizeof(uint) * model_mesh->num_index);
 
-		model_mesh->num_normals = mesh->npoints;
-		model_mesh->normals = mesh->normals;
+		if (mesh->normals != nullptr)
+		{
+			model_mesh->num_normals = model_mesh->num_vertex; 
+			model_mesh->normals = new float[model_mesh->num_vertex * 3];
+			memcpy(model_mesh->normals, mesh->normals, sizeof(float) * model_mesh->num_vertex * 3);
+		}
 
-		model_mesh->num_UVs = mesh->npoints;
-		model_mesh->UVs = new float[model_mesh->num_UVs * 2];
+		if (mesh->tcoords != nullptr) 
+		{
+			model_mesh->num_UVs = model_mesh->num_vertex * 2;
+			model_mesh->UVs = new float[model_mesh->num_vertex * 2];
+			memcpy(model_mesh->UVs, mesh->tcoords, sizeof(float) * model_mesh->num_UVs);
+		}
 
+
+		 
 		// Generate Mesh Buffers
 		GenerateBuffers();
 
 		// bounding box
-		ComputeSpatialData(); 
+		ComputeSpatialData();  // TODO: the par shapes already has a compute aabb function, pass it a float* AABB
 	}
 
 	par_shapes_free_mesh(mesh); 
-
-	int a = 0; 
-
 }
 
 void ComponentMesh::ComputeSpatialData()
