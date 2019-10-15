@@ -5,18 +5,22 @@
 #include "SmileApp.h"
 #include "SmileFBX.h"
 
+#include "ComponentTransform.h"
+
 ComponentMesh::ComponentMesh(par_shapes_mesh* mesh)
 {
+ 
 	FillComponentBuffers(); 
+	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this); // TODO: what should the transform matrix have? 
 	type = MESH; 
 
-	// TODO: pass the mesh by ref to a function that fills the model mesh data pointer, and then immediately free the par_shapes_mesh
 	GenerateModelMeshFromParShapes(mesh); 
 }
 
 ComponentMesh::ComponentMesh(ModelMeshData* mesh) : model_mesh(mesh)
 {
 	FillComponentBuffers();
+	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this);
 	type = MESH;
 }
 
@@ -63,7 +67,7 @@ void ComponentMesh::Draw()
 		if (model_mesh->texture != nullptr)
 			glBindTexture(GL_TEXTURE_2D, model_mesh->id_texture);
 		else
-			glColor3f(0.3f, 0.3f, 0.3f);
+			glColor3f(0.f, 1.f, 0.f);
 
 		// normal buffer
 		if (model_mesh->normals != nullptr)
@@ -218,31 +222,31 @@ void ComponentMesh::CleanUp()
 		if (model_mesh->vertex != nullptr)
 		{
 			glDeleteBuffers(1, (GLuint*)& model_mesh->vertex);
-			delete[] model_mesh->vertex;
+			RELEASE_ARRAY(model_mesh->vertex);
 		}
 
 		if (model_mesh->index != nullptr)
 		{
 			glDeleteBuffers(1, (GLuint*)& model_mesh->index);
-			delete[] model_mesh->index;
+			RELEASE_ARRAY(model_mesh->index);
 		}
 
 		if (model_mesh->normals != nullptr)
 		{
 			glDeleteBuffers(1, (GLuint*)& model_mesh->normals);
-			delete[] model_mesh->normals;
+			RELEASE_ARRAY(model_mesh->normals);
 		}
 
 		if (model_mesh->color != nullptr)
 		{
 			glDeleteBuffers(1, (GLuint*)& model_mesh->color);
-			delete[] model_mesh->color;
+			RELEASE_ARRAY(model_mesh->color);
 		}
 
 		if (model_mesh->UVs != nullptr)
 		{
 			glDeleteBuffers(1, (GLuint*)& model_mesh->UVs);
-			delete[] model_mesh->UVs;
+			RELEASE_ARRAY(model_mesh->UVs);
 		}
 
 		if (model_mesh->texture != nullptr)
@@ -387,16 +391,12 @@ void ComponentMesh::AssignCheckersTexture()
 
 void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh) 
 {
-	// TODO: this is terribly wrong: the new mesh buffers point to the parshapes mesh buffers, 
-	// so when the parshapes mesh is freed, they point to nowhere. 
-	// Instead of the operator "=", memcpy the contents of the par shapes mesh to the new mesh. 
-
 	if (model_mesh == nullptr)
 	{
 		par_shapes_unweld(mesh, true);
 		par_shapes_compute_normals(mesh);
-		par_shapes_translate(mesh, 0.0f, 0.0f, 0.0f); // TODO: do this with the gameobject transform
-	
+		par_shapes_translate(mesh, 0.f, 0.f, 0.f); // TODO: do this with the gameobject transform
+
 		model_mesh = DBG_NEW ModelMeshData();
 
 		model_mesh->num_vertex = mesh->npoints;
@@ -404,7 +404,7 @@ void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 		memcpy(model_mesh->vertex, mesh->points, sizeof(float) * model_mesh->num_vertex * 3);
 
 		model_mesh->num_index = mesh->ntriangles * 3;
-		model_mesh->index = new uint[model_mesh->num_index * 3];
+		model_mesh->index = new uint[model_mesh->num_index];
 		memcpy(model_mesh->index, mesh->triangles, sizeof(uint) * model_mesh->num_index);
 
 		if (mesh->normals != nullptr)
@@ -416,12 +416,10 @@ void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 
 		if (mesh->tcoords != nullptr) 
 		{
-			model_mesh->num_UVs = model_mesh->num_vertex * 2;
+			model_mesh->num_UVs = model_mesh->num_vertex;
 			model_mesh->UVs = new float[model_mesh->num_vertex * 2];
 			memcpy(model_mesh->UVs, mesh->tcoords, sizeof(float) * model_mesh->num_UVs);
 		}
-
-
 		 
 		// Generate Mesh Buffers
 		GenerateBuffers();

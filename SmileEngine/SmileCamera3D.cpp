@@ -4,6 +4,8 @@
 #include "QuickMath.h"
 #include "RayTracer.h"
 
+#include "ComponentTransform.h"
+
 SmileCamera3D::SmileCamera3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	CalculateViewMatrix();
@@ -53,7 +55,7 @@ update_status SmileCamera3D::Update(float dt)
 	// Focus an object ----------------
 	if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
 		if (App->scene_intro->selected_mesh != nullptr)
-			FitMeshToCamera(App->scene_intro->selected_mesh);
+			FitCameraToMesh(App->scene_intro->selected_mesh);
 
 	vec3 newPos(0, 0, 0);
 	float speed = 10.0f * dt;
@@ -83,7 +85,7 @@ update_status SmileCamera3D::Update(float dt)
 		newPos += Y * speed * quickMath::Sign(yWheel);
 
 	if (zScroll != 0)
-		newPos += Z * speed * quickMath::Sign(zScroll);
+		newPos += Z * GetScrollSpeed(dt) * quickMath::Sign(zScroll);
 
 	Position += newPos;
 	Reference += newPos;
@@ -189,7 +191,7 @@ void SmileCamera3D::CalculateViewMatrix()
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::FitMeshToCamera(ComponentMesh* mesh)
+void SmileCamera3D::FitCameraToMesh(ComponentMesh* mesh)
 {
 	// look at the mesh center
 	ModelMeshData* data = mesh->GetMeshData(); 
@@ -213,5 +215,19 @@ void SmileCamera3D::FitMeshToCamera(ComponentMesh* mesh)
 
 }
  
+float SmileCamera3D::GetScrollSpeed(float dt)
+{
+	float speed = 10.0f * dt;
+
+	ComponentMesh* mesh = App->scene_intro->selected_mesh; 
+	if (mesh != nullptr)
+	{
+		float relSpeed = log(abs(Position - dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)))->matrix.translation));
+		speed = () < MIN_DIST_TO_MESH)
+	}
+		
+
+	return speed; 
+}
 
 	 

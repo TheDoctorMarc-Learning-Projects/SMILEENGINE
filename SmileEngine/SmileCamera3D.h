@@ -4,6 +4,8 @@
 #include "glmath.h"
 #include "ComponentMesh.h"
 
+#define MIN_DIST_TO_MESH 1.f 
+
 class SmileCamera3D : public SmileModule
 {
 public:
@@ -21,7 +23,9 @@ public:
 	float* GetViewMatrix();
 	float* GetViewMatrixInverse();
 
-	void FitMeshToCamera(ComponentMesh* mesh);
+	void FitCameraToMesh(ComponentMesh* mesh);
+	float GetScrollSpeed(float dt); 
+
 private:
 
 	void CalculateViewMatrix();

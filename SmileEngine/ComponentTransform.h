@@ -6,24 +6,20 @@
 #include "Assimp/include/vector3.h"
 
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
+
+#include "glmath.h"
  
 // ----------------------------------------------------------------- [Transform]
 class ComponentTransform : public Component
 {
-public:
-	struct Data
-	{
-		aiVector3D position, scale;
-		aiQuaternion rotation;
-	};
 
 public:
 	ComponentTransform();
-	ComponentTransform(GameObject* parent, Data data); 
+	ComponentTransform(GameObject* parent, mat4x4 matrix);
 	~ComponentTransform(); 
 
-private:
-	Data data;
+public:
+	mat4x4 matrix; 
 
 	friend class GameObject;
 };

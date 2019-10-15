@@ -100,6 +100,11 @@ public:
 	void Disable();
 	void CleanUp();
 
+	std::variant<Component*, std::vector<Component*>> GetComponent(COMPONENT_TYPE type) const
+	{
+		return components[type];
+	}
+
 	// If it has a mesh loaded from an FBX ("model_mesh"): 
 	void Draw();
 	void AssignTexture(const char* path); 
