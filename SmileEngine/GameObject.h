@@ -31,8 +31,6 @@ public:
 	void Disable();
 	void CleanUp(); 
 
-	void DrawMeshes(); 
-
 private: 
 	void FillComponentBuffers(); 
 

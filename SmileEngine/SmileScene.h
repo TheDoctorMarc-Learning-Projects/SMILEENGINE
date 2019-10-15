@@ -20,7 +20,7 @@ private:
 	void DrawGrid(); 
 
 public: 
-	void DrawMeshes();
+	void UpdateGameObjects();
 	std::vector<GameObject*> objects;
 	ComponentMesh* selected_mesh = nullptr;
 

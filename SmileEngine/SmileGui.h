@@ -15,7 +15,7 @@ public:
 	void Log(const char* log);
 	bool CleanUp();
 	
-	bool IsMouseOverTheGui() const { return inMenu; }; 
+	bool IsMouseOverTheGui() const { return inMenu; }; // TODO: the bool is unnecesary, return the imgui call when needed 
 	
 private: 
 	void FillMenuFunctionsVector(); 

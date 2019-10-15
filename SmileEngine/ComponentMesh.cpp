@@ -2,11 +2,16 @@
 
 #include "Glew/include/GL/glew.h" 
 #include "DevIL/include/IL/ilu.h"
+#include "SmileApp.h"
+#include "SmileFBX.h"
 
-ComponentMesh::ComponentMesh(par_shapes_mesh* mesh) : primitive_mesh(mesh)
+ComponentMesh::ComponentMesh(par_shapes_mesh* mesh)
 {
 	FillComponentBuffers(); 
 	type = MESH; 
+
+	// TODO: pass the mesh by ref to a function that fills the model mesh data pointer, and then immediately free the par_shapes_mesh
+	GenerateModelMeshFromParShapes(mesh); 
 }
 
 ComponentMesh::ComponentMesh(ModelMeshData* mesh) : model_mesh(mesh)
@@ -30,7 +35,7 @@ ComponentMesh::~ComponentMesh()
 
 void ComponentMesh::Draw()
 {
-	// Draw the OpenGL mesh we loaded from a fbx and we assigned buffers to
+	// Draw the OpenGL mesh 
 	if (model_mesh != nullptr)  
 	{
 		// Cient states
@@ -185,6 +190,10 @@ void ComponentMesh::Disable()
 // -----------------------------------------------------------------
 void ComponentMesh::Update()
 {
+	// First draw it
+	Draw(); 
+
+	// Then update components
 	for (auto& comp : components)
 	{
 		if (comp.index() == 0)
@@ -203,13 +212,6 @@ void ComponentMesh::Update()
 // -----------------------------------------------------------------
 void ComponentMesh::CleanUp()
 {
-	// Free par_shapes mesh
-	if (primitive_mesh != nullptr)
-	{
-		par_shapes_free_mesh(primitive_mesh);
-		RELEASE(primitive_mesh);
-	}
-		
 	// Free model mesh
 	if (model_mesh != nullptr)
 	{
@@ -285,7 +287,7 @@ void ComponentMesh::AssignTexture(const char* path)
 {
 	
 
-	if (model_mesh != nullptr) // TODO: not only the model mesh, also par shapes
+	if (model_mesh != nullptr) 
 	{
 		// Check if mesh had an image already 
 	/*if (mesh->texture != nullptr)
@@ -336,7 +338,7 @@ void ComponentMesh::AssignCheckersTexture()
 #define CHECKERS_SIZE 20
 #endif 
 
-	if (model_mesh != nullptr) // TODO: not only the model mesh, also par shapes
+	if (model_mesh != nullptr)  
 	{
 		// Devil stuff
 		ilGenImages(1, &(ILuint)model_mesh->id_texture);
@@ -381,4 +383,125 @@ void ComponentMesh::AssignCheckersTexture()
 		
 	}
 
+}
+
+void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh) 
+{
+	// TODO: this is terribly wrong: the new mesh buffers point to the parshapes mesh buffers, 
+	// so when the parshapes mesh is freed, they point to nowhere. 
+	// Instead of the operator "=", memcpy the contents of the par shapes mesh to the new mesh. 
+
+	if (model_mesh == nullptr)
+	{
+		par_shapes_unweld(mesh, true);
+		par_shapes_compute_normals(mesh);
+		par_shapes_translate(mesh, 0.0f, 0.0f, 0.0f); // TODO: do this with the gameobject transform
+	
+		model_mesh = DBG_NEW ModelMeshData();
+
+		model_mesh->num_vertex = mesh->npoints;
+		model_mesh->vertex = new float[model_mesh->num_vertex * 3];
+		memcpy(model_mesh->vertex, mesh->points, sizeof(float) * model_mesh->num_vertex * 3);
+
+		model_mesh->num_index = mesh->ntriangles * 3;
+		model_mesh->index = new uint[model_mesh->num_index * 3];
+		memcpy(model_mesh->index, mesh->triangles, sizeof(uint) * model_mesh->num_index);
+
+		if (mesh->normals != nullptr)
+		{
+			model_mesh->num_normals = model_mesh->num_vertex; 
+			model_mesh->normals = new float[model_mesh->num_vertex * 3];
+			memcpy(model_mesh->normals, mesh->normals, sizeof(float) * model_mesh->num_vertex * 3);
+		}
+
+		if (mesh->tcoords != nullptr) 
+		{
+			model_mesh->num_UVs = model_mesh->num_vertex * 2;
+			model_mesh->UVs = new float[model_mesh->num_vertex * 2];
+			memcpy(model_mesh->UVs, mesh->tcoords, sizeof(float) * model_mesh->num_UVs);
+		}
+
+
+		 
+		// Generate Mesh Buffers
+		GenerateBuffers();
+
+		// bounding box
+		ComputeSpatialData();  // TODO: the par shapes already has a compute aabb function, pass it a float* AABB
+	}
+
+	par_shapes_free_mesh(mesh); 
+}
+
+void ComponentMesh::ComputeSpatialData()
+{
+	if (model_mesh != nullptr)
+	{
+		// Get the minimum and maximum x,y,z to create a bounding box 
+		for (uint i = 0; i < model_mesh->num_vertex; i += 3)
+		{
+			// first, initialize the min-max coords to the first vertex, 
+			// in order to compare the following ones with it
+			if (i == 0)
+			{
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_X] = model_mesh->vertex[i];
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_X] = model_mesh->vertex[i];
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
+				continue;
+			}
+
+			// find min-max X coord
+			if (model_mesh->vertex[i] < model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_X])
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_X] = model_mesh->vertex[i];
+			else if (model_mesh->vertex[i] > model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_X])
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_X] = model_mesh->vertex[i];
+
+			// find min-max Y coord
+			if (model_mesh->vertex[i + 1] < model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Y])
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
+			else if (model_mesh->vertex[i + 1] > model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Y])
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
+
+			// find min-max Z coord
+			if (model_mesh->vertex[i + 2] < model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Z])
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
+			else if (model_mesh->vertex[i + 2] > model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Z])
+				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
+
+		}
+
+		model_mesh->ComputeMeshSpatialData();
+	}
+
+}
+
+void ComponentMesh::GenerateBuffers()
+{
+	// Normals Buffer
+	glGenBuffers(1, (GLuint*) & (model_mesh->id_normals));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_normals);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * model_mesh->num_normals * 3, model_mesh->normals, GL_STATIC_DRAW);
+
+	// Uvs vBuffer
+	glGenBuffers(1, (GLuint*) & (model_mesh->id_UVs));
+	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model_mesh->num_UVs * 2, model_mesh->UVs, GL_STATIC_DRAW);
+
+	// Color Buffer
+	glGenBuffers(1, (GLuint*) & (model_mesh->id_color));
+	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_color);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model_mesh->num_color * 3, model_mesh->color, GL_STATIC_DRAW);
+
+	// Vertex Buffer
+	glGenBuffers(1, (GLuint*) & (model_mesh->id_vertex));
+	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model_mesh->num_vertex * 3, model_mesh->vertex, GL_STATIC_DRAW);
+
+	// Index Buffer
+	glGenBuffers(1, (GLuint*) & (model_mesh->id_index));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * model_mesh->num_index, model_mesh->index, GL_STATIC_DRAW);
 }
