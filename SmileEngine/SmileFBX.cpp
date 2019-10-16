@@ -138,8 +138,8 @@ void SmileFBX::ReadFBXData(const char* path) {
 			{
 				if (new_mesh->HasTextureCoords(ind))
 				{
-					mesh_info->num_UVs = new_mesh->mNumVertices * 2;
-					mesh_info->UVs = new float[mesh_info->num_UVs];
+					mesh_info->num_UVs = new_mesh->mNumVertices;
+					mesh_info->UVs = new float[mesh_info->num_UVs * 2];
 
 					uint j = 0;
 					for (uint i = 0; i < new_mesh->mNumVertices; ++i) 
@@ -194,7 +194,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 			// Add the Mesh to the GameObject
 			object->AddComponent(mesh);
 			// Fit the camera to the mesh (yea, the function name is reversed)
-			App->camera->FitMeshToCamera(mesh);
+			App->camera->FitCameraToMesh(mesh);
 
 		}
 

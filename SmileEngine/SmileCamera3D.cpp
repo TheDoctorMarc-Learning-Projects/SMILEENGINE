@@ -4,6 +4,8 @@
 #include "QuickMath.h"
 #include "RayTracer.h"
 
+#include "ComponentTransform.h"
+
 SmileCamera3D::SmileCamera3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	CalculateViewMatrix();
@@ -51,10 +53,17 @@ update_status SmileCamera3D::PreUpdate(float dt)
 update_status SmileCamera3D::Update(float dt)
 {
 	// Focus an object ----------------
-	if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
-		if (App->scene_intro->selected_mesh != nullptr)
-			FitMeshToCamera(App->scene_intro->selected_mesh);
+	ComponentMesh* selected = App->scene_intro->selected_mesh; 
+	if (selected != nullptr)
+	{
+		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
+			FitCameraToMesh(selected);
 
+		LookAt(selected->GetMeshData()->GetMeshCenter());
+	}
+
+
+		
 	vec3 newPos(0, 0, 0);
 	float speed = 10.0f * dt;
 
@@ -83,7 +92,7 @@ update_status SmileCamera3D::Update(float dt)
 		newPos += Y * speed * quickMath::Sign(yWheel);
 
 	if (zScroll != 0)
-		newPos += Z * speed * quickMath::Sign(zScroll);
+		newPos += Z * GetScrollSpeed(dt, zScroll);
 
 	Position += newPos;
 	Reference += newPos;
@@ -189,7 +198,7 @@ void SmileCamera3D::CalculateViewMatrix()
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::FitMeshToCamera(ComponentMesh* mesh)
+void SmileCamera3D::FitCameraToMesh(ComponentMesh* mesh)
 {
 	// look at the mesh center
 	ModelMeshData* data = mesh->GetMeshData(); 
@@ -213,5 +222,22 @@ void SmileCamera3D::FitMeshToCamera(ComponentMesh* mesh)
 
 }
  
+float SmileCamera3D::GetScrollSpeed(float dt, float zScroll)
+{
+	float speed = DEFAULT_SPEED * dt * quickMath::Sign(zScroll);
+
+	ComponentMesh* mesh = App->scene_intro->selected_mesh; 
+	if (mesh != nullptr)
+	{
+		vec3 captureCamPos = Position;
+		float relSpeed = pow((abs(length(Position - dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)))->matrix.translation()))), EXPONENTIAL_ZOOM_FACTOR) * dt * quickMath::Sign(zScroll);
+		relSpeed = (relSpeed > MAX_FRAME_SPEED) ? MAX_FRAME_SPEED : relSpeed;
+
+		float targetZ = abs((captureCamPos + Z * relSpeed).z);
+		speed = (targetZ >= MIN_DIST_TO_MESH) ? relSpeed : 0;
+	}
+
+	return speed; 
+}
 
 	 
