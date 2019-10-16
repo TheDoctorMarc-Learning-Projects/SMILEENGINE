@@ -9,9 +9,6 @@
 
 #include "Glew/include/GL/glew.h"
 
-
-
-
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
@@ -37,6 +34,8 @@ bool SmileScene::CleanUp()
 		RELEASE(gameObject); 
 	}
 	objects.clear();
+
+	selected_mesh = nullptr; 
 
 	return true;
 }

@@ -110,8 +110,6 @@ bool SmileGui::GenerateGUI()
 {
 	bool ret = true; 
 
-	inMenu = ImGui::IsAnyItemHovered(); 
-
 	for (auto& func : menuFunctions)
 		func(ret); 
  
@@ -681,4 +679,9 @@ void panelData::configSpace::CapsInformation() {
 	ImGui::Text("VRAM Reserved:");
 	//ImGui::SameLine();
 	//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
+}
+
+bool SmileGui::IsMouseOverTheGui() const
+{
+	return ImGui::IsAnyItemHovered();
 }

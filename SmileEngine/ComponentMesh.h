@@ -8,8 +8,8 @@
 
 enum Mesh_Type
 {
-	Primitive,
-	Model
+	PRIMITIVE,
+	MODEL
 };
 
 // todo = more generic 
@@ -125,6 +125,7 @@ private:
 	// The Mesh component is the only one that, like the GmaeObject, has yet another component buffer 
 	std::variant<Component*, std::vector<Component*>> components[COMPONENT_TYPE::MAX_COMPONENT_TYPES]; 
 	ModelMeshData* model_mesh = nullptr; 
+	Mesh_Type meshType; 
 
 	friend class GameObject;
 	friend class SmileFBX; 

@@ -13,6 +13,7 @@ ComponentMesh::ComponentMesh(par_shapes_mesh* mesh)
 	FillComponentBuffers(); 
 	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this); // TODO: what should the transform matrix have? 
 	type = MESH; 
+	meshType = Mesh_Type::PRIMITIVE; 
 
 	GenerateModelMeshFromParShapes(mesh); 
 }
@@ -22,6 +23,7 @@ ComponentMesh::ComponentMesh(ModelMeshData* mesh) : model_mesh(mesh)
 	FillComponentBuffers();
 	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this);
 	type = MESH;
+	meshType = Mesh_Type::MODEL;
 }
 
 void ComponentMesh::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
@@ -82,7 +84,7 @@ void ComponentMesh::Draw()
 
 		// index buffer 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
-		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, (meshType == MODEL) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT, NULL);
 
 
 		// Cient states
