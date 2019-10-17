@@ -8,7 +8,7 @@
 
 par_shapes_mesh* CreateSphere();
 par_shapes_mesh* CreateCube();
-// TODO; 
+// TODO
 
 class SmileGameObjectManager : public SmileModule
 {
@@ -26,13 +26,17 @@ public:
 		mesh->AssignTexture(path); 
 	};
 
-	// Pàr shapes mesh tools
+	// Par shapes mesh tools
 	par_shapes_mesh* GeneratePrimitive(std::string type);
 
 	// GameObject tools
 	GameObject* CreateGameObject(); 
 	GameObject* CreateGameObject(Component* comp);
 	GameObject* CreateGameObject(std::vector<Component*> comps);
+
+	// Primitve tools
+	void GetAllPrimitiveTypesChar(char(&)[128], bool helpInfo = false);
+
 
 private: 
 	void FillMaps(); 

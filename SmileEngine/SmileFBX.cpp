@@ -191,22 +191,29 @@ void SmileFBX::ReadFBXData(const char* path) {
 					}
 				}
 			}
+			
+			// Fit the camera to the mesh 
+			App->camera->FitCameraToMesh(mesh);
+
+			// Assign a name to the mesh
+			mesh->SetName(std::string(new_mesh->mName.C_Str()));  
+
 			// Add the Mesh to the GameObject
 			object->AddComponent(mesh);
-			// Fit the camera to the mesh (yea, the function name is reversed)
-			App->camera->FitCameraToMesh(mesh);
-			mesh->SetName(std::string(new_mesh->mName.C_Str())); 
-			mesh->SetParent(object); 
 
 		}
-		// Finally add the GameObject to the list -> TODO: filesystem
+
 		char rawname[100]; 
 		std::wcstombs(rawname, std::filesystem::path(path).stem().c_str(), sizeof(rawname));
 		
+		// Assign name & parent to the object 
 		object->SetName(rawname);
 		object->SetParent(App->scene_intro->rootObj); 
 
+		// Add the object to the list 
 		App->scene_intro->objects.push_back(object); 
+
+		// Release the scene 
 		aiReleaseImport(scene);
 	}
 	else

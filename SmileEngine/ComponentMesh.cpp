@@ -68,9 +68,7 @@ void ComponentMesh::Draw()
 		// texture buffer
 		if (model_mesh->texture != nullptr)
 			glBindTexture(GL_TEXTURE_2D, model_mesh->id_texture);
-		else
-			glColor3f(0.f, 1.f, 0.f);
-
+	
 		// normal buffer
 		if (model_mesh->normals != nullptr)
 		{
@@ -352,8 +350,8 @@ void ComponentMesh::AssignCheckersTexture()
 
 		// Generated the checkered image
 		GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
-		for (int i = 0; i < 20; i++) {
-			for (int j = 0; j < 20; j++) {
+		for (int i = 0; i < CHECKERS_SIZE; i++) {
+			for (int j = 0; j < CHECKERS_SIZE; j++) {
 				int c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
 				checkImage[i][j][0] = (GLubyte)c;
 				checkImage[i][j][1] = (GLubyte)c;

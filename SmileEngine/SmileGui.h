@@ -16,6 +16,7 @@ public:
 	bool CleanUp();
 	
 	bool IsMouseOverTheGui() const; 
+	bool IsGuiItemActive() const; 
 	
 private: 
 	void FillMenuFunctionsVector(); 

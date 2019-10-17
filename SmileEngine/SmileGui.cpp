@@ -237,6 +237,10 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 
 		// Prrimitives
 		static char objName[128] = "Insert name";
+		/*static ImVec4 col(0.f, 255.f, 1.f, 255.f);
+		static char text[128];
+		App->object_manager->GetAllPrimitiveTypesChar(text);
+		ImGui::TextColored(col, text);*/
 		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName));
 
 		if (ImGui::MenuItem("Create Object"))
@@ -247,11 +251,10 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			{
 				// Create a mesh and an object
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive); 
-				GameObject* obj = App->object_manager->CreateGameObject();
+				GameObject* obj = App->object_manager->CreateGameObject(mesh);
 
-				// Set their parents and names 
-				mesh->SetName(objName);
-				mesh->SetParent(obj);
+	            // Assing a name to the mesh and the object and a parent to the object
+				mesh->SetName(std::string(objName) + " 1");
 				obj->SetName(objName); 
 				obj->SetParent(App->scene_intro->rootObj); 
 			}
@@ -288,11 +291,6 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 
 			ImGui::TreePop();
 		}
-
-
-
-
-
 
 		
 		ImGui::EndMenu(); 
@@ -739,4 +737,9 @@ void panelData::configSpace::CapsInformation() {
 bool SmileGui::IsMouseOverTheGui() const
 {
 	return ImGui::IsAnyItemHovered();
+}
+
+bool SmileGui::IsGuiItemActive() const
+{
+	return ImGui::IsAnyItemActive();
 }

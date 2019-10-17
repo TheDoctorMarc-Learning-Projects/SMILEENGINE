@@ -19,6 +19,15 @@ void SmileGameObjectManager::FillMaps()
 		{"Sphere", &CreateSphere},
 		{"Cube", &CreateCube},
 	}; 
+
+	std::string typesStr = ""; 
+	for (auto prim : primitiveMap)
+	{
+		typesStr += prim.first; 
+		typesStr += "/n"; 
+	}
+
+
 }
 
 // -----------------------------------------------------------------
@@ -95,4 +104,18 @@ par_shapes_mesh* CreateCube()
 	return par_shapes_create_cube();
 }
 
+// help 
+void SmileGameObjectManager::GetAllPrimitiveTypesChar(char(&array)[128], bool helpInfo)
+{
+	if (helpInfo)
+	{
+		strcat(array, "Available types:");
+		strcat(array, "\n");
+	}
 
+	for (auto& string : primitiveMap)
+	{
+		strcat(array, string.first.c_str());
+		strcat(array, "\n");
+	}
+}

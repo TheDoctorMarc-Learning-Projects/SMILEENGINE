@@ -52,83 +52,85 @@ update_status SmileCamera3D::PreUpdate(float dt)
 // -----------------------------------------------------------------
 update_status SmileCamera3D::Update(float dt)
 {
-	// Focus an object ----------------
-	ComponentMesh* selected = App->scene_intro->selected_mesh; 
-	if (selected != nullptr)
+	if (App->gui->IsGuiItemActive() == false)
 	{
-		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
-			FitCameraToMesh(selected);
-
-		LookAt(selected->GetMeshData()->GetMeshCenter());
-	}
-
-
-		
-	vec3 newPos(0, 0, 0);
-	float speed = 10.0f * dt;
-
-	// FPS-Like free movement  ----------------
-	if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
-		speed *= 2; 
-
-	if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) newPos -= Z * speed;
-	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) newPos += Z * speed;
-
-
-	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) newPos -= X * speed;
-	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) newPos += X * speed;
-
-
-	// Zoom, Pan ----------------
-	int zScroll = -App->input->GetMouseZ();
-	int xWheel = -App->input->GetMouseXMotion(); 
-	int yWheel = App->input->GetMouseYMotion();
-	KEY_STATE mouseMiddle = App->input->GetMouseButton(SDL_BUTTON_MIDDLE);
-	 
-	if (xWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
-		newPos += X * speed * quickMath::Sign(xWheel);
-
-	if (yWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
-		newPos += Y * speed * quickMath::Sign(yWheel);
-
-	if (zScroll != 0)
-		newPos += Z * GetScrollSpeed(dt, zScroll);
-
-	Position += newPos;
-	Reference += newPos;
-
-	// Rotation ----------------
-	if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
-	{
-		float Sensitivity = 0.25f;
-
-		Position -= Reference;
-
-		if (xWheel != 0)
+		// Focus an object ----------------
+		ComponentMesh* selected = App->scene_intro->selected_mesh;
+		if (selected != nullptr)
 		{
-			float DeltaX = (float)xWheel * Sensitivity;
+			if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
+				FitCameraToMesh(selected);
 
-			X = rotate(X, DeltaX, vec3(0.0f, 1.0f, 0.0f));
-			Y = rotate(Y, DeltaX, vec3(0.0f, 1.0f, 0.0f));
-			Z = rotate(Z, DeltaX, vec3(0.0f, 1.0f, 0.0f));
+			LookAt(selected->GetMeshData()->GetMeshCenter());
 		}
 
-		if (yWheel != 0)
+		vec3 newPos(0, 0, 0);
+		float speed = 10.0f * dt;
+
+		// FPS-Like free movement  ----------------
+		if (App->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
+			speed *= 2;
+
+		if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) newPos -= Z * speed;
+		if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) newPos += Z * speed;
+
+
+		if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) newPos -= X * speed;
+		if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) newPos += X * speed;
+
+
+		// Zoom, Pan ----------------
+		int zScroll = -App->input->GetMouseZ();
+		int xWheel = -App->input->GetMouseXMotion();
+		int yWheel = App->input->GetMouseYMotion();
+		KEY_STATE mouseMiddle = App->input->GetMouseButton(SDL_BUTTON_MIDDLE);
+
+		if (xWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
+			newPos += X * speed * quickMath::Sign(xWheel);
+
+		if (yWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
+			newPos += Y * speed * quickMath::Sign(yWheel);
+
+		if (zScroll != 0)
+			newPos += Z * GetScrollSpeed(dt, zScroll);
+
+		Position += newPos;
+		Reference += newPos;
+
+		// Rotation ----------------
+		if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
 		{
-			float DeltaY = -(float)yWheel * Sensitivity;
+			float Sensitivity = 0.25f;
 
-			Y = rotate(Y, DeltaY, X);
-			Z = rotate(Z, DeltaY, X);
+			Position -= Reference;
 
-			if (Y.y < 0.0f)
+			if (xWheel != 0)
 			{
-				Z = vec3(0.0f, Z.y > 0.0f ? 1.0f : -1.0f, 0.0f);
-				Y = cross(Z, X);
-			}
-		}
+				float DeltaX = (float)xWheel * Sensitivity;
 
-		Position = Reference + Z * length(Position);
+				X = rotate(X, DeltaX, vec3(0.0f, 1.0f, 0.0f));
+				Y = rotate(Y, DeltaX, vec3(0.0f, 1.0f, 0.0f));
+				Z = rotate(Z, DeltaX, vec3(0.0f, 1.0f, 0.0f));
+			}
+
+			if (yWheel != 0)
+			{
+				float DeltaY = -(float)yWheel * Sensitivity;
+
+				Y = rotate(Y, DeltaY, X);
+				Z = rotate(Z, DeltaY, X);
+
+				if (Y.y < 0.0f)
+				{
+					Z = vec3(0.0f, Z.y > 0.0f ? 1.0f : -1.0f, 0.0f);
+					Y = cross(Z, X);
+				}
+			}
+
+			Position = Reference + Z * length(Position);
+		}
 	}
+	
 
 	// Recalculate matrix -------------
 	CalculateViewMatrix();
