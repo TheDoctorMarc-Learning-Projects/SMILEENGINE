@@ -147,6 +147,9 @@
     <ClInclude Include="ComponentTypes.h">
       <Filter>Source\Modules\Objects\Components\Help</Filter>
     </ClInclude>
+    <ClInclude Include="SafetyHandler.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">

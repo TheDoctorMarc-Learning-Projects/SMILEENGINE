@@ -101,6 +101,7 @@
     <ClInclude Include="QuickMath.h" />
     <ClInclude Include="RayTracer.h" />
     <ClInclude Include="RNG.h" />
+    <ClInclude Include="SafetyHandler.h" />
     <ClInclude Include="SmileApp.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="SmileFBX.h" />

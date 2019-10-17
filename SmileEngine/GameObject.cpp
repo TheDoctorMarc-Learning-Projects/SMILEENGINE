@@ -13,7 +13,7 @@ GameObject::GameObject(Component* comp)
 {
 	FillComponentBuffers();
 	if (comp->type != TRANSFORM)
-		GameObject::GameObject(); 
+		AddComponent((Component*)DBG_NEW ComponentTransform());
 
 	AddComponent(comp); 
 }
@@ -34,7 +34,7 @@ GameObject::GameObject(std::vector<Component*> components)
 	}
 
 	if (foundTransform == false)
-		GameObject::GameObject(); 
+		AddComponent((Component*)DBG_NEW ComponentTransform());
 }
 
 void GameObject::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
@@ -120,7 +120,7 @@ void GameObject::CleanUp()
 			vComp.clear(); 
 		}
 	}
-	 
+	  
 	//delete[] components; 
 }
 

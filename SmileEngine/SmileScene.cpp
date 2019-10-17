@@ -19,6 +19,7 @@ SmileScene::~SmileScene()
 // Load assets
 bool SmileScene::Start()
 { 
+	rootObj = DBG_NEW GameObject(); 
 	App->fbx->ReadFBXData("..//Assets/BakerHouse.fbx"); 
 
 	return true;
@@ -35,6 +36,11 @@ bool SmileScene::CleanUp()
 	}
 	objects.clear();
 
+	// special stuff
+	rootObj->CleanUp(); 
+	RELEASE(rootObj); 
+
+	selectedObj = nullptr; 
 	selected_mesh = nullptr; 
 
 	return true;

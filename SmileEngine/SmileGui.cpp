@@ -12,22 +12,29 @@
 #include <fstream>
 #include "JSONParser.h"
 
+#include "GameObject.h"
+#include "Component.h"
+#include "ComponentMesh.h"
+
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
 {
 	bool configuration_view = false;
 	bool console_view = false;
+
 	namespace consoleSpace
 	{
 		ImGuiTextBuffer startupLogBuffer;
 		void Execute(bool& ret);
 		void ShutDown() { startupLogBuffer.clear(); };
 	}
+
 	namespace configSpace
 	{
 		void Execute(bool& ret);
 		void CapsInformation();
 	}
+
 	namespace mainMenuSpace
 	{
 		void Execute(bool& ret);
@@ -70,8 +77,6 @@ bool SmileGui::Start()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -230,6 +235,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 
 		}
 
+		// Prrimitives
 		static char objName[128] = "Insert name";
 		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName));
 
@@ -238,9 +244,56 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			par_shapes_mesh* primitive = App->object_manager->GeneratePrimitive(std::string(objName));
 
 			if (primitive != nullptr)
-				App->object_manager->CreateGameObject(DBG_NEW ComponentMesh(primitive));
-		
+			{
+				// Create a mesh and an object
+				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive); 
+				GameObject* obj = App->object_manager->CreateGameObject();
+
+				// Set their parents and names 
+				mesh->SetName(objName);
+				mesh->SetParent(obj);
+				obj->SetName(objName); 
+				obj->SetParent(App->scene_intro->rootObj); 
+			}
+				
 		}
+
+		// Hierarchy
+		if (ImGui::TreeNode("Hierarchy"))
+		{
+			// Objects
+			for (auto& obj : App->scene_intro->objects)
+			{
+				if (ImGui::TreeNode(obj->GetName().c_str()))
+				{
+					App->scene_intro->selectedObj = obj; 
+
+					// Meshes
+					std::vector<Component*> meshes = std::get<std::vector<Component*>>(obj->GetComponent(MESH));
+					for (auto& mesh : meshes)
+					{
+
+						if (ImGui::TreeNode(dynamic_cast<ComponentMesh*>(mesh)->GetName().c_str()))
+						{
+							App->scene_intro->selected_mesh = dynamic_cast<ComponentMesh*>(mesh);
+							ImGui::TreePop();
+						}
+
+					}
+
+					ImGui::TreePop();
+				}
+				
+			}
+
+			ImGui::TreePop();
+		}
+
+
+
+
+
+
 		
 		ImGui::EndMenu(); 
 	}
@@ -610,6 +663,8 @@ void panelData::consoleSpace::Execute(bool& ret)
 	}
 	 
 }
+
+
 
 void panelData::configSpace::CapsInformation() {
 	

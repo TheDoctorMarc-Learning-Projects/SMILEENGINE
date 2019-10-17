@@ -22,6 +22,8 @@ private:
 public: 
 	void UpdateGameObjects();
 	std::vector<GameObject*> objects;
+	GameObject* rootObj = nullptr;
+	GameObject* selectedObj = nullptr; 
 	ComponentMesh* selected_mesh = nullptr;
 
 	/*// test

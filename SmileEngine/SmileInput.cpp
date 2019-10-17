@@ -161,7 +161,7 @@ bool SmileInput::CleanUp()
 	return true;
 }
 
-// TODO: calculate the mouse pos when dropping the file and pass this the first mesh from a raycast spectator -> scene
+// TODO: file system
 void SmileInput::DropFileExtensionDecider(const char* path)
 {
 	std::string extension = "null";

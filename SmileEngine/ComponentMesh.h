@@ -121,11 +121,19 @@ private:
 	void ComputeSpatialData(); 
 	void GenerateBuffers(); 
 
+public: 
+	// Assign & Get data
+	void SetParent(GameObject* parent) { this->parent = parent; };
+	void SetName(std::string name) { this->name = name; };
+	GameObject* GetParent() const { return std::get<GameObject*>(parent); };
+	std::string GetName() const { return name; };
+
 private:
 	// The Mesh component is the only one that, like the GmaeObject, has yet another component buffer 
 	std::variant<Component*, std::vector<Component*>> components[COMPONENT_TYPE::MAX_COMPONENT_TYPES]; 
 	ModelMeshData* model_mesh = nullptr; 
 	Mesh_Type meshType; 
+    std::string name; 
 
 	friend class GameObject;
 	friend class SmileFBX; 
