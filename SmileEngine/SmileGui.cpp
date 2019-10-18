@@ -237,11 +237,12 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 
 		// Prrimitives
 		static char objName[128] = "Insert name";
-		/*static ImVec4 col(0.f, 255.f, 1.f, 255.f);
+		static ImVec4 col(0.f, 255.f, 1.f, 255.f);
 		static char text[128];
-		App->object_manager->GetAllPrimitiveTypesChar(text);
-		ImGui::TextColored(col, text);*/
+		if(text[0] == '\0')
+			App->object_manager->GetAllPrimitiveTypesChar(text, true);
 		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName));
+		ImGui::TextColored(col, text);
 
 		if (ImGui::MenuItem("Create Object"))
 		{
@@ -265,7 +266,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		if (ImGui::TreeNode("Hierarchy"))
 		{
 			// Objects
-			for (auto& obj : App->scene_intro->objects)
+			for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
 			{
 				if (ImGui::TreeNode(obj->GetName().c_str()))
 				{

@@ -2,9 +2,9 @@
 #include "SmileApp.h"
 #include "SmileGui.h"
 
-ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked)
+ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked) // todo: search with root obj recursively
 {
-	// 0) Skip if click was while a gui menu is open
+	/*// 0) Skip if click was while a gui menu is open
 	if (App->gui->IsMouseOverTheGui() == true)
 		return nullptr; 
 
@@ -106,7 +106,7 @@ ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignCli
 		}
 
 		return nullptr;
-	}
+	}*/
 
 	return nullptr;
 }

@@ -44,6 +44,11 @@ void ComponentMesh::Draw()
 	// Draw the OpenGL mesh 
 	if (model_mesh != nullptr)  
 	{
+		// Transformation -> for the mom let's try to use the parent gameobject transform matrix 
+		glPushMatrix(); 
+		glMultMatrixf(dynamic_cast<ComponentTransform*>(std::get<Component*>(std::get<GameObject*>(parent)
+			->GetComponent(TRANSFORM)))->GetGlobalMatrix().Transposed().ptr()); 
+
 		// Cient states
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
@@ -94,7 +99,18 @@ void ComponentMesh::Draw()
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 
-		/*// draw normals
+		if(App->object_manager->debug)
+			DebugDraw();
+
+
+		// Transformation
+		glPopMatrix(); 
+	}
+}
+
+void ComponentMesh::DebugDraw()
+{
+	// draw normals
 		if (model_mesh->normals != nullptr)
 		{
 			glColor3f(0.f, 1.0f, 0.f);
@@ -150,10 +166,8 @@ void ComponentMesh::Draw()
 				glEnd();
 			}
 
-		}*/
-	}
+		}
 }
-
 
 void ComponentMesh::Enable()
 {

@@ -121,6 +121,9 @@ private:
 	void ComputeSpatialData(); 
 	void GenerateBuffers(); 
 
+	// debug
+	void DebugDraw(); 
+
 public: 
 	// Assign & Get data
 	void SetParent(GameObject* parent) { this->parent = parent; };

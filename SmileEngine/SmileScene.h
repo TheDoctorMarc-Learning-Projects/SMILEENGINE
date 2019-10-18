@@ -19,9 +19,7 @@ public:
 private: 
 	void DrawGrid(); 
 
-public: 
-	void UpdateGameObjects();
-	std::vector<GameObject*> objects;
+public:
 	GameObject* rootObj = nullptr;
 	GameObject* selectedObj = nullptr; 
 	ComponentMesh* selected_mesh = nullptr;

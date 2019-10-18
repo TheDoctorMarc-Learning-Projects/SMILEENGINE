@@ -1,7 +1,7 @@
 #include "SmileGameObjectManager.h"
 #include "SmileSetup.h"
 #include "SmileApp.h"
-
+#include "Glew/include/GL/glew.h" 
 
 SmileGameObjectManager::SmileGameObjectManager(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -38,6 +38,9 @@ bool SmileGameObjectManager::Start()
 // -----------------------------------------------------------------
 update_status SmileGameObjectManager::Update(float dt)
 {
+	if(App->scene_intro->rootObj)
+		App->scene_intro->rootObj->Update();
+
 	return UPDATE_CONTINUE;
 }
 
@@ -64,7 +67,7 @@ GameObject* SmileGameObjectManager::CreateGameObject()
 	GameObject* ret = DBG_NEW GameObject();
 
 	if(ret)
-		App->scene_intro->objects.push_back(ret);
+		App->scene_intro->rootObj->childObjects.push_back(ret);
 
 	return ret; 
 }
@@ -75,7 +78,7 @@ GameObject* SmileGameObjectManager::CreateGameObject(Component* comp)
 	GameObject* ret = DBG_NEW GameObject(comp);
 
 	if (ret)
-		App->scene_intro->objects.push_back(ret);
+		App->scene_intro->rootObj->childObjects.push_back(ret);
 
 	return ret;
 }
@@ -87,7 +90,7 @@ GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> com
 	GameObject* ret = DBG_NEW GameObject(comps);
 
 	if (ret)
-		App->scene_intro->objects.push_back(ret);
+		App->scene_intro->rootObj->childObjects.push_back(ret);
 
 	return ret;
 }

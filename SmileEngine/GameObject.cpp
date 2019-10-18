@@ -3,24 +3,35 @@
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
 
-GameObject::GameObject()
+GameObject::GameObject(GameObject* parent)
 {
+	// Components
 	FillComponentBuffers(); 
 	AddComponent((Component*) DBG_NEW ComponentTransform());
+
+	// Parent-child
+	if (parent)
+		SetParent(parent);
 }
 
-GameObject::GameObject(Component* comp)
+GameObject::GameObject(Component* comp, GameObject* parent)
 {
+	// Components
 	FillComponentBuffers();
 	if (comp->type != TRANSFORM)
 		AddComponent((Component*)DBG_NEW ComponentTransform());
 
 	AddComponent(comp); 
+
+	// Parent-child
+	if (parent)
+		SetParent(parent); 
 }
 
 
-GameObject::GameObject(std::vector<Component*> components)
+GameObject::GameObject(std::vector<Component*> components, GameObject* parent)
 {
+	// Components
 	FillComponentBuffers();
 
 	bool foundTransform = false; 
@@ -35,72 +46,121 @@ GameObject::GameObject(std::vector<Component*> components)
 
 	if (foundTransform == false)
 		AddComponent((Component*)DBG_NEW ComponentTransform());
+
+
+	// Parent-child
+	if (parent)
+		SetParent(parent);
 }
 
 void GameObject::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
 {
-	components[TRANSFORM] = DBG_NEW Component();  // one
+	Component* emptyGuy = DBG_NEW Component(); 
+	Component* emptyGuy2 = DBG_NEW Component();
+
+	components[TRANSFORM] = emptyGuy;  // one
 	components[MESH] = std::vector<Component*>(); // multiple
-	components[MATERIAL] = DBG_NEW Component();  // placeholder
+	components[MATERIAL] = emptyGuy2;  // placeholder
 	components[LIGHT] = std::vector<Component*>(); // multiple
 }
 
 
 void GameObject::Enable()
 {
+	
+	// 1) Components
 	// The variant "components" holds either a Component* if index = 0 or a std list of Components* if index = 1
 	for (auto& comp : components)
 	{
-		if (comp.index() == 0) 
-			std::get<Component*>(comp)->Enable(); 
+		if (comp.index() == 0)
+		{
+			if (std::get<Component*>(comp)->active == false)
+				std::get<Component*>(comp)->Enable();
+		}
+		
 		else if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
 			for (auto& comp2 : vComp)
-				comp2->Enable(); 
+				if(comp2->active == false)
+					comp2->Enable();	
 		}
 			
 	}
+
+    // 2) Children (gameObjects)
+	for (auto& obj : childObjects)
+		if (obj->IsActive() == false)
+			obj->Enable();
+
+
+
+
 	active = true; 
 }
 
 void GameObject::Disable()
 {
+	// 1) Components
 	// The variant "components" holds either a Component* if index = 0 or a std list of Components* if index = 1
 	for (auto& comp : components)
 	{
 		if (comp.index() == 0)
-			std::get<Component*>(comp)->Disable();
+		{
+			if (std::get<Component*>(comp)->active)
+				std::get<Component*>(comp)->Disable();
+		}
+			
 		else if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
 			for (auto& comp2 : vComp)
-				comp2->Disable();
+				if (comp2->active)
+					comp2->Disable();
 		}
 
 	}
+
+	// 2) Children (gameObjects)
+	for (auto& obj : childObjects)
+		if(obj->IsActive())
+			obj->Disable();
+
+
 	active = false;
 }
 
 void GameObject::Update()
 {
+	// 1) Components
 	for (auto& comp : components)
 	{
 		if (comp.index() == 0)
-			std::get<Component*>(comp)->Update();
+		{
+			if (std::get<Component*>(comp)->active)
+				std::get<Component*>(comp)->Update();
+		}
+
 		else if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
 			for (auto& comp2 : vComp)
-				comp2->Update();
+				if (comp2->active)
+					comp2->Update();
 		}
 
 	}
 
+	// 2) Children (gameObjects)
+	for (auto& obj : childObjects)
+		if(obj->IsActive())
+			obj->Update();
+	
 }
 
 void GameObject::CleanUp()
 {
+	// 1) Components
 	for (auto& comp : components)
 	{
 		if (comp.index() == 0)
@@ -109,7 +169,7 @@ void GameObject::CleanUp()
 			RELEASE(std::get<Component*>(comp));
 		}
 			
-		else if (comp.index() == 1)
+		if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
 			for (auto& comp2 : vComp)
@@ -120,8 +180,18 @@ void GameObject::CleanUp()
 			vComp.clear(); 
 		}
 	}
-	  
+
 	//delete[] components; 
+
+
+	// 2) Children (gameObjects)
+	for (auto& obj : childObjects)
+	{
+		obj->CleanUp();
+		RELEASE(obj); 
+	}
+	childObjects.clear(); 
+	
 }
 
 
@@ -194,4 +264,38 @@ bool GameObject::AddComponentToMesh(Component* comp, ComponentMesh* mesh)
 
 	return false; 
 }
+
+void GameObject::SetParent(GameObject* parent)
+{
+	if (parent) 
+	{ 
+		this->parent = parent; 
+		this->parent->childObjects.push_back(this); 
+	};
+
+	// recalculate the transform 
+	if (std::get<Component*>(components[TRANSFORM]) != nullptr)
+		dynamic_cast<ComponentTransform*>(std::get<Component*>(components[TRANSFORM]))->CalculateAllMatrixes(); 
+
+}
  
+std::vector<GameObject*> GameObject::GetChildrenRecursive()
+{
+	std::vector<GameObject*> listChildren;
+
+	for (const auto& child : this->childObjects)
+	{
+		listChildren.push_back(child);
+
+		if (child->childObjects.size() > 0)
+		{
+			std::vector<GameObject*> listGrandChildren;
+			listGrandChildren = child->GetChildrenRecursive();
+			listChildren.insert(listChildren.end(), listGrandChildren.begin(), listGrandChildren.end());
+		}
+
+		
+	}
+
+	return listChildren;
+}

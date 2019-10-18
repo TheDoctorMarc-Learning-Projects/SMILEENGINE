@@ -15,6 +15,7 @@
 #pragma comment (lib, "DevIL/libx86/ILUT.lib")
 
 #include "GameObject.h"
+#include "ComponentTransform.h"
 #include <filesystem> // TODO: filesystem
 
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
@@ -52,7 +53,10 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 	if (scene != nullptr && scene->HasMeshes()) 
 	{
-		GameObject* object = DBG_NEW GameObject();
+		ComponentTransform* transf = DBG_NEW ComponentTransform(); 
+		transf->SetLocalMatrix(math::float4x4::identity);
+
+		GameObject* object = DBG_NEW GameObject(transf);
 
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
@@ -209,9 +213,6 @@ void SmileFBX::ReadFBXData(const char* path) {
 		// Assign name & parent to the object 
 		object->SetName(rawname);
 		object->SetParent(App->scene_intro->rootObj); 
-
-		// Add the object to the list 
-		App->scene_intro->objects.push_back(object); 
 
 		// Release the scene 
 		aiReleaseImport(scene);

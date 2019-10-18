@@ -4,6 +4,7 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "SmileScene.h"
+#include "ComponentTransform.h"
 /*#include <gl/GL.h>
 //#include <gl/GLU.h>*/
 
@@ -19,29 +20,32 @@ SmileScene::~SmileScene()
 // Load assets
 bool SmileScene::Start()
 { 
-	rootObj = DBG_NEW GameObject(); 
+	ComponentTransform* transf = DBG_NEW ComponentTransform(); 
+	transf->SetLocalMatrix(math::float4x4::identity); 
+
+	rootObj = DBG_NEW GameObject((Component*)transf);
+	rootObj->SetName("root"); 
+	//objects.push_back(rootObj); 
+
 	App->fbx->ReadFBXData("..//Assets/BakerHouse.fbx"); 
 
 	return true;
 }
 
-
-// Load assets
 bool SmileScene::CleanUp()
 {
-	for (auto& gameObject : objects)
+	for (auto& gameObject : rootObj->GetChildrenRecursive())
 	{
 		gameObject->CleanUp(); 
 		RELEASE(gameObject); 
 	}
-	objects.clear();
+	rootObj->childObjects.clear();
 
-	// special stuff
-	rootObj->CleanUp(); 
 	RELEASE(rootObj); 
 
 	selectedObj = nullptr; 
 	selected_mesh = nullptr; 
+
 
 	return true;
 }
@@ -59,12 +63,5 @@ void SmileScene::DrawGrid()
 {
 	
 	// TODO
-}
-
-void SmileScene::UpdateGameObjects()
-{
-	for (auto& gameObject : objects)
-		gameObject->Update(); 
-
 }
 

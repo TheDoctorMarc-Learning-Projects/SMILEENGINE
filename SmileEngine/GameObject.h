@@ -13,9 +13,9 @@ class ComponentMesh;
 class GameObject
 {
 public: 
-	GameObject();  
-	GameObject(Component* comp);   
-	GameObject(std::vector<Component*> components); 
+	GameObject(GameObject* parent = nullptr);  
+	GameObject(Component* comp, GameObject* parent = nullptr);
+	GameObject(std::vector<Component*> components, GameObject* parent = nullptr);
 	~GameObject() {}; 
 
 private:
@@ -33,10 +33,11 @@ public:
 	}
 
 	// Assign & Get data
-	void SetParent(GameObject* parent) { this->parent = parent; }; 
+	void SetParent(GameObject* parent); 
 	void SetName(std::string name) { this->name = name; };
 	GameObject* GetParent() const { return parent;  };
 	std::string GetName() const { return name; }; 
+	std::vector<GameObject*> GetChildrenRecursive(); 
 
 	// Main functions 
 	void Enable(); 
@@ -44,9 +45,17 @@ public:
 	void Disable();
 	void CleanUp(); 
 
+	// State
+	bool IsActive() const { return active; }; 
+
+public:
+	std::vector<GameObject*> childObjects;
+
 private: 
 	std::variant<Component*, std::vector<Component*>> components[COMPONENT_TYPE::MAX_COMPONENT_TYPES]; // each component type has either one element or a vector 
 	bool active = true; 
 	std::string name; 
 	GameObject* parent; 
+
+	friend class SmileGameObjectManager; 
 };

@@ -231,11 +231,14 @@ float SmileCamera3D::GetScrollSpeed(float dt, float zScroll)
 	ComponentMesh* mesh = App->scene_intro->selected_mesh; 
 	if (mesh != nullptr)
 	{
-		vec3 captureCamPos = Position;
-		float relSpeed = pow((abs(length(Position - dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)))->matrix.translation()))), EXPONENTIAL_ZOOM_FACTOR) * dt * quickMath::Sign(zScroll);
+		// some stupid conversions from vec3 to float3
+		float3 captureCamPos(Position.x, Position.y, Position.z);
+		float3 captureZ(Z.x, Z.y, Z.z); 
+
+		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR) * dt * quickMath::Sign(zScroll);
 		relSpeed = (relSpeed > MAX_FRAME_SPEED) ? MAX_FRAME_SPEED : relSpeed;
 
-		float targetZ = abs((captureCamPos + Z * relSpeed).z);
+		float targetZ = abs((captureCamPos + captureZ * relSpeed).z);
 		speed = (targetZ >= MIN_DIST_TO_MESH) ? relSpeed : 0;
 	}
 
