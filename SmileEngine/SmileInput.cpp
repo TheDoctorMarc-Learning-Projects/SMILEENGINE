@@ -175,9 +175,9 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 		App->fbx->ReadFBXData(path);
 	else if (extension == "PNG" || extension == "png" || extension == "jpg" || extension == "dds" || extension == "DDS")
 	{
-		ComponentMesh* hoveredMesh = rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY()); 
+		ComponentMesh* hoveredMesh = std::get<ComponentMesh*>(rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, true));
 		if (hoveredMesh != nullptr)
-			App->object_manager->AssignTextureImageToMesh(path, hoveredMesh); 
+			App->object_manager->AssignTextureImageToMesh(path, hoveredMesh);
 	}
 		
 }

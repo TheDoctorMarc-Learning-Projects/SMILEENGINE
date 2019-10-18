@@ -95,10 +95,14 @@ public:
 
 public: 
     // Just like the GameObject:
+	bool AddComponent(Component* comp);
+
 	void Enable();
 	void Update();
 	void Disable();
 	void CleanUp();
+
+	void OnTransform(); 
 
 	std::variant<Component*, std::vector<Component*>> GetComponent(COMPONENT_TYPE type) const
 	{

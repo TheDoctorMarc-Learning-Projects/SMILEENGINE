@@ -13,6 +13,12 @@ ComponentTransform::~ComponentTransform()
 
 }
 
+void ComponentTransform::CalculateAllMatrixes()
+{
+	CalculateLocalMatrix();
+	CalculateGlobalMatrix();
+}
+
 void ComponentTransform::CalculateGlobalMatrix()
 {
 	if (std::get<GameObject*>(parent) != nullptr)
@@ -27,12 +33,6 @@ void ComponentTransform::CalculateGlobalMatrix()
 void ComponentTransform::CalculateLocalMatrix()
 {
 	localMatrix = float4x4::FromTRS(position, rotation, scale); 
-}
-
-void ComponentTransform::CalculateAllMatrixes()
-{
-	CalculateLocalMatrix();
-	CalculateGlobalMatrix(); 
 }
 
 void ComponentTransform::SetGlobalMatrix(float4x4 mat)

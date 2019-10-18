@@ -3,6 +3,7 @@
 #include "SmileSetup.h"
 #include "glmath.h"
 #include "ComponentMesh.h"
+#include "MathGeoLib.h"
 
 #define MIN_DIST_TO_MESH 5.F
 #define MAX_FRAME_SPEED 10.F
@@ -21,17 +22,21 @@ public:
 	bool CleanUp();
 
 	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference = false);
-	void LookAt(const vec3& Spot);
+	void LookAt(const vec3& Spot); // oh yes indeed
+	void LookAt(const float3& Spot); // oh yes indeed
 	void Move(const vec3& Movement);
 	float* GetViewMatrix();
 	float* GetViewMatrixInverse();
 
 	void FitCameraToMesh(ComponentMesh* mesh);
+	void FitCameraToObject(GameObject* obj); 
+
 	float GetScrollSpeed(float dt, float zScroll); 
 
 private:
 
 	void CalculateViewMatrix();
+	void FocusObjectLogic(); 
 
 public:
 

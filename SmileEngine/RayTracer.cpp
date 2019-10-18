@@ -2,11 +2,15 @@
 #include "SmileApp.h"
 #include "SmileGui.h"
 
-ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked) // todo: search with root obj recursively
+std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject)  
 {
-	/*// 0) Skip if click was while a gui menu is open
+	// 0) Skip if click was while a gui menu is open
 	if (App->gui->IsMouseOverTheGui() == true)
-		return nullptr; 
+	{
+		assignClicked = false; 
+		goto EmptyReturn;
+	}
+	
 
 	// 1) Translate from window coordinates to inverted Y in OpenGL 
 	float mouse_X_GL, mouse_Y_GL;
@@ -27,15 +31,7 @@ ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignCli
 
 	// To Optimize, if the mouse Z depth is 1.f (the max, in the horizon), skip calculus and return nullptr
 	if ((float)mouse_Z_GL == 1.f)
-	{
-		if (assignClicked)
-		{
-			App->scene_intro->selected_mesh = nullptr;
-			LOG("Unselected Mesh in the scene :o");
-		}
-
-		return nullptr;
-	}
+		goto EmptyReturn; 
 
 	// 3) Unproject to find the final point coordinates in the world
 	GLdouble fPos[3];
@@ -48,10 +44,9 @@ ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignCli
 	math::Ray ray = math::Ray(cameraPos, dir);
 
 	// 5) Loop meshes in the screen and find an intersection
-	int foundAt[2] = { INT_MAX, INT_MAX };
-	int k = 0, j = 0;
+	ComponentMesh* found = nullptr; 
 
-	for (auto& gameObject : App->scene_intro->objects)
+	for (auto& gameObject : App->scene_intro->rootObj->GetChildrenRecursive())
 	{
 		std::vector<Component*> meshes = std::get<std::vector<Component*>>(gameObject->GetComponent(MESH));
 
@@ -70,43 +65,99 @@ ComponentMesh* rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignCli
 				// 6) check if the ray interesects with the face (triangle) 
 				if (ray.Intersects(tri))
 				{
-					foundAt[0] = k;
-					foundAt[1] = j;
+					found = dynamic_cast<ComponentMesh*>(mesh); 
 					goto Resolve; 
 				}
 
 			}
-
-			++j;
 		}
-		++k;
 	}
 
-    Resolve:
-	// 7) If clicked inside an object, select it, otherwise unselect the current selected
-	if (foundAt[0] != INT_MAX && foundAt[1] != INT_MAX)
-	{
-		ComponentMesh* targetMesh =
-			dynamic_cast<ComponentMesh*>(std::get<std::vector<Component*>>(App->scene_intro->objects.at(foundAt[0])->GetComponent(MESH)).at(foundAt[1])); // oh damn beautiful 
+Resolve:
 
-		if (assignClicked)
+	// If the user just wants to know if the mouse is over a mesh or gameobject
+	if (assignClicked == false)
+	{
+		// if the user asked for the mesh
+		if (GetMeshNotGameObject)
 		{
-			App->scene_intro->selected_mesh = targetMesh; 
-			LOG("Selected Mesh in the scene :)");
+			if (found)
+				return found;
+			else
+				return (ComponentMesh*)nullptr; 
 		}
 		
-		return targetMesh; 
+		// if the user asked for the parent gameObject
+		else
+		{
+			if (found)
+				return found->GetParent();
+			else
+				return (GameObject*)nullptr; 
+		}
+		
+	}
+
+	// If the user wants to select a mesh or object
+	if (found != nullptr)
+	{
+		GameObject* selectedObj = App->scene_intro->selectedObj;
+		ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
+
+		// A) if nothing is selected, or another mesh / object is selected, select the mesh parent (object).
+		// Do not select the parent if another mesh of the same parent is selected, in that case select the mesh 
+		if (
+			(!selectedObj && !selectedMesh)
+			|| (selectedObj && selectedObj != found->GetParent())
+			|| (selectedMesh && selectedMesh->GetParent() != found->GetParent())
+			)
+		{
+
+			App->scene_intro->selectedObj = found->GetParent();
+			App->scene_intro->selected_mesh = nullptr;
+			LOG("Selected GameObject in the scene :)");
+
+	
+			// Return nullptr is the user asked for a mesh, or the object is the user asked for an object
+			if (GetMeshNotGameObject)
+				return (ComponentMesh*)nullptr;
+			else
+				return (GameObject*)App->scene_intro->selectedObj;
+
+		}
+		else // B) if the object parent is selected, or another mesh of the parent, then select the mesh 
+		{
+			App->scene_intro->selected_mesh = found;
+			App->scene_intro->selectedObj = nullptr;
+			LOG("Selected Mesh in the scene :)");
+
+
+			// Return nullptr is the user asked for a object, or the mesh if the user asked for a mesh
+			if (GetMeshNotGameObject)
+				return (ComponentMesh*)App->scene_intro->selected_mesh;
+			else
+				return (GameObject*)nullptr;
+
+		}
+			
+	
+		
 	}
 	else
+		goto EmptyReturn;  // this could be skipped but I leave it to make it more understandable  
+
+
+    EmptyReturn:
+	// unselect all, no mather if it was a mesh or an object
+	if (assignClicked)
 	{
-		if (assignClicked)
-		{
-			App->scene_intro->selected_mesh = nullptr;
-			LOG("Unselected Mesh in the scene :o");
-		}
+		App->scene_intro->selected_mesh = nullptr;
+		App->scene_intro->selectedObj = nullptr;
+		LOG("Unselected Mesh or Object in the scene :o");
+	}
 
-		return nullptr;
-	}*/
-
-	return nullptr;
+	if (GetMeshNotGameObject)
+		return (ComponentMesh*)nullptr;
+	else
+		return (GameObject*)nullptr;
 }

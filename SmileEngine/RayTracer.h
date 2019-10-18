@@ -28,5 +28,5 @@
 
 namespace rayTracer
 {
-	ComponentMesh* MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked = false); // if you just want to assign the mesh as the selected in the scene, pass it true
+	std::variant<ComponentMesh*, GameObject*> MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject); // if you just want to assign the mesh as the selected in the scene, pass it true
 }

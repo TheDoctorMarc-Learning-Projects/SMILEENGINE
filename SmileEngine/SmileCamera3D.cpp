@@ -44,7 +44,7 @@ update_status SmileCamera3D::PreUpdate(float dt)
 {
 	// Check if the user clicks to select object 
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
-		rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), true);
+		rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), true, true);
 
 	return UPDATE_CONTINUE;
 }
@@ -55,14 +55,7 @@ update_status SmileCamera3D::Update(float dt)
 	if (App->gui->IsGuiItemActive() == false)
 	{
 		// Focus an object ----------------
-		ComponentMesh* selected = App->scene_intro->selected_mesh;
-		if (selected != nullptr)
-		{
-			if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
-				FitCameraToMesh(selected);
-
-			LookAt(selected->GetMeshData()->GetMeshCenter());
-		}
+		FocusObjectLogic(); 
 
 		vec3 newPos(0, 0, 0);
 		float speed = 10.0f * dt;
@@ -138,6 +131,27 @@ update_status SmileCamera3D::Update(float dt)
 	return UPDATE_CONTINUE;
 }
 
+void SmileCamera3D::FocusObjectLogic()
+{
+	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
+	GameObject* selectedObj = App->scene_intro->selectedObj;
+
+	if (selectedMesh != nullptr)
+	{
+		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
+			FitCameraToMesh(selectedMesh);
+
+		LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedMesh->GetComponent(TRANSFORM)))->GetPosition());
+	}
+	else if (selectedObj != nullptr)
+	{
+		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
+			FitCameraToObject(selectedObj);
+
+		LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedObj->GetComponent(TRANSFORM)))->GetPosition());
+	}
+}
+
 // -----------------------------------------------------------------
 void SmileCamera3D::Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference)
 {
@@ -158,6 +172,21 @@ void SmileCamera3D::Look(const vec3& Position, const vec3& Reference, bool Rotat
 }
 
 // -----------------------------------------------------------------
+void SmileCamera3D::LookAt(const float3& Spot)
+{
+	vec3 SpotV(Spot.x, Spot.y, Spot.z); 
+
+	Reference = SpotV;
+
+	Z = normalize(Position - Reference);
+	X = normalize(cross(vec3(0.0f, 1.0f, 0.0f), Z));
+	Y = cross(Z, X);
+
+	CalculateViewMatrix();
+}
+
+
+// -----------------------------------------------------------------
 void SmileCamera3D::LookAt(const vec3& Spot)
 {
 	Reference = Spot;
@@ -168,6 +197,7 @@ void SmileCamera3D::LookAt(const vec3& Spot)
 
 	CalculateViewMatrix();
 }
+
 
 
 // -----------------------------------------------------------------
@@ -202,25 +232,65 @@ void SmileCamera3D::CalculateViewMatrix()
 // -----------------------------------------------------------------
 void SmileCamera3D::FitCameraToMesh(ComponentMesh* mesh)
 {
+
 	// look at the mesh center
+	float3 centerMath = dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)))->GetPosition(); 
+	vec3 center(centerMath.x, centerMath.y, centerMath.z); 
+
+	// we will need the bounding sphere radius
 	ModelMeshData* data = mesh->GetMeshData(); 
+	if (!data) 
+		return; 
+	
+	LookAt(center);
 
-	if (data != nullptr)
-	{
-		vec3 center = data->GetMeshCenter(); 
+	// calculate the distance with the center
+	double camDistance = (data->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
+	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(center.x, center.y, center.z));
+	dir.Normalize();
+	vec3 dirVec3(dir.x, dir.y, dir.z);
 
-		LookAt(center);
+	// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
+	vec3 wantedPos = center + dirVec3 * camDistance;
 
-		// calculate the distance with the center
-		double camDistance = (data->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
-		math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(center.x, center.y, center.z));
-		dir.Normalize();
-		vec3 dirVec3(dir.x, dir.y, dir.z);
+	// finally cap it 
+	if (abs((wantedPos - center).z) < MIN_DIST_TO_MESH)
+		wantedPos.z = MIN_DIST_TO_MESH;
 
-		// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
-		vec3 wantedPos = center + dirVec3 * camDistance;
-		Move(vec3(wantedPos - Position));
-	}
+	Move(vec3(wantedPos - Position));
+
+	
+
+}
+
+// -----------------------------------------------------------------
+void SmileCamera3D::FitCameraToObject(GameObject* obj) // TODO: calculate a radius for the bounding sphere of an object (the avg of the meshes centers)
+{
+	// look at the mesh center
+	/*float3 centerMath = dynamic_cast<ComponentTransform*>(std::get<Component*>(obj->GetComponent(TRANSFORM)))->GetPosition();
+	vec3 center(centerMath.x, centerMath.y, centerMath.z);
+
+	// we will need the bounding sphere radius
+	ModelMeshData* data =
+	if (!data)
+		return;
+
+	LookAt(center);
+
+	// calculate the distance with the center
+	double camDistance = (data->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
+	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(center.x, center.y, center.z));
+	dir.Normalize();
+	vec3 dirVec3(dir.x, dir.y, dir.z);
+
+	// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
+	vec3 wantedPos = center + dirVec3 * camDistance;
+
+	// finally cap it 
+	if (abs((wantedPos - center).z) < MIN_DIST_TO_MESH)
+		wantedPos.z = MIN_DIST_TO_MESH;
+
+	Move(vec3(wantedPos - Position));*/
 
 }
  

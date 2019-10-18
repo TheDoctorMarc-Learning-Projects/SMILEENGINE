@@ -53,6 +53,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 
 	if (scene != nullptr && scene->HasMeshes()) 
 	{
+		// Create a GameObject with a "neutral" transform, same as root  
 		ComponentTransform* transf = DBG_NEW ComponentTransform(); 
 		transf->SetLocalMatrix(math::float4x4::identity);
 
@@ -177,6 +178,12 @@ void SmileFBX::ReadFBXData(const char* path) {
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info); 
 			// Generate mesh buffers
 			mesh->GenerateBuffers(); 
+			// Asign it a transform as the mesh center (local matrix)
+			ComponentTransform* transfMesh = DBG_NEW ComponentTransform(); 
+			math::float4x4 transfMat = math::float4x4::identity; 
+			transfMesh->ChangePosition(math::float3(mesh_info->GetMeshCenter().x, mesh_info->GetMeshCenter().y, mesh_info->GetMeshCenter().z));
+			mesh->AddComponent(transfMesh); 
+
 			// Texture last, once the mesh is created
 			if (scene->HasMaterials())
 			{

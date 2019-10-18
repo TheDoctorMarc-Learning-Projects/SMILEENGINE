@@ -517,3 +517,59 @@ void ComponentMesh::GenerateBuffers()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * model_mesh->num_index, model_mesh->index, GL_STATIC_DRAW);
 }
+
+void ComponentMesh::OnTransform() // similar to gameobject: transform myself, and child components
+{
+	// 1) Transform myself 
+	dynamic_cast<ComponentTransform*>(std::get<Component*>(components[TRANSFORM]))->CalculateAllMatrixes();
+
+    // 2) Then, transform components
+	for (auto& comp : components)
+	{
+		if (comp.index() == 0)
+			std::get<Component*>(comp)->OnTransform();
+
+		else if (comp.index() == 1)
+		{
+			auto& vComp = std::get<std::vector<Component*>>(comp);
+			for (auto& comp2 : vComp)
+				comp2->OnTransform();
+
+		}
+	}
+}
+
+bool ComponentMesh::AddComponent(Component* comp)
+{
+	if (comp != nullptr)
+	{
+		// Check if the component can be added to a GameObject 
+		if (std::get<0>(uniquenessMap.at(comp->type)) == false)
+			return false;
+
+		// Check if there cannot be more than one instance of that object
+		if (std::get<2>(uniquenessMap.at(comp->type)) == false)
+		{
+			// Check if there already exists a component of that type
+			if (std::get<Component*>(components[comp->type]) != nullptr)
+			{
+				std::get<Component*>(components[comp->type])->CleanUp();
+				RELEASE(std::get<Component*>(components[comp->type]));
+			}
+
+			std::get<Component*>(components[comp->type]) = comp;
+
+			goto Enable;
+		}
+		else // if there can me more than one, push it to that component type list 
+			std::get<std::vector<Component*>>(components[comp->type]).push_back(comp);
+
+	Enable:
+		comp->parent = this;
+		comp->Enable();
+
+		return true;
+	}
+
+	return false;
+}

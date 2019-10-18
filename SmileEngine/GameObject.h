@@ -46,7 +46,8 @@ public:
 	void CleanUp(); 
 
 	// State
-	bool IsActive() const { return active; }; 
+	bool IsActive() const { return active; };
+	void OnTransform(); 
 
 public:
 	std::vector<GameObject*> childObjects;

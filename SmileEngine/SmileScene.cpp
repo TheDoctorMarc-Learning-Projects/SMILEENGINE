@@ -28,7 +28,7 @@ bool SmileScene::Start()
 	//objects.push_back(rootObj); 
 
 	App->fbx->ReadFBXData("..//Assets/BakerHouse.fbx"); 
-
+	 
 	return true;
 }
 
@@ -63,5 +63,28 @@ void SmileScene::DrawGrid()
 {
 	
 	// TODO
+
+	glLineWidth(1.0f);
+	glBegin(GL_LINES);
+	glColor4fv((float*)&float4(1, 1, 1, 1));
+
+	static int sunX = 2, sunZ = 150, sunW = 2, sunQ = 150, separator = 2; 
+	for (int i = -75; i <= 75; i++)
+	{
+
+		sunX = separator * i;
+
+
+		glVertex3f(sunX, 0.0f, -sunZ);
+		glVertex3f(sunX, 0, sunZ);
+
+
+		sunQ = separator * i;
+
+
+		glVertex3f(-sunW, 0.0f, sunQ);
+		glVertex3f(sunW, 0, sunQ);
+	}
+	glEnd();
 }
 

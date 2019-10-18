@@ -169,7 +169,7 @@ void GameObject::CleanUp()
 			RELEASE(std::get<Component*>(comp));
 		}
 			
-		if (comp.index() == 1)
+		else if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
 			for (auto& comp2 : vComp)
@@ -298,4 +298,29 @@ std::vector<GameObject*> GameObject::GetChildrenRecursive()
 	}
 
 	return listChildren;
+}
+void GameObject::OnTransform()
+{
+	// 1) First transform myself
+	dynamic_cast<ComponentTransform*>(std::get<Component*>(components[TRANSFORM]))->CalculateAllMatrixes(); 
+
+	// 2) Then, transform components
+	for (auto& comp : components)
+	{
+		if (comp.index() == 0)
+			std::get<Component*>(comp)->OnTransform();
+
+		else if (comp.index() == 1)
+		{
+			auto& vComp = std::get<std::vector<Component*>>(comp);
+			for (auto& comp2 : vComp)
+				comp2->OnTransform();
+	
+		}
+	}
+
+	// Lastly, transform child gameobjects
+	for (auto& obj : childObjects)
+			obj->OnTransform();
+
 }

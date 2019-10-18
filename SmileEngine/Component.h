@@ -19,6 +19,8 @@ public:
 	virtual void Disable() { active = false; };
 	virtual void CleanUp() {};
 
+	virtual void OnTransform() {}; 
+
 public:
 	COMPONENT_TYPE type = COMPONENT_TYPE::NO_TYPE;
 	bool active = false;
