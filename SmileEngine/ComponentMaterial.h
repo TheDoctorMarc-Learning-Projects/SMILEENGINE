@@ -11,6 +11,7 @@ public:
 	ComponentMaterial();
 	~ComponentMaterial();
  
+	void CleanUpTextureData(); 
 	void CleanUp(); 
 private: 
 	textureData* textureInfo = nullptr;
