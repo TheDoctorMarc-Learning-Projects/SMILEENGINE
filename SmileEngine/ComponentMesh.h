@@ -36,9 +36,6 @@ struct ModelMeshData
 	uint num_UVs = 0;
 	float* UVs = nullptr;
 
-	uint id_texture = 0;
-	ILubyte* texture = nullptr;
-
 	// AABB
 private:
 	enum minMaxCoords : uint
@@ -89,8 +86,8 @@ public:
 class ComponentMesh : public Component
 {
 public:
-	ComponentMesh(par_shapes_mesh*); 
-	ComponentMesh(ModelMeshData*);
+	ComponentMesh(par_shapes_mesh*, std::string name = "no name"); 
+	ComponentMesh(ModelMeshData*, std::string name = "no name");
 	~ComponentMesh();
 
 public: 
@@ -110,9 +107,7 @@ public:
 	}
 
 	// If it has a mesh loaded from an FBX ("model_mesh"): 
-	void Draw();
-	void AssignTexture(const char* path); 
-	void AssignCheckersTexture();  // maybe this could become a generic function that recieves a Glubyte  
+	void Draw(); 
 
 	ModelMeshData* GetMeshData() const { return model_mesh; };
 

@@ -20,45 +20,49 @@ extern "C++" {
 // -----------------------------------------------------------------
 #ifdef  MATH_EXTENSION
 	
-constexpr unsigned int INFINITE = ~0;
-static const char* disionBy0Msg = "Error: division by 0"; 
-
-	template<typename num>
-	inline static num SafeDivisionInf(num dividend, num divisor)
+	namespace sMath
 	{
-		static_assert(divisor != 0 && disionBy0Msg);
+		constexpr unsigned int Infinite = ~0;
+		static const char* disionBy0Msg = "Error: division by 0";
 
-		if (divisor == 0)
+		template<typename num>
+		inline static num SafeDivisionInf(num dividend, num divisor)
 		{
-            #pragma warning (disionBy0Msg); 
-			return (num)INFINITE;
+			//static_assert((double)divisor != 0 && disionBy0Msg);
+
+			if ((double)divisor == 0)
+			{
+#pragma warning (disionBy0Msg); 
+				return (num)Infinite;
+			}
+			else
+				return dividend / divisor;
+
 		}
-		else
-			return dividend / divisor; 
-		
-	}
 
-	template<typename num>
-	inline static num SafeDivision0(num dividend, num divisor)
-	{
-		static_assert(divisor != 0 && disionBy0Msg);
-
-		if (divisor == 0)
+		template<typename num>
+		inline static num SafeDivision0(num dividend, num divisor)
 		{
-            #pragma warning (disionBy0Msg); 
-			return (num)0;
+			//static_assert((double)divisor != 0 && disionBy0Msg);
+
+			if ((double)divisor == 0)
+			{
+#pragma warning (disionBy0Msg); 
+				return (num)0;
+			}
+			else
+				return dividend / divisor;
 		}
-		else
-			return dividend / divisor;
-	}
 
 #define SaveDivision SafeDivisionInf; 
 
-	template<typename num>
-	num Sign(num n)
-	{
-		return (n > 0) ? 1 : ((n < 0) ? -1 : 0);
+		template<typename num>
+		num Sign(num n)
+		{
+			return (n > 0) ? 1 : ((n < 0) ? -1 : 0);
+		}
 	}
+
 
 #endif 
 

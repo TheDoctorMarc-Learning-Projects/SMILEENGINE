@@ -231,7 +231,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		if (ImGui::MenuItem("Assign checkers texture"))
 		{
 			if (App->scene_intro->selected_mesh != nullptr)
-				App->scene_intro->selected_mesh->AssignCheckersTexture();
+				App->fbx->AssignCheckersTextureToMesh(App->scene_intro->selected_mesh); 
 
 		}
 
@@ -251,13 +251,8 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			if (primitive != nullptr)
 			{
 				// Create a mesh and an object
-				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive); 
-				GameObject* obj = App->object_manager->CreateGameObject(mesh);
-
-	            // Assing a name to the mesh and the object and a parent to the object
-				mesh->SetName(std::string(objName) + " 1");
-				obj->SetName(objName); 
-				obj->SetParent(App->scene_intro->rootObj); 
+				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive, std::string(objName) + " 1");
+				GameObject* obj = App->object_manager->CreateGameObject(mesh, objName, App->scene_intro->rootObj);
 			}
 				
 		}

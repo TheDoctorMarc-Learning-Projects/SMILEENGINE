@@ -22,6 +22,10 @@ public:
 	bool Start();
 	bool CleanUp();
 	void ReadFBXData(const char* path);
+
+
+	void AssignTextureToMesh(const char* path, ComponentMesh* mesh); 
+	void AssignCheckersTextureToMesh(ComponentMesh* mesh); // TODO: generic
 public:
 	bool debug = false;
 	

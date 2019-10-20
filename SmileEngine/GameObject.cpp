@@ -3,8 +3,10 @@
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
 
-GameObject::GameObject(GameObject* parent)
+GameObject::GameObject(std::string name, GameObject* parent)
 {
+	SetName(name); 
+
 	// Components
 	FillComponentBuffers(); 
 	AddComponent((Component*) DBG_NEW ComponentTransform());
@@ -14,8 +16,10 @@ GameObject::GameObject(GameObject* parent)
 		SetParent(parent);
 }
 
-GameObject::GameObject(Component* comp, GameObject* parent)
+GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 {
+	SetName(name); 
+
 	// Components
 	FillComponentBuffers();
 	if (comp->type != TRANSFORM)
@@ -29,8 +33,10 @@ GameObject::GameObject(Component* comp, GameObject* parent)
 }
 
 
-GameObject::GameObject(std::vector<Component*> components, GameObject* parent)
+GameObject::GameObject(std::vector<Component*> components, std::string name, GameObject* parent)
 {
+	SetName(name); 
+
 	// Components
 	FillComponentBuffers();
 
@@ -203,7 +209,7 @@ bool GameObject::AddComponent(Component* comp)
 		if (std::get<0>(uniquenessMap.at(comp->type)) == false)
 			return false; 
 
-		// Check if there cannot be more than one instance of that object
+		// Check if there cannot be more than one instance of that component
 		if (std::get<2>(uniquenessMap.at(comp->type)) == false)
 		{
 			// Check if there already exists a component of that type
@@ -238,7 +244,7 @@ bool GameObject::AddComponentToMesh(Component* comp, ComponentMesh* mesh)
 		if (std::get<1>(uniquenessMap.at(comp->type)) == false)
 			return false;
 
-		// Check if there cannot be more than one instance of that object
+		// Check if there cannot be more than one instance of that component
 		if (std::get<2>(uniquenessMap.at(comp->type)) == false)
 		{
 			// Check if there already exists a component of that type

@@ -20,19 +20,14 @@ public:
 	update_status Update(float dt);
 	bool CleanUp(); 
 
-	// Component Mesh tools
-	void AssignTextureImageToMesh(const char* path, ComponentMesh* mesh)
-	{ 
-		mesh->AssignTexture(path); 
-	};
 
 	// Par shapes mesh tools
 	par_shapes_mesh* GeneratePrimitive(std::string type);
 
 	// GameObject tools
-	GameObject* CreateGameObject(); 
-	GameObject* CreateGameObject(Component* comp);
-	GameObject* CreateGameObject(std::vector<Component*> comps);
+	GameObject* CreateGameObject(std::string name = "no name", GameObject* parent = nullptr);
+	GameObject* CreateGameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
+	GameObject* CreateGameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
 
 	// Primitve tools
 	void GetAllPrimitiveTypesChar(char(&)[128], bool helpInfo = false);

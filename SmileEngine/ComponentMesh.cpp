@@ -6,10 +6,11 @@
 #include "SmileFBX.h"
 
 #include "ComponentTransform.h"
+#include "ComponentMaterial.h"
 
-ComponentMesh::ComponentMesh(par_shapes_mesh* mesh)
+ComponentMesh::ComponentMesh(par_shapes_mesh* mesh, std::string name)
 {
- 
+	SetName(name); 
 	FillComponentBuffers(); 
 	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this); // TODO: what should the transform matrix have? 
 	type = MESH; 
@@ -18,8 +19,9 @@ ComponentMesh::ComponentMesh(par_shapes_mesh* mesh)
 	GenerateModelMeshFromParShapes(mesh); 
 }
 
-ComponentMesh::ComponentMesh(ModelMeshData* mesh) : model_mesh(mesh)
+ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh(mesh)
 {
+	SetName(name);
 	FillComponentBuffers();
 	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this);
 	type = MESH;
@@ -46,8 +48,7 @@ void ComponentMesh::Draw()
 	{
 		// Transformation -> for the mom let's try to use the parent gameobject transform matrix 
 		glPushMatrix(); 
-		glMultMatrixf(dynamic_cast<ComponentTransform*>(std::get<Component*>(std::get<GameObject*>(parent)
-			->GetComponent(TRANSFORM)))->GetGlobalMatrix().Transposed().ptr()); 
+		glMultMatrixf(dynamic_cast<ComponentTransform*>(std::get<Component*>(std::get<GameObject*>(parent)->GetComponent(TRANSFORM)))->GetGlobalMatrix().Transposed().ptr()); 
 
 		// Cient states
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -71,9 +72,13 @@ void ComponentMesh::Draw()
 		}*/
 
 		// texture buffer
-		if (model_mesh->texture != nullptr)
-			glBindTexture(GL_TEXTURE_2D, model_mesh->id_texture);
-	
+		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(std::get<Component*>(GetComponent(MATERIAL)));
+		if (mat != nullptr)
+		{
+			glBindTexture(GL_TEXTURE_2D, mat->textureInfo->id_texture);
+
+		}
+			
 		// normal buffer
 		if (model_mesh->normals != nullptr)
 		{
@@ -263,11 +268,6 @@ void ComponentMesh::CleanUp()
 			RELEASE_ARRAY(model_mesh->UVs);
 		}
 
-		if (model_mesh->texture != nullptr)
-		{
-			glDeleteTextures(1, (GLuint*)& model_mesh->texture);
-			//delete[] mesh->texture; 
-		}
 
 		RELEASE(model_mesh); 
 	}
@@ -300,108 +300,7 @@ void ComponentMesh::CleanUp()
 
 }
 
-// -----------------------------------------------------------------
-void ComponentMesh::AssignTexture(const char* path)
-{
-	
 
-	if (model_mesh != nullptr) 
-	{
-		// Check if mesh had an image already 
-	/*if (mesh->texture != nullptr)
-		glDeleteTextures(1, (GLuint*)& mesh->texture);*/ // TODO: re-work this 
-
-		// Devil stuff
-		ilGenImages(1, &(ILuint)model_mesh->id_texture);
-		ilBindImage((ILuint)model_mesh->id_texture);
-
-		ILboolean success = ilLoadImage(path);
-
-		if ((bool)success)
-		{
-			iluFlipImage();
-			ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-		
-			glGenTextures(1, (GLuint*)& model_mesh->id_texture);
-			glBindTexture(GL_TEXTURE_2D, (GLuint)model_mesh->id_texture);
-
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-			glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)ilGetInteger(IL_IMAGE_WIDTH),
-				(GLuint)ilGetInteger(IL_IMAGE_HEIGHT),	0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE, 
-				ilGetData());
-
-			model_mesh->texture = ilGetData(); 
-
-			glGenerateMipmap(GL_TEXTURE_2D);
-
-		}
-		
-		glBindTexture(GL_TEXTURE_2D, 0);
-		ilDeleteImage((ILuint)model_mesh->id_texture);
-	}
-	
-}
-
-
-// -----------------------------------------------------------------
-void ComponentMesh::AssignCheckersTexture()
-{
-#ifndef CHECKERS_SIZE
-#define CHECKERS_SIZE 20
-#endif 
-
-	if (model_mesh != nullptr)  
-	{
-		// Devil stuff
-		ilGenImages(1, &(ILuint)model_mesh->id_texture);
-		ilBindImage((ILuint)model_mesh->id_texture);
-
-		// Generated the checkered image
-		GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
-		for (int i = 0; i < CHECKERS_SIZE; i++) {
-			for (int j = 0; j < CHECKERS_SIZE; j++) {
-				int c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
-				checkImage[i][j][0] = (GLubyte)c;
-				checkImage[i][j][1] = (GLubyte)c;
-				checkImage[i][j][2] = (GLubyte)c;
-				checkImage[i][j][3] = (GLubyte)255;
-			}
-		}
-
-		iluFlipImage();
-		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-
-		glGenTextures(1, (GLuint*)& model_mesh->id_texture);
-		glBindTexture(GL_TEXTURE_2D, (GLuint)model_mesh->id_texture);
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CHECKERS_SIZE,
-			CHECKERS_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-			checkImage);
-
-		model_mesh->texture = (ILubyte*)checkImage; 
-
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		ilDeleteImage((ILuint)model_mesh->id_texture);
-		
-	}
-
-}
 
 void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh) 
 {
@@ -543,11 +442,11 @@ bool ComponentMesh::AddComponent(Component* comp)
 {
 	if (comp != nullptr)
 	{
-		// Check if the component can be added to a GameObject 
-		if (std::get<0>(uniquenessMap.at(comp->type)) == false)
+		// Check if the component can be added to a Mesh 
+		if (std::get<1>(uniquenessMap.at(comp->type)) == false)
 			return false;
 
-		// Check if there cannot be more than one instance of that object
+		// Check if there cannot be more than one instance of that component
 		if (std::get<2>(uniquenessMap.at(comp->type)) == false)
 		{
 			// Check if there already exists a component of that type

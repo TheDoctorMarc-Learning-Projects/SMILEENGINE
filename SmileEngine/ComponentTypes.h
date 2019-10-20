@@ -28,3 +28,12 @@ const std::map<COMPONENT_TYPE, std::tuple<bool, bool, bool>> uniquenessMap
 // to access the tuple use std::get with 0, 1, 2 for each bool eg. std::get<0>(...)
 
  
+#include "DevIL/include/IL/il.h"
+typedef ILubyte;
+struct textureData
+{
+	uint id_texture = 0;
+	uint width, height = 0; 
+	const char* path; 
+	ILubyte* texture = nullptr;
+};

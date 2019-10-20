@@ -62,9 +62,9 @@ par_shapes_mesh* SmileGameObjectManager::GeneratePrimitive(std::string type)
 }
 
 // -----------------------------------------------------------------
-GameObject* SmileGameObjectManager::CreateGameObject()
+GameObject* SmileGameObjectManager::CreateGameObject(std::string name, GameObject* parent)
 {
-	GameObject* ret = DBG_NEW GameObject();
+	GameObject* ret = DBG_NEW GameObject(name, parent);
 
 	if(ret)
 		App->scene_intro->rootObj->childObjects.push_back(ret);
@@ -73,9 +73,9 @@ GameObject* SmileGameObjectManager::CreateGameObject()
 }
 
 // -----------------------------------------------------------------
-GameObject* SmileGameObjectManager::CreateGameObject(Component* comp)
+GameObject* SmileGameObjectManager::CreateGameObject(Component* comp, std::string name, GameObject* parent)
 {
-	GameObject* ret = DBG_NEW GameObject(comp);
+	GameObject* ret = DBG_NEW GameObject(comp, name, parent);
 
 	if (ret)
 		App->scene_intro->rootObj->childObjects.push_back(ret);
@@ -85,9 +85,9 @@ GameObject* SmileGameObjectManager::CreateGameObject(Component* comp)
 
 
 // -----------------------------------------------------------------
-GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> comps)
+GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> components, std::string name, GameObject* parent)
 {
-	GameObject* ret = DBG_NEW GameObject(comps);
+	GameObject* ret = DBG_NEW GameObject(components, name, parent);
 
 	if (ret)
 		App->scene_intro->rootObj->childObjects.push_back(ret);

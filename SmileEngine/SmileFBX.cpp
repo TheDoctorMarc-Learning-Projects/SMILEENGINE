@@ -16,6 +16,7 @@
 
 #include "GameObject.h"
 #include "ComponentTransform.h"
+#include "ComponentMaterial.h"
 #include <filesystem> // TODO: filesystem
 
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
@@ -198,7 +199,7 @@ void SmileFBX::ReadFBXData(const char* path) {
 						scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
 
 						std::string assetsPath("..//Assets/"); assetsPath += tex_path.data;
-						App->object_manager->AssignTextureImageToMesh(assetsPath.c_str(), mesh);
+						AssignTextureToMesh(assetsPath.c_str(), mesh);
 					}
 				}
 			}
@@ -228,4 +229,123 @@ void SmileFBX::ReadFBXData(const char* path) {
 	{
 		LOG("Error loading FBX %s", path);
 	}
+}
+
+
+void SmileFBX::AssignTextureToMesh(const char* path,ComponentMesh* mesh)
+{
+ 
+	/*if (createMaterial == true)
+	{*/
+	ILuint tempID; 
+		// Devil stuff
+		ilGenImages(1, &tempID);
+		ilBindImage(tempID);
+
+		ILboolean success = ilLoadImage(path);
+
+		if ((bool)success)
+		{
+			// create a component material
+			ComponentMaterial* mat = DBG_NEW ComponentMaterial();
+
+			iluFlipImage();
+			ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+
+			glGenTextures(1, (GLuint*)&mat->textureInfo->id_texture);
+			glBindTexture(GL_TEXTURE_2D, (GLuint)mat->textureInfo->id_texture);
+
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)ilGetInteger(IL_IMAGE_WIDTH),
+				(GLuint)ilGetInteger(IL_IMAGE_WIDTH), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
+				ilGetData());
+
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+
+			
+			mat->textureInfo->width = (uint)ilGetInteger(IL_IMAGE_WIDTH);
+			mat->textureInfo->height = (uint)ilGetInteger(IL_IMAGE_HEIGHT);
+			mat->textureInfo->path = path;
+			mat->textureInfo->texture = ilGetData();
+
+			// Assign the material to the mesh
+			mesh->AddComponent((Component*)mat);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		ilDeleteImage(tempID);
+
+
+//	}
+	
+	
+}
+
+
+void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh)
+{
+
+	/*if (createMaterial == true)
+	{*/
+#ifndef CHECKERS_SIZE
+#define CHECKERS_SIZE 20
+#endif 
+
+		// create a component material
+		ComponentMaterial* mat = DBG_NEW ComponentMaterial();
+		mat->textureInfo->width = (uint)ilGetInteger(IL_IMAGE_WIDTH);
+		mat->textureInfo->height = (uint)ilGetInteger(IL_IMAGE_HEIGHT);
+
+		// Devil stuff
+		ilGenImages(1, &(ILuint)mat->textureInfo->id_texture);
+		ilBindImage((ILuint)mat->textureInfo->id_texture);
+
+
+		// Generated the checkered image
+		GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
+		for (int i = 0; i < CHECKERS_SIZE; i++) {
+			for (int j = 0; j < CHECKERS_SIZE; j++) {
+				int c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
+				checkImage[i][j][0] = (GLubyte)c;
+				checkImage[i][j][1] = (GLubyte)c;
+				checkImage[i][j][2] = (GLubyte)c;
+				checkImage[i][j][3] = (GLubyte)255;
+			}
+		}
+
+		iluFlipImage();
+		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+
+		glGenTextures(1, (GLuint*)&mat->textureInfo->id_texture);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)mat->textureInfo->id_texture);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)mat->textureInfo->width,
+			(GLuint)mat->textureInfo->height, 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
+			ilGetData());
+
+		mat->textureInfo->texture = (ILubyte*)checkImage;
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+
+		// Assign the material to the mesh
+		mesh->AddComponent((Component*)mat);
+
+
+//	}
+
 }

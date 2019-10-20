@@ -150,6 +150,9 @@
     <ClInclude Include="SafetyHandler.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentMaterial.h">
+      <Filter>Source\Modules\Objects\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -234,6 +237,9 @@
       <Filter>Source\Modules\Objects</Filter>
     </ClCompile>
     <ClCompile Include="ComponentMesh.cpp">
+      <Filter>Source\Modules\Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentMaterial.cpp">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,6 +4,7 @@
 
 ComponentTransform::ComponentTransform()
 {
+	SetLocalMatrix(float4x4::identity); 
 	type = COMPONENT_TYPE::TRANSFORM; 
 	CalculateGlobalMatrix(); 
 }

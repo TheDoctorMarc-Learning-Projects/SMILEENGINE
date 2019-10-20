@@ -7,15 +7,16 @@
  
 #include "ComponentTypes.h"
 
+
 class Component;
 class ComponentMesh; 
 // ----------------------------------------------------------------- [GameObject]
 class GameObject
 {
 public: 
-	GameObject(GameObject* parent = nullptr);  
-	GameObject(Component* comp, GameObject* parent = nullptr);
-	GameObject(std::vector<Component*> components, GameObject* parent = nullptr);
+	GameObject(std::string name = "no name", GameObject* parent = nullptr);  
+	GameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
+	GameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
 	~GameObject() {}; 
 
 private:
@@ -39,7 +40,9 @@ public:
 	std::string GetName() const { return name; }; 
 	std::vector<GameObject*> GetChildrenRecursive(); 
 
+
 	// Main functions 
+	void Start(); 
 	void Enable(); 
 	void Update();
 	void Disable();
