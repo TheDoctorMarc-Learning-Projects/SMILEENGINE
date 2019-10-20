@@ -41,11 +41,14 @@ bool SmileScene::CleanUp()
 	}
 	rootObj->childObjects.clear();
 
+	ComponentTransform* rootTransf = dynamic_cast<ComponentTransform*>(std::get<Component*>(rootObj->GetComponent(TRANSFORM))); 
+	rootTransf->CleanUp();
+	RELEASE(rootTransf); 
+
 	RELEASE(rootObj); 
 
 	selectedObj = nullptr; 
 	selected_mesh = nullptr; 
-
 
 	return true;
 }

@@ -26,6 +26,8 @@ public:
 
 	void AssignTextureToMesh(const char* path, ComponentMesh* mesh); 
 	void AssignCheckersTextureToMesh(ComponentMesh* mesh); // TODO: generic
+	//void FreeMeshTexture(ComponentMesh* mesh); 
+
 public:
 	bool debug = false;
 	

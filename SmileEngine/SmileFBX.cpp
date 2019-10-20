@@ -300,13 +300,6 @@ void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh)
 
 		// create a component material
 		ComponentMaterial* mat = DBG_NEW ComponentMaterial();
-		mat->textureInfo->width = (uint)ilGetInteger(IL_IMAGE_WIDTH);
-		mat->textureInfo->height = (uint)ilGetInteger(IL_IMAGE_HEIGHT);
-
-		// Devil stuff
-		ilGenImages(1, &(ILuint)mat->textureInfo->id_texture);
-		ilBindImage((ILuint)mat->textureInfo->id_texture);
-
 
 		// Generated the checkered image
 		GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];

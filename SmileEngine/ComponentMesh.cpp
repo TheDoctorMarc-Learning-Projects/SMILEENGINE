@@ -30,10 +30,10 @@ ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh
 
 void ComponentMesh::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
 {
-	components[TRANSFORM] = DBG_NEW Component(); // one 
-	components[MESH] = DBG_NEW Component(); // placeholder
-	components[MATERIAL] = DBG_NEW Component(); // one 
-	components[LIGHT] = DBG_NEW Component();  // placeholder
+	components[TRANSFORM] = (Component*)NULL; // one 
+	components[MESH] = (Component*)NULL; // placeholder
+	components[MATERIAL] = (Component*)NULL; // one 
+	components[LIGHT] = (Component*)NULL;  // placeholder
 }
 
 ComponentMesh::~ComponentMesh()
@@ -180,7 +180,12 @@ void ComponentMesh::Enable()
 	for (auto& comp : components)
 	{
 		if (comp.index() == 0)
-			std::get<Component*>(comp)->Enable();
+		{
+			Component* c = std::get<Component*>(comp);
+			if (c)
+				c->Enable(); 
+		}
+		
 		else if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
@@ -198,7 +203,12 @@ void ComponentMesh::Disable()
 	for (auto& comp : components)
 	{
 		if (comp.index() == 0)
-			std::get<Component*>(comp)->Disable();
+		{
+			Component* c = std::get<Component*>(comp);
+			if (c)
+				c->Disable();
+		}
+
 		else if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
@@ -220,7 +230,11 @@ void ComponentMesh::Update()
 	for (auto& comp : components)
 	{
 		if (comp.index() == 0)
-			std::get<Component*>(comp)->Update();
+		{
+			Component* c = std::get<Component*>(comp);
+			if (c)
+				c->Update();
+		}
 		else if (comp.index() == 1)
 		{
 			auto& vComp = std::get<std::vector<Component*>>(comp);
@@ -277,8 +291,13 @@ void ComponentMesh::CleanUp()
 	{
 		if (comp.index() == 0)
 		{
-			std::get<Component*>(comp)->CleanUp();
-			RELEASE(std::get<Component*>(comp));
+			Component* c = std::get<Component*>(comp);
+			if (c)
+			{
+				c->CleanUp();
+				RELEASE(c);
+			}
+		
 		}
 
 		else if (comp.index() == 1)

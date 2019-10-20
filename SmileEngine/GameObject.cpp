@@ -61,12 +61,9 @@ GameObject::GameObject(std::vector<Component*> components, std::string name, Gam
 
 void GameObject::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
 {
-	Component* emptyGuy = DBG_NEW Component(); 
-	Component* emptyGuy2 = DBG_NEW Component();
-
-	components[TRANSFORM] = emptyGuy;  // one
+	components[TRANSFORM] = (Component*)NULL; // one
 	components[MESH] = std::vector<Component*>(); // multiple
-	components[MATERIAL] = emptyGuy2;  // placeholder
+	components[MATERIAL] = (Component*)NULL;  // placeholder
 	components[LIGHT] = std::vector<Component*>(); // multiple
 }
 
@@ -80,8 +77,13 @@ void GameObject::Enable()
 	{
 		if (comp.index() == 0)
 		{
-			if (std::get<Component*>(comp)->active == false)
-				std::get<Component*>(comp)->Enable();
+			Component* c = std::get<Component*>(comp);
+			if (c)
+			{
+				if (c->active == false)
+					c->Enable();
+			}
+			
 		}
 		
 		else if (comp.index() == 1)
@@ -113,8 +115,13 @@ void GameObject::Disable()
 	{
 		if (comp.index() == 0)
 		{
-			if (std::get<Component*>(comp)->active)
-				std::get<Component*>(comp)->Disable();
+			Component* c = std::get<Component*>(comp);
+			if (c)
+			{
+				if (c->active == true)
+					c->Disable();
+			}
+	 
 		}
 			
 		else if (comp.index() == 1)
@@ -143,8 +150,12 @@ void GameObject::Update()
 	{
 		if (comp.index() == 0)
 		{
-			if (std::get<Component*>(comp)->active)
-				std::get<Component*>(comp)->Update();
+			Component* c = std::get<Component*>(comp);
+			if (c)
+			{
+				if (c->active == true)
+					c->Enable();
+			}
 		}
 
 		else if (comp.index() == 1)
@@ -171,8 +182,14 @@ void GameObject::CleanUp()
 	{
 		if (comp.index() == 0)
 		{
-			std::get<Component*>(comp)->CleanUp();
-			RELEASE(std::get<Component*>(comp));
+			Component* c = std::get<Component*>(comp);
+			if (c)
+			{
+				c->CleanUp();
+				RELEASE(c);
+			}
+
+	
 		}
 			
 		else if (comp.index() == 1)
