@@ -66,8 +66,7 @@ GameObject* SmileGameObjectManager::CreateGameObject(std::string name, GameObjec
 {
 	GameObject* ret = DBG_NEW GameObject(name, parent);
 
-	if(ret)
-		App->scene_intro->rootObj->childObjects.push_back(ret);
+	
 
 	return ret; 
 }
@@ -77,8 +76,7 @@ GameObject* SmileGameObjectManager::CreateGameObject(Component* comp, std::strin
 {
 	GameObject* ret = DBG_NEW GameObject(comp, name, parent);
 
-	if (ret)
-		App->scene_intro->rootObj->childObjects.push_back(ret);
+	
 
 	return ret;
 }
@@ -89,8 +87,7 @@ GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> com
 {
 	GameObject* ret = DBG_NEW GameObject(components, name, parent);
 
-	if (ret)
-		App->scene_intro->rootObj->childObjects.push_back(ret);
+	
 
 	return ret;
 }
