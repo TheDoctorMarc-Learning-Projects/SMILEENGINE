@@ -14,8 +14,13 @@
 
 #include "GameObject.h"
 #include "Component.h"
+#include "ComponentTypes.h"
 #include "ComponentMesh.h"
+#include "ComponentTransform.h"
+#include "ComponentMaterial.h"
 
+#include <filesystem> // TODO: filesystem (muahahaha)
+ 
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
 {
@@ -45,6 +50,17 @@ namespace panelData
 		}
 	}
 
+	namespace HierarchySpace
+	{
+		void Execute(bool& ret);
+	}
+
+	namespace InspectorSpace
+	{
+		void Execute(bool& ret);
+		void ComponentData(Component*);
+	}
+
 }
 
 // -----------------------------------------------------------------
@@ -59,6 +75,8 @@ void SmileGui::FillMenuFunctionsVector()
 	menuFunctions.push_back(&panelData::consoleSpace::Execute);
 	menuFunctions.push_back(&panelData::configSpace::Execute);
 	menuFunctions.push_back(&panelData::mainMenuSpace::Execute);
+	menuFunctions.push_back(&panelData::HierarchySpace::Execute);
+	menuFunctions.push_back(&panelData::InspectorSpace::Execute);
 }
 
 // -----------------------------------------------------------------
@@ -256,38 +274,6 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			}
 				
 		}
-
-		// Hierarchy
-		if (ImGui::TreeNode("Hierarchy"))
-		{
-			// Objects
-			for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
-			{
-				if (ImGui::TreeNode(obj->GetName().c_str()))
-				{
-					App->scene_intro->selectedObj = obj; 
-
-					// Meshes
-					std::vector<Component*> meshes = std::get<std::vector<Component*>>(obj->GetComponent(MESH));
-					for (auto& mesh : meshes)
-					{
-
-						if (ImGui::TreeNode(dynamic_cast<ComponentMesh*>(mesh)->GetName().c_str()))
-						{
-							App->scene_intro->selected_mesh = dynamic_cast<ComponentMesh*>(mesh);
-							ImGui::TreePop();
-						}
-
-					}
-
-					ImGui::TreePop();
-				}
-				
-			}
-
-			ImGui::TreePop();
-		}
-
 		
 		ImGui::EndMenu(); 
 	}
@@ -620,48 +606,9 @@ void panelData::configSpace::Execute(bool& ret)
 }
 
 
-// ----------------------------------------------------------------- [Console]
-void SmileGui::Log(const char* log)
-{
-	panelData::consoleSpace::startupLogBuffer.append(log); 
-}
-
-void panelData::consoleSpace::Execute(bool& ret)
-{
-	static ImGuiTextFilter     Filter; 
-	static bool consoleWindow; 
-	static bool scrollToBottom = true; 
-	if (console_view == true) {
-		ImGui::Begin("Console", &consoleWindow);
-
-		if (ImGui::Button("Clear"))
-		{
-			panelData::consoleSpace::startupLogBuffer.clear();
-		}
-		ImGui::SameLine();
-		bool copy = ImGui::Button("Copy");
-		
-		ImGui::Separator();
-		ImGui::BeginChild("scrolling");
-		if (copy) ImGui::LogToClipboard();
-		
-		ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
-
-		if (scrollToBottom)
-		{
-			ImGui::SetScrollHereY();
-			scrollToBottom = false;
-		}
-		ImGui::EndChild();
-		ImGui::End();
-	}
-	 
-}
-
-
 
 void panelData::configSpace::CapsInformation() {
-	
+
 	bool rdtsc = SDL_HasRDTSC();
 	bool mmx = SDL_HasMMX();
 	bool sse = SDL_HasSSE();
@@ -729,6 +676,233 @@ void panelData::configSpace::CapsInformation() {
 	//ImGui::SameLine();
 	//ImGui::TextColored({ 255,255,0,255 }, vram_reserved);
 }
+
+
+// ----------------------------------------------------------------- [Console]
+void SmileGui::Log(const char* log)
+{
+	panelData::consoleSpace::startupLogBuffer.append(log); 
+}
+
+void panelData::consoleSpace::Execute(bool& ret)
+{
+	static ImGuiTextFilter     Filter; 
+	static bool consoleWindow; 
+	static bool scrollToBottom = true; 
+	if (console_view == true) {
+		ImGui::Begin("Console", &consoleWindow);
+
+		if (ImGui::Button("Clear"))
+		{
+			panelData::consoleSpace::startupLogBuffer.clear();
+		}
+		ImGui::SameLine();
+		bool copy = ImGui::Button("Copy");
+		
+		ImGui::Separator();
+		ImGui::BeginChild("scrolling");
+		if (copy) ImGui::LogToClipboard();
+		
+		ImGui::TextUnformatted(panelData::consoleSpace::startupLogBuffer.begin());
+
+		if (scrollToBottom)
+		{
+			ImGui::SetScrollHereY();
+			scrollToBottom = false;
+		}
+		ImGui::EndChild();
+		ImGui::End();
+	}
+	 
+}
+
+
+// ----------------------------------------------------------------- [Hierarchy]
+void panelData::HierarchySpace::Execute(bool& ret)
+{
+	if (ImGui::Begin("Hierarchy"))
+	{
+		if (ImGui::TreeNode("Root"))
+		{
+			// Objects
+			for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
+			{
+				if (ImGui::TreeNode(obj->GetName().c_str()))
+				{
+					App->scene_intro->selectedObj = obj;
+
+					// Meshes
+					std::vector<Component*> meshes = std::get<std::vector<Component*>>(obj->GetComponent(MESH));
+					for (auto& mesh : meshes)
+					{
+
+						if (ImGui::TreeNode(dynamic_cast<ComponentMesh*>(mesh)->GetName().c_str()))
+						{
+							App->scene_intro->selected_mesh = dynamic_cast<ComponentMesh*>(mesh);
+							ImGui::TreePop();
+						}
+
+					}
+
+					ImGui::TreePop();
+				}
+
+			}
+
+			ImGui::TreePop();
+		}
+
+		ImGui::End(); 
+	}
+	
+}
+
+// ----------------------------------------------------------------- [Inspector]
+void panelData::InspectorSpace::Execute(bool& ret)
+{
+	static const ImVec4 c(11, 100, 88, 255); 
+
+	if (ImGui::Begin("Inspector"))
+	{
+		GameObject* selected = App->scene_intro->selectedObj; 
+		if (selected != nullptr)
+		{
+			ImGui::TextColored(c, selected->GetName().c_str()); 
+
+			// Loop the object's components
+			for (uint i = 0; i < MAX_COMPONENT_TYPES - 1; ++i)
+			{
+				auto variantComp = selected->GetComponent((COMPONENT_TYPE)i); 
+
+				// A single component
+				if (variantComp.index() == 0)
+				{
+					Component* c = std::get<Component*>(variantComp);
+					if (c)
+						panelData::InspectorSpace::ComponentData(c); 
+				
+				}
+
+				// A vector of components
+				else if (variantComp.index() == 1)
+				{
+					auto& comps = std::get<std::vector<Component*>>(variantComp);
+					for (auto& c : comps)
+						panelData::InspectorSpace::ComponentData(c);
+	
+				}
+
+		
+				
+			}
+		}
+
+		ImGui::End(); 
+	}
+
+}
+
+void panelData::InspectorSpace::ComponentData(Component* c)
+{
+ 
+
+	if (ImGui::TreeNode(c->GetName().c_str()))
+	{
+		switch (c->GetComponentType())
+		{
+
+		case COMPONENT_TYPE::TRANSFORM:
+		{
+			ComponentTransform* transf = dynamic_cast<ComponentTransform*>(c);
+			math::float3 pos = transf->GetPosition(); 
+			math::Quat rot = transf->GetRotation();
+			math::float3 sc = transf->GetScale();
+			static float p[3] = { pos.x, pos.y, pos.z };
+			static float r[4] = { rot.x, rot.y, rot.z, rot.w };
+			static float s[3] = { sc.x, sc.y, sc.z };
+			if (ImGui::InputFloat3("Position", p))
+			{
+
+			}
+			if (ImGui::InputFloat4("Rotation", r))
+			{
+
+			}
+			if (ImGui::InputFloat3("Scale", s))
+			{
+
+			}
+
+
+			break;
+		}
+
+
+		case COMPONENT_TYPE::MESH: // the mesh has components of its own! :) 
+		{
+			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
+
+			for (uint i = 0; i < MAX_COMPONENT_TYPES - 1; ++i)
+			{
+				auto variantComp = mesh->GetComponent((COMPONENT_TYPE)i);
+
+				// A single component
+				if (variantComp.index() == 0)
+				{
+					Component* c = std::get<Component*>(variantComp);
+					if (c)
+						panelData::InspectorSpace::ComponentData(c); // recursion wohow !
+
+				}
+
+				// A vector of components
+				else if (variantComp.index() == 1)
+				{
+					auto& comps = std::get<std::vector<Component*>>(variantComp);
+					for (auto& c : comps)
+						panelData::InspectorSpace::ComponentData(c);  // recursion wohow !
+
+				}
+
+			}
+
+			break;
+
+		}
+
+		case COMPONENT_TYPE::MATERIAL:
+		{
+			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
+			textureData* data = mat->GetTextureData(); 
+			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)
+			{
+				const std::filesystem::path& relativePath = "..//Assets/";
+				std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
+				ShellExecute(NULL, "open", absolutePath.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+			}
+			
+
+			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height)); 
+
+			break;
+		}
+
+
+		default:
+		{
+			break;
+		}
+
+			
+		}
+
+
+		ImGui::TreePop();
+	}
+	
+}
+
+// ----------------------------------------------------------------- (Utilities)
 
 bool SmileGui::IsMouseOverTheGui() const
 {

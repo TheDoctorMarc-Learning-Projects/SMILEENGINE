@@ -20,16 +20,22 @@ public:
 	virtual void CleanUp() {};
 
 	virtual void OnTransform() {}; 
+	std::string GetName() const { return name; };
+	void SetName(std::string name) { this->name = name; };
 
-public:
+private:
 	COMPONENT_TYPE type = COMPONENT_TYPE::NO_TYPE;
 	bool active = false;
 	std::variant<GameObject*, ComponentMesh*> parent;
-	bool unique = true;
+ 
 
 public:
 	const COMPONENT_TYPE GetComponentType() const { return type; };
+	std::string name;
 
 	friend class GameObject;
+	friend class ComponentMaterial; 
+	friend class ComponentMesh;
+	friend class ComponentTransform; 
 };
 

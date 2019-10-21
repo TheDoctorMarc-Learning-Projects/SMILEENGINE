@@ -4,7 +4,7 @@
 #include "DevIL/include/IL/ilu.h"
 #include "SmileApp.h"
 #include "SmileFBX.h"
-
+#include "Component.h"
 #include "ComponentTransform.h"
 #include "ComponentMaterial.h"
 

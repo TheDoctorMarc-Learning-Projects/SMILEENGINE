@@ -52,7 +52,7 @@ update_status SmileCamera3D::PreUpdate(float dt)
 // -----------------------------------------------------------------
 update_status SmileCamera3D::Update(float dt)
 {
-	if (App->gui->IsGuiItemActive() == false)
+	if (App->gui->IsMouseOverTheGui() == false)
 	{
 		// Focus an object ----------------
 		FocusObjectLogic(); 

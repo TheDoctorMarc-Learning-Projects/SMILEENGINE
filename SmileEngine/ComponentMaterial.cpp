@@ -3,6 +3,7 @@
 
 ComponentMaterial::ComponentMaterial()
 {
+	SetName("Material");
 	type = MATERIAL;
 	textureInfo = DBG_NEW textureData; 
 }

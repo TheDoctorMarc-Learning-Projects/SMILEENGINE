@@ -40,7 +40,6 @@ public:
 	std::string GetName() const { return name; }; 
 	std::vector<GameObject*> GetChildrenRecursive(); 
 
-
 	// Main functions 
 	void Start(); 
 	void Enable(); 

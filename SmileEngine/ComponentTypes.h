@@ -3,7 +3,7 @@
 #include <map>
 #include <tuple>
 
-enum COMPONENT_TYPE : unsigned int
+enum COMPONENT_TYPE : uint
 {
 	TRANSFORM,
 	MESH,
