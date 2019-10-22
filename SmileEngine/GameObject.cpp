@@ -70,16 +70,23 @@ void GameObject::FillComponentBuffers() // needed in order to have either a Comp
 void GameObject::Start()
 {
 	ComputeInitialData();
+	dynamic_cast<ComponentTransform*>(std::get<Component*>(components[TRANSFORM]))->SetLocalMatrix(math::float3x3::identity); 
 	Enable(); 
 }
 
+// this is used just ONCE to setup the transform at the avg point of all the meshes centers
 void GameObject::ComputeInitialData()
 {
-	ComputeCenterAndSetupTransformThere();
-	ComputeBoundingSphereRadius();
+	static auto lambda = [&]()
+	{
+		ComputeCenterAndSetupTransformThere();
+		ComputeBoundingSphereRadius();
+
+		return true; 
+	}(); 
 }
 
-void GameObject::ComputeCenterAndSetupTransformThere() // this is used just ONCE to setup the transform at the avg point of all the meshes centers
+void GameObject::ComputeCenterAndSetupTransformThere() 
 {
 	static auto lambda = [&]()
 	{
@@ -124,56 +131,61 @@ void GameObject::ComputeBoundingSphereRadius()
 
 	// 1) each mesh has aabb aka min-max coordinates:
 	// iterate them and find the global min-max for the gameObject
-
-	auto meshes = std::get<std::vector<Component*>>(GetComponent(MESH));
-	std::array<float, minMaxCoords::TOTAL_COORDS> objMinMax;   
-	int i = 0; 
-	for (auto& m : meshes)
+	static auto lambda = [&]()
 	{
-		// get the min-max of a particular mesh
-		auto minMax = dynamic_cast<ComponentMesh*>(m)->GetMeshData()->GetMinMaxCoords();
-
-		if (i == 0)
+		auto meshes = std::get<std::vector<Component*>>(GetComponent(MESH));
+		std::array<float, minMaxCoords::TOTAL_COORDS> objMinMax;
+		int i = 0;
+		for (auto& m : meshes)
 		{
-			objMinMax = minMax; 
+			// get the min-max of a particular mesh
+			auto minMax = dynamic_cast<ComponentMesh*>(m)->GetMeshData()->GetMinMaxCoords();
+
+			if (i == 0)
+			{
+				objMinMax = minMax;
+				++i;
+				continue;
+			}
+
+			// compare the mesh's min-max to the global min-max. Capture it if it is a min or a max. 
+
+				// X min-max
+			if (minMax[minMaxCoords::MIN_X] < objMinMax[minMaxCoords::MIN_X])
+				objMinMax[minMaxCoords::MIN_X] = minMax[minMaxCoords::MIN_X];
+
+			if (minMax[minMaxCoords::MAX_X] > objMinMax[minMaxCoords::MAX_X])
+				objMinMax[minMaxCoords::MAX_X] = minMax[minMaxCoords::MAX_X];
+
+			// Y min-max
+			if (minMax[minMaxCoords::MIN_Y] < objMinMax[minMaxCoords::MIN_Y])
+				objMinMax[minMaxCoords::MIN_Y] = minMax[minMaxCoords::MIN_Y];
+
+			if (minMax[minMaxCoords::MAX_Y] > objMinMax[minMaxCoords::MAX_Y])
+				objMinMax[minMaxCoords::MAX_Y] = minMax[minMaxCoords::MAX_Y];
+
+			// Z min-max
+			if (minMax[minMaxCoords::MIN_Z] < objMinMax[minMaxCoords::MIN_Z])
+				objMinMax[minMaxCoords::MIN_Z] = minMax[minMaxCoords::MIN_Z];
+
+			if (minMax[minMaxCoords::MAX_Z] > objMinMax[minMaxCoords::MAX_Z])
+				objMinMax[minMaxCoords::MAX_Z] = minMax[minMaxCoords::MAX_Z];
+
+
+
 			++i;
-			continue; 
 		}
-	
-		// compare the mesh's min-max to the global min-max. Capture it if it is a min or a max. 
-			
-			// X min-max
-		if (minMax[minMaxCoords::MIN_X] < objMinMax[minMaxCoords::MIN_X])
-			objMinMax[minMaxCoords::MIN_X] = minMax[minMaxCoords::MIN_X];
 
-		if (minMax[minMaxCoords::MAX_X] > objMinMax[minMaxCoords::MAX_X])
-			objMinMax[minMaxCoords::MAX_X] = minMax[minMaxCoords::MAX_X];
+		// 2) calculate the bounding sphere radius using the dist between two opposite min-max vertices
+		// eg: the min(x,y,z) and the max(x,y,z)
+		vec3 min_Vec(objMinMax[minMaxCoords::MIN_X], objMinMax[minMaxCoords::MIN_Y], objMinMax[minMaxCoords::MIN_Z]);
+		vec3 max_Vec(objMinMax[minMaxCoords::MAX_X], objMinMax[minMaxCoords::MAX_Y], objMinMax[minMaxCoords::MAX_Z]);
+		vec3 rad_Vec = (max_Vec - min_Vec) / 2;
+		boundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
 
-		// Y min-max
-		if (minMax[minMaxCoords::MIN_Y] < objMinMax[minMaxCoords::MIN_Y])
-			objMinMax[minMaxCoords::MIN_Y] = minMax[minMaxCoords::MIN_Y];
+		return true; 
+	}(); 
 
-		if (minMax[minMaxCoords::MAX_Y] > objMinMax[minMaxCoords::MAX_Y])
-			objMinMax[minMaxCoords::MAX_Y] = minMax[minMaxCoords::MAX_Y];
-
-		// Z min-max
-		if (minMax[minMaxCoords::MIN_Z] < objMinMax[minMaxCoords::MIN_Z])
-			objMinMax[minMaxCoords::MIN_Z] = minMax[minMaxCoords::MIN_Z];
-
-		if (minMax[minMaxCoords::MAX_Z] > objMinMax[minMaxCoords::MAX_Z])
-			objMinMax[minMaxCoords::MAX_Z] = minMax[minMaxCoords::MAX_Z];
-
-		
-
-		++i; 
-	}
-
-	// 2) calculate the bounding sphere radius using the dist between two opposite min-max vertices
-	// eg: the min(x,y,z) and the max(x,y,z)
-	vec3 min_Vec(objMinMax[minMaxCoords::MIN_X], objMinMax[minMaxCoords::MIN_Y], objMinMax[minMaxCoords::MIN_Z]);
-	vec3 max_Vec(objMinMax[minMaxCoords::MAX_X], objMinMax[minMaxCoords::MAX_Y], objMinMax[minMaxCoords::MAX_Z]);
-	vec3 rad_Vec = (max_Vec - min_Vec) / 2;
-	boundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
 }
 
 void GameObject::Enable()

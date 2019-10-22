@@ -723,44 +723,39 @@ void panelData::HierarchySpace::Execute(bool& ret)
 {
 	static bool showHierarchy = true; 
 
-	if (ImGui::Begin("Hierarchy Panel"))
+	if (ImGui::Begin("Hierarchy ", &showHierarchy))
 	{
-		if (ImGui::BeginMenu("Hierarchy", &showHierarchy))
+		if (ImGui::TreeNode("Root"))
 		{
-
-			if (ImGui::TreeNode("Root"))
+			// Objects
+			for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
 			{
-				// Objects
-				for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
+				if (ImGui::TreeNode(obj->GetName().c_str()))
 				{
-					if (ImGui::TreeNode(obj->GetName().c_str()))
+					App->scene_intro->selectedObj = obj;
+
+					// Meshes
+					std::vector<Component*> meshes = std::get<std::vector<Component*>>(obj->GetComponent(MESH));
+					for (auto& mesh : meshes)
 					{
-						App->scene_intro->selectedObj = obj;
 
-						// Meshes
-						std::vector<Component*> meshes = std::get<std::vector<Component*>>(obj->GetComponent(MESH));
-						for (auto& mesh : meshes)
+						if (ImGui::TreeNode(dynamic_cast<ComponentMesh*>(mesh)->GetName().c_str()))
 						{
-
-							if (ImGui::TreeNode(dynamic_cast<ComponentMesh*>(mesh)->GetName().c_str()))
-							{
-								App->scene_intro->selected_mesh = dynamic_cast<ComponentMesh*>(mesh);
-								ImGui::TreePop();
-							}
-
+							App->scene_intro->selected_mesh = dynamic_cast<ComponentMesh*>(mesh);
+							ImGui::TreePop();
 						}
 
-						ImGui::TreePop();
 					}
 
+					ImGui::TreePop();
 				}
 
-				ImGui::TreePop();
 			}
 
-			ImGui::EndMenu();
-
+			ImGui::TreePop();
 		}
+	
+		
 
 		ImGui::End(); 
 	}
@@ -771,46 +766,43 @@ void panelData::HierarchySpace::Execute(bool& ret)
 // ----------------------------------------------------------------- [Inspector]
 void panelData::InspectorSpace::Execute(bool& ret)
 {
+
+	static bool showInspector = true;
 	static const ImVec4 c(11, 100, 88, 255); 
 
-	if (ImGui::Begin("Inspector Panel"))
+	if (ImGui::Begin("Inspector Panel", &showInspector))
 	{
-		if (ImGui::BeginMenu("Inspector"))
+		GameObject* selected = App->scene_intro->selectedObj;
+		if (selected != nullptr)
 		{
-			GameObject* selected = App->scene_intro->selectedObj;
-			if (selected != nullptr)
+			ImGui::TextColored(c, selected->GetName().c_str());
+
+			// Loop the object's components
+			for (uint i = 0; i < MAX_COMPONENT_TYPES - 1; ++i)
 			{
-				ImGui::TextColored(c, selected->GetName().c_str());
+				auto variantComp = selected->GetComponent((COMPONENT_TYPE)i);
 
-				// Loop the object's components
-				for (uint i = 0; i < MAX_COMPONENT_TYPES - 1; ++i)
+				// A single component
+				if (variantComp.index() == 0)
 				{
-					auto variantComp = selected->GetComponent((COMPONENT_TYPE)i);
-
-					// A single component
-					if (variantComp.index() == 0)
-					{
-						Component* c = std::get<Component*>(variantComp);
-						if (c)
-							panelData::InspectorSpace::ComponentData(c);
-
-					}
-
-					// A vector of components
-					else if (variantComp.index() == 1)
-					{
-						auto& comps = std::get<std::vector<Component*>>(variantComp);
-						for (auto& c : comps)
-							panelData::InspectorSpace::ComponentData(c);
-
-					}
+					Component* c = std::get<Component*>(variantComp);
+					if (c)
+						panelData::InspectorSpace::ComponentData(c);
 
 				}
+
+				// A vector of components
+				else if (variantComp.index() == 1)
+				{
+					auto& comps = std::get<std::vector<Component*>>(variantComp);
+					for (auto& c : comps)
+						panelData::InspectorSpace::ComponentData(c);
+
+				}
+
 			}
-
-			ImGui::EndMenu();
 		}
-
+	
 		ImGui::End(); 
 	}
 }

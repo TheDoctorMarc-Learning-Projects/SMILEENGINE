@@ -1,6 +1,9 @@
 #include "RayTracer.h"
 #include "SmileApp.h"
 #include "SmileGui.h"
+#include "ComponentTransform.h"
+#include "ComponentMesh.h"
+#include "Component.h"
 
 std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject)  
 {
@@ -11,7 +14,6 @@ std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, 
 		goto EmptyReturn;
 	}
 	
-
 	// 1) Translate from window coordinates to inverted Y in OpenGL 
 	float mouse_X_GL, mouse_Y_GL;
 	GLfloat mouse_Z_GL;
@@ -48,18 +50,33 @@ std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, 
 
 	for (auto& gameObject : App->scene_intro->rootObj->GetChildrenRecursive())
 	{
+		// 5.1.A) SKIP the object directly if the mouse point distance to the object's center is greater than the object radius.
+		auto transf = dynamic_cast<ComponentTransform*>(std::get<Component*>(gameObject->GetComponent(TRANSFORM)));
+		double distMouseToObj = abs((fPosMath - transf->GetPosition()).Length());
+		if (distMouseToObj > gameObject->GetBoundingSphereRadius())
+			continue; 
+
+		// 5.1.A) DO NOT SKIP if the mouse point falls inside the bounding sphere radius
 		std::vector<Component*> meshes = std::get<std::vector<Component*>>(gameObject->GetComponent(MESH));
 
 		for (auto& mesh : meshes)
 		{
 			ModelMeshData* mesh_info = dynamic_cast<ComponentMesh*>(mesh)->GetMeshData(); 
+		
+			// 5.2) SKIP the mesh directly if the mouse point distance to the mesh center is greater than the mesh's radius.
+			auto transf = dynamic_cast<ComponentTransform*>(std::get<Component*>(dynamic_cast<ComponentMesh*>(mesh)->GetComponent(TRANSFORM)));
+			double distMouseToObj = abs((fPosMath - transf->GetPosition()).Length());
+			if (distMouseToObj > mesh_info->GetMeshSphereRadius())
+				continue;
 
+			// 5.2.B) DO NOT SKIP if the mouse point falls inside the bounding sphere radius
 			for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 			{
 				math::float3 v1(mesh_info->vertex[i], mesh_info->vertex[i + 1], mesh_info->vertex[i + 2]);
 				math::float3 v2(mesh_info->vertex[i + 3], mesh_info->vertex[i + 4], mesh_info->vertex[i + 5]);
 				math::float3 v3(mesh_info->vertex[i + 6], mesh_info->vertex[i + 7], mesh_info->vertex[i + 8]);
 
+				// form a triangle
 				math::Triangle tri = math::Triangle(v1, v2, v3);
 
 				// 6) check if the ray interesects with the face (triangle) 
@@ -98,7 +115,7 @@ Resolve:
 		
 	}
 
-	// B) the user wants to select a mesh or object
+	// B) the user also wants to select a mesh or object
 	if (found != nullptr)
 	{
 		GameObject* selectedObj = App->scene_intro->selectedObj;
@@ -106,6 +123,7 @@ Resolve:
 
 		// A) if nothing is selected, or another mesh / object is selected, select the mesh parent (object).
 		// Do not select the parent if another mesh of the same parent is selected, in that case select the mesh 
+		// Eg: One Click = select the object. Another clicks = select mesh
 		if (
 			(!selectedObj && !selectedMesh)
 			|| (selectedObj && selectedObj != found->GetParent())
@@ -117,38 +135,36 @@ Resolve:
 			App->scene_intro->selected_mesh = nullptr;
 			LOG("Selected GameObject in the scene :)");
 
-	
-			// Return nullptr is the user asked for a mesh, or the object is the user asked for an object
+			// Return nullptr if the user asked for a mesh, or the object is the user asked for an object
 			if (GetMeshNotGameObject)
 				return (ComponentMesh*)nullptr;
 			else
 				return (GameObject*)App->scene_intro->selectedObj;
 
 		}
+
 		else // B) if the object parent is selected, or another mesh of the parent, then select the mesh 
 		{
 			App->scene_intro->selected_mesh = found;
 			App->scene_intro->selectedObj = nullptr;
 			LOG("Selected Mesh in the scene :)");
 
-
-			// Return nullptr is the user asked for a object, or the mesh if the user asked for a mesh
+			// Return nullptr if the user asked for a object, or the mesh if the user asked for a mesh
 			if (GetMeshNotGameObject)
 				return (ComponentMesh*)App->scene_intro->selected_mesh;
 			else
 				return (GameObject*)nullptr;
 
 		}
-			
-	
 		
 	}
 	else
 		goto EmptyReturn;  // this could be skipped but I leave it to make it more understandable  
 
-
+		
+	// Unselect all, no mather if it was a mesh or an object. Eg: if the mouse clicks the "black" empty horizon 
     EmptyReturn:
-	// unselect all, no mather if it was a mesh or an object
+
 	if (assignClicked)
 	{
 		App->scene_intro->selected_mesh = nullptr;

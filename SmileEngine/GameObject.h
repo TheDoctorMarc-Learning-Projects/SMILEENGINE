@@ -54,8 +54,9 @@ public:
 
 
 private: 
+	// Functions To be called ONCE. They will ignore you if you call them again
 	void ComputeInitialData(); 
-	void ComputeCenterAndSetupTransformThere(); // when you load an object, the transform will be located at th mid point of all the meshes centers
+	void ComputeCenterAndSetupTransformThere(); 
 	void ComputeBoundingSphereRadius();
 
 public:

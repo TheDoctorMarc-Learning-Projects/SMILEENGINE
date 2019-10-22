@@ -57,8 +57,6 @@ void SmileFBX::ReadFBXData(const char* path)
 	{
 		// Create a GameObject with a "neutral" transform, same as root  
 		ComponentTransform* transf = DBG_NEW ComponentTransform(); 
-		transf->SetLocalMatrix(math::float4x4::identity);
-
 		GameObject* object = DBG_NEW GameObject(transf);
 
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
@@ -219,7 +217,7 @@ void SmileFBX::ReadFBXData(const char* path)
 		char rawname[100]; 
 		std::wcstombs(rawname, std::filesystem::path(path).stem().c_str(), sizeof(rawname));
 		
-		// Assign name & parent to the object 
+		// Assign data to the object
 		object->SetName(rawname);
 		object->SetParent(App->scene_intro->rootObj);  
 		object->Start(); 
