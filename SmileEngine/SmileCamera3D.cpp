@@ -136,19 +136,25 @@ void SmileCamera3D::FocusObjectLogic()
 	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
 	GameObject* selectedObj = App->scene_intro->selectedObj;
 
+	bool rotating = (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT) ? true : false; 
+
 	if (selectedMesh != nullptr)
 	{
 		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
 			FitCameraToMesh(selectedMesh);
 
-		LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedMesh->GetComponent(TRANSFORM)))->GetPosition());
+		if(rotating)
+			LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedMesh->GetComponent(TRANSFORM)))->GetPosition());
+		
 	}
 	else if (selectedObj != nullptr)
 	{
 		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
 			FitCameraToObject(selectedObj);
 
-		LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedObj->GetComponent(TRANSFORM)))->GetPosition());
+		if (rotating)
+			LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedObj->GetComponent(TRANSFORM)))->GetPosition());
+	
 	}
 }
 
