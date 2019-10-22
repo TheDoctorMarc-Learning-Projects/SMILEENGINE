@@ -79,32 +79,32 @@ void SmileFBX::ReadFBXData(const char* path)
 				// in order to compare the following ones with it
 				if (i == 0)
 				{
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_X] = mesh_info->vertex[i];
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_X] = mesh_info->vertex[i];
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_Y] = mesh_info->vertex[i + 1];
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_Y] = mesh_info->vertex[i + 1];
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_Z] = mesh_info->vertex[i + 2];
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_Z] = mesh_info->vertex[i + 2];
+					mesh_info->minmaxCoords[minMaxCoords::MIN_X] = mesh_info->vertex[i];
+					mesh_info->minmaxCoords[minMaxCoords::MAX_X] = mesh_info->vertex[i];
+					mesh_info->minmaxCoords[minMaxCoords::MIN_Y] = mesh_info->vertex[i + 1];
+					mesh_info->minmaxCoords[minMaxCoords::MAX_Y] = mesh_info->vertex[i + 1];
+					mesh_info->minmaxCoords[minMaxCoords::MIN_Z] = mesh_info->vertex[i + 2];
+					mesh_info->minmaxCoords[minMaxCoords::MAX_Z] = mesh_info->vertex[i + 2];
 					continue; 
 				}
 
 				// find min-max X coord
-				if (mesh_info->vertex[i] < mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_X])
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_X] = mesh_info->vertex[i]; 
-				else if (mesh_info->vertex[i] > mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_X])
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_X] = mesh_info->vertex[i];
+				if (mesh_info->vertex[i] < mesh_info->minmaxCoords[minMaxCoords::MIN_X])
+					mesh_info->minmaxCoords[minMaxCoords::MIN_X] = mesh_info->vertex[i]; 
+				else if (mesh_info->vertex[i] > mesh_info->minmaxCoords[minMaxCoords::MAX_X])
+					mesh_info->minmaxCoords[minMaxCoords::MAX_X] = mesh_info->vertex[i];
 
 				// find min-max Y coord
-				if (mesh_info->vertex[i + 1] < mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_Y])
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_Y] = mesh_info->vertex[i + 1];
-				else if (mesh_info->vertex[i + 1] > mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_Y])
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_Y] = mesh_info->vertex[i + 1];
+				if (mesh_info->vertex[i + 1] < mesh_info->minmaxCoords[minMaxCoords::MIN_Y])
+					mesh_info->minmaxCoords[minMaxCoords::MIN_Y] = mesh_info->vertex[i + 1];
+				else if (mesh_info->vertex[i + 1] > mesh_info->minmaxCoords[minMaxCoords::MAX_Y])
+					mesh_info->minmaxCoords[minMaxCoords::MAX_Y] = mesh_info->vertex[i + 1];
 
 				// find min-max Z coord
-				if (mesh_info->vertex[i + 2] < mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_Z])
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MIN_Z] = mesh_info->vertex[i + 2];
-				else if (mesh_info->vertex[i + 2] > mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_Z])
-					mesh_info->minmaxCoords[mesh_info->minMaxCoords::MAX_Z] = mesh_info->vertex[i + 2];
+				if (mesh_info->vertex[i + 2] < mesh_info->minmaxCoords[minMaxCoords::MIN_Z])
+					mesh_info->minmaxCoords[minMaxCoords::MIN_Z] = mesh_info->vertex[i + 2];
+				else if (mesh_info->vertex[i + 2] > mesh_info->minmaxCoords[minMaxCoords::MAX_Z])
+					mesh_info->minmaxCoords[minMaxCoords::MAX_Z] = mesh_info->vertex[i + 2];
 
 			}
 
@@ -169,7 +169,7 @@ void SmileFBX::ReadFBXData(const char* path)
 				for (uint i = 0; i < new_mesh->mNumVertices; ++i)
 				{
 					memcpy(&mesh_info->color[j], &new_mesh->mColors[0][i].r, sizeof(float));
-					memcpy(&mesh_info->color[j + 1], &new_mesh->mColors[0][i].g, sizeof(float)); //row var needed
+					memcpy(&mesh_info->color[j + 1], &new_mesh->mColors[0][i].g, sizeof(float));  
 					memcpy(&mesh_info->color[j + 2], &new_mesh->mColors[0][i].b, sizeof(float));
 					memcpy(&mesh_info->color[j + 3], &new_mesh->mColors[0][i].a, sizeof(float));
 					j += 4;
@@ -221,7 +221,8 @@ void SmileFBX::ReadFBXData(const char* path)
 		
 		// Assign name & parent to the object 
 		object->SetName(rawname);
-		object->SetParent(App->scene_intro->rootObj); // do not push it, will be pushed in the scene thread 
+		object->SetParent(App->scene_intro->rootObj);  
+		object->Start(); 
 
 		// Release the scene 
 		aiReleaseImport(scene);
@@ -234,13 +235,9 @@ void SmileFBX::ReadFBXData(const char* path)
 
 void SmileFBX::AssignTextureToMesh(const char* path, ComponentMesh* mesh)
 {
-
 	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(std::get<Component*>(mesh->GetComponent(MATERIAL)));
 
-	/*if (createMaterial == true)
-	{*/
 	ILuint tempID;
-	// Devil stuff
 	ilGenImages(1, &tempID);
 	ilBindImage(tempID);
 
@@ -286,18 +283,14 @@ void SmileFBX::AssignTextureToMesh(const char* path, ComponentMesh* mesh)
 	ilDeleteImage(tempID);
 
 
-	//	}
-
 
 }
 
 
-void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh)
+void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh) // TODO: generic 
 {
 	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(std::get<Component*>(mesh->GetComponent(MATERIAL)));
 
-	/*if (createMaterial == true)
-	{*/
 #ifndef CHECKERS_SIZE
 #define CHECKERS_SIZE 20
 #endif 
@@ -306,10 +299,12 @@ void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh)
 	ComponentMaterial* targetMat = ((previousMat == nullptr) ? DBG_NEW ComponentMaterial() : previousMat);
 	targetMat->CleanUpTextureData();
 
-	// Generated the checkered image
+	// Generate the checkered image
 	GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
-	for (int i = 0; i < CHECKERS_SIZE; i++) {
-		for (int j = 0; j < CHECKERS_SIZE; j++) {
+	for (int i = 0; i < CHECKERS_SIZE; i++) 
+	{
+		for (int j = 0; j < CHECKERS_SIZE; j++)
+		{
 			int c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
 			checkImage[i][j][0] = (GLubyte)c;
 			checkImage[i][j][1] = (GLubyte)c;
@@ -338,15 +333,11 @@ void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh)
 	targetMat->textureInfo->texture = (ILubyte*)ilGetData();
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Assign the material to the mesh
 	if (targetMat != previousMat)
 		mesh->AddComponent((Component*)targetMat);
-
-
-	//	}
 
 }
 

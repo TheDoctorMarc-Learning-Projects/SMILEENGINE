@@ -6,6 +6,8 @@
 #include "DevIL/include/IL/il.h"
 #include "glmath.h"
 
+#include <array>
+
 enum Mesh_Type
 {
 	PRIMITIVE,
@@ -38,20 +40,8 @@ struct ModelMeshData
 
 	// AABB
 private:
-	enum minMaxCoords : uint
-	{
-		MIN_X,
-		MIN_Y,
-		MIN_Z,
-		MAX_X,
-		MAX_Y,
-		MAX_Z,
-		TOTAL_COORDS
-	};
-
-	float minmaxCoords[minMaxCoords::TOTAL_COORDS];
-	float boundingBox[8]; // TODO
-
+	std::array<float, minMaxCoords::TOTAL_COORDS> minmaxCoords;
+ 
 	vec3 meshCenter;
 	double meshBoundingSphereRadius = 0;
 
@@ -75,8 +65,9 @@ private:
 
 public:
 
-	vec3 GetMeshCenter() const { return meshCenter; };
+	vec3 GetMeshCenter() const { return meshCenter; }; // this will only work at the beginning 
 	double GetMeshSphereRadius() const { return meshBoundingSphereRadius; };
+	std::array<float, minMaxCoords::TOTAL_COORDS> GetMinMaxCoords() const { return minmaxCoords; };
 
 	friend class SmileFBX;
 	friend class ComponentMesh; 

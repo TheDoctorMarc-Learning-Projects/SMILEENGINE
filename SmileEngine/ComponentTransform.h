@@ -31,7 +31,7 @@ public:
 	void CalculateAllMatrixes(); 
 
 	void ChangeRotation(Quat q); 
-	void ChangePosition(float3 pos); 
+	void ChangePosition(float3 pos, bool recalculateMatrixes = true); 
 	void ChangeScale(float3 scale); 
 
 	Quat GetRotation() const { return rotation; };

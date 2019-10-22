@@ -67,6 +67,114 @@ void GameObject::FillComponentBuffers() // needed in order to have either a Comp
 	components[LIGHT] = std::vector<Component*>(); // multiple
 }
 
+void GameObject::Start()
+{
+	ComputeInitialData();
+	Enable(); 
+}
+
+void GameObject::ComputeInitialData()
+{
+	ComputeCenterAndSetupTransformThere();
+	ComputeBoundingSphereRadius();
+}
+
+void GameObject::ComputeCenterAndSetupTransformThere() // this is used just ONCE to setup the transform at the avg point of all the meshes centers
+{
+	static auto lambda = [&]()
+	{
+		std::vector<float> c_X, c_Y, c_Z;
+		auto meshes = std::get<std::vector<Component*>>(GetComponent(MESH));
+
+		// 1) accumulate the meshes centers in x,y and z vectors
+		for (auto& m : meshes)
+		{
+			vec3 meshCenter = dynamic_cast<ComponentMesh*>(m)->GetMeshData()->GetMeshCenter();
+			c_X.push_back(meshCenter.x);
+			c_Y.push_back(meshCenter.y);
+			c_Z.push_back(meshCenter.z);
+		}
+
+		// 2) summate all x's, y's and z's
+		float tM = meshes.size();
+		float3 center(0, 0, 0);
+
+		for (auto& n : c_X)
+			center.x += n;
+		for (auto& n : c_Y)
+			center.y += n;
+		for (auto& n : c_Z)
+			center.z += n;
+
+		// 3) divide the summation by the number of meshes to find the average (X,Y,Z) point aka the GameObject center
+		for (int i = 0; i <= 2; ++i)
+			center[i] /= tM;
+
+		// 4) setup the gameObject transform there, without updating any child 
+		auto transf = dynamic_cast<ComponentTransform*>(std::get<Component*>(GetComponent(TRANSFORM)));
+		transf->ChangePosition(center, false);
+
+		return true;
+	} ();
+
+}
+
+void GameObject::ComputeBoundingSphereRadius()
+{
+
+	// 1) each mesh has aabb aka min-max coordinates:
+	// iterate them and find the global min-max for the gameObject
+
+	auto meshes = std::get<std::vector<Component*>>(GetComponent(MESH));
+	std::array<float, minMaxCoords::TOTAL_COORDS> objMinMax;   
+	int i = 0; 
+	for (auto& m : meshes)
+	{
+		// get the min-max of a particular mesh
+		auto minMax = dynamic_cast<ComponentMesh*>(m)->GetMeshData()->GetMinMaxCoords();
+
+		if (i == 0)
+		{
+			objMinMax = minMax; 
+			++i;
+			continue; 
+		}
+	
+		// compare the mesh's min-max to the global min-max. Capture it if it is a min or a max. 
+			
+			// X min-max
+		if (minMax[minMaxCoords::MIN_X] < objMinMax[minMaxCoords::MIN_X])
+			objMinMax[minMaxCoords::MIN_X] = minMax[minMaxCoords::MIN_X];
+
+		if (minMax[minMaxCoords::MAX_X] > objMinMax[minMaxCoords::MAX_X])
+			objMinMax[minMaxCoords::MAX_X] = minMax[minMaxCoords::MAX_X];
+
+		// Y min-max
+		if (minMax[minMaxCoords::MIN_Y] < objMinMax[minMaxCoords::MIN_Y])
+			objMinMax[minMaxCoords::MIN_Y] = minMax[minMaxCoords::MIN_Y];
+
+		if (minMax[minMaxCoords::MAX_Y] > objMinMax[minMaxCoords::MAX_Y])
+			objMinMax[minMaxCoords::MAX_Y] = minMax[minMaxCoords::MAX_Y];
+
+		// Z min-max
+		if (minMax[minMaxCoords::MIN_Z] < objMinMax[minMaxCoords::MIN_Z])
+			objMinMax[minMaxCoords::MIN_Z] = minMax[minMaxCoords::MIN_Z];
+
+		if (minMax[minMaxCoords::MAX_Z] > objMinMax[minMaxCoords::MAX_Z])
+			objMinMax[minMaxCoords::MAX_Z] = minMax[minMaxCoords::MAX_Z];
+
+		
+
+		++i; 
+	}
+
+	// 2) calculate the bounding sphere radius using the dist between two opposite min-max vertices
+	// eg: the min(x,y,z) and the max(x,y,z)
+	vec3 min_Vec(objMinMax[minMaxCoords::MIN_X], objMinMax[minMaxCoords::MIN_Y], objMinMax[minMaxCoords::MIN_Z]);
+	vec3 max_Vec(objMinMax[minMaxCoords::MAX_X], objMinMax[minMaxCoords::MAX_Y], objMinMax[minMaxCoords::MAX_Z]);
+	vec3 rad_Vec = (max_Vec - min_Vec) / 2;
+	boundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
+}
 
 void GameObject::Enable()
 {

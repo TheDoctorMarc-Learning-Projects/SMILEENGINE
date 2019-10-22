@@ -75,7 +75,7 @@ std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, 
 
 Resolve:
 
-	// If the user just wants to know if the mouse is over a mesh or gameobject
+	// A) the user just wants to know if the mouse is over a mesh or gameobject
 	if (assignClicked == false)
 	{
 		// if the user asked for the mesh
@@ -98,7 +98,7 @@ Resolve:
 		
 	}
 
-	// If the user wants to select a mesh or object
+	// B) the user wants to select a mesh or object
 	if (found != nullptr)
 	{
 		GameObject* selectedObj = App->scene_intro->selectedObj;

@@ -37,3 +37,15 @@ struct textureData
 	const char* path; 
 	ILubyte* texture = nullptr;
 };
+
+// AABBs
+enum minMaxCoords : uint
+{
+	MIN_X,
+	MIN_Y,
+	MIN_Z,
+	MAX_X,
+	MAX_Y,
+	MAX_Z,
+	TOTAL_COORDS
+};

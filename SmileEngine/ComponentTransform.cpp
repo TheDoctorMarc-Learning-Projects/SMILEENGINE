@@ -54,10 +54,11 @@ void ComponentTransform::SetLocalMatrix(float4x4 mat)
 	CalculateGlobalMatrix(); 
 }
 
-void ComponentTransform::ChangePosition(float3 pos)
+void ComponentTransform::ChangePosition(float3 pos, bool recalculateMatrixes)
 {
 	position = pos; 
-	CalculateAllMatrixes(); 
+	if(recalculateMatrixes)
+		CalculateAllMatrixes();
 }
 
 void ComponentTransform::ChangeScale(float3 sc)

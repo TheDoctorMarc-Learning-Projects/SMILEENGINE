@@ -136,7 +136,8 @@ void SmileCamera3D::FocusObjectLogic()
 	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
 	GameObject* selectedObj = App->scene_intro->selectedObj;
 
-	bool rotating = (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT) ? true : false; 
+	bool rotating = (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT 
+		&& (App->gui->IsMouseOverTheGui() == false)) ? true : false;
 
 	if (selectedMesh != nullptr)
 	{
@@ -273,18 +274,14 @@ void SmileCamera3D::FitCameraToMesh(ComponentMesh* mesh)
 void SmileCamera3D::FitCameraToObject(GameObject* obj) // TODO: calculate a radius for the bounding sphere of an object (the avg of the meshes centers)
 {
 	// look at the mesh center
-	/*float3 centerMath = dynamic_cast<ComponentTransform*>(std::get<Component*>(obj->GetComponent(TRANSFORM)))->GetPosition();
+	float3 centerMath = dynamic_cast<ComponentTransform*>(std::get<Component*>(obj->GetComponent(TRANSFORM)))->GetPosition();
 	vec3 center(centerMath.x, centerMath.y, centerMath.z);
 
 	// we will need the bounding sphere radius
-	ModelMeshData* data =
-	if (!data)
-		return;
-
 	LookAt(center);
 
 	// calculate the distance with the center
-	double camDistance = (data->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
+	double camDistance = (obj->GetBoundingSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
 	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(center.x, center.y, center.z));
 	dir.Normalize();
 	vec3 dirVec3(dir.x, dir.y, dir.z);
@@ -296,7 +293,7 @@ void SmileCamera3D::FitCameraToObject(GameObject* obj) // TODO: calculate a radi
 	if (abs((wantedPos - center).z) < MIN_DIST_TO_MESH)
 		wantedPos.z = MIN_DIST_TO_MESH;
 
-	Move(vec3(wantedPos - Position));*/
+	Move(vec3(wantedPos - Position));
 
 }
  

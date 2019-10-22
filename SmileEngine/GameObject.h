@@ -39,6 +39,7 @@ public:
 	GameObject* GetParent() const { return parent;  };
 	std::string GetName() const { return name; }; 
 	std::vector<GameObject*> GetChildrenRecursive(); 
+	double GetBoundingSphereRadius() const { return boundingSphereRadius; }; 
 
 	// Main functions 
 	void Start(); 
@@ -51,6 +52,12 @@ public:
 	bool IsActive() const { return active; };
 	void OnTransform(); 
 
+
+private: 
+	void ComputeInitialData(); 
+	void ComputeCenterAndSetupTransformThere(); // when you load an object, the transform will be located at th mid point of all the meshes centers
+	void ComputeBoundingSphereRadius();
+
 public:
 	std::vector<GameObject*> childObjects;
 
@@ -59,6 +66,9 @@ private:
 	bool active = true; 
 	std::string name; 
 	GameObject* parent; 
+
+	// hardcore stuff
+	double boundingSphereRadius = 0; 
 
 	friend class SmileGameObjectManager; 
 };

@@ -374,32 +374,32 @@ void ComponentMesh::ComputeSpatialData()
 			// in order to compare the following ones with it
 			if (i == 0)
 			{
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_X] = model_mesh->vertex[i];
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_X] = model_mesh->vertex[i];
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
+				model_mesh->minmaxCoords[minMaxCoords::MIN_X] = model_mesh->vertex[i];
+				model_mesh->minmaxCoords[minMaxCoords::MAX_X] = model_mesh->vertex[i];
+				model_mesh->minmaxCoords[minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
+				model_mesh->minmaxCoords[minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
+				model_mesh->minmaxCoords[minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
+				model_mesh->minmaxCoords[minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
 				continue;
 			}
 
 			// find min-max X coord
-			if (model_mesh->vertex[i] < model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_X])
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_X] = model_mesh->vertex[i];
-			else if (model_mesh->vertex[i] > model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_X])
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_X] = model_mesh->vertex[i];
+			if (model_mesh->vertex[i] < model_mesh->minmaxCoords[minMaxCoords::MIN_X])
+				model_mesh->minmaxCoords[minMaxCoords::MIN_X] = model_mesh->vertex[i];
+			else if (model_mesh->vertex[i] > model_mesh->minmaxCoords[minMaxCoords::MAX_X])
+				model_mesh->minmaxCoords[minMaxCoords::MAX_X] = model_mesh->vertex[i];
 
 			// find min-max Y coord
-			if (model_mesh->vertex[i + 1] < model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Y])
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
-			else if (model_mesh->vertex[i + 1] > model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Y])
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
+			if (model_mesh->vertex[i + 1] < model_mesh->minmaxCoords[minMaxCoords::MIN_Y])
+				model_mesh->minmaxCoords[minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
+			else if (model_mesh->vertex[i + 1] > model_mesh->minmaxCoords[minMaxCoords::MAX_Y])
+				model_mesh->minmaxCoords[minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
 
 			// find min-max Z coord
-			if (model_mesh->vertex[i + 2] < model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Z])
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
-			else if (model_mesh->vertex[i + 2] > model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Z])
-				model_mesh->minmaxCoords[model_mesh->minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
+			if (model_mesh->vertex[i + 2] < model_mesh->minmaxCoords[minMaxCoords::MIN_Z])
+				model_mesh->minmaxCoords[minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
+			else if (model_mesh->vertex[i + 2] > model_mesh->minmaxCoords[minMaxCoords::MAX_Z])
+				model_mesh->minmaxCoords[minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
 
 		}
 

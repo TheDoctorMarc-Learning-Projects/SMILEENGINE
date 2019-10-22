@@ -271,6 +271,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 				// Create a mesh and an object
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive, std::string(objName) + " 1");
 				GameObject* obj = App->object_manager->CreateGameObject(mesh, objName, App->scene_intro->rootObj);
+				obj->Start();
 			}
 				
 		}
