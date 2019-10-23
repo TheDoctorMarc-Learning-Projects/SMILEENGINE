@@ -246,13 +246,6 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 {
 	if (ImGui::BeginMenu("Geometry"))
 	{
-		if (ImGui::MenuItem("Assign checkers texture to selected object"))
-		{
-			if (App->scene_intro->selectedObj != nullptr)
-				App->fbx->AssignCheckersTextureToObj(App->scene_intro->selectedObj);
-
-		}
-
 		// Primitives
 		static char objName[128] = "Insert name";
 		static ImVec4 col(0.f, 255.f, 1.f, 255.f);
@@ -745,8 +738,8 @@ void panelData::HierarchySpace::Execute(bool& ret)
 {
 	static bool showHierarchy = true; 
 
-	if (ImGui::Begin("Hierarchy ", &showHierarchy))
-	{
+	ImGui::Begin("Hierarchy ", &showHierarchy); 
+	
 		if (ImGui::TreeNode("Root"))
 		{
 			// Objects
@@ -758,8 +751,6 @@ void panelData::HierarchySpace::Execute(bool& ret)
 		}
 	
 		ImGui::End(); 
-	}
-	
 	
 }
 
@@ -770,8 +761,8 @@ void panelData::InspectorSpace::Execute(bool& ret)
 	static bool showInspector = true;
 	static const ImVec4 c(11, 100, 88, 255); 
 
-	if (ImGui::Begin("Inspector Panel", &showInspector))
-	{
+	ImGui::Begin("Inspector Panel", &showInspector); 
+	
 		GameObject* selected = App->scene_intro->selectedObj;
 		if (selected != nullptr)
 		{
@@ -786,7 +777,6 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		}
 	
 		ImGui::End(); 
-	}
 }
 
 void panelData::InspectorSpace::ComponentData(Component* c)
@@ -827,14 +817,17 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
 			textureData* data = mat->GetTextureData(); 
+			ImGui::Text(std::string("Path: " + mat->GetTextureData()->path).c_str());
+			ImGui::Text(std::string("Size: " + std::to_string(mat->GetTextureData()->width) + " x " + std::to_string(mat->GetTextureData()->height)).c_str());
 			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)
 			{
 				const std::filesystem::path& relativePath = "..//Assets/";
 				std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
 				ShellExecute(NULL, "open", absolutePath.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 			}
-			
-
+			if (ImGui::Button("Change Texture to checkers")) 
+				App->fbx->AssignCheckersTextureToObj(mat->GetParent());
+	
 			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height)); 
 
 			break;
@@ -842,9 +835,17 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 		case COMPONENT_TYPE::MESH:
 		{
+			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
+			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetMeshData()->num_vertex)).c_str());
+			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetMeshData()->GetMeshSphereRadius())).c_str());
+			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");
+			ImGui::Text(std::string("Type: " + type).c_str());
+
+			// debug
+			ImGui::Checkbox("Show vertex normals", &mesh->debugData.vertexNormals); 
+			ImGui::Checkbox("Show face normals", &mesh->debugData.faceNormals);
 
 			break;
-
 		}
 
 		default:

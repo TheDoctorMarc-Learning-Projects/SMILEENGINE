@@ -63,32 +63,20 @@ par_shapes_mesh* SmileGameObjectManager::GeneratePrimitive(std::string type)
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(std::string name, GameObject* parent)
 {
-	GameObject* ret = DBG_NEW GameObject(name, parent);
-
-	
-
-	return ret; 
+	return DBG_NEW GameObject(name, parent);
 }
 
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(Component* comp, std::string name, GameObject* parent)
 {
-	GameObject* ret = DBG_NEW GameObject(comp, name, parent);
-
-	
-
-	return ret;
+	return DBG_NEW GameObject(comp, name, parent);
 }
 
 
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> components, std::string name, GameObject* parent)
 {
-	GameObject* ret = DBG_NEW GameObject(components, name, parent);
-
-	
-
-	return ret;
+	return DBG_NEW GameObject(components, name, parent);
 }
 
 // ----------------------------------------------------------------- [Primitive creation functions]
@@ -96,7 +84,6 @@ par_shapes_mesh* CreateSphere()
 {
 	return par_shapes_create_subdivided_sphere(2);
 }
-
 
 par_shapes_mesh* CreateCube()
 {

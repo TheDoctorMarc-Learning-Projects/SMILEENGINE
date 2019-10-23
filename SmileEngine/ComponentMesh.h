@@ -14,6 +14,12 @@ enum Mesh_Type
 	MODEL
 };
 
+struct debugData
+{
+	bool faceNormals = false; 
+	bool vertexNormals = false; 
+};
+
 // TODO = more generic 
 struct ModelMeshData
 {
@@ -86,11 +92,13 @@ private:
 public: 
 	// Assign & Get data
 	void SetParent(GameObject* parent) { this->parent = parent; };
-
+	Mesh_Type GetMeshType() const { return meshType; }; 
+	debugData debugData;
 
 private:
 	ModelMeshData* model_mesh = nullptr; 
 	Mesh_Type meshType; 
+
 
 	friend class GameObject;
 	friend class SmileFBX; 

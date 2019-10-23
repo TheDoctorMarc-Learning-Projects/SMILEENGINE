@@ -99,7 +99,6 @@
     <ClInclude Include="pcg\include\pcg_extras.hpp" />
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
-    <ClInclude Include="QuickMath.h" />
     <ClInclude Include="RayTracer.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="SafetyHandler.h" />

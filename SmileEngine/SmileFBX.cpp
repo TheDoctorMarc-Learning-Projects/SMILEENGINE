@@ -283,6 +283,7 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 		ilGetData());
 
 	targetMat->textureInfo->texture = (ILubyte*)ilGetData();
+	targetMat->textureInfo->path = "Generated in-game"; 
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);

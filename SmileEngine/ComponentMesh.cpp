@@ -104,8 +104,8 @@ void ComponentMesh::Draw()
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 
-		if(App->object_manager->debug)
-			DebugDraw();
+	    // Debug on top
+		DebugDraw();
 
 
 		// Transformation
@@ -115,62 +115,75 @@ void ComponentMesh::Draw()
 
 void ComponentMesh::DebugDraw()
 {
-	// draw normals
+	
 		if (model_mesh->normals != nullptr)
 		{
-			glColor3f(0.f, 1.0f, 0.f);
-			static float normalFactor = 20.f;
-
-			for (int i = 0; i < model_mesh->num_normals * 3; i += 3)
+			// draw vertex normals
+			if (debugData.vertexNormals)
 			{
-				glBegin(GL_LINES);
+				glColor3f(0.f, 1.0f, 0.f);
 
-				vec3 normalVec = normalize({ model_mesh->normals[i], model_mesh->normals[i + 1], model_mesh->normals[i + 2] });
-				glVertex3f(model_mesh->vertex[i], model_mesh->vertex[i + 1], model_mesh->vertex[i + 2]);
-				glVertex3f(model_mesh->vertex[i] + normalVec.x, model_mesh->vertex[i + 1] + normalVec.y, model_mesh->vertex[i + 2] + normalVec.z);
+				static float normalFactor = 20.f;
 
-				glEnd();
+				for (int i = 0; i < model_mesh->num_normals * 3; i += 3)
+				{
+					glBegin(GL_LINES);
+
+					vec3 normalVec = normalize({ model_mesh->normals[i], model_mesh->normals[i + 1], model_mesh->normals[i + 2] });
+					glVertex3f(model_mesh->vertex[i], model_mesh->vertex[i + 1], model_mesh->vertex[i + 2]);
+					glVertex3f(model_mesh->vertex[i] + normalVec.x, model_mesh->vertex[i + 1] + normalVec.y, model_mesh->vertex[i + 2] + normalVec.z);
+
+					glEnd();
+				}
+
+				glColor3f(1.0f, 1.0f, 1.0f);
 			}
+
 			// draw face normals
+			if (debugData.faceNormals)
+			{
+				glColor3f(0.f, 1.0f, 0.f);
 
-			float size = 5.f;
-			for (int i = 0; i < model_mesh->num_normals; i += 3) {
+				float size = 5.f;
+				for (int i = 0; i < model_mesh->num_normals; i += 3) {
 
-				glBegin(GL_LINES);
-				glColor3f(0, 1, 0);
+					glBegin(GL_LINES);
+					glColor3f(0, 1, 0);
 
-				float vec1_x = model_mesh->vertex[model_mesh->index[i] * 3];
-				float vec1_y = model_mesh->vertex[(model_mesh->index[i] * 3) + 1];
-				float vec1_z = model_mesh->vertex[(model_mesh->index[i] * 3) + 2];
+					float vec1_x = model_mesh->vertex[model_mesh->index[i] * 3];
+					float vec1_y = model_mesh->vertex[(model_mesh->index[i] * 3) + 1];
+					float vec1_z = model_mesh->vertex[(model_mesh->index[i] * 3) + 2];
 
 
-				float vec2_x = model_mesh->vertex[model_mesh->index[i + 1] * 3];
-				float vec2_y = model_mesh->vertex[(model_mesh->index[i + 1] * 3) + 1];
-				float vec2_z = model_mesh->vertex[(model_mesh->index[i + 1] * 3) + 2];
+					float vec2_x = model_mesh->vertex[model_mesh->index[i + 1] * 3];
+					float vec2_y = model_mesh->vertex[(model_mesh->index[i + 1] * 3) + 1];
+					float vec2_z = model_mesh->vertex[(model_mesh->index[i + 1] * 3) + 2];
 
-				float vec3_x = model_mesh->vertex[model_mesh->index[i + 2] * 3];
-				float vec3_y = model_mesh->vertex[(model_mesh->index[i + 2] * 3) + 1];
-				float vec3_z = model_mesh->vertex[(model_mesh->index[i + 2] * 3) + 2];
+					float vec3_x = model_mesh->vertex[model_mesh->index[i + 2] * 3];
+					float vec3_y = model_mesh->vertex[(model_mesh->index[i + 2] * 3) + 1];
+					float vec3_z = model_mesh->vertex[(model_mesh->index[i + 2] * 3) + 2];
 
-				float mid_x = (vec1_x + vec2_x + vec3_x) / 3;
-				float mid_y = (vec1_y + vec2_y + vec3_y) / 3;
-				float mid_z = (vec1_z + vec2_z + vec3_z) / 3;
+					float mid_x = (vec1_x + vec2_x + vec3_x) / 3;
+					float mid_y = (vec1_y + vec2_y + vec3_y) / 3;
+					float mid_z = (vec1_z + vec2_z + vec3_z) / 3;
 
-				vec3 face_center = { mid_x, mid_y, mid_z };
+					vec3 face_center = { mid_x, mid_y, mid_z };
 
-				vec3 vec_v1_center = face_center - vec3(vec1_x, vec1_y, vec1_z);
-				vec3 vec_v2_center = face_center - vec3(vec2_x, vec2_y, vec2_z);
+					vec3 vec_v1_center = face_center - vec3(vec1_x, vec1_y, vec1_z);
+					vec3 vec_v2_center = face_center - vec3(vec2_x, vec2_y, vec2_z);
 
-				vec3 normal_vec = cross(vec_v1_center, vec_v2_center);
-				vec3 normalized_normal_vec = normalize(normal_vec);
+					vec3 normal_vec = cross(vec_v1_center, vec_v2_center);
+					vec3 normalized_normal_vec = normalize(normal_vec);
 
-				glVertex3f(mid_x, mid_y, mid_z);
+					glVertex3f(mid_x, mid_y, mid_z);
 
-				glVertex3f(mid_x + normalized_normal_vec.x * size, mid_y + normalized_normal_vec.y * size, mid_z + normalized_normal_vec.z * size);
+					glVertex3f(mid_x + normalized_normal_vec.x * size, mid_y + normalized_normal_vec.y * size, mid_z + normalized_normal_vec.z * size);
 
-				glEnd();
+					glEnd();
+				}
+
+				glColor3f(1.0f, 1.0f, 1.0f);
 			}
-
 		}
 }
 

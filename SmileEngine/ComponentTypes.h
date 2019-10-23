@@ -21,7 +21,7 @@ struct textureData
 {
 	uint id_texture = 0;
 	uint width, height = 0; 
-	const char* path; 
+	std::string path; 
 	ILubyte* texture = nullptr;
 };
 

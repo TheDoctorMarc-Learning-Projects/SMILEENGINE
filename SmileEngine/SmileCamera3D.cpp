@@ -1,7 +1,7 @@
 #include "SmileSetup.h"
 //#include "SmileApp.h" // already included by raytracer 
 //#include "SmileCamera3D.h" // already included by raytracer 
-#include "QuickMath.h"
+#include "SafetyHandler.h"
 #include "RayTracer.h"
 
 #include "ComponentTransform.h"
@@ -79,10 +79,10 @@ update_status SmileCamera3D::Update(float dt)
 		KEY_STATE mouseMiddle = App->input->GetMouseButton(SDL_BUTTON_MIDDLE);
 
 		if (xWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
-			newPos += X * speed * quickMath::Sign(xWheel);
+			newPos += X * speed * sMath::Sign(xWheel);
 
 		if (yWheel != 0 && (mouseMiddle == KEY_DOWN || mouseMiddle == KEY_REPEAT))
-			newPos += Y * speed * quickMath::Sign(yWheel);
+			newPos += Y * speed * sMath::Sign(yWheel);
 
 		if (zScroll != 0)
 			newPos += Z * GetScrollSpeed(dt, zScroll);
@@ -91,7 +91,7 @@ update_status SmileCamera3D::Update(float dt)
 		Reference += newPos;
 
 		// Rotation ----------------
-		if (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
+		if (App->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT && App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT)
 		{
 			float Sensitivity = 0.25f;
 
@@ -124,7 +124,6 @@ update_status SmileCamera3D::Update(float dt)
 		}
 	}
 	
-
 	// Recalculate matrix -------------
 	CalculateViewMatrix();
 
@@ -136,7 +135,7 @@ void SmileCamera3D::FocusObjectLogic()
 	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
 	GameObject* selectedObj = App->scene_intro->selectedObj;
 
-	bool rotating = (App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT 
+	bool rotating = (App->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT && App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT
 		&& (App->gui->IsMouseOverTheGui() == false)) ? true : false;
 
 	if (selectedMesh != nullptr)
@@ -265,7 +264,7 @@ void SmileCamera3D::FitCameraToObject(GameObject* obj) // TODO: calculate a radi
  
 float SmileCamera3D::GetScrollSpeed(float dt, float zScroll)
 {
-	float speed = DEFAULT_SPEED * dt * quickMath::Sign(zScroll);
+	float speed = DEFAULT_SPEED * dt * sMath::Sign(zScroll);
 
 	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
 	GameObject* selectedObj = App->scene_intro->selectedObj;
@@ -277,7 +276,7 @@ float SmileCamera3D::GetScrollSpeed(float dt, float zScroll)
 		float3 captureCamPos(Position.x, Position.y, Position.z);
 		float3 captureZ(Z.x, Z.y, Z.z); 
 
-		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(target->GetComponent(TRANSFORM))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR) * dt * quickMath::Sign(zScroll);
+		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(target->GetComponent(TRANSFORM))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR) * dt * sMath::Sign(zScroll);
 		relSpeed = (relSpeed > MAX_FRAME_SPEED) ? MAX_FRAME_SPEED : relSpeed;
 
 		float targetZ = abs((captureCamPos + captureZ * relSpeed).z);

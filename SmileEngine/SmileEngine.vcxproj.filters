@@ -102,9 +102,6 @@
     <ClInclude Include="Light.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="QuickMath.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="RayTracer.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
