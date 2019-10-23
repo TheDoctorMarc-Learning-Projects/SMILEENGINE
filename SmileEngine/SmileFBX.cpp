@@ -53,15 +53,21 @@ void SmileFBX::ReadFBXData(const char* path)
 
 	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
 
+	// Get the parent GameObject name
+	char rawname[100];
+	std::wcstombs(rawname, std::filesystem::path(path).stem().c_str(), sizeof(rawname));
+
 	if (scene != nullptr && scene->HasMeshes()) 
 	{
 		// Create a GameObject with a "neutral" transform, same as root  
-		ComponentTransform* transf = DBG_NEW ComponentTransform(); 
-		GameObject* object = DBG_NEW GameObject(transf);
+		ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity); 
+		GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
 
 		for (int i = 0; i < scene->mNumMeshes; ++i) 
 		{
+			// Create a mesh data and an object, child of the first one
 			aiMesh* new_mesh = scene->mMeshes[i];
+			GameObject* object = DBG_NEW GameObject(std::string(new_mesh->mName.C_Str()), parentObj);
 			ModelMeshData* mesh_info = DBG_NEW ModelMeshData();
 
 			// Vertexs
@@ -69,44 +75,6 @@ void SmileFBX::ReadFBXData(const char* path)
 			mesh_info->vertex = new float[mesh_info->num_vertex * 3];
 			memcpy(mesh_info->vertex, new_mesh->mVertices, sizeof(float) * mesh_info->num_vertex * 3);
 			LOG("New Mesh with %d vertices", mesh_info->num_vertex);
-
-			// Get the minimum and maximum x,y,z to create a bounding box 
-			for (uint i = 0; i < mesh_info->num_vertex; i+=3) 
-			{
-				// first, initialize the min-max coords to the first vertex, 
-				// in order to compare the following ones with it
-				if (i == 0)
-				{
-					mesh_info->minmaxCoords[minMaxCoords::MIN_X] = mesh_info->vertex[i];
-					mesh_info->minmaxCoords[minMaxCoords::MAX_X] = mesh_info->vertex[i];
-					mesh_info->minmaxCoords[minMaxCoords::MIN_Y] = mesh_info->vertex[i + 1];
-					mesh_info->minmaxCoords[minMaxCoords::MAX_Y] = mesh_info->vertex[i + 1];
-					mesh_info->minmaxCoords[minMaxCoords::MIN_Z] = mesh_info->vertex[i + 2];
-					mesh_info->minmaxCoords[minMaxCoords::MAX_Z] = mesh_info->vertex[i + 2];
-					continue; 
-				}
-
-				// find min-max X coord
-				if (mesh_info->vertex[i] < mesh_info->minmaxCoords[minMaxCoords::MIN_X])
-					mesh_info->minmaxCoords[minMaxCoords::MIN_X] = mesh_info->vertex[i]; 
-				else if (mesh_info->vertex[i] > mesh_info->minmaxCoords[minMaxCoords::MAX_X])
-					mesh_info->minmaxCoords[minMaxCoords::MAX_X] = mesh_info->vertex[i];
-
-				// find min-max Y coord
-				if (mesh_info->vertex[i + 1] < mesh_info->minmaxCoords[minMaxCoords::MIN_Y])
-					mesh_info->minmaxCoords[minMaxCoords::MIN_Y] = mesh_info->vertex[i + 1];
-				else if (mesh_info->vertex[i + 1] > mesh_info->minmaxCoords[minMaxCoords::MAX_Y])
-					mesh_info->minmaxCoords[minMaxCoords::MAX_Y] = mesh_info->vertex[i + 1];
-
-				// find min-max Z coord
-				if (mesh_info->vertex[i + 2] < mesh_info->minmaxCoords[minMaxCoords::MIN_Z])
-					mesh_info->minmaxCoords[minMaxCoords::MIN_Z] = mesh_info->vertex[i + 2];
-				else if (mesh_info->vertex[i + 2] > mesh_info->minmaxCoords[minMaxCoords::MAX_Z])
-					mesh_info->minmaxCoords[minMaxCoords::MAX_Z] = mesh_info->vertex[i + 2];
-
-			}
-
-			mesh_info->ComputeMeshSpatialData(); 
 
 		    // Indexes
 			if (new_mesh->HasFaces())
@@ -174,17 +142,11 @@ void SmileFBX::ReadFBXData(const char* path)
 				}
 			}
 
-			// create a component mesh with the mesh info  
-			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info); 
-			// Generate mesh buffers
-			mesh->GenerateBuffers(); 
-			// Asign it a transform as the mesh center (local matrix)
-			ComponentTransform* transfMesh = DBG_NEW ComponentTransform(); 
-			math::float4x4 transfMat = math::float4x4::identity; 
-			transfMesh->ChangePosition(math::float3(mesh_info->GetMeshCenter().x, mesh_info->GetMeshCenter().y, mesh_info->GetMeshCenter().z));
-			mesh->AddComponent(transfMesh); 
+			// create a component mesh and fill it with the mesh info
+			mesh_info->ComputeMeshSpatialData();
+			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
 
-			// Texture last, once the mesh is created
+			// Assign a texture to the object
 			if (scene->HasMaterials())
 			{
 				for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
@@ -198,29 +160,21 @@ void SmileFBX::ReadFBXData(const char* path)
 						scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
 
 						std::string assetsPath("..//Assets/"); assetsPath += tex_path.data;
-				     	AssignTextureToMesh(assetsPath.c_str(), mesh);
+						AssignTextureToObj(assetsPath.c_str(), object);
 					}
 				}
 			}
 			
-			// Fit the camera to the mesh 
-			App->camera->FitCameraToMesh(mesh);
-
-			// Assign a name to the mesh
-			mesh->SetName(std::string(new_mesh->mName.C_Str()));  
-
-			// Add the Mesh to the GameObject
+			// Add the Mesh to the GameObject and the GameObject to the parent GameObject
 			object->AddComponent(mesh);
 
-		}
+			// Fit the camera to the object 
+			App->camera->FitCameraToObject(object);
 
-		char rawname[100]; 
-		std::wcstombs(rawname, std::filesystem::path(path).stem().c_str(), sizeof(rawname));
+		}
 		
-		// Assign data to the object
-		object->SetName(rawname);
-		object->SetParent(App->scene_intro->rootObj);  
-		object->Start(); 
+		// Start everything
+		parentObj->Start();
 
 		// Release the scene 
 		aiReleaseImport(scene);
@@ -231,9 +185,9 @@ void SmileFBX::ReadFBXData(const char* path)
 	}
 }
 
-void SmileFBX::AssignTextureToMesh(const char* path, ComponentMesh* mesh)
+void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 {
-	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(std::get<Component*>(mesh->GetComponent(MATERIAL)));
+	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(obj->GetComponent(MATERIAL));
 
 	ILuint tempID;
 	ilGenImages(1, &tempID);
@@ -273,7 +227,7 @@ void SmileFBX::AssignTextureToMesh(const char* path, ComponentMesh* mesh)
 
 		// Assign the material to the mesh
 		if (targetMat != previousMat)
-			mesh->AddComponent((Component*)targetMat);
+			obj->AddComponent((Component*)targetMat);
 
 	}
 
@@ -285,9 +239,9 @@ void SmileFBX::AssignTextureToMesh(const char* path, ComponentMesh* mesh)
 }
 
 
-void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh) // TODO: generic 
+void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic 
 {
-	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(std::get<Component*>(mesh->GetComponent(MATERIAL)));
+	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(obj->GetComponent(MATERIAL));
 
 #ifndef CHECKERS_SIZE
 #define CHECKERS_SIZE 20
@@ -335,7 +289,7 @@ void SmileFBX::AssignCheckersTextureToMesh(ComponentMesh* mesh) // TODO: generic
 
 	// Assign the material to the mesh
 	if (targetMat != previousMat)
-		mesh->AddComponent((Component*)targetMat);
+		obj->AddComponent((Component*)targetMat);
 
 }
 

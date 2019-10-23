@@ -177,7 +177,7 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 	{
 		ComponentMesh* hoveredMesh = std::get<ComponentMesh*>(rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, true));
 		if (hoveredMesh != nullptr)
-			App->fbx->AssignTextureToMesh(path, hoveredMesh);
+			App->fbx->AssignTextureToObj(path, hoveredMesh->GetParent());
 	}
 		
 }

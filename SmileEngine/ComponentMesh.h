@@ -14,8 +14,7 @@ enum Mesh_Type
 	MODEL
 };
 
-// todo = more generic 
-
+// TODO = more generic 
 struct ModelMeshData
 {
 	uint id_index = 0;
@@ -41,27 +40,10 @@ struct ModelMeshData
 	// AABB
 private:
 	std::array<float, minMaxCoords::TOTAL_COORDS> minmaxCoords;
- 
 	vec3 meshCenter;
 	double meshBoundingSphereRadius = 0;
-
-	void ComputeMeshSpatialData()
-	{
-		// center 
-		float c_X = (minmaxCoords[minMaxCoords::MIN_X] + minmaxCoords[minMaxCoords::MAX_X]) / 2;
-		float c_Y = (minmaxCoords[minMaxCoords::MIN_Y] + minmaxCoords[minMaxCoords::MAX_Y]) / 2;
-		float c_Z = (minmaxCoords[minMaxCoords::MIN_Z] + minmaxCoords[minMaxCoords::MAX_Z]) / 2;
-		meshCenter = vec3(c_X, c_Y, c_Z);
-
-		// sphere radius = module of -> (distance between opposite vertices) / 2
-		vec3 min_Vec(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]);
-		vec3 max_Vec(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
-		vec3 rad_Vec = (max_Vec - min_Vec) / 2;
-		meshBoundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
-
-		// TODO: bounding box, store the 8 vertices and draw them 
-
-	};
+	bool computedData = false; 
+	void ComputeMeshSpatialData(); 
 
 public:
 
@@ -82,20 +64,9 @@ public:
 	~ComponentMesh();
 
 public: 
-    // Just like the GameObject:
-	bool AddComponent(Component* comp);
 
-	void Enable();
 	void Update();
-	void Disable();
 	void CleanUp();
-
-	void OnTransform(); 
-
-	std::variant<Component*, std::vector<Component*>> GetComponent(COMPONENT_TYPE type) const
-	{
-		return components[type];
-	}
 
 	// If it has a mesh loaded from an FBX ("model_mesh"): 
 	void Draw(); 
@@ -103,8 +74,6 @@ public:
 	ModelMeshData* GetMeshData() const { return model_mesh; };
 
 private: 
-	// components array
-	void FillComponentBuffers();
 
 	//generate a mesh form a par shapes
 	void GenerateModelMeshFromParShapes(par_shapes_mesh*);
@@ -117,12 +86,9 @@ private:
 public: 
 	// Assign & Get data
 	void SetParent(GameObject* parent) { this->parent = parent; };
-	GameObject* GetParent() const { return std::get<GameObject*>(parent); };
 
 
 private:
-	// The Mesh component is the only one that, like the GmaeObject, has yet another component buffer 
-	std::variant<Component*, std::vector<Component*>> components[COMPONENT_TYPE::MAX_COMPONENT_TYPES]; 
 	ModelMeshData* model_mesh = nullptr; 
 	Mesh_Type meshType; 
 

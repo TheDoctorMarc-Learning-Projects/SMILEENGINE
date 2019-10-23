@@ -15,6 +15,7 @@ class ComponentTransform : public Component
 
 public:
 	ComponentTransform();
+	ComponentTransform(float4x4 localMat); 
 	~ComponentTransform();
 
 private: 

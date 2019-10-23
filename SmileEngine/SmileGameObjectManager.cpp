@@ -47,7 +47,6 @@ update_status SmileGameObjectManager::Update(float dt)
 // -----------------------------------------------------------------
 bool SmileGameObjectManager::CleanUp()
 {
-	const_cast<std::map<COMPONENT_TYPE, std::tuple<bool, bool, bool>>&>(uniquenessMap).clear();
 	return true;
 }
 

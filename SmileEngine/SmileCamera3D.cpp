@@ -142,10 +142,10 @@ void SmileCamera3D::FocusObjectLogic()
 	if (selectedMesh != nullptr)
 	{
 		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
-			FitCameraToMesh(selectedMesh);
+			FitCameraToObject(selectedMesh->GetParent());
 
 		if(rotating)
-			LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedMesh->GetComponent(TRANSFORM)))->GetPosition());
+			LookAt(dynamic_cast<ComponentTransform*>(selectedMesh->GetParent()->GetComponent(TRANSFORM))->GetPosition());
 		
 	}
 	else if (selectedObj != nullptr)
@@ -154,7 +154,7 @@ void SmileCamera3D::FocusObjectLogic()
 			FitCameraToObject(selectedObj);
 
 		if (rotating)
-			LookAt(dynamic_cast<ComponentTransform*>(std::get<Component*>(selectedObj->GetComponent(TRANSFORM)))->GetPosition());
+			LookAt(dynamic_cast<ComponentTransform*>(selectedObj->GetComponent(TRANSFORM))->GetPosition());
 	
 	}
 }
@@ -237,44 +237,10 @@ void SmileCamera3D::CalculateViewMatrix()
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::FitCameraToMesh(ComponentMesh* mesh)
-{
-
-	// look at the mesh center
-	float3 centerMath = dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)))->GetPosition(); 
-	vec3 center(centerMath.x, centerMath.y, centerMath.z); 
-
-	// we will need the bounding sphere radius
-	ModelMeshData* data = mesh->GetMeshData(); 
-	if (!data) 
-		return; 
-	
-	LookAt(center);
-
-	// calculate the distance with the center
-	double camDistance = (data->GetMeshSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
-	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(center.x, center.y, center.z));
-	dir.Normalize();
-	vec3 dirVec3(dir.x, dir.y, dir.z);
-
-	// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
-	vec3 wantedPos = center + dirVec3 * camDistance;
-
-	// finally cap it 
-	if (abs((wantedPos - center).z) < MIN_DIST_TO_MESH)
-		wantedPos.z = MIN_DIST_TO_MESH;
-
-	Move(vec3(wantedPos - Position));
-
-	
-
-}
-
-// -----------------------------------------------------------------
 void SmileCamera3D::FitCameraToObject(GameObject* obj) // TODO: calculate a radius for the bounding sphere of an object (the avg of the meshes centers)
 {
 	// look at the mesh center
-	float3 centerMath = dynamic_cast<ComponentTransform*>(std::get<Component*>(obj->GetComponent(TRANSFORM)))->GetPosition();
+	float3 centerMath = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM))->GetPosition();
 	vec3 center(centerMath.x, centerMath.y, centerMath.z);
 
 	// we will need the bounding sphere radius
@@ -301,14 +267,17 @@ float SmileCamera3D::GetScrollSpeed(float dt, float zScroll)
 {
 	float speed = DEFAULT_SPEED * dt * quickMath::Sign(zScroll);
 
-	ComponentMesh* mesh = App->scene_intro->selected_mesh; 
-	if (mesh != nullptr)
+	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
+	GameObject* selectedObj = App->scene_intro->selectedObj;
+
+	GameObject* target = (selectedMesh == nullptr) ? selectedObj : selectedMesh->GetParent(); 
+	if (target != nullptr)
 	{
 		// some stupid conversions from vec3 to float3
 		float3 captureCamPos(Position.x, Position.y, Position.z);
 		float3 captureZ(Z.x, Z.y, Z.z); 
 
-		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR) * dt * quickMath::Sign(zScroll);
+		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(target->GetComponent(TRANSFORM))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR) * dt * quickMath::Sign(zScroll);
 		relSpeed = (relSpeed > MAX_FRAME_SPEED) ? MAX_FRAME_SPEED : relSpeed;
 
 		float targetZ = abs((captureCamPos + captureZ * relSpeed).z);

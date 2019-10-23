@@ -19,14 +19,15 @@ public:
 	virtual void Disable() { active = false; };
 	virtual void CleanUp() {};
 
-	virtual void OnTransform() {}; 
 	std::string GetName() const { return name; };
 	void SetName(std::string name) { this->name = name; };
+	GameObject* GetParent() const { return parent; };
+	void SetParent(GameObject* parent) { this->parent = parent; }; 
 
 private:
 	COMPONENT_TYPE type = COMPONENT_TYPE::NO_TYPE;
 	bool active = false;
-	std::variant<GameObject*, ComponentMesh*> parent;
+	GameObject* parent = nullptr;
  
 
 public:

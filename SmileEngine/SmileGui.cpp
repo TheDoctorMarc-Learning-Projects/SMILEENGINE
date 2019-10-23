@@ -246,14 +246,14 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 {
 	if (ImGui::BeginMenu("Geometry"))
 	{
-		if (ImGui::MenuItem("Assign checkers texture"))
+		if (ImGui::MenuItem("Assign checkers texture to selected object"))
 		{
-			if (App->scene_intro->selected_mesh != nullptr)
-				App->fbx->AssignCheckersTextureToMesh(App->scene_intro->selected_mesh); 
+			if (App->scene_intro->selectedObj != nullptr)
+				App->fbx->AssignCheckersTextureToObj(App->scene_intro->selectedObj);
 
 		}
 
-		// Prrimitives
+		// Primitives
 		static char objName[128] = "Insert name";
 		static ImVec4 col(0.f, 255.f, 1.f, 255.f);
 		static char text[128];
@@ -271,6 +271,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 				// Create a mesh and an object
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive, std::string(objName) + " 1");
 				GameObject* obj = App->object_manager->CreateGameObject(mesh, objName, App->scene_intro->rootObj);
+				obj->SetupTransformAtMeshCenter(); 
 				obj->Start();
 			}
 				
@@ -719,6 +720,27 @@ void panelData::consoleSpace::Execute(bool& ret)
 
 
 // ----------------------------------------------------------------- [Hierarchy]
+static void ObjectRecursiveNode(GameObject* obj)
+{
+	if (obj)
+	{
+		if (ImGui::TreeNode(obj->GetName().c_str()))
+		{
+			App->scene_intro->selectedObj = obj;
+
+			if (obj->childObjects.size() > 0)
+			{
+				for (auto& childObj : obj->childObjects)
+					ObjectRecursiveNode(childObj);
+			}
+
+			ImGui::TreePop();
+		}
+		
+	}
+
+}
+
 void panelData::HierarchySpace::Execute(bool& ret)
 {
 	static bool showHierarchy = true; 
@@ -728,35 +750,13 @@ void panelData::HierarchySpace::Execute(bool& ret)
 		if (ImGui::TreeNode("Root"))
 		{
 			// Objects
-			for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
-			{
-				if (ImGui::TreeNode(obj->GetName().c_str()))
-				{
-					App->scene_intro->selectedObj = obj;
-
-					// Meshes
-					std::vector<Component*> meshes = std::get<std::vector<Component*>>(obj->GetComponent(MESH));
-					for (auto& mesh : meshes)
-					{
-
-						if (ImGui::TreeNode(dynamic_cast<ComponentMesh*>(mesh)->GetName().c_str()))
-						{
-							App->scene_intro->selected_mesh = dynamic_cast<ComponentMesh*>(mesh);
-							ImGui::TreePop();
-						}
-
-					}
-
-					ImGui::TreePop();
-				}
-
-			}
+			for (auto& obj : App->scene_intro->rootObj->GetImmidiateChildren())
+				ObjectRecursiveNode(obj); 
+		
 
 			ImGui::TreePop();
 		}
 	
-		
-
 		ImGui::End(); 
 	}
 	
@@ -778,29 +778,11 @@ void panelData::InspectorSpace::Execute(bool& ret)
 			ImGui::TextColored(c, selected->GetName().c_str());
 
 			// Loop the object's components
-			for (uint i = 0; i < MAX_COMPONENT_TYPES - 1; ++i)
-			{
-				auto variantComp = selected->GetComponent((COMPONENT_TYPE)i);
+			std::array<Component*, MAX_COMPONENT_TYPES> components = selected->GetComponents(); 
 
-				// A single component
-				if (variantComp.index() == 0)
-				{
-					Component* c = std::get<Component*>(variantComp);
-					if (c)
-						panelData::InspectorSpace::ComponentData(c);
-
-				}
-
-				// A vector of components
-				else if (variantComp.index() == 1)
-				{
-					auto& comps = std::get<std::vector<Component*>>(variantComp);
-					for (auto& c : comps)
-						panelData::InspectorSpace::ComponentData(c);
-
-				}
-
-			}
+			for(auto& c : components)
+				if (c)
+					panelData::InspectorSpace::ComponentData(c);
 		}
 	
 		ImGui::End(); 
@@ -841,39 +823,6 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			break;
 		}
 
-
-		case COMPONENT_TYPE::MESH: // the mesh has components of its own! :) 
-		{
-			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
-
-			for (uint i = 0; i < MAX_COMPONENT_TYPES - 1; ++i)
-			{
-				auto variantComp = mesh->GetComponent((COMPONENT_TYPE)i);
-
-				// A single component
-				if (variantComp.index() == 0)
-				{
-					Component* c = std::get<Component*>(variantComp);
-					if (c)
-						panelData::InspectorSpace::ComponentData(c); // recursion wohow !
-
-				}
-
-				// A vector of components
-				else if (variantComp.index() == 1)
-				{
-					auto& comps = std::get<std::vector<Component*>>(variantComp);
-					for (auto& c : comps)
-						panelData::InspectorSpace::ComponentData(c);  // recursion wohow !
-
-				}
-
-			}
-
-			break;
-
-		}
-
 		case COMPONENT_TYPE::MATERIAL:
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
@@ -891,6 +840,12 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			break;
 		}
 
+		case COMPONENT_TYPE::MESH:
+		{
+
+			break;
+
+		}
 
 		default:
 		{

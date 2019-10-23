@@ -2,11 +2,10 @@
 #include <map>
 #include <vector>
 #include "SmileSetup.h"
-#include <variant>
+#include <array>
 #include <string>
  
 #include "ComponentTypes.h"
-
 
 class Component;
 class ComponentMesh; 
@@ -26,20 +25,19 @@ public:
 
 	// Components
 	bool AddComponent(Component* comp); // you can add it to the GameObject or to a mesh
-	bool AddComponentToMesh(Component* comp, ComponentMesh* mesh); // you can add it to the GameObject or to a mesh
+	void SetupTransformAtMeshCenter(); 
 
-	std::variant<Component*, std::vector<Component*>> GetComponent(COMPONENT_TYPE type) const
-	{
-		return components[type]; 
-	}
+	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
+	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; }; 
 
 	// Assign & Get data
 	void SetParent(GameObject* parent); 
 	void SetName(std::string name) { this->name = name; };
 	GameObject* GetParent() const { return parent;  };
 	std::string GetName() const { return name; }; 
-	std::vector<GameObject*> GetChildrenRecursive(); 
-	double GetBoundingSphereRadius() const { return boundingSphereRadius; }; 
+	std::vector<GameObject*> GetChildrenRecursive() const; 
+	std::vector<GameObject*> GetImmidiateChildren() const; 
+	double GetBoundingSphereRadius() const; 
 
 	// Main functions 
 	void Start(); 
@@ -52,24 +50,14 @@ public:
 	bool IsActive() const { return active; };
 	void OnTransform(); 
 
-
-private: 
-	// Functions To be called ONCE. They will ignore you if you call them again
-	void ComputeInitialData(); 
-	void ComputeCenterAndSetupTransformThere(); 
-	void ComputeBoundingSphereRadius();
-
 public:
 	std::vector<GameObject*> childObjects;
 
 private: 
-	std::variant<Component*, std::vector<Component*>> components[COMPONENT_TYPE::MAX_COMPONENT_TYPES]; // each component type has either one element or a vector 
+	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 
 	bool active = true; 
 	std::string name; 
 	GameObject* parent; 
-
-	// hardcore stuff
-	double boundingSphereRadius = 0; 
 
 	friend class SmileGameObjectManager; 
 };

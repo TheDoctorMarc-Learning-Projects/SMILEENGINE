@@ -12,7 +12,7 @@ namespace internal
 	float3 GetMouse3DPos(int mouse_x, int mouse_y);
 	math::Ray GetRayBetweenCameraAndMouse3DPos(float3 mousePos3D);
 	ComponentMesh* GetIntersectedMesh(float3 mousePos3D, math::Ray ray);
-	bool IsMouseInsideEntityRadius(std::variant<ComponentMesh*, GameObject*> entity, float3 mousePos3D);
+	bool IsMouseInsideEntityRadius(GameObject* obj, float3 mousePos3D);
 
 	// Return and assignment
 	std::variant<ComponentMesh*, GameObject*> ReturnHover(bool GetMeshNotGameObject, ComponentMesh* found);
@@ -107,37 +107,28 @@ ComponentMesh* internal::GetIntersectedMesh(float3 mouse3Dpos, math::Ray ray)
 		if (internal::IsMouseInsideEntityRadius(gameObject, mouse3Dpos) == false)
 			continue;
 
-		// 1.B) DO NOT SKIP if the mouse point falls inside the bounding sphere radius.
-		// Loop the meshes
+		// 1.B) SKIP if the object has no mesh
+		auto mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH));
+		if (mesh == nullptr)
+			continue; 
 
-		std::vector<Component*> meshes = std::get<std::vector<Component*>>(gameObject->GetComponent(MESH));
-		for (auto& mesh : meshes)
+		// 1.C) DO NOT SKIP if the mouse point falls inside the bounding sphere radius.
+		ModelMeshData* mesh_info = mesh->GetMeshData();
+		for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 		{
-			ComponentMesh* realMesh = dynamic_cast<ComponentMesh*>(mesh); 
-			ModelMeshData* mesh_info = realMesh->GetMeshData(); 
+			math::float3 v1(mesh_info->vertex[i], mesh_info->vertex[i + 1], mesh_info->vertex[i + 2]);
+			math::float3 v2(mesh_info->vertex[i + 3], mesh_info->vertex[i + 4], mesh_info->vertex[i + 5]);
+			math::float3 v3(mesh_info->vertex[i + 6], mesh_info->vertex[i + 7], mesh_info->vertex[i + 8]);
 
-			// 2.A) SKIP the mesh directly if the mouse point distance to the mesh center is greater than the mesh's radius.
-			if (internal::IsMouseInsideEntityRadius(realMesh, mouse3Dpos) == false)
-				continue;
+			// form a triangle
+			math::Triangle tri = math::Triangle(v1, v2, v3);
 
-			// 2.B) DO NOT SKIP if the mouse point falls inside the bounding sphere radius.
-			// Loop the mesh triangles and find an intersection with the ray
-			for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
+			// Finally check if the ray interesects with the face (triangle) 
+			if (ray.Intersects(tri))
 			{
-				math::float3 v1(mesh_info->vertex[i], mesh_info->vertex[i + 1], mesh_info->vertex[i + 2]);
-				math::float3 v2(mesh_info->vertex[i + 3], mesh_info->vertex[i + 4], mesh_info->vertex[i + 5]);
-				math::float3 v3(mesh_info->vertex[i + 6], mesh_info->vertex[i + 7], mesh_info->vertex[i + 8]);
-
-				// form a triangle
-				math::Triangle tri = math::Triangle(v1, v2, v3);
-
-				// Finally check if the ray interesects with the face (triangle) 
-				if (ray.Intersects(tri))
-				{
-					return dynamic_cast<ComponentMesh*>(mesh);
-				}
-
+				return dynamic_cast<ComponentMesh*>(mesh);
 			}
+
 		}
 	}
 
@@ -146,32 +137,16 @@ ComponentMesh* internal::GetIntersectedMesh(float3 mouse3Dpos, math::Ray ray)
 
 
 // ----------------------------------------------------------------- 
-bool internal::IsMouseInsideEntityRadius(std::variant<ComponentMesh*, GameObject*> entity, float3 mousePos3D)
+bool internal::IsMouseInsideEntityRadius(GameObject* obj, float3 mousePos3D)
 {
-	double distMouseToObj = (double)INFINITE; 
-	double radius = 0; 
+	auto transf = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM));
+	double distMouseToObj = abs((mousePos3D - transf->GetPosition()).Length());
+	double radius = obj->GetBoundingSphereRadius();
 
-	if (entity.index() == 0) // mesh 
-	{
-		auto mesh = std::get<ComponentMesh*>(entity);
-		auto transf = dynamic_cast<ComponentTransform*>(std::get<Component*>(mesh->GetComponent(TRANSFORM)));
-		distMouseToObj = abs((mousePos3D - transf->GetPosition()).Length());
-		radius = mesh->GetMeshData()->GetMeshSphereRadius();
-	}
-	else if (entity.index() == 1) // object
-	{
-		auto obj = std::get<GameObject*>(entity);
-		auto transf = dynamic_cast<ComponentTransform*>(std::get<Component*>(obj->GetComponent(TRANSFORM)));
-		distMouseToObj = abs((mousePos3D - transf->GetPosition()).Length());
-		radius = obj->GetBoundingSphereRadius();
-	}
-
-	// Return 
 	if (distMouseToObj <= radius)
 		return true;
 	else
 		return false;
-	
 }
 
 

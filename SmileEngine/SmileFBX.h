@@ -24,8 +24,8 @@ public:
 	void ReadFBXData(const char* path);
 
 
-	void AssignTextureToMesh(const char* path, ComponentMesh* mesh); 
-	void AssignCheckersTextureToMesh(ComponentMesh* mesh); // TODO: generic
+	void AssignTextureToObj(const char* path, GameObject* obj); 
+	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
 	//void FreeMeshTexture(ComponentMesh* mesh); 
 
 public:

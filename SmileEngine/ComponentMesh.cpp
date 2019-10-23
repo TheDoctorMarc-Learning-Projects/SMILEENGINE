@@ -11,29 +11,29 @@
 ComponentMesh::ComponentMesh(par_shapes_mesh* mesh, std::string name)
 {
 	SetName(name); 
-	FillComponentBuffers(); 
-	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this); // TODO: what should the transform matrix have? 
 	type = MESH; 
 	meshType = Mesh_Type::PRIMITIVE; 
 
+	// Generate mesh buffers from par_shapes
 	GenerateModelMeshFromParShapes(mesh); 
+
+	// Assign the parent transform once the mesh center has been computed 
+	if(parent)
+		parent->SetupTransformAtMeshCenter();
 }
 
 ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh(mesh)
 {
 	SetName(name);
-	FillComponentBuffers();
-	std::get<GameObject*>(parent)->AddComponentToMesh(DBG_NEW ComponentTransform(), this);
 	type = MESH;
 	meshType = Mesh_Type::MODEL;
-}
 
-void ComponentMesh::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
-{
-	components[TRANSFORM] = (Component*)NULL; // one 
-	components[MESH] = (Component*)NULL; // placeholder
-	components[MATERIAL] = (Component*)NULL; // one 
-	components[LIGHT] = (Component*)NULL;  // placeholder
+	// Generate mesh buffers
+    GenerateBuffers();
+
+	// Assign the parent transform once the mesh center has been computed 
+	if (parent)
+		parent->SetupTransformAtMeshCenter();
 }
 
 ComponentMesh::~ComponentMesh()
@@ -48,7 +48,7 @@ void ComponentMesh::Draw()
 	{
 		// Transformation -> for the mom let's try to use the parent gameobject transform matrix 
 		glPushMatrix(); 
-		glMultMatrixf(dynamic_cast<ComponentTransform*>(std::get<Component*>(std::get<GameObject*>(parent)->GetComponent(TRANSFORM)))->GetGlobalMatrix().Transposed().ptr()); 
+		glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr()); 
 
 		// Cient states
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -72,7 +72,7 @@ void ComponentMesh::Draw()
 		}*/
 
 		// texture buffer
-		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(std::get<Component*>(GetComponent(MATERIAL)));
+		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
 		if (mat != nullptr)
 		{
 			glBindTexture(GL_TEXTURE_2D, mat->textureInfo->id_texture);
@@ -174,76 +174,12 @@ void ComponentMesh::DebugDraw()
 		}
 }
 
-void ComponentMesh::Enable()
-{
-	// The variant "components" holds either a Component* if index = 0 or a std list of Components* if index = 1
-	for (auto& comp : components)
-	{
-		if (comp.index() == 0)
-		{
-			Component* c = std::get<Component*>(comp);
-			if (c)
-				c->Enable(); 
-		}
-		
-		else if (comp.index() == 1)
-		{
-			auto& vComp = std::get<std::vector<Component*>>(comp);
-			for (auto& comp2 : vComp)
-				comp2->Enable();
-		}
 
-	}
-	active = true;
-}
-
-// ----------------------------------------------------------------- 
-void ComponentMesh::Disable()
-{
-	for (auto& comp : components)
-	{
-		if (comp.index() == 0)
-		{
-			Component* c = std::get<Component*>(comp);
-			if (c)
-				c->Disable();
-		}
-
-		else if (comp.index() == 1)
-		{
-			auto& vComp = std::get<std::vector<Component*>>(comp);
-			for (auto& comp2 : vComp)
-				comp2->Disable();
-		}
-
-	}
-	active = false;
-}
 
 // -----------------------------------------------------------------
 void ComponentMesh::Update()
 {
-	// First draw it
 	Draw(); 
-
-	// Then update components
-	for (auto& comp : components)
-	{
-		if (comp.index() == 0)
-		{
-			Component* c = std::get<Component*>(comp);
-			if (c)
-				c->Update();
-		}
-		else if (comp.index() == 1)
-		{
-			auto& vComp = std::get<std::vector<Component*>>(comp);
-			for (auto& comp2 : vComp)
-				comp2->Update();
-		}
-
-	}
-
 }
 
 // -----------------------------------------------------------------
@@ -282,39 +218,10 @@ void ComponentMesh::CleanUp()
 			RELEASE_ARRAY(model_mesh->UVs);
 		}
 
-
 		RELEASE(model_mesh); 
 	}
 
-	// Free Components
-	for (auto& comp : components)
-	{
-		if (comp.index() == 0)
-		{
-			Component* c = std::get<Component*>(comp);
-			if (c)
-			{
-				c->CleanUp();
-				RELEASE(c);
-			}
-		
-		}
 
-		else if (comp.index() == 1)
-		{
-			auto& vComp = std::get<std::vector<Component*>>(comp);
-			for (auto& comp2 : vComp)
-			{
-				comp2->CleanUp();
-				RELEASE(comp2);
-			}
-			vComp.clear();
-		}
-	}
-
-
- 
-	//delete[] components;
 
 
 }
@@ -366,46 +273,7 @@ void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 void ComponentMesh::ComputeSpatialData()
 {
 	if (model_mesh != nullptr)
-	{
-		// Get the minimum and maximum x,y,z to create a bounding box 
-		for (uint i = 0; i < model_mesh->num_vertex; i += 3)
-		{
-			// first, initialize the min-max coords to the first vertex, 
-			// in order to compare the following ones with it
-			if (i == 0)
-			{
-				model_mesh->minmaxCoords[minMaxCoords::MIN_X] = model_mesh->vertex[i];
-				model_mesh->minmaxCoords[minMaxCoords::MAX_X] = model_mesh->vertex[i];
-				model_mesh->minmaxCoords[minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
-				model_mesh->minmaxCoords[minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
-				model_mesh->minmaxCoords[minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
-				model_mesh->minmaxCoords[minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
-				continue;
-			}
-
-			// find min-max X coord
-			if (model_mesh->vertex[i] < model_mesh->minmaxCoords[minMaxCoords::MIN_X])
-				model_mesh->minmaxCoords[minMaxCoords::MIN_X] = model_mesh->vertex[i];
-			else if (model_mesh->vertex[i] > model_mesh->minmaxCoords[minMaxCoords::MAX_X])
-				model_mesh->minmaxCoords[minMaxCoords::MAX_X] = model_mesh->vertex[i];
-
-			// find min-max Y coord
-			if (model_mesh->vertex[i + 1] < model_mesh->minmaxCoords[minMaxCoords::MIN_Y])
-				model_mesh->minmaxCoords[minMaxCoords::MIN_Y] = model_mesh->vertex[i + 1];
-			else if (model_mesh->vertex[i + 1] > model_mesh->minmaxCoords[minMaxCoords::MAX_Y])
-				model_mesh->minmaxCoords[minMaxCoords::MAX_Y] = model_mesh->vertex[i + 1];
-
-			// find min-max Z coord
-			if (model_mesh->vertex[i + 2] < model_mesh->minmaxCoords[minMaxCoords::MIN_Z])
-				model_mesh->minmaxCoords[minMaxCoords::MIN_Z] = model_mesh->vertex[i + 2];
-			else if (model_mesh->vertex[i + 2] > model_mesh->minmaxCoords[minMaxCoords::MAX_Z])
-				model_mesh->minmaxCoords[minMaxCoords::MAX_Z] = model_mesh->vertex[i + 2];
-
-		}
-
 		model_mesh->ComputeMeshSpatialData();
-	}
-
 }
 
 void ComponentMesh::GenerateBuffers()
@@ -436,58 +304,60 @@ void ComponentMesh::GenerateBuffers()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * model_mesh->num_index, model_mesh->index, GL_STATIC_DRAW);
 }
 
-void ComponentMesh::OnTransform() // similar to gameobject: transform myself, and child components
+// Executed only once 
+void ModelMeshData::ComputeMeshSpatialData()
 {
-	// 1) Transform myself 
-	dynamic_cast<ComponentTransform*>(std::get<Component*>(components[TRANSFORM]))->CalculateAllMatrixes();
+	if (computedData)
+		return; 
 
-    // 2) Then, transform components
-	for (auto& comp : components)
+	// 1) find the min-max coords
+	for (uint i = 0; i < num_vertex; i += 3)
 	{
-		if (comp.index() == 0)
-			std::get<Component*>(comp)->OnTransform();
-
-		else if (comp.index() == 1)
+		// first, initialize the min-max coords to the first vertex, 
+		// in order to compare the following ones with it
+		if (i == 0)
 		{
-			auto& vComp = std::get<std::vector<Component*>>(comp);
-			for (auto& comp2 : vComp)
-				comp2->OnTransform();
-
+			minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
+			minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
+			minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
+			minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
+			minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
+			minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
+			continue;
 		}
-	}
-}
 
-bool ComponentMesh::AddComponent(Component* comp)
-{
-	if (comp != nullptr)
-	{
-		// Check if the component can be added to a Mesh 
-		if (std::get<1>(uniquenessMap.at(comp->type)) == false)
-			return false;
+		// find min-max X coord
+		if (vertex[i] < minmaxCoords[minMaxCoords::MIN_X])
+			minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
+		else if (vertex[i] > minmaxCoords[minMaxCoords::MAX_X])
+			minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
 
-		// Check if there cannot be more than one instance of that component
-		if (std::get<2>(uniquenessMap.at(comp->type)) == false)
-		{
-			// Check if there already exists a component of that type
-			if (std::get<Component*>(components[comp->type]) != nullptr)
-			{
-				std::get<Component*>(components[comp->type])->CleanUp();
-				RELEASE(std::get<Component*>(components[comp->type]));
-			}
+		// find min-max Y coord
+		if (vertex[i + 1] < minmaxCoords[minMaxCoords::MIN_Y])
+			minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
+		else if (vertex[i + 1] > minmaxCoords[minMaxCoords::MAX_Y])
+			minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
 
-			std::get<Component*>(components[comp->type]) = comp;
+		// find min-max Z coord
+		if (vertex[i + 2] < minmaxCoords[minMaxCoords::MIN_Z])
+			minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
+		else if (vertex[i + 2] > minmaxCoords[minMaxCoords::MAX_Z])
+			minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
 
-			goto Enable;
-		}
-		else // if there can me more than one, push it to that component type list 
-			std::get<std::vector<Component*>>(components[comp->type]).push_back(comp);
-
-	Enable:
-		comp->parent = this;
-		comp->Enable();
-
-		return true;
 	}
 
-	return false;
+	// 2) find the center 
+	float c_X = (minmaxCoords[minMaxCoords::MIN_X] + minmaxCoords[minMaxCoords::MAX_X]) / 2;
+	float c_Y = (minmaxCoords[minMaxCoords::MIN_Y] + minmaxCoords[minMaxCoords::MAX_Y]) / 2;
+	float c_Z = (minmaxCoords[minMaxCoords::MIN_Z] + minmaxCoords[minMaxCoords::MAX_Z]) / 2;
+	meshCenter = vec3(c_X, c_Y, c_Z);
+
+	// 3) find the bounding sphere radius
+	vec3 min_Vec(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]);
+	vec3 max_Vec(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
+	vec3 rad_Vec = (max_Vec - min_Vec) / 2;
+	meshBoundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
+
+		
+	computedData = true; 
 }

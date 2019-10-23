@@ -28,8 +28,7 @@ public:
 	float* GetViewMatrix();
 	float* GetViewMatrixInverse();
 
-	void FitCameraToMesh(ComponentMesh* mesh);
-	void FitCameraToObject(GameObject* obj); 
+	void FitCameraToObject(GameObject* obj);
 
 	float GetScrollSpeed(float dt, float zScroll); 
 

@@ -10,6 +10,16 @@ ComponentTransform::ComponentTransform()
 	CalculateGlobalMatrix(); 
 }
 
+
+ComponentTransform::ComponentTransform(float4x4 localMat)
+{
+	SetName("Transform");
+	SetLocalMatrix(localMat);
+	type = COMPONENT_TYPE::TRANSFORM;
+	CalculateGlobalMatrix();
+}
+
+
 ComponentTransform::~ComponentTransform()
 {
 
@@ -23,9 +33,9 @@ void ComponentTransform::CalculateAllMatrixes()
 
 void ComponentTransform::CalculateGlobalMatrix()
 {
-	if (std::get<GameObject*>(parent) != nullptr)
+	if (parent != nullptr)
 	{
-		globalMatrix = dynamic_cast<ComponentTransform*>(std::get<Component*>((std::get<GameObject*>(parent)->GetComponent(TRANSFORM))))->GetGlobalMatrix()
+		globalMatrix = dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix()
 			* localMatrix; 
 	}
 	else
