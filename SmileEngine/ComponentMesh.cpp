@@ -177,6 +177,50 @@ void ComponentMesh::DebugDraw()
 				glColor3f(1.0f, 1.0f, 1.0f);
 			}
 		}
+
+
+		// stencil
+		if (debugData.outilineMesh || debugData.outlineParent)
+		{
+			// Init 
+			if (!glIsEnabled(GL_STENCIL_TEST))
+				glEnable(GL_STENCIL_TEST);
+
+			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+			glStencilMask(0x00);
+
+			// Transformation  
+			glPushMatrix();
+			glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr());
+
+			// Cient states
+			glEnableClientState(GL_VERTEX_ARRAY);
+
+			// Set drawing data: todo = colors diff on mesh vs obj
+			glColor3f(0, 1, 0);
+			glLineWidth(3);
+
+			// The vertex and index data should be provided inside 
+			// vertex buffer
+			glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
+			glVertexPointer(3, GL_FLOAT, 0, NULL);
+
+			// index buffer 
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
+			glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, (meshType == MODEL) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT, NULL);
+
+			// Disable Cient states && clear data
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glLineWidth(1);
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisable(GL_STENCIL_TEST);
+
+			// Transformation
+			glPopMatrix();
+		}
+
+
 }
 
 // -----------------------------------------------------------------
@@ -363,4 +407,9 @@ void ModelMeshData::ComputeMeshSpatialData()
 
 		
 	computedData = true; 
+}
+
+void ComponentMesh::OnSelect(bool select)
+{
+	debugData.outilineMesh = !debugData.outilineMesh; 
 }

@@ -18,6 +18,8 @@ struct debugData
 {
 	bool faceNormals = false; 
 	bool vertexNormals = false; 
+	bool outilineMesh = false; 
+	bool outlineParent = false; 
 };
 
 // TODO = more generic 
@@ -76,7 +78,7 @@ public:
 
 	// If it has a mesh loaded from an FBX ("model_mesh"): 
 	void Draw(); 
-
+	void OnSelect(bool select);
 	ModelMeshData* GetMeshData() const { return model_mesh; };
 
 private: 
@@ -88,6 +90,7 @@ private:
 
 	// debug
 	void DebugDraw(); 
+
 
 public: 
 	// Assign & Get data

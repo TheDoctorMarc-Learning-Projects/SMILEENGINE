@@ -159,7 +159,7 @@ void SmileFBX::ReadFBXData(const char* path)
 						aiString tex_path;
 						scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
 
-						std::string assetsPath("..//Assets/"); assetsPath += tex_path.data;
+						std::string assetsPath("Assets/Models/"); assetsPath += tex_path.data;
 						AssignTextureToObj(assetsPath.c_str(), object);
 					}
 				}
@@ -167,6 +167,7 @@ void SmileFBX::ReadFBXData(const char* path)
 			
 			// Add the Mesh to the GameObject and the GameObject to the parent GameObject
 			object->AddComponent(mesh);
+			object->SetupTransformAtMeshCenter(); 
 
 			// Fit the camera to the object 
 			App->camera->FitCameraToObject(object);

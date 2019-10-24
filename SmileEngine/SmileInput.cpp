@@ -188,7 +188,7 @@ void SmileInput::ButCanItRunCrysis()
 	mciSendString("set cdaudio door open", 0, 0, 0);
 	MessageBox(nullptr, TEXT("No, it can't"), TEXT("Incoming message:"), MB_OK);
 
-	const std::filesystem::path& relativePath = "..//bg/windows.png"; 
+	const std::filesystem::path& relativePath = "Assets/bg/windows.png"; 
 	std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
     std::string str = absolutePath.string(); 
 	SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (PVOID*)str.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);

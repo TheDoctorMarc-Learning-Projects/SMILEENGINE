@@ -719,7 +719,7 @@ static void ObjectRecursiveNode(GameObject* obj)
 	{
 		if (ImGui::TreeNode(obj->GetName().c_str()))
 		{
-			App->scene_intro->selectedObj = obj;
+			App->scene_intro->selectedObj = obj; 
 
 			/*if (obj->childObjects.size() > 0) // capped tree-like hierarchy for the assignment
 			{
@@ -823,7 +823,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			ImGui::Text(std::string("Size: " + std::to_string(mat->GetTextureData()->width) + " x " + std::to_string(mat->GetTextureData()->height)).c_str());
 			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)
 			{
-				const std::filesystem::path& relativePath = "..//Assets/";
+				const std::filesystem::path& relativePath = "Assets/";
 				std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
 				ShellExecute(NULL, "open", absolutePath.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 			}
