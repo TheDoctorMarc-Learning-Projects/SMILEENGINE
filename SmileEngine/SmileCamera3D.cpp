@@ -236,7 +236,7 @@ void SmileCamera3D::CalculateViewMatrix()
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::FitCameraToObject(GameObject* obj) // TODO: calculate a radius for the bounding sphere of an object (the avg of the meshes centers)
+void SmileCamera3D::FitCameraToObject(GameObject* obj)  
 {
 	// look at the mesh center
 	float3 centerMath = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM))->GetPosition();
@@ -262,6 +262,7 @@ void SmileCamera3D::FitCameraToObject(GameObject* obj) // TODO: calculate a radi
 
 }
  
+// -----------------------------------------------------------------
 float SmileCamera3D::GetScrollSpeed(float dt, float zScroll)
 {
 	float speed = DEFAULT_SPEED * dt * sMath::Sign(zScroll);
