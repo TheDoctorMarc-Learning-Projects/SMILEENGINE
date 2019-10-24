@@ -46,39 +46,34 @@ void ComponentMesh::Draw()
 	// Draw the OpenGL mesh 
 	if (model_mesh != nullptr)  
 	{
-		// Transformation -> for the mom let's try to use the parent gameobject transform matrix 
+		// Transformation  
 		glPushMatrix(); 
 		glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr()); 
 
 		// Cient states
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		//glEnableClientState(GL_TEXTURE_BUFFER);
-		//glEnableClientState(GL_COLOR_ARRAY); 
+		
 
-		// UV buffer
-		if (model_mesh->UVs != nullptr)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
-			glTexCoordPointer(2, GL_FLOAT, 0, NULL);
-
-		}
-
-		// color buffer 
-		/*if (mesh->color != nullptr) {
-			glBindBuffer(GL_COLOR_ARRAY, mesh->id_color);
-			glColorPointer(3, GL_FLOAT, 8 * sizeof(GLfloat), 0);
-		}*/
-
-		// texture buffer
+		// Material
 		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
 		if (mat != nullptr)
 		{
-			glBindTexture(GL_TEXTURE_2D, mat->textureInfo->id_texture);
+			// UVs buffer
+			if (model_mesh->UVs != nullptr)
+			{
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+				glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
+				glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+
+				// texture buffer
+				glBindTexture(GL_TEXTURE_2D, mat->textureInfo->id_texture);
+			}
 
 		}
-			
+	
+
 		// normal buffer
 		if (model_mesh->normals != nullptr)
 		{
@@ -95,18 +90,15 @@ void ComponentMesh::Draw()
 		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, (meshType == MODEL) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT, NULL);
 
 
-		// Cient states
-		//glDisableClientState(GL_COLOR_ARRAY);
-		//glDisableClientState(GL_TEXTURE_BUFFER);
+		// Disanle Cient states && clear data
+		glColor3f(1.0f, 1.0f, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 
-
 	    // Debug on top
 		DebugDraw();
-
 
 		// Transformation
 		glPopMatrix(); 
@@ -186,8 +178,6 @@ void ComponentMesh::DebugDraw()
 			}
 		}
 }
-
-
 
 // -----------------------------------------------------------------
 void ComponentMesh::Update()

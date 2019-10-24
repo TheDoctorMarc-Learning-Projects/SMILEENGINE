@@ -721,12 +721,12 @@ static void ObjectRecursiveNode(GameObject* obj)
 		{
 			App->scene_intro->selectedObj = obj;
 
-			if (obj->childObjects.size() > 0)
+			/*if (obj->childObjects.size() > 0) // capped tree-like hierarchy for the assignment
 			{
 				for (auto& childObj : obj->childObjects)
 					ObjectRecursiveNode(childObj);
 			}
-
+			*/
 			ImGui::TreePop();
 		}
 		
@@ -740,15 +740,17 @@ void panelData::HierarchySpace::Execute(bool& ret)
 
 	ImGui::Begin("Hierarchy ", &showHierarchy); 
 	
-		if (ImGui::TreeNode("Root"))
+		/*if (ImGui::TreeNode("Root"))
 		{
 			// Objects
-			for (auto& obj : App->scene_intro->rootObj->GetImmidiateChildren())
-				ObjectRecursiveNode(obj); 
+			for (auto& obj : App->scene_intro->rootObj->GetImmidiateChildren()) // capped tree-like hierarchy for the assignment
+				ObjectRecursiveNode(obj); */
 		
+			for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
+				ObjectRecursiveNode(obj);
 
-			ImGui::TreePop();
-		}
+		/*	ImGui::TreePop();
+		}*/
 	
 		ImGui::End(); 
 	
