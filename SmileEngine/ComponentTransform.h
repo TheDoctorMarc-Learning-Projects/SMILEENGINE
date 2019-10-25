@@ -7,7 +7,7 @@
 
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
-#include "MathGeoLib.h"
+#include "MathGeoLib/include/MathGeoLib.h"
  
 // ----------------------------------------------------------------- [Transform]
 class ComponentTransform : public Component

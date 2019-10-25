@@ -12,7 +12,7 @@ class SmileApp;
 
 struct windowParams
 {
-	int Width, Height, Scale;
+	int Width, Height, Scale, Brightness;
 	bool Fullscreen, Borderless, Resizable, FullDesktop;
 
 	std::map<std::string, std::variant<int, bool>> map; 
@@ -40,6 +40,11 @@ public:
 		windowVariables.Width = w; 
 		windowVariables.Height = h;
 	};
+	void setBrightness(int bg)
+	{
+		SDL_SetWindowBrightness(window, bg);
+		windowVariables.Brightness = bg;
+	}
 
 	std::variant<int, bool> GetWindowParameter(std::string name)
 	{

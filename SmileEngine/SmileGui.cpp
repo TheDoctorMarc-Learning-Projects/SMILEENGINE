@@ -357,7 +357,7 @@ void panelData::configSpace::Execute(bool& ret)
 			static bool cullFace = false, wireframe = false, depth = true, lightning = true,
 				ColorMaterial = true, Texture2D = true, ambient = true, diffuse = true; 
 
-			if (ImGui::Checkbox("Vertex Normals", &App->fbx->debug));
+			
 		
 
 			if (ImGui::Checkbox("Depth", &depth))
@@ -458,18 +458,18 @@ void panelData::configSpace::Execute(bool& ret)
 			//TODO path for the icon
 			//Brightness
 			if (ImGui::SliderFloat("Brightness", &br, 0.000, 1.000))
-				SDL_SetWindowBrightness(App->window->window, br);
+			{
+				App->window->setBrightness(br);
+			}
 			//Width
 			if (ImGui::SliderInt("Width", &width, 640, 1920))
 			{
-				SDL_SetWindowSize(App->window->window, width, height);
-				App->renderer3D->OnResize(width, height);
+				App->window->SetWindowSize(width, height);
 			}
 			//Height
 			if (ImGui::SliderInt("Height", &height, 480, 1080))
 			{
-				SDL_SetWindowSize(App->window->window, width, height);
-				App->renderer3D->OnResize(width, height);
+				App->window->SetWindowSize(width, height);
 			}
 
 
