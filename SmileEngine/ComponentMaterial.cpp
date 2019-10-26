@@ -25,7 +25,7 @@ void ComponentMaterial::CleanUpTextureData()
 	{
 		glDeleteTextures(1, (GLuint*)&textureInfo->texture);
 		//delete[] mesh->texture; 
-		textureInfo->id_texture = 0; 
+		textureInfo->id_texture = 0;
 	}
 
 }

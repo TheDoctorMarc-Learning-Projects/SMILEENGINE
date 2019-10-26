@@ -13,8 +13,6 @@ enum COMPONENT_TYPE : uint
 	NO_TYPE
 };
 
- 
- 
 #include "DevIL/include/IL/il.h"
 typedef ILubyte;
 struct textureData

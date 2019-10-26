@@ -41,7 +41,8 @@ bool SmileWindow::Init()
 		windowVariables.FullDesktop = rapidjson::GetValueByPointer(doc, "/Window/0/FullDesktop")->GetBool();
 
 		windowVariables.map =
-		{
+		{	
+			{"Brightness", windowVariables.Brightness},
 			{"Width", windowVariables.Width},
 			{"Height", windowVariables.Height},
 			{"Scale", windowVariables.Scale},
@@ -102,9 +103,11 @@ bool SmileWindow::CleanUp()
 
 	//Destroy window
 	if(window != NULL)
-	{
 		SDL_DestroyWindow(window);
-	}
+
+	//Free surface
+	if (screen_surface != NULL)
+		SDL_FreeSurface(screen_surface);
 
 	//Quit SDL subsystems
 	SDL_Quit();

@@ -117,9 +117,6 @@
     <ClInclude Include="SmileInput.h">
       <Filter>Source\Modules\Basic</Filter>
     </ClInclude>
-    <ClInclude Include="SmileModule.h">
-      <Filter>Source\Modules\Basic</Filter>
-    </ClInclude>
     <ClInclude Include="SmileRenderer3D.h">
       <Filter>Source\Modules\Basic</Filter>
     </ClInclude>
@@ -150,6 +147,9 @@
     <ClInclude Include="ComponentMaterial.h">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
+    <ClInclude Include="SmileModule.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -178,9 +178,6 @@
     </ClCompile>
     <ClCompile Include="SmileMain.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileScene.cpp">
-      <Filter>Source\Modules\GameLogic</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
       <Filter>Source\Tools\GUI</Filter>
@@ -238,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="ComponentMaterial.cpp">
       <Filter>Source\Modules\Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileScene.cpp">
+      <Filter>Source\Modules\GameLogic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

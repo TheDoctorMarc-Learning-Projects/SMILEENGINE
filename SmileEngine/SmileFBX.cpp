@@ -259,11 +259,11 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 	// Generate the checkered image
 	GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
-	for (int i = 0; i < CHECKERS_SIZE; i++) 
+	for (uint i = 0; i < CHECKERS_SIZE; i++) 
 	{
-		for (int j = 0; j < CHECKERS_SIZE; j++)
+		for (uint j = 0; j < CHECKERS_SIZE; j++)
 		{
-			int c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
+			uint c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
 			checkImage[i][j][0] = (GLubyte)c;
 			checkImage[i][j][1] = (GLubyte)c;
 			checkImage[i][j][2] = (GLubyte)c;
@@ -284,11 +284,11 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLuint)CHECKERS_SIZE,
-		(GLuint)CHECKERS_SIZE, 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
-		ilGetData());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLuint)CHECKERS_SIZE,
+		(GLuint)CHECKERS_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+		checkImage);
 
-	targetMat->textureInfo->texture = (ILubyte*)ilGetData();
+	targetMat->textureInfo->texture = (ILubyte*)checkImage;
 	targetMat->textureInfo->path = "Generated in-game"; 
 
 	glGenerateMipmap(GL_TEXTURE_2D);
