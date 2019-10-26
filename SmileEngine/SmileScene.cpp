@@ -23,6 +23,7 @@ bool SmileScene::Start()
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
 	//App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
+	
 	 
 	return true;
 }
@@ -49,8 +50,18 @@ update_status SmileScene::Update(float dt)
 
 void SmileScene::DrawGrid()
 {
-	
-	// TODO
+	glLineWidth(lineWidth);
+	glColor3f(1, 1, 1);
+	glBegin(GL_LINES);
+	for (float i = 0; i <= MAXLINES; i++)
+	{
+		glVertex3f(i - MAXLINES * linesLength, 0, -MAXLINES * linesLength);
+		glVertex3f(i - MAXLINES * linesLength, 0, MAXLINES * linesLength);
+		glVertex3f(-MAXLINES * linesLength, 0, i - MAXLINES * linesLength);
+		glVertex3f(MAXLINES * linesLength, 0, i - MAXLINES * linesLength);
+	}
+	glEnd();
+	glLineWidth(lineWidth);
 
 }
 

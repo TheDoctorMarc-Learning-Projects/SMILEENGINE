@@ -96,6 +96,7 @@ void SmileFBX::ReadFBXData(const char* path)
 				}
 			
 			}
+			
 
 			// Normals
 			if (new_mesh->HasNormals())
@@ -105,6 +106,7 @@ void SmileFBX::ReadFBXData(const char* path)
 				memcpy(mesh_info->normals, new_mesh->mNormals, sizeof(float) * mesh_info->num_normals * 3);
 
 			}
+			
 
 			// UVs
 			for (int ind = 0; ind < new_mesh->GetNumUVChannels(); ++ind)
@@ -125,6 +127,7 @@ void SmileFBX::ReadFBXData(const char* path)
 				}
 
 			}
+			LOG("UVs: %f", mesh_info->UVs);
 
 			// Colors 
 			if (new_mesh->HasVertexColors(0))  
@@ -140,6 +143,7 @@ void SmileFBX::ReadFBXData(const char* path)
 					memcpy(&mesh_info->color[j + 3], &new_mesh->mColors[0][i].a, sizeof(float));
 					j += 4;
 				}
+				LOG("Number of vertices: %i", new_mesh->mNumVertices);
 			}
 
 			// create a component mesh and fill it with the mesh info
@@ -161,6 +165,7 @@ void SmileFBX::ReadFBXData(const char* path)
 
 						std::string assetsPath("Assets/Models/"); assetsPath += tex_path.data;
 						AssignTextureToObj(assetsPath.c_str(), object);
+						LOG("Asset loaded: %s", assetsPath.c_str());
 					}
 				}
 			}

@@ -5,7 +5,7 @@
 #include "GameObject.h"
 #include "ComponentMesh.h"
 #include <vector>
-
+#define MAXLINES 30
 class SmileScene : public SmileModule
 {
 public:
@@ -23,7 +23,8 @@ public:
 	GameObject* rootObj = nullptr;
 	GameObject* selectedObj = nullptr; 
 	ComponentMesh* selected_mesh = nullptr;
-
+	int lineWidth = 1;
+	float linesLength = 0.5f;
 	/*// test
 	par_shapes_mesh* testCube = nullptr;
 	uint* vertexIDarray = nullptr; 

@@ -3,7 +3,7 @@
 #include "SmileSetup.h"
 #include "glmath.h"
 #include "ComponentMesh.h"
-#include "MathGeoLib.h"
+#include "MathGeoLib/include/MathGeoLib.h"
 
 #define MIN_DIST_TO_MESH 5.F
 #define MAX_FRAME_SPEED 10.F
