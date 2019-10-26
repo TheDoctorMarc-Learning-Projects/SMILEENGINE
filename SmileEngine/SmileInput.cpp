@@ -12,6 +12,7 @@
 #include <mmsystem.h>
 #pragma comment (lib, "winmm.lib")
 #include <stdlib.h>
+#include <Audioclient.h>
 
 #include <iostream>
 #include <shlobj.h>
@@ -38,7 +39,7 @@ SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, sta
 // Destructor
 SmileInput::~SmileInput()
 {
-	delete[] keyboard;
+	RELEASE_ARRAY(keyboard);
 }
 
 // Called before render is available

@@ -33,9 +33,7 @@ bool SmileUtilitiesModule::CleanUp()
 	for (auto& utility : utilities)
 	{
 		utility.second->ShutDown();
-		
-		delete utility.second; 
-		utility.second = NULL; 
+		RELEASE(utility.second); 
 	}
 	
 	utilities.clear(); 
