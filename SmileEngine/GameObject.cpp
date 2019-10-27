@@ -5,20 +5,28 @@
 
 GameObject::GameObject(std::string name, GameObject* parent)
 {
+	// Parent-child
+	if (parent)
+		SetParent(parent);
+
+	// Name after assigning parent
 	SetName(name); 
 
 	// Components
 	FillComponentBuffers(); 
 	AddComponent((Component*) DBG_NEW ComponentTransform());
 
-	// Parent-child
-	if (parent)
-		SetParent(parent);
+
 }
 
 GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 {
-	SetName(name); 
+	// Parent-child
+	if (parent)
+		SetParent(parent);
+
+	// Name after assigning parent
+	SetName(name);
 
 	// Components
 	FillComponentBuffers();
@@ -26,10 +34,6 @@ GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 		AddComponent((Component*)DBG_NEW ComponentTransform());
 
 	AddComponent(comp); 
-
-	// Parent-child
-	if (parent)
-		SetParent(parent); 
 }
 
 
@@ -52,11 +56,6 @@ GameObject::GameObject(std::vector<Component*> components, std::string name, Gam
 
 	if (foundTransform == false)
 		AddComponent((Component*)DBG_NEW ComponentTransform());
-
-
-	// Parent-child
-	if (parent)
-		SetParent(parent);
 }
 
 void GameObject::FillComponentBuffers() // needed in order to have either a Component or a vector of Components in each slot
@@ -239,4 +238,13 @@ void GameObject::SetupTransformAtMeshCenter()
 		LOG("GameObject could not setup the transform: missing mesh")
 
 
+}
+
+void GameObject::SetName(std::string name)
+{
+	if (name == "")
+		if(parent && parent->childObjects.size() > 0)
+			name = parent->GetName() + std::string(" (") + std::to_string(parent->childObjects.size()) + std::string(")");
+	
+	this->name = name;
 }

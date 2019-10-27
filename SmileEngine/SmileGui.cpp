@@ -310,9 +310,6 @@ void panelData::configSpace::Execute(bool& ret)
 				writer.Key("Scale");
 				writer.Int(std::get<int>(App->window->GetWindowParameter("Scale")));
 
-				writer.Key("Fullscreen");
-				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Fullscreen")));
-
 				writer.Key("Borderless");
 				writer.Bool(std::get<bool>(App->window->GetWindowParameter("Borderless")));
 
@@ -442,11 +439,11 @@ void panelData::configSpace::Execute(bool& ret)
 
 
 		if (ImGui::CollapsingHeader("Window")) {
-			bool windowcheckbox = false;
-			bool fullscreen_box = false;
-			bool resizable_box = false;
-			bool borderless_box = false;
-			bool fulldesktop_box = false;
+			static bool windowcheckbox = false;
+			static bool fullscreen_box = false;
+			static bool resizable_box = false;
+			static bool borderless_box = false;
+			static bool fulldesktop_box = false;
 			ImGui::Checkbox("Active", &windowcheckbox);
 
 			ImGui::Text("Icon:");
@@ -478,52 +475,27 @@ void panelData::configSpace::Execute(bool& ret)
 			int display_index = SDL_GetWindowDisplayIndex(App->window->window);
 			SDL_GetDesktopDisplayMode(display_index, &display_mode);
 			ImGui::Text("Refresh Rate:");
-			ImGui::SameLine();
-			ImGui::TextColored({ 255,255,0,255 }, "%i", display_mode.refresh_rate);
-			//Fullscreen checkbox
-			if (ImGui::Checkbox("FullScreen", &fullscreen_box))
-			{
-				fullscreen_box = !fullscreen_box;
-				if (fullscreen_box)
-				{
-					SDL_SetWindowFullscreen(App->window->window, SDL_WINDOW_FULLSCREEN);
-				}
-				else
-				{
-					SDL_SetWindowFullscreen(App->window->window, 0);
-				}
-			}
-			ImGui::SameLine();
-			// Resizable checkbox
-			ImGui::Checkbox("Resizable", &resizable_box);
-			
-			if (resizable_box)
-			{
-				SDL_SetWindowResizable(App->window->window, (SDL_bool)false);
-			}
-			else
-			{
-				SDL_SetWindowResizable(App->window->window, (SDL_bool)true);
-			}
-			ImGui::Checkbox("Borderless", &borderless_box);
-			if (borderless_box)
-			{
-				SDL_SetWindowBordered(App->window->window, (SDL_bool)false);
-			}
-			else {
-				SDL_SetWindowBordered(App->window->window, (SDL_bool)true);
-			}
-			ImGui::SameLine();
-			ImGui::Checkbox("Full Desktop", &fulldesktop_box);
+		
 
-			if (fulldesktop_box)
+			// Resizable checkbox
+			if (ImGui::Checkbox("Resizable", &resizable_box))
+				App->window->SetParameter("Resizable", (SDL_bool)resizable_box, &SDL_SetWindowResizable);
+		
+			ImGui::SameLine();
+
+			if (ImGui::Checkbox("Borderless", &borderless_box))
+				App->window->SetParameter("Resizable", (SDL_bool)borderless_box, &SDL_SetWindowBordered); 
+		
+			ImGui::SameLine();
+
+			if(ImGui::Checkbox("Full Desktop", &fulldesktop_box))
 			{
-				SDL_SetWindowFullscreen(App->window->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-			}
+			if(fulldesktop_box)
+				App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN_DESKTOP, (SDL_bool)fulldesktop_box);
 			else
-			{
-				SDL_SetWindowFullscreen(App->window->window, 0);
+				App->window->SetFullscreen(0, (SDL_bool)fulldesktop_box);
 			}
+				
 
 		}
 		if (ImGui::CollapsingHeader("File System")) {

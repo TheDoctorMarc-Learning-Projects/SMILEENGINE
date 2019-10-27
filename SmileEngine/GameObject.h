@@ -32,7 +32,7 @@ public:
 
 	// Assign & Get data
 	void SetParent(GameObject* parent); 
-	void SetName(std::string name) { this->name = name; };
+	void SetName(std::string name);
 	GameObject* GetParent() const { return parent;  };
 	std::string GetName() const { return name; }; 
 	std::vector<GameObject*> GetChildrenRecursive() const; 
@@ -57,7 +57,7 @@ private:
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 
 	bool active = true; 
 	std::string name; 
-	GameObject* parent; 
+	GameObject* parent = nullptr; 
 
 	friend class SmileGameObjectManager; 
 };

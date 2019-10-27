@@ -8,6 +8,8 @@
 #include <variant>
 #include <string>
 
+#define NAMEOF(variable) ((decltype(&variable))nullptr, #variable)
+
 class SmileApp;
 
 struct windowParams
@@ -54,11 +56,35 @@ public:
 		return (int)NAN;
 	}; 
 
+	bool DoesWindowParameterExist(std::string name)
+	{
+		auto item = windowVariables.map.find(name);
+		if (item != windowVariables.map.end())
+			return true; 
+		return false;
+	};
+
+
 	int GetTotalParams()
 	{
 		return windowVariables.map.size(); 
 	}
 	 
+	template<typename boolFunction> // any sdl function with 2 params: a window and a bool
+	void SetParameter(std::string name, SDL_bool value, boolFunction func)
+	{
+		if (DoesWindowParameterExist(name))
+		{
+			func(window, value);
+			windowVariables.map.at(name) = value;
+		}
+	}
+
+	void SetFullscreen(Uint32 flags, SDL_bool value)
+	{
+		SDL_SetWindowFullscreen(window, flags); 
+		windowVariables.map.at("FullDesktop") = (bool)value;
+	}
 
 public:
 	//The window we'll be rendering to

@@ -19,9 +19,6 @@ SmileApp* App = NULL;
 
 int main(int argc, char ** argv)
 {
-
-	ReportMemoryLeaks();
-
 	LOG("Starting game '%s'...", TITLE);
 
 	int main_return = EXIT_FAILURE;

@@ -35,7 +35,6 @@ bool SmileWindow::Init()
 		windowVariables.Scale = rapidjson::GetValueByPointer(doc, "/Window/0/Scale")->GetInt(); 
 		windowVariables.Width = rapidjson::GetValueByPointer(doc, "/Window/0/Width")->GetInt() * windowVariables.Scale;
 		windowVariables.Height = rapidjson::GetValueByPointer(doc, "/Window/0/Height")->GetInt() * windowVariables.Scale;
-		windowVariables.Fullscreen = rapidjson::GetValueByPointer(doc, "/Window/0/Fullscreen")->GetBool();
 		windowVariables.Borderless = rapidjson::GetValueByPointer(doc, "/Window/0/Borderless")->GetBool();
 		windowVariables.Resizable = rapidjson::GetValueByPointer(doc, "/Window/0/Resizable")->GetBool();
 		windowVariables.FullDesktop = rapidjson::GetValueByPointer(doc, "/Window/0/FullDesktop")->GetBool();
@@ -46,7 +45,6 @@ bool SmileWindow::Init()
 			{"Width", windowVariables.Width},
 			{"Height", windowVariables.Height},
 			{"Scale", windowVariables.Scale},
-			{"Fullscreen", windowVariables.Fullscreen},
 			{"Borderless", windowVariables.Borderless},
 			{"Resizable", windowVariables.Resizable},
 			{"FullDesktop", windowVariables.FullDesktop},
@@ -58,11 +56,6 @@ bool SmileWindow::Init()
 		//Use OpenGL 2.1
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-
-		if(windowVariables.Fullscreen == true)
-		{
-			flags |= SDL_WINDOW_FULLSCREEN;
-		}
 
 		if(windowVariables.Resizable == true)
 		{
@@ -119,4 +112,3 @@ void SmileWindow::SetTitle(const char* title)
 	SDL_SetWindowTitle(window, title);
 }
 
- 

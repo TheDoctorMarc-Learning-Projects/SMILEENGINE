@@ -51,7 +51,7 @@ bool SmileFBX::CleanUp()
 void SmileFBX::ReadFBXData(const char* path)
 {
 
-	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
+	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_Fast);
 
 	// Get the parent GameObject name
 	char rawname[100];
