@@ -90,6 +90,7 @@ SmileGui::~SmileGui()
 bool SmileGui::Start()
 {
 	bool ret = true; 
+	LOG("Initializing Imgui");
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -111,10 +112,6 @@ bool SmileGui::Start()
 // -----------------------------------------------------------------
 update_status SmileGui::PreUpdate(float dt)
 {
-	/*SDL_Event event;
-	while (SDL_PollEvent(&event))
-		ImGui_ImplSDL2_ProcessEvent(&event);*/
-
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(App->window->window);
@@ -142,6 +139,9 @@ bool SmileGui::GenerateGUI()
 // -----------------------------------------------------------------
 bool SmileGui::CleanUp()
 {
+
+	LOG("Shutting down Imgui");
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();

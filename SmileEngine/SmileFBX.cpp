@@ -34,6 +34,7 @@ bool SmileFBX::Start()
 	stream = aiGetPredefinedLogStream(aiDefaultLogStream_DEBUGGER, nullptr);
 	aiAttachLogStream(&stream);
 
+	LOG("Initializing Devil");
 	// Devil
 	ilInit(); 
 	iluInit(); 

@@ -1,8 +1,11 @@
 #include "RNG.h"
 #include <random>
+#include "SmileSetup.h"
 
 bool RNG::Initialize()
 {
+	LOG("Initializing PCG");
+
 	// Seed with a real random value, if available
 	pcg_extras::seed_seq_from<std::random_device> seed_source;
 

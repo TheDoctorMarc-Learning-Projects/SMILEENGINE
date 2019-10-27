@@ -12,6 +12,7 @@
 
 bool JSONParser::Initialize()
 {
+	LOG("Initializing JSON parser");
 	FillFunctionsMap();
 	return true; 
 }
@@ -19,6 +20,7 @@ bool JSONParser::Initialize()
 // -----------------------------------------------------------------
 bool JSONParser::ShutDown()
 {
+	LOG("Shutting down JSON parser");
 	singleParamConfigFunctionMap.clear();
 	multipleParamConfigFunctionMap.clear();
 	return true; 

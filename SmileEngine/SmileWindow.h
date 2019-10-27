@@ -42,7 +42,7 @@ public:
 		windowVariables.Width = w; 
 		windowVariables.Height = h;
 	};
-	void setBrightness(int bg)
+	void setBrightness(float bg)
 	{
 		SDL_SetWindowBrightness(window, bg);
 		windowVariables.Brightness = bg;
