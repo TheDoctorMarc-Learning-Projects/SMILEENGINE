@@ -14,6 +14,13 @@
 
 #include "ComponentMesh.h"
 
+struct globalTextureData
+{
+	uint totalActiveTextures = 0;
+	uint rgb = 0; 
+	uint rgba = 0; 
+};
+
 class SmileFBX : public SmileModule
 {
 public:
@@ -28,8 +35,12 @@ public:
 	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
 	//void FreeMeshTexture(ComponentMesh* mesh); 
 
-public:
+	globalTextureData GetGlobalTextureinfo() const { return textInfo; }; 
+private:
+	globalTextureData textInfo;
+public: 
 	bool debug = false;
+   
 	
 };
 

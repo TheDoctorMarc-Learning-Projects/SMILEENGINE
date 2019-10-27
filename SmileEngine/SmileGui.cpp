@@ -437,6 +437,13 @@ void panelData::configSpace::Execute(bool& ret)
 
 		}
 
+		if (ImGui::CollapsingHeader("Textures"))
+		{
+			globalTextureData data = App->fbx->GetGlobalTextureinfo(); 
+			ImGui::Text("Total active textures: %s", std::to_string(data.totalActiveTextures).c_str());
+			ImGui::Text("RGB: %s", std::to_string(data.rgb).c_str());
+			ImGui::Text("RGBA: %s", std::to_string(data.rgba).c_str());
+		}
 
 		if (ImGui::CollapsingHeader("Window")) {
 			static bool windowcheckbox = false;
@@ -498,14 +505,7 @@ void panelData::configSpace::Execute(bool& ret)
 				
 
 		}
-		if (ImGui::CollapsingHeader("File System")) {
-			ImGui::Text("Base Path:");
 
-			ImGui::Text("Read Path:");
-
-			ImGui::Text("Write Path:");
-
-		}
 		if (ImGui::CollapsingHeader("Input")) {
 			bool inputcheckbox = true;
 			ImGui::Checkbox("Active", &inputcheckbox);

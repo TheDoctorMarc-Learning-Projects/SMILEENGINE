@@ -233,7 +233,17 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 
 		// Assign the material to the mesh
 		if (targetMat != previousMat)
+		{
 			obj->AddComponent((Component*)targetMat);
+			textInfo.totalActiveTextures++;
+		}
+			
+		textInfo.rgb++;
+
+		if(targetMat->textureInfo->format == "RGBA")
+			textInfo.rgba--;
+
+		targetMat->textureInfo->format = "RGB";
 
 	}
 
@@ -296,7 +306,17 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 	// Assign the material to the mesh
 	if (targetMat != previousMat)
+	{
 		obj->AddComponent((Component*)targetMat);
+		textInfo.totalActiveTextures++;
+	}
+		
+	textInfo.rgba++;
+
+	if (targetMat->textureInfo->format == "RGB")
+		textInfo.rgb--;
+
+	targetMat->textureInfo->format = "RGBA";
 
 }
 

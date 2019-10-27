@@ -19,8 +19,9 @@ struct textureData
 {
 	uint id_texture = 0;
 	uint width, height = 0; 
-	std::string path; 
+	std::string path = "empty";
 	ILubyte* texture = nullptr;
+	std::string format = "empty"; 
 };
 
 // AABBs
