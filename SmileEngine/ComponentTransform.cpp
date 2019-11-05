@@ -27,7 +27,7 @@ ComponentTransform::ComponentTransform(float3 position)
 
 	//Proper Setup
 	SetName("Transform");
-	SetLocalMatrix(float4x4::identity);
+	SetLocalMatrix(mat);
 	type = COMPONENT_TYPE::TRANSFORM;
 	CalculateGlobalMatrix();
 }

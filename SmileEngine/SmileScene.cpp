@@ -29,7 +29,7 @@ bool SmileScene::Start()
 	App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 
 	//Default Camera
-	debugCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 5, 0), vec3(0, 0, 0));
+	debugCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 0, 5), vec3(0, 0, 0));
 
 	return true;
 }

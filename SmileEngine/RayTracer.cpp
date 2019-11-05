@@ -14,6 +14,12 @@ namespace internal
 	ComponentMesh* GetIntersectedMesh(float3 mousePos3D, math::Ray ray);
 	bool IsMouseInsideEntityRadius(GameObject* obj, float3 mousePos3D);
 
+	// Skipper conditions: returns true to skip the object if it has no mesh or if it is too far from mouse
+	bool SkipperConditions(GameObject* obj, float3 mouse3Dpos);
+
+	// General skipper conditions: returns true if mouse is in the dark horizon or if alt+click is active (orbiting object)
+	bool GeneralSkipperConditions(); 
+
 	// Return and assignment
 	std::variant<ComponentMesh*, GameObject*> ReturnHover(bool GetMeshNotGameObject, ComponentMesh* found);
 	std::variant<ComponentMesh*, GameObject*> ReturnClick(bool GetMeshNotGameObject, ComponentMesh* found);
@@ -26,8 +32,8 @@ namespace internal
 // ----------------------------------------------------------------- The second bool = return a mesh or an object
 std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject)  
 {
-	// 0) Skip if click was while a gui menu is open
-	if (App->gui->IsMouseOverTheGui() == true)
+	// 0) Skip if general conditions are present (see the function)
+	if (internal::GeneralSkipperConditions() == true)
 	{
 		assignClicked = false; 
 		return internal::EmptyReturn(GetMeshNotGameObject, assignClicked);
@@ -103,16 +109,12 @@ ComponentMesh* internal::GetIntersectedMesh(float3 mouse3Dpos, math::Ray ray)
 {
 	for (auto& gameObject : App->scene_intro->rootObj->GetChildrenRecursive())
 	{
-		// 1.A) SKIP the object directly if the mouse point distance to the object's center is greater than the object radius.
-		if (internal::IsMouseInsideEntityRadius(gameObject, mouse3Dpos) == false)
-			continue;
-
-		// 1.B) SKIP if the object has no mesh
-		auto mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH));
-		if (mesh == nullptr)
+		// Check conditions to optimize and discard the object
+		if (internal::SkipperConditions(gameObject, mouse3Dpos))
 			continue; 
 
-		// 1.C) DO NOT SKIP if the mouse point falls inside the bounding sphere radius.
+		// Do not skip: we assume it has a mesh (already checked)
+		ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH)); 
 		ModelMeshData* mesh_info = mesh->GetMeshData();
 		for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 		{
@@ -149,6 +151,36 @@ bool internal::IsMouseInsideEntityRadius(GameObject* obj, float3 mousePos3D)
 		return false;
 }
 
+bool internal::GeneralSkipperConditions()
+{
+	bool ret = false; 
+
+	// Skip if orbiting object
+	if (App->input->GetKey(SDL_SCANCODE_LALT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT)
+		ret = true;
+
+	// Skip if mouse in the gui
+	if (App->gui->IsMouseOverTheGui())
+		ret = true; 
+
+	return ret; 
+}
+// ----------------------------------------------------------------- 
+bool internal::SkipperConditions(GameObject* obj, float3 mouse3Dpos)
+{
+	bool ret = false; 
+
+	// 1.A) SKIP the object directly if the mouse point distance to the object's center is greater than the object radius.
+	if (internal::IsMouseInsideEntityRadius(obj, mouse3Dpos) == false)
+		ret = true;
+
+	// 1.B) SKIP if the object has no mesh
+	auto mesh = dynamic_cast<ComponentMesh*>(obj->GetComponent(MESH));
+	if (mesh == nullptr)
+		ret = true;
+
+	return ret; 
+}
 
 // ----------------------------------------------------------------- 
 std::variant<ComponentMesh*, GameObject*> internal::ReturnHover(bool GetMeshNotGameObject, ComponentMesh* found)
@@ -238,4 +270,5 @@ std::variant<ComponentMesh*, GameObject*> internal::EmptyReturn(bool GetMeshNotG
 	else
 		return (GameObject*)nullptr;
 }
+
 
