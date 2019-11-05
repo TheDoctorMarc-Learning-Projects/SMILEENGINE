@@ -755,6 +755,7 @@ void panelData::InspectorSpace::Execute(bool& ret)
 
 void panelData::InspectorSpace::ComponentData(Component* c)
 {
+	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
 
 	if (ImGui::TreeNode(c->GetName().c_str()))
 	{
@@ -770,19 +771,16 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float p[3] = { pos.x, pos.y, pos.z };
 			static float r[4] = { rot.x, rot.y, rot.z, rot.w };
 			static float s[3] = { sc.x, sc.y, sc.z };
-			if (ImGui::InputFloat3("Position", p))
+			ImGui::InputFloat3("Position", p); 
+			ImGui::InputFloat4("Rotation", r);
+			ImGui::InputFloat3("Scale", s);
+
+			if (keyState == KEY_DOWN)
 			{
-
+				transf->ChangePosition(math::float3(p));
+				transf->ChangeRotation(math::Quat(r));
+				transf->ChangeScale(math::float3(s));
 			}
-			if (ImGui::InputFloat4("Rotation", r))
-			{
-
-			}
-			if (ImGui::InputFloat3("Scale", s))
-			{
-
-			}
-
 
 			break;
 		}

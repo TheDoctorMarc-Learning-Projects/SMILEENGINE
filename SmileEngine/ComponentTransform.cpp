@@ -75,10 +75,19 @@ void ComponentTransform::ChangeScale(float3 sc)
 {
 	scale = sc; 
 	CalculateAllMatrixes();
+
+	// Wohoa! Radius and center will be fucked up! 
+	parent->SetupTransformAtMeshCenter(); 
 }
 
 void ComponentTransform::ChangeRotation(Quat q)
 {
+	if (abs(q.x) > 1 || abs(q.y) > 1 || abs(q.z) > 1 || abs(q.w) > 1)
+	{
+		MessageBox(nullptr, TEXT("Please enter a valid quaternion"), TEXT("You violed rotation requirements"), MB_OK);
+		return; 
+	}
+		
 	rotation = q; 
 	CalculateAllMatrixes();
 }
