@@ -7,6 +7,9 @@
  
 #include "ComponentTypes.h"
 
+#define debugLineSize 5
+#define debugLineHead 0.3
+
 class Component;
 class ComponentMesh; 
 // ----------------------------------------------------------------- [GameObject]
@@ -49,6 +52,9 @@ public:
 	// State
 	bool IsActive() const { return active; };
 	void OnTransform(); 
+
+	// Debug purposes
+	void DrawAxis(); 
 
 public:
 	std::vector<GameObject*> childObjects;
