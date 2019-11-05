@@ -34,6 +34,18 @@
     <Filter Include="Source\Modules\Objects\Components\Help">
       <UniqueIdentifier>{390fd344-c8f1-4f58-84d3-191b3812c0fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\Objects\GameObjects">
+      <UniqueIdentifier>{673905ac-cd3b-46b9-9d42-04b5db8fad3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\Managers">
+      <UniqueIdentifier>{0d4b1c43-d035-4e53-8409-76a485fd0076}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\GameObjects\Template">
+      <UniqueIdentifier>{8c4ec64b-97fd-4050-9792-261a9a2ca2df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\GameObjects\Other">
+      <UniqueIdentifier>{560a8c5d-05df-4b69-8a15-615c71c87e2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -105,12 +117,6 @@
     <ClInclude Include="RayTracer.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="SmileFBX.h">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileCamera3D.h">
-      <Filter>Source\Modules\Basic</Filter>
-    </ClInclude>
     <ClInclude Include="SmileGui.h">
       <Filter>Source\Modules\Basic</Filter>
     </ClInclude>
@@ -123,9 +129,6 @@
     <ClInclude Include="SmileWindow.h">
       <Filter>Source\Modules\Basic</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Component.h">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
@@ -134,9 +137,6 @@
     </ClInclude>
     <ClInclude Include="ComponentTransform.h">
       <Filter>Source\Modules\Objects\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileGameObjectManager.h">
-      <Filter>Source\Modules\Objects</Filter>
     </ClInclude>
     <ClInclude Include="ComponentTypes.h">
       <Filter>Source\Modules\Objects\Components\Help</Filter>
@@ -149,6 +149,18 @@
     </ClInclude>
     <ClInclude Include="SmileModule.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileGameObjectManager.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileFBX.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Source\Modules\Objects\GameObjects\Template</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectCamera.h">
+      <Filter>Source\Modules\Objects\GameObjects\Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -203,12 +215,6 @@
     <ClCompile Include="RayTracer.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="SmileFBX.cpp">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileCamera3D.cpp">
-      <Filter>Source\Modules\Basic</Filter>
-    </ClCompile>
     <ClCompile Include="SmileGui.cpp">
       <Filter>Source\Modules\Basic</Filter>
     </ClCompile>
@@ -221,14 +227,8 @@
     <ClCompile Include="SmileWindow.cpp">
       <Filter>Source\Modules\Basic</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="ComponentTransform.cpp">
       <Filter>Source\Modules\Objects\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileGameObjectManager.cpp">
-      <Filter>Source\Modules\Objects</Filter>
     </ClCompile>
     <ClCompile Include="ComponentMesh.cpp">
       <Filter>Source\Modules\Objects\Components</Filter>
@@ -238,6 +238,18 @@
     </ClCompile>
     <ClCompile Include="SmileScene.cpp">
       <Filter>Source\Modules\GameLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileFBX.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileGameObjectManager.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source\Modules\Objects\GameObjects\Template</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectCamera.cpp">
+      <Filter>Source\Modules\Objects\GameObjects\Other</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 #include "SmileApp.h"
 #include "SmileScene.h"
 
+
 ComponentTransform::ComponentTransform()
 {
 	SetName("Transform"); 
@@ -10,15 +11,26 @@ ComponentTransform::ComponentTransform()
 	CalculateGlobalMatrix(); 
 }
 
-
 ComponentTransform::ComponentTransform(float4x4 localMat)
 {
 	SetName("Transform");
 	SetLocalMatrix(localMat);
 	type = COMPONENT_TYPE::TRANSFORM;
-	CalculateGlobalMatrix();
 }
 
+ComponentTransform::ComponentTransform(float3 position)
+{ 
+	// Take the position and create a matrix
+	float4x4 mat = float4x4(); 
+	mat.SetIdentity(); 
+	mat.SetTranslatePart(position); 
+
+	//Proper Setup
+	SetName("Transform");
+	SetLocalMatrix(float4x4::identity);
+	type = COMPONENT_TYPE::TRANSFORM;
+	CalculateGlobalMatrix();
+}
 
 ComponentTransform::~ComponentTransform()
 {
@@ -69,6 +81,12 @@ void ComponentTransform::ChangePosition(float3 pos, bool recalculateMatrixes)
 	position = pos; 
 	if(recalculateMatrixes)
 		CalculateAllMatrixes();
+}
+
+void ComponentTransform::AccumulatePosition(vec3 delta)
+{
+	position = position + float3(delta.x, delta.y, delta.z); 
+	CalculateAllMatrixes();
 }
 
 void ComponentTransform::ChangeScale(float3 sc)

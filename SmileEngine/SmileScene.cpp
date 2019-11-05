@@ -9,6 +9,8 @@
 //#include <gl/GLU.h>*/
 
 #include "Glew/include/GL/glew.h"
+#include "GameObjectCamera.h"
+#include "SmileGameObjectManager.h"
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -20,11 +22,15 @@ SmileScene::~SmileScene()
 // Load assets
 bool SmileScene::Start()
 { 
+	// Root
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
+	// Default Scene
 	App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 
-	 
+	//Default Camera
+	debugCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 5, 0), vec3(0, 0, 0));
+
 	return true;
 }
 
@@ -35,6 +41,7 @@ bool SmileScene::CleanUp()
 
 	selectedObj = nullptr; 
 	selected_mesh = nullptr; 
+	debugCamera = nullptr; 
 
 	return true;
 }

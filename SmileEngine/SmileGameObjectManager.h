@@ -5,11 +5,14 @@
 #include "parshapes/par_shapes.h"
 #include <map>
 #include <string>
+#include "glmath.h"
+
 
 par_shapes_mesh* CreateSphere();
 par_shapes_mesh* CreateCube();
 // TODO
 
+class GameObjectCamera; 
 class SmileGameObjectManager : public SmileModule
 {
 public:
@@ -28,6 +31,9 @@ public:
 	GameObject* CreateGameObject(std::string name = "no name", GameObject* parent = nullptr);
 	GameObject* CreateGameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
 	GameObject* CreateGameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
+
+	// Others
+	GameObjectCamera* CreateCamera(GameObject* parent, vec3 Position, vec3 Reference); 
 
 	// Primitve tools
 	void GetAllPrimitiveTypesChar(char(&)[128], bool helpInfo = false);

@@ -12,10 +12,12 @@
 
 class Component;
 class ComponentMesh; 
+class ComponentTransform; 
 // ----------------------------------------------------------------- [GameObject]
 class GameObject
 {
-public: 
+public:
+	GameObject(GameObject* parent); 
 	GameObject(std::string name = "no name", GameObject* parent = nullptr);  
 	GameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
 	GameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
@@ -31,6 +33,7 @@ public:
 	void SetupTransformAtMeshCenter(); 
 
 	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
+	ComponentTransform* GetTransform() const; 
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; }; 
 
 	// Assign & Get data
@@ -43,11 +46,11 @@ public:
 	double GetBoundingSphereRadius() const; 
 
 	// Main functions 
-	void Start(); 
-	void Enable(); 
-	void Update();
-	void Disable();
-	void CleanUp(); 
+	virtual void Start(); 
+	virtual void Enable(); 
+	virtual void Update();
+	virtual void Disable();
+	virtual void CleanUp(); 
 
 	// State
 	bool IsActive() const { return active; };
@@ -66,4 +69,5 @@ private:
 	GameObject* parent = nullptr; 
 
 	friend class SmileGameObjectManager; 
+	friend class GameObjectCamera; 
 };

@@ -4,6 +4,16 @@
 #include "ComponentTransform.h"
 #include "Glew/include/GL/glew.h" 
 
+GameObject::GameObject(GameObject* parent)
+{
+	// Parent-child
+	if (parent)
+		SetParent(parent);
+
+	// Components
+	FillComponentBuffers();
+}
+
 GameObject::GameObject(std::string name, GameObject* parent)
 {
 	// Parent-child
@@ -16,7 +26,6 @@ GameObject::GameObject(std::string name, GameObject* parent)
 	// Components
 	FillComponentBuffers(); 
 	AddComponent((Component*) DBG_NEW ComponentTransform());
-
 
 }
 
@@ -294,4 +303,9 @@ void GameObject::SetName(std::string name)
 			name = parent->GetName() + std::string(" (") + std::to_string(parent->childObjects.size()) + std::string(")");
 	
 	this->name = name;
+}
+
+ComponentTransform* GameObject::GetTransform() const
+{
+	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
 }

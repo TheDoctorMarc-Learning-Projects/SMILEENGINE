@@ -10,7 +10,6 @@
 #include "SmileInput.h"
 #include "SmileScene.h"
 #include "SmileRenderer3D.h"
-#include "SmileCamera3D.h"
 #include "SmileGui.h"
 #include "SmileUtilitiesModule.h"
 #include "SmileFBX.h"
@@ -24,7 +23,6 @@ public:
 	SmileInput* input;
 	SmileScene* scene_intro;
 	SmileRenderer3D* renderer3D;
-	SmileCamera3D* camera;
 	SmileGui* gui; 
 	SmileUtilitiesModule* utilities;
 	SmileFBX* fbx;

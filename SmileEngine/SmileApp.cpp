@@ -19,7 +19,6 @@ SmileApp::SmileApp()
 	input = DBG_NEW SmileInput(this);
 	scene_intro = DBG_NEW SmileScene(this);
 	renderer3D = DBG_NEW SmileRenderer3D(this);
-	camera = DBG_NEW SmileCamera3D(this);
 	gui = DBG_NEW SmileGui(this);
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 	fbx = DBG_NEW SmileFBX(this);
@@ -32,7 +31,6 @@ SmileApp::SmileApp()
 	// Scenes
 	AddModule(object_manager);
 	AddModule(scene_intro);
-	AddModule(camera);
 	AddModule(gui); 
 	// Test 
 	AddModule(utilities);

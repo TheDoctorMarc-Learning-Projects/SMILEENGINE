@@ -10,7 +10,6 @@
 #pragma comment (lib, "opengl32.lib") /* link Microsoft OpenGL lib   */
 
 #include "SmileApp.h"
-#include "SmileCamera3D.h"
 #include "SmileScene.h"
 #include "SmileInput.h"
 #include "SmileWindow.h"

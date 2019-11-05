@@ -91,10 +91,10 @@ float3 internal::GetMouse3DPos(int mouse_x, int mouse_y)
 // ----------------------------------------------------------------- 
 math::Ray internal::GetRayBetweenCameraAndMouse3DPos(float3 mouse3Dpos)
 {
+	math::float3 camPos = App->scene_intro->debugCamera->GetTransform()->GetPosition(); 
 	// trace a ray (line) from the camera with the direction to the point  
-	math::float3 cameraPos(App->camera->Position.x, App->camera->Position.y, App->camera->Position.z);
-	math::float3 dir = (mouse3Dpos - cameraPos).Normalized();
-	return math::Ray(cameraPos, dir);
+	math::float3 dir = (mouse3Dpos - camPos).Normalized();
+	return math::Ray(camPos, dir);
 }
 
 

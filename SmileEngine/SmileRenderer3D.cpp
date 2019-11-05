@@ -16,6 +16,10 @@
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#include "GameObjectCamera.h"
+#include "GameObject.h"
+#include "ComponentTransform.h"
+
 SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
@@ -104,14 +108,16 @@ bool SmileRenderer3D::Init()
 // PreUpdate: clear buffer
 update_status SmileRenderer3D::PreUpdate(float dt)
 {
+	GameObjectCamera* cam = App->scene_intro->debugCamera; 
+	vec3 camPos = cam->GetTransform()->GetPositionVec3(); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(App->camera->GetViewMatrix());
+	glLoadMatrixf(cam->GetViewMatrix());
 
 	// light 0 on cam pos
-	lights[0].SetPos(App->camera->Position.x, App->camera->Position.y, App->camera->Position.z);
+	lights[0].SetPos(camPos.x, camPos.y, camPos.z);
 
 	for (uint i = 0; i < MAX_LIGHTS; ++i)
 		lights[i].Render();
@@ -140,7 +146,7 @@ bool SmileRenderer3D::CleanUp()
 
 void SmileRenderer3D::OnResize(int width, int height)
 {
-	glViewport(0, 0, width, height);
+	glViewport(0, 4, width, height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();

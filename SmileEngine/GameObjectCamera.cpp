@@ -1,61 +1,58 @@
 #include "SmileSetup.h"
-//#include "SmileApp.h" // already included by raytracer 
-//#include "SmileCamera3D.h" // already included by raytracer 
+#include "SmileApp.h" 
+#include "GameObjectCamera.h"  
 #include "SafetyHandler.h"
 #include "RayTracer.h"
 
+#include "GameObject.h"
+#include "Component.h"
 #include "ComponentTransform.h"
+#include "ComponentMesh.h"
 
-SmileCamera3D::SmileCamera3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
+static void CommonSetup(GameObjectCamera* callback)
 {
+	callback->SetName("Camera"); 
+	callback->X = vec3(1.0f, 0.0f, 0.0f);
+	callback->Y = vec3(0.0f, 1.0f, 0.0f);
+	callback->Z = vec3(0.0f, 0.0f, 1.0f);
+}; 
+
+GameObjectCamera::GameObjectCamera(GameObject* parent) : GameObject(parent)
+{
+	AddComponent(DBG_NEW ComponentTransform()); 
 	CalculateViewMatrix();
-
-	X = vec3(1.0f, 0.0f, 0.0f);
-	Y = vec3(0.0f, 1.0f, 0.0f);
-	Z = vec3(0.0f, 0.0f, 1.0f);
-
-	Position = vec3(0.0f, 0.0f, 5.0f);
+	CommonSetup(this);
 	Reference = vec3(0.0f, 0.0f, 0.0f);
 }
 
-SmileCamera3D::~SmileCamera3D()
+
+GameObjectCamera::GameObjectCamera(GameObject* parent, vec3 Position, vec3 Reference) : GameObject(parent)
+{
+	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float3(Position.x, Position.y, Position.z)); 
+	AddComponent((Component*)transf);
+	CalculateViewMatrix();
+	CommonSetup(this);
+	this->Reference = Reference; 
+}
+
+GameObjectCamera::~GameObjectCamera()
 {}
-
-// -----------------------------------------------------------------
-bool SmileCamera3D::Start()
-{
-	LOG("Setting up the camera");
-	bool ret = true;
-
-	return ret;
-}
-
-// -----------------------------------------------------------------
-bool SmileCamera3D::CleanUp()
-{
-	LOG("Cleaning camera");
-
-	return true;
-}
 
 // ----------------------------------------------------------------- 
 // This must be done before clearing the Depth buffer in the Render PreUpdate
-update_status SmileCamera3D::PreUpdate(float dt)
+void GameObjectCamera::Update()
 {
+	float dt = App->GetDT(); 
+	ComponentTransform* transf = GetTransform(); 
+
 	// Check if the user clicks to select object 
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
 		rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), true, true);
 
-	return UPDATE_CONTINUE;
-}
-
-// -----------------------------------------------------------------
-update_status SmileCamera3D::Update(float dt)
-{
 	if (App->gui->IsMouseOverTheGui() == false)
 	{
 		// Focus an object ----------------
-		FocusObjectLogic(); 
+		FocusObjectLogic();
 
 		vec3 newPos(0, 0, 0);
 		float speed = 10.0f * dt;
@@ -87,7 +84,7 @@ update_status SmileCamera3D::Update(float dt)
 		if (zScroll != 0)
 			newPos += Z * GetScrollSpeed(dt, zScroll);
 
-		Position += newPos;
+		GetTransform()->AccumulatePosition(newPos); 
 		Reference += newPos;
 
 		// Rotation ----------------
@@ -95,7 +92,7 @@ update_status SmileCamera3D::Update(float dt)
 		{
 			float Sensitivity = 0.25f;
 
-			Position -= Reference;
+			transf->AccumulatePosition(-Reference);
 
 			if (xWheel != 0)
 			{
@@ -120,17 +117,19 @@ update_status SmileCamera3D::Update(float dt)
 				}
 			}
 
-			Position = Reference + Z * length(Position);
+			vec3 transfPos = transf->GetPositionVec3(); 
+			vec3 target = Reference + Z * length(transfPos); 
+			transf->ChangePosition(math::float3(target.x, target.y, target.z));
 		}
 	}
-	
+
 	// Recalculate matrix -------------
 	CalculateViewMatrix();
 
-	return UPDATE_CONTINUE;
+
 }
 
-void SmileCamera3D::FocusObjectLogic()
+void GameObjectCamera::FocusObjectLogic()
 {
 	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
 	GameObject* selectedObj = App->scene_intro->selectedObj;
@@ -143,9 +142,9 @@ void SmileCamera3D::FocusObjectLogic()
 		if (App->input->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
 			FitCameraToObject(selectedMesh->GetParent());
 
-		if(rotating)
+		if (rotating)
 			LookAt(dynamic_cast<ComponentTransform*>(selectedMesh->GetParent()->GetComponent(TRANSFORM))->GetPosition());
-		
+
 	}
 	else if (selectedObj != nullptr)
 	{
@@ -154,14 +153,15 @@ void SmileCamera3D::FocusObjectLogic()
 
 		if (rotating)
 			LookAt(dynamic_cast<ComponentTransform*>(selectedObj->GetComponent(TRANSFORM))->GetPosition());
-	
+
 	}
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference)
+void GameObjectCamera::Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference)
 {
-	this->Position = Position;
+	ComponentTransform* transf = GetTransform(); 
+	transf->ChangePosition(math::float3(Position.x, Position.y, Position.z));
 	this->Reference = Reference;
 
 	Z = normalize(Position - Reference);
@@ -170,21 +170,21 @@ void SmileCamera3D::Look(const vec3& Position, const vec3& Reference, bool Rotat
 
 	if (!RotateAroundReference)
 	{
-		this->Reference = this->Position;
-		this->Position += Z * 0.05f;
+		this->Reference = transf->GetPositionVec3();
+		transf->AccumulatePosition(Z * 0.05f);
 	}
 
 	CalculateViewMatrix();
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::LookAt(const float3& Spot)
+void GameObjectCamera::LookAt(const float3& Spot)
 {
-	vec3 SpotV(Spot.x, Spot.y, Spot.z); 
+	vec3 SpotV(Spot.x, Spot.y, Spot.z);
 
 	Reference = SpotV;
-
-	Z = normalize(Position - Reference);
+  
+	Z = normalize(GetTransform()->GetPositionVec3() - Reference);
 	X = normalize(cross(vec3(0.0f, 1.0f, 0.0f), Z));
 	Y = cross(Z, X);
 
@@ -193,51 +193,55 @@ void SmileCamera3D::LookAt(const float3& Spot)
 
 
 // -----------------------------------------------------------------
-void SmileCamera3D::LookAt(const vec3& Spot)
+void GameObjectCamera::LookAt(const vec3& Spot)
 {
+	ComponentTransform* transf = GetTransform();
 	Reference = Spot;
 
-	Z = normalize(Position - Reference);
+	Z = normalize(transf->GetPositionVec3() - Reference);
 	X = normalize(cross(vec3(0.0f, 1.0f, 0.0f), Z));
 	Y = cross(Z, X);
 
 	CalculateViewMatrix();
 }
 
-
-
 // -----------------------------------------------------------------
-void SmileCamera3D::Move(const vec3& Movement)
+void GameObjectCamera::Move(const vec3& Movement)
 {
-	Position += Movement;
+	ComponentTransform* transf = GetTransform();
+	transf->AccumulatePosition(Movement);
 	Reference += Movement;
 
 	CalculateViewMatrix();
 }
 
 // -----------------------------------------------------------------
-float* SmileCamera3D::GetViewMatrix()
+float* GameObjectCamera::GetViewMatrix()
 {
 	return &ViewMatrix;
 }
 
 
 // -----------------------------------------------------------------
-float* SmileCamera3D::GetViewMatrixInverse()
+float* GameObjectCamera::GetViewMatrixInverse()
 {
 	return &ViewMatrixInverse;
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::CalculateViewMatrix()
+void GameObjectCamera::CalculateViewMatrix()
 {
-	ViewMatrix = mat4x4(X.x, Y.x, Z.x, 0.0f, X.y, Y.y, Z.y, 0.0f, X.z, Y.z, Z.z, 0.0f, -dot(X, Position), -dot(Y, Position), -dot(Z, Position), 1.0f);
+	vec3 transfPos = GetTransform()->GetPositionVec3();
+	ViewMatrix = mat4x4(X.x, Y.x, Z.x, 0.0f, X.y, Y.y, Z.y, 0.0f, X.z, Y.z, Z.z, 0.0f, -dot(X, transfPos), -dot(Y, transfPos), -dot(Z, transfPos), 1.0f);
 	ViewMatrixInverse = inverse(ViewMatrix);
 }
 
 // -----------------------------------------------------------------
-void SmileCamera3D::FitCameraToObject(GameObject* obj)  
+void GameObjectCamera::FitCameraToObject(GameObject* obj)
 {
+
+	vec3 transfPos = GetTransform()->GetPositionVec3();
+
 	// look at the mesh center
 	float3 centerMath = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM))->GetPosition();
 	vec3 center(centerMath.x, centerMath.y, centerMath.z);
@@ -247,7 +251,7 @@ void SmileCamera3D::FitCameraToObject(GameObject* obj)
 
 	// calculate the distance with the center
 	double camDistance = (obj->GetBoundingSphereRadius()) / math::Tan(math::DegToRad(FOV_Y / 2.F));
-	math::float3 dir = (math::float3(Position.x, Position.y, Position.z) - math::float3(center.x, center.y, center.z));
+	math::float3 dir = (math::float3(transfPos.x, transfPos.y, transfPos.z) - math::float3(center.x, center.y, center.z));
 	dir.Normalize();
 	vec3 dirVec3(dir.x, dir.y, dir.z);
 
@@ -258,33 +262,33 @@ void SmileCamera3D::FitCameraToObject(GameObject* obj)
 	if (abs((wantedPos - center).z) < MIN_DIST_TO_MESH)
 		wantedPos.z = MIN_DIST_TO_MESH;
 
-	Move(vec3(wantedPos - Position));
+	Move(vec3(wantedPos - transfPos));
 
 }
- 
+
 // -----------------------------------------------------------------
-float SmileCamera3D::GetScrollSpeed(float dt, float zScroll)
+float GameObjectCamera::GetScrollSpeed(float dt, float zScroll)
 {
+	vec3 transfPos = GetTransform()->GetPositionVec3();
+
 	float speed = DEFAULT_SPEED * dt * sMath::Sign(zScroll);
 
 	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
 	GameObject* selectedObj = App->scene_intro->selectedObj;
 
-	GameObject* target = (selectedMesh == nullptr) ? selectedObj : selectedMesh->GetParent(); 
+	GameObject* target = (selectedMesh == nullptr) ? selectedObj : selectedMesh->GetParent();
 	if (target != nullptr)
 	{
 		// some stupid conversions from vec3 to float3
-		float3 captureCamPos(Position.x, Position.y, Position.z);
-		float3 captureZ(Z.x, Z.y, Z.z); 
+		float3 captureCamPos(transfPos.x, transfPos.y, transfPos.z);
+		float3 captureZ(Z.x, Z.y, Z.z);
 
-		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(target->GetComponent(TRANSFORM))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR) * dt * sMath::Sign(zScroll);
+		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(target->GetComponent(TRANSFORM))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR)* dt* sMath::Sign(zScroll);
 		relSpeed = (relSpeed > MAX_FRAME_SPEED) ? MAX_FRAME_SPEED : relSpeed;
 
 		float targetZ = abs((captureCamPos + captureZ * relSpeed).z);
 		speed = (targetZ >= MIN_DIST_TO_MESH) ? relSpeed : 0;
 	}
 
-	return speed; 
+	return speed;
 }
-
-	 

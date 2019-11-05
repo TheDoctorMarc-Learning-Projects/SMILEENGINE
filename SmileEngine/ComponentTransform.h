@@ -7,8 +7,9 @@
 
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
+#include "glmath.h"
 #include "MathGeoLib/include/MathGeoLib.h"
- 
+
 // ----------------------------------------------------------------- [Transform]
 class ComponentTransform : public Component
 {
@@ -16,6 +17,7 @@ class ComponentTransform : public Component
 public:
 	ComponentTransform();
 	ComponentTransform(float4x4 localMat); 
+	ComponentTransform(float3 position);
 	~ComponentTransform();
 
 private: 
@@ -32,11 +34,13 @@ public:
 	void CalculateAllMatrixes(); 
 
 	void ChangeRotation(Quat q); 
-	void ChangePosition(float3 pos, bool recalculateMatrixes = true); 
+	void ChangePosition(float3 pos, bool recalculateMatrixes = true);
+	void AccumulatePosition(vec3 delta);
 	void ChangeScale(float3 scale); 
 
 	Quat GetRotation() const { return rotation; };
 	float3 GetPosition() const { return position; };
+	vec3 GetPositionVec3() const { return vec3(position.x, position.y, position.z); };
 	float3 GetScale() const { return scale; }; 
 
 private:

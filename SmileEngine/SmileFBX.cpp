@@ -175,9 +175,6 @@ void SmileFBX::ReadFBXData(const char* path)
 			object->AddComponent(mesh);
 			object->SetupTransformAtMeshCenter(); 
 
-			// Fit the camera to the object 
-			App->camera->FitCameraToObject(object);
-
 		}
 		
 		// Start everything

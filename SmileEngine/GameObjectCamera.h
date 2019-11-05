@@ -1,8 +1,6 @@
 #pragma once
-#include "SmileModule.h"
-#include "SmileSetup.h"
+
 #include "glmath.h"
-#include "ComponentMesh.h"
 #include "MathGeoLib/include/MathGeoLib.h"
 
 #define MIN_DIST_TO_MESH 5.F
@@ -10,36 +8,32 @@
 #define EXPONENTIAL_ZOOM_FACTOR 1.5F
 #define DEFAULT_SPEED 30.F
 
-class SmileCamera3D : public SmileModule
+class GameObject; 
+class GameObjectCamera : public GameObject
 {
 public:
-	SmileCamera3D(SmileApp* app, bool start_enabled = true);
-	~SmileCamera3D();
+	GameObjectCamera(GameObject* parent);
+	GameObjectCamera(GameObject* parent, vec3 Position, vec3 Reference);
+	~GameObjectCamera();
 
-	bool Start();
-	update_status PreUpdate(float dt);
-	update_status Update(float dt);
-	bool CleanUp();
-
+	void Update(); 
+	
 	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference = false);
 	void LookAt(const vec3& Spot); // oh yes indeed
 	void LookAt(const float3& Spot); // oh yes indeed
 	void Move(const vec3& Movement);
 	float* GetViewMatrix();
 	float* GetViewMatrixInverse();
-
 	void FitCameraToObject(GameObject* obj);
-
-	float GetScrollSpeed(float dt, float zScroll); 
+	float GetScrollSpeed(float dt, float zScroll);
 
 private:
-
 	void CalculateViewMatrix();
-	void FocusObjectLogic(); 
+	void FocusObjectLogic();
 
 public:
 
-	vec3 X, Y, Z, Position, Reference;
+	vec3 X, Y, Z, Reference;
 
 private:
 
