@@ -15,6 +15,8 @@
 #include "SmileUtilitiesModule.h"
 #include "SmileFBX.h"
 #include "SmileGameObjectManager.h" 
+#include "SmileMaterialImporter.h"
+#include "SmileFileSystem.h"
 
 
 class SmileApp
@@ -28,6 +30,8 @@ public:
 	SmileGui* gui; 
 	SmileUtilitiesModule* utilities;
 	SmileFBX* fbx;
+	SmileFileSystem* fs;
+	SmileMaterialImporter* material_importer;
 	SmileGameObjectManager* object_manager;
 
 private:

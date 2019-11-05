@@ -105,7 +105,9 @@
     <ClInclude Include="SmileApp.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="SmileFBX.h" />
+    <ClInclude Include="SmileFileSystem.h" />
     <ClInclude Include="SmileGameObjectManager.h" />
+    <ClInclude Include="SmileMaterialImporter.h" />
     <ClInclude Include="SmileSetup.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -144,10 +146,12 @@
     <ClCompile Include="imgui\imgui_impl_sdl.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="SmileFBX.cpp" />
+    <ClCompile Include="SmileFileSystem.cpp" />
     <ClCompile Include="SmileGameObjectManager.cpp" />
     <ClCompile Include="SmileMain.cpp" />
     <ClCompile Include="SmileCamera3D.cpp" />
     <ClCompile Include="SmileInput.cpp" />
+    <ClCompile Include="SmileMaterialImporter.cpp" />
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileScene.cpp" />
     <ClCompile Include="SmileSetup.cpp" />

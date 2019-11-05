@@ -150,6 +150,12 @@
     <ClInclude Include="SmileModule.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="SmileMaterialImporter.h">
+      <Filter>Source\Modules\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileFileSystem.h">
+      <Filter>Source\Modules\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -238,6 +244,12 @@
     </ClCompile>
     <ClCompile Include="SmileScene.cpp">
       <Filter>Source\Modules\GameLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileMaterialImporter.cpp">
+      <Filter>Source\Modules\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileFileSystem.cpp">
+      <Filter>Source\Modules\Objects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

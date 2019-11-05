@@ -11,7 +11,8 @@ class SmileGui;
 class SmileUtiliesModule;
 class SmileFBX;
 class SmileGameObjectManager;
-
+class SmileMaterialImporter;
+class SmileFileSystem;
 
 SmileApp::SmileApp()
 {
@@ -23,12 +24,16 @@ SmileApp::SmileApp()
 	gui = DBG_NEW SmileGui(this);
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 	fbx = DBG_NEW SmileFBX(this);
+	material_importer = DBG_NEW SmileMaterialImporter(this);
+	fs = DBG_NEW SmileFileSystem(this);
 	object_manager = DBG_NEW SmileGameObjectManager(this);
 	 
 	// Main SmileModules
 	AddModule(window);
 	AddModule(input);
 	AddModule(fbx);
+	AddModule(material_importer);
+	AddModule(fs);
 	// Scenes
 	AddModule(object_manager);
 	AddModule(scene_intro);
