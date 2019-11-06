@@ -5,8 +5,18 @@
 #include "Light.h"
 
 #define MAX_LIGHTS 8
-#define FOV_Y 60.f
 
+struct renderingData
+{
+	// Planes
+	float2 pNearSize = float2(); 
+	float2 pFarSize = float2();
+
+	// Fov
+	float fovYangle = 60.f; 
+	float pNearDist = 1.f, pFarDist = 512.f; 
+	float ratio = pNearDist / pFarDist; 
+};
 
 class SmileRenderer3D : public SmileModule
 {
@@ -20,7 +30,10 @@ public:
 	bool CleanUp();
 
 	void OnResize(int width, int height);
-
+	renderingData GetData() const { return _renderingData; };
+private: 
+	void ComputeSpatialData();
+	renderingData _renderingData;
 public:
 	SDL_GLContext context;
 	Light lights[MAX_LIGHTS];

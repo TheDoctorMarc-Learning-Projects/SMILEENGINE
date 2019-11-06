@@ -21,8 +21,9 @@
 #include "ComponentTransform.h"
 
 SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
-{
+{ 
 }
+
 
 // Destructor
 SmileRenderer3D::~SmileRenderer3D()
@@ -102,7 +103,22 @@ bool SmileRenderer3D::Init()
 
 	// Projection matrix 
 	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")));
+	
+	// Setup Data
+	ComputeSpatialData();
+
 	return ret;
+}
+
+void SmileRenderer3D::ComputeSpatialData()
+{
+	// Near plane size
+	_renderingData.pNearSize.y = abs(2 * tan(_renderingData.fovYangle / 2) * _renderingData.pNearDist);
+	_renderingData.pNearSize.x = _renderingData.pNearSize.y * _renderingData.ratio; 
+
+	// Far plane size
+	_renderingData.pFarSize.y = abs(2 * tan(_renderingData.fovYangle / 2) * _renderingData.pFarDist);
+	_renderingData.pFarSize.x = _renderingData.pFarSize.y * _renderingData.ratio;
 }
 
 // PreUpdate: clear buffer
@@ -146,11 +162,14 @@ bool SmileRenderer3D::CleanUp()
 
 void SmileRenderer3D::OnResize(int width, int height)
 {
+	_renderingData.ratio = (float)width / (float)height;
+
 	glViewport(0, 4, width, height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	ProjectionMatrix = perspective(FOV_Y, (float)width / (float)height, 0.125f, 512.0f);
+	ProjectionMatrix = perspective(_renderingData.fovYangle, _renderingData.ratio,
+		_renderingData.pNearDist, _renderingData.pFarDist);
 	glLoadMatrixf(&ProjectionMatrix);
 
 	glMatrixMode(GL_MODELVIEW);
