@@ -17,25 +17,39 @@ static void CommonSetup(GameObjectCamera* callback)
 	callback->Z = vec3(0.0f, 0.0f, 1.0f);
 }; 
 
-GameObjectCamera::GameObjectCamera(GameObject* parent) : GameObject(parent)
+GameObjectCamera::GameObjectCamera(GameObject* parent, renderingData data) : GameObject(parent)
 {
 	AddComponent(DBG_NEW ComponentTransform()); 
-	CalculateViewMatrix();
 	CommonSetup(this);
+	CalculateViewMatrix();
 	Reference = vec3(0.0f, 0.0f, 0.0f);
+
+	// Compute Data before frustrum
+	this->_renderingData = data; 
+	ComputeSpatialData(); 
 
 	// Frustrum 
 	frustrum = DBG_NEW Frustrum(this); 
 }
 
 
-GameObjectCamera::GameObjectCamera(GameObject* parent, vec3 Position, vec3 Reference) : GameObject(parent)
+GameObjectCamera::GameObjectCamera(GameObject* parent, vec3 Position, vec3 Reference, renderingData data) : GameObject(parent)
 {
+	// Add a transform 
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float3(Position.x, Position.y, Position.z)); 
 	AddComponent((Component*)transf);
-	CalculateViewMatrix();
+
+	// Setup
 	CommonSetup(this);
-	this->Reference = Reference; 
+	this->Reference = Reference;
+
+	// Calculate view
+	CalculateViewMatrix();
+	LookAt(this->Reference);
+
+	// Compute Data before frustrum
+	this->_renderingData = data;
+	ComputeSpatialData();
 
 	// Frustrum 
 	frustrum = DBG_NEW Frustrum(this);
@@ -46,10 +60,34 @@ GameObjectCamera::~GameObjectCamera()
 	RELEASE(frustrum); 
 }
 
+float renderingData::InitRatio()
+{
+	return (float)(std::get<int>(App->window->GetWindowParameter("Width"))) / (float)(std::get<int>(App->window->GetWindowParameter("Height"))); 
+}
+
+void GameObjectCamera::ComputeSpatialData()
+{
+	// Near plane size
+	_renderingData.pNearSize.y = abs(2 * tan((_renderingData.fovYangle * DEGTORAD) / 2) * _renderingData.pNearDist);
+	_renderingData.pNearSize.x = _renderingData.pNearSize.y * _renderingData.ratio;
+
+	// Far plane size
+	_renderingData.pFarSize.y = abs(2 * tan((_renderingData.fovYangle * DEGTORAD) / 2) * _renderingData.pFarDist);
+	_renderingData.pFarSize.x = _renderingData.pFarSize.y * _renderingData.ratio;
+}
+
 // ----------------------------------------------------------------- 
 // This must be done before clearing the Depth buffer in the Render PreUpdate
 void GameObjectCamera::Update()
 {
+	// If the current looking camera is not myself, fuck transformations!
+	if (App->renderer3D->targetCamera != this)
+	{
+		frustrum->DebugPlanes();
+		return;
+	}
+	
+
 	float dt = App->GetDT(); 
 	ComponentTransform* transf = GetTransform(); 
 
@@ -133,7 +171,6 @@ void GameObjectCamera::Update()
 
 	// Recalculate matrix -------------
 	CalculateViewMatrix();
-
 
 }
 
@@ -258,7 +295,7 @@ void GameObjectCamera::FitCameraToObject(GameObject* obj)
 	LookAt(center);
 
 	// calculate the distance with the center
-	double camDistance = (obj->GetBoundingSphereRadius()) / math::Tan(math::DegToRad(App->renderer3D->GetData().fovYangle / 2.F));
+	double camDistance = (obj->GetBoundingSphereRadius()) / math::Tan(math::DegToRad(_renderingData.fovYangle / 2.F));
 	math::float3 dir = (math::float3(transfPos.x, transfPos.y, transfPos.z) - math::float3(center.x, center.y, center.z));
 	dir.Normalize();
 	vec3 dirVec3(dir.x, dir.y, dir.z);
@@ -314,8 +351,8 @@ Frustrum::Frustrum(GameObjectCamera* camera)
 void Frustrum::CalculatePlanes()
 {
 	// Step 1: retrieve render data and the camera looking direction (-Z for the mom) 
-	renderingData renderData = App->renderer3D->GetData(); 
-	float3 camLookVec = float3(0, 0, -1); float2 Up = float2(0, 1), Right = float2(1, 0);  // TODO: camera rotations!!                                           
+	renderingData renderData = myCamera->GetRenderingData(); 
+	float3 camLookVec = float3(0, 0, -1); float2 Up = float2(0, 1), Right = float2(1, 0);  // TODO: capture camera X,Y,Z dirs                                           
 	float3 camPos = myCamera->GetTransform()->GetPosition();  
 	float2 camPos2d = float2(camPos.x, camPos.y); 
 
@@ -331,16 +368,16 @@ void Frustrum::CalculatePlanes()
 	plane nPlane; 
 
 	float2 nPlanepPoint1_2D = float2(middleNearPlanePoint2D + (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[0] = float3(nPlanepPoint1_2D, renderData.pNearDist);
+	nPlane.vertices[0] = float3(nPlanepPoint1_2D, middleNearPlanePoint.z);
 	
 	float2 nPlanepPoint2_2D = float2(middleNearPlanePoint2D + (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[1] = float3(nPlanepPoint2_2D, renderData.pNearDist);
+	nPlane.vertices[1] = float3(nPlanepPoint2_2D, middleNearPlanePoint.z);
 	
 	float2 nPlanepPoint3_2D = float2(middleNearPlanePoint2D - (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[2] = float3(nPlanepPoint3_2D, renderData.pNearDist);
+	nPlane.vertices[2] = float3(nPlanepPoint3_2D, middleNearPlanePoint.z);
 	
 	float2 nPlanepPoint4_2D = float2(middleNearPlanePoint2D - (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[3] = float3(nPlanepPoint4_2D, renderData.pNearDist);
+	nPlane.vertices[3] = float3(nPlanepPoint4_2D, middleNearPlanePoint.z);
 
 	planes[0] = nPlane; 
 
@@ -348,21 +385,21 @@ void Frustrum::CalculatePlanes()
 	plane fPlane;
 
 	float2 fPlanepPoint1_2D = float2(middleFarPlanePoint2D + (Right * renderData.pFarSize.x / 2) - (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[0] = float3(fPlanepPoint1_2D, renderData.pFarDist);
+	fPlane.vertices[0] = float3(fPlanepPoint1_2D, middleFarPlanePoint.z);
 
 	float2 fPlanepPoint2_2D = float2(middleFarPlanePoint2D + (Right * renderData.pFarSize.x / 2) + (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[1] = float3(fPlanepPoint2_2D, renderData.pFarDist);
+	fPlane.vertices[1] = float3(fPlanepPoint2_2D, middleFarPlanePoint.z);
 
 	float2 fPlanepPoint3_2D = float2(middleFarPlanePoint2D - (Right * renderData.pFarSize.x / 2) + (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[2] = float3(fPlanepPoint3_2D, renderData.pFarDist);
+	fPlane.vertices[2] = float3(fPlanepPoint3_2D, middleFarPlanePoint.z);
 
 	float2 fPlanepPoint4_2D = float2(middleFarPlanePoint2D - (Right * renderData.pFarSize.x / 2) - (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[3] = float3(fPlanepPoint4_2D, renderData.pFarDist);
+	fPlane.vertices[3] = float3(fPlanepPoint4_2D, middleFarPlanePoint.z);
 
 	planes[1] = fPlane;
 
 	// Step 4: figure out the rest of the planes 
-	// simplest approach is look at the 1,2,3,4 order of the near and far planes and pick vertices
+	// simplest approach is to look at the 0,1,2,3 order of the near and far planes' vertices and pick them
 
 	// Right Plane 
 	plane rPlane; 
@@ -395,4 +432,42 @@ void Frustrum::CalculatePlanes()
 	bPlane.vertices[2] = fPlane.vertices[3];
 	bPlane.vertices[3] = nPlane.vertices[3];
 	planes[5] = bPlane;
+}
+
+void Frustrum::DebugPlanes()
+{
+	glLineWidth(3);
+	glColor3f(0, 1.f, 1.f); 
+	glBegin(GL_LINES);
+
+	// 4 lines from the camera to the far plane 
+	float3 camPos = myCamera->GetTransform()->GetPosition(); 
+	
+	for (int i = 0; i <= 3; ++i)
+	{
+		glVertex3f((GLfloat)camPos.x, (GLfloat)camPos.y, (GLfloat)camPos.z);
+		glVertex3f((GLfloat)planes[1].vertices[i].x, (GLfloat)planes[1].vertices[i].y, (GLfloat)planes[1].vertices[i].z);
+	}
+
+	// the near and far planes
+	/*for (int i = 0; i <= 1; ++i)
+	{
+		for (int i = 0; i <= 3; ++i)
+		{
+			float3 vertex = planes.at(i).vertices[i];
+			float3 vertex2 = float3(0, 0, 0);
+
+			if (i <= 2)
+				vertex2 = planes.at(i).vertices[i + 1];
+			else
+				vertex2 = planes.at(i).vertices[0];
+
+			glVertex3f((GLfloat)vertex.x, (GLfloat)vertex.y, (GLfloat)vertex.z);
+			glVertex3f((GLfloat)vertex2.x, (GLfloat)vertex2.y, (GLfloat)vertex2.z);
+		}
+	}*/
+
+	glEnd();
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glLineWidth(1);
 }

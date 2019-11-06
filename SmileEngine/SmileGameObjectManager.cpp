@@ -2,7 +2,6 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "Glew/include/GL/glew.h" 
-#include "GameObjectCamera.h"
 
 SmileGameObjectManager::SmileGameObjectManager(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -85,9 +84,9 @@ GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> com
 }
 
 // -----------------------------------------------------------------
-GameObjectCamera* SmileGameObjectManager::CreateCamera(GameObject* parent, vec3 Position, vec3 Reference)
+GameObjectCamera* SmileGameObjectManager::CreateCamera(GameObject* parent, vec3 Position, vec3 Reference, renderingData data)
 {
-	return DBG_NEW GameObjectCamera(parent, Position, Reference);
+	return DBG_NEW GameObjectCamera(parent, Position, Reference, data);
 }
 
 // ----------------------------------------------------------------- [Primitive creation functions]

@@ -28,8 +28,13 @@ bool SmileScene::Start()
 	// Default Scene
 	App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 
-	//Default Camera
-	debugCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 0, 5), vec3(0, 0, 0));
+	// Debug Camera
+	debugCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 20, 10), vec3(0, 0, 9));
+	
+	// Game Camera
+	renderingData data; 
+	data.pFarDist = 10.f; 
+	gameCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 0, 5), vec3(0, 0, 0)/*, data*/);
 
 	return true;
 }
@@ -42,6 +47,7 @@ bool SmileScene::CleanUp()
 	selectedObj = nullptr; 
 	selected_mesh = nullptr; 
 	debugCamera = nullptr; 
+	gameCamera = nullptr; 
 
 	return true;
 }

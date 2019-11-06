@@ -101,36 +101,26 @@ bool SmileRenderer3D::Init()
 
 	}
 
-	// Projection matrix 
-	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")));
-	
-	// Setup Data
-	ComputeSpatialData();
-
 	return ret;
 }
 
-void SmileRenderer3D::ComputeSpatialData()
+bool SmileRenderer3D::Start()
 {
-	// Near plane size
-	_renderingData.pNearSize.y = abs(2 * tan(_renderingData.fovYangle / 2) * _renderingData.pNearDist);
-	_renderingData.pNearSize.x = _renderingData.pNearSize.y * _renderingData.ratio; 
-
-	// Far plane size
-	_renderingData.pFarSize.y = abs(2 * tan(_renderingData.fovYangle / 2) * _renderingData.pFarDist);
-	_renderingData.pFarSize.x = _renderingData.pFarSize.y * _renderingData.ratio;
+	// Projection matrix 
+	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")));
+	
+	return true; 
 }
 
 // PreUpdate: clear buffer
 update_status SmileRenderer3D::PreUpdate(float dt)
 {
-	GameObjectCamera* cam = App->scene_intro->debugCamera; 
-	vec3 camPos = cam->GetTransform()->GetPositionVec3(); 
+	vec3 camPos = targetCamera->GetTransform()->GetPositionVec3();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(cam->GetViewMatrix());
+	glLoadMatrixf(targetCamera->GetViewMatrix());
 
 	// light 0 on cam pos
 	lights[0].SetPos(camPos.x, camPos.y, camPos.z);
@@ -144,8 +134,22 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 // PostUpdate present buffer to screen
 update_status SmileRenderer3D::PostUpdate(float dt)
 {
+
     App->gui->HandleRender(); 
 	SDL_GL_SwapWindow(App->window->window);
+
+	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
+	{
+		GameObjectCamera* gameCam = App->scene_intro->gameCamera;
+		GameObjectCamera* debugCam = App->scene_intro->debugCamera;
+
+		if (targetCamera == gameCam)
+			targetCamera = debugCam;
+		else if (targetCamera == debugCam)
+			targetCamera = gameCam;
+	}
+
+
 	return UPDATE_CONTINUE;
 }
 
@@ -162,18 +166,25 @@ bool SmileRenderer3D::CleanUp()
 
 void SmileRenderer3D::OnResize(int width, int height)
 {
-	_renderingData.ratio = (float)width / (float)height;
+	if (App->scene_intro->debugCamera) 
+	{
+		targetCamera = App->scene_intro->debugCamera;
+		renderingData data = targetCamera->GetRenderingData();
 
-	glViewport(0, 4, width, height);
+		data.ratio = (float)width / (float)height;
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	ProjectionMatrix = perspective(_renderingData.fovYangle, _renderingData.ratio,
-		_renderingData.pNearDist, _renderingData.pFarDist);
-	glLoadMatrixf(&ProjectionMatrix);
+		glViewport(0, 4, width, height);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		ProjectionMatrix = perspective(data.fovYangle, data.ratio,
+			data.pNearDist, data.pFarDist);
+		glLoadMatrixf(&ProjectionMatrix);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+	}
+		
 }
 
 
