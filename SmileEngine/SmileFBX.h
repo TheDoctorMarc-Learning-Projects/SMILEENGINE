@@ -34,6 +34,8 @@ public:
 	void AssignTextureToObj(const char* path, GameObject* obj); 
 	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
 	//void FreeMeshTexture(ComponentMesh* mesh); 
+	bool LoadMesh();
+	bool SaveMesh(ModelMeshData* mesh);
 
 	globalTextureData GetGlobalTextureinfo() const { return textInfo; }; 
 private:
