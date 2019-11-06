@@ -450,22 +450,22 @@ void Frustrum::DebugPlanes()
 	}
 
 	// the near and far planes
-	/*for (int i = 0; i <= 1; ++i)
+	for (int i = 0; i <= 1; ++i)
 	{
-		for (int i = 0; i <= 3; ++i)
+		for (int j = 0; j <= 3; ++j)
 		{
-			float3 vertex = planes.at(i).vertices[i];
+			float3 vertex = planes.at(i).vertices[j];
 			float3 vertex2 = float3(0, 0, 0);
 
-			if (i <= 2)
-				vertex2 = planes.at(i).vertices[i + 1];
+			if (j <= 2)
+				vertex2 = planes.at(i).vertices[j + 1];
 			else
 				vertex2 = planes.at(i).vertices[0];
 
 			glVertex3f((GLfloat)vertex.x, (GLfloat)vertex.y, (GLfloat)vertex.z);
 			glVertex3f((GLfloat)vertex2.x, (GLfloat)vertex2.y, (GLfloat)vertex2.z);
 		}
-	}*/
+	}
 
 	glEnd();
 	glColor3f(1.0f, 1.0f, 1.0f);

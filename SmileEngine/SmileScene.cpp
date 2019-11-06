@@ -34,7 +34,7 @@ bool SmileScene::Start()
 	// Game Camera
 	renderingData data; 
 	data.pFarDist = 10.f; 
-	gameCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 0, 5), vec3(0, 0, 0)/*, data*/);
+	gameCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 0, 5), vec3(0, 0, 0), data);
 
 	return true;
 }
