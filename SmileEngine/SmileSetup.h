@@ -50,6 +50,9 @@ enum update_status
 #define WIN_FULLSCREEN_DESKTOP false
 #define VSYNC true
 #define TITLE "Smile 3D Engine"
+#define ORGANIZATION "SmileTek"
+#define ASSETS_FOLDER "/Assets/"
+#define LIBRARY_FOLDER "/Library/"
 
 // Buffers -----------
 // Deletes a buffer

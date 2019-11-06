@@ -25,7 +25,7 @@ SmileApp::SmileApp()
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 	fbx = DBG_NEW SmileFBX(this);
 	material_importer = DBG_NEW SmileMaterialImporter(this);
-	fs = DBG_NEW SmileFileSystem(this);
+	fs = DBG_NEW SmileFileSystem(this, ASSETS_FOLDER);
 	object_manager = DBG_NEW SmileGameObjectManager(this);
 	 
 	// Main SmileModules

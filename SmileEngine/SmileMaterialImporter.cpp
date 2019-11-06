@@ -1,5 +1,6 @@
 #include "SmileMaterialImporter.h"
 #include "SmileApp.h"
+#include "SmileSetup.h"
 
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 #pragma comment (lib, "DevIL/libx86/DevIL.lib")
@@ -11,15 +12,12 @@
 #include "DevIL/include/IL/ilut.h"
 
 
-SmileMaterialImporter::SmileMaterialImporter(SmileApp* app, bool start_enabled = true) : SmileModule(app, start_enabled)
+SmileMaterialImporter::SmileMaterialImporter(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 
 }
 
-SmileMaterialImporter::~SmileMaterialImporter()
-{
 
-}
 
 bool SmileMaterialImporter::Import(const char* file, const char* path, std::string& output_file)
 {
@@ -31,8 +29,23 @@ bool SmileMaterialImporter::Import(const char* file, const char* path, std::stri
 	if (size > 0) {
 		data = new ILubyte[size]; // allocate data buffer
 		if (ilSaveL(IL_DDS, data, size) > 0) // Save to buffer with the ilSaveIL function
-			ret = App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, "texture", "dds");
+			ret = App->fs->SaveUnique(output_file, data, size, LIBRARY_FOLDER, "texture", "dds");
 		RELEASE_ARRAY(data);
 		return ret;
 	}
+}
+
+bool SmileMaterialImporter::Import(const void* buffer, uint size, std::string& output_file)
+{
+	return false;
+}
+
+bool SmileMaterialImporter::Load(const char* exported_file, textureData* resource)
+{
+	return false;
+}
+
+bool SmileMaterialImporter::LoadCheckers(textureData* resource)
+{
+	return false;
 }
