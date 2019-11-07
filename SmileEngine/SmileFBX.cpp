@@ -321,18 +321,44 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 }
 
-bool SmileFBX::SaveMesh(ModelMeshData* mesh)
+bool SmileFBX::LoadMesh()
+{
+
+	return false;
+}
+
+bool SmileFBX::SaveMesh(ModelMeshData* mesh, std::string& output_file)
 {
 	bool ret = false;
 	uint ranges[2] = { mesh->num_index, mesh->num_vertex };
 	uint size = sizeof(ranges) + sizeof(uint) * mesh->num_index + sizeof(float) * mesh->num_vertex * 3;
 	char* data = new char[size]; // Allocate
 	char* cursor = data;
+
 	uint bytes = sizeof(ranges); // First store ranges
 	memcpy(cursor, ranges, bytes);
+
+	//index
 	cursor += bytes; // Store indices
-	bytes = sizeof(uint) * mesh->num_index;
+	bytes = sizeof(uint) * mesh->num_index * 3;
 	memcpy(cursor, mesh->index, bytes);
+
+	//vertex
+	cursor += bytes;
+	bytes = sizeof(uint) * mesh->num_vertex * 3;
+	memcpy(cursor, mesh->vertex, bytes);
+
+	//normals
+	cursor += bytes;
+	bytes = sizeof(float) * mesh->num_normals * 3;
+	memcpy(cursor, mesh->normals, bytes);
+
+	//uvs
+	cursor += bytes;
+	bytes = sizeof(float) * mesh->num_UVs * 2;
+	memcpy(cursor, mesh->UVs, bytes);
+
+	App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
 
 	return ret;
 }

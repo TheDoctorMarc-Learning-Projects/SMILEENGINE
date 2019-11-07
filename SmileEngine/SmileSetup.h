@@ -53,6 +53,8 @@ enum update_status
 #define ORGANIZATION "SmileTek"
 #define ASSETS_FOLDER "/Assets/"
 #define LIBRARY_FOLDER "/Library/"
+#define LIBRARY_MESHES_FOLDER "/Library/Meshes"
+#define MESH_EXTENSION "smilemesh"
 
 // Buffers -----------
 // Deletes a buffer
