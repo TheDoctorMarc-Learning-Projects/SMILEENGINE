@@ -178,13 +178,41 @@ void ComponentMesh::DebugDraw()
 			}
 		}
 
+		// Debug AABB
+		if (this->debugData.AABB)
+		{
+			glColor3f(1.0f, 0.0f, 0.0f);
+			glPointSize(10); 
+			glBegin(GL_POINTS);
+			auto AABB = model_mesh->GetAABB();
+			for (int i = 0; i < AABB.vertices.size(); ++i)
+			{
+				if(AABB.insideoutside.at(i) == true)
+					glColor3f(0.0f, 1.0f, 0.0f);
+				else
+					glColor3f(1.0f, 0.0f, 0.0f);
+
+				glVertex3f(AABB.vertices.at(i).x, AABB.vertices.at(i).y, AABB.vertices.at(i).z);
+			}
+				
+			
+			glEnd();
+			glColor3f(1.0f, 1.0f, 1.0f);
+		}
+		 
 
 }
 
 // -----------------------------------------------------------------
 void ComponentMesh::Update()
 {
-	Draw(); 
+	GameObjectCamera* cam = App->scene_intro->gameCamera; 
+
+	if (cam && cam->GetFrustrum()->IsCubeInsideFrustrumView(model_mesh->AABB) != Frustrum::INTERSECTION_TYPE::OUTSIDE)
+	{
+		Draw();
+	}
+
 }
 
 // -----------------------------------------------------------------
@@ -363,7 +391,16 @@ void ModelMeshData::ComputeMeshSpatialData()
 	vec3 rad_Vec = (max_Vec - min_Vec) / 2;
 	meshBoundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
 
-		
+	// 4) find the proper AABB with the min-max coords
+	this->AABB.vertices[0] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]); 
+	this->AABB.vertices[1] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]);
+	this->AABB.vertices[2] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MIN_Z]);
+	this->AABB.vertices[3] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MIN_Z]);
+	this->AABB.vertices[4] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MAX_Z]);
+	this->AABB.vertices[5] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MAX_Z]);
+	this->AABB.vertices[6] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
+	this->AABB.vertices[7] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
+
 	computedData = true; 
 }
 

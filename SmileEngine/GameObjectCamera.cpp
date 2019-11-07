@@ -432,6 +432,34 @@ void Frustrum::CalculatePlanes()
 	bPlane.vertices[2] = fPlane.vertices[3];
 	bPlane.vertices[3] = nPlane.vertices[3];
 	planes[5] = bPlane;
+
+	// Step 5: Calculate the plane's normals and center 
+	int i = 0; 
+	for (auto& p : planes)
+	{
+		// normal
+		float3 v1 = p.vertices[1] - p.vertices[0];
+		float3 v2 = p.vertices[2] - p.vertices[1];  
+		
+		if (i % 2 == 0)
+			p.normal = Cross(v2, v1);
+		else
+			p.normal = Cross(v1, v2);
+
+		p.normal /= p.normal.Length(); 
+
+		// center
+		float3 flankDist = p.vertices[3] - p.vertices[0]; 
+		float3 flankMid = p.vertices[0] + flankDist / 2; 
+		float3 flank2Dist = p.vertices[2] - p.vertices[1];
+		float3 flank2Mid = p.vertices[1] + flank2Dist / 2;
+		float3 betweenFlanksDist = flank2Mid - flankMid; 
+		p.center = flankMid + betweenFlanksDist / 2; 
+
+		++i; 
+	}; 
+
+	
 }
 
 void Frustrum::DebugPlanes()
@@ -467,7 +495,79 @@ void Frustrum::DebugPlanes()
 		}
 	}
 
+	// The normal vectors
+	glColor3f(1.f, 1.f, 0.f);
+	for (auto& p : planes)
+	{
+		float factor = 3; 
+		glVertex3f((GLfloat)p.center.x, (GLfloat)p.center.y, (GLfloat)p.center.z);
+		glVertex3f((GLfloat)p.center.x + p.normal.x * factor, (GLfloat)p.center.y + p.normal.y * factor, (GLfloat)p.center.z + p.normal.z * factor);
+   
+		
+	}
+
 	glEnd();
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glLineWidth(1);
+
+	// the plane centers
+	glColor3f(0.8f, 0.8f, 0.2f);
+	glPointSize(10);
+	glBegin(GL_POINTS);
+	for (auto& p : planes)
+		glVertex3f((GLfloat)p.center.x, (GLfloat)p.center.y, (GLfloat)p.center.z);
+	glEnd();
+	glPointSize(1);
+	glColor3f(1.f, 1.f, 1.f);
+}
+
+Frustrum::INTERSECTION_TYPE Frustrum::IsCubeInsideFrustrumView(AA_BB& box)
+{
+	Frustrum::INTERSECTION_TYPE type = Frustrum::INTERSECTION_TYPE::INSIDE; 
+
+	// to debug a vertex with green color if inside all 6 planes, or in red otherwise: 
+	std::array<bool, 8> insideOutside; 
+	std::fill(std::begin(insideOutside), std::end(insideOutside), true);
+
+	for (int i = 0; i < 6; ++i) // planes 
+	{
+		int insideCount = 0;
+		int outsideCount = 0; 
+
+		for (int j = 0; j < 8; ++j) // vertices in box
+		{ 
+			float3 vertex = box.vertices.at(j); 
+			if (planes[i].GetIntersection(vertex) == INTERSECTION_TYPE::OUTSIDE) // outside here means behind 
+			{
+				outsideCount++;
+				insideOutside[j] = false; 
+			}
+			
+			else if (planes[i].GetIntersection(vertex) == INTERSECTION_TYPE::INSIDE)
+				insideCount++; 
+		}
+
+		if (outsideCount == 8)
+		{
+			insideOutside.fill(false); 
+			box.insideoutside = insideOutside; 
+			return INTERSECTION_TYPE::OUTSIDE;
+		}
+			
+
+		if (insideCount > 0 && insideCount < 8)
+			type = INTERSECTION_TYPE::INTERSECT; 
+    }
+
+	box.insideoutside = insideOutside;
+	return type; 
+}
+
+Frustrum::INTERSECTION_TYPE Frustrum::plane::GetIntersection(float3 vertex)
+{
+	float totalDist = normal.Dot(vertex - center); 
+	if(totalDist > 0)
+		return INTERSECTION_TYPE::INSIDE;
+
+	return INTERSECTION_TYPE::OUTSIDE; 
 }

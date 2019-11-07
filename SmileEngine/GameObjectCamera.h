@@ -1,8 +1,7 @@
 #pragma once
 
-#include "glmath.h"
-#include "MathGeoLib/include/MathGeoLib.h"
-
+#include "MathGeoLib/include/Math/float3.h"
+#include "MathGeoLib/include/Math/float2.h"
 
 #define MIN_DIST_TO_MESH 5.F
 #define MAX_FRAME_SPEED 10.F
@@ -17,23 +16,25 @@ public:
 	Frustrum(GameObjectCamera* camera);
 	~Frustrum() {};
 
-	enum INTERSECTION_TYPE
+	enum class INTERSECTION_TYPE
 	{
-		NONE,
-		PARTIAL,
-		ALL
+		OUTSIDE,
+		INTERSECT,
+		INSIDE
 	};
 
 	struct plane
 	{
 		float3 vertices[4]; 
-	//	INTERSECTION_TYPE GetIntersection(float3 vertex);
+		float3 normal = float3(0, 0, 0); 
+		float3 center = float3(0, 0, 0);
+		INTERSECTION_TYPE GetIntersection(float3 vertex);
 	};
 
 public: 
 	std::array<plane, 6> GetPlanes() const { return planes; }; 
 	void DebugPlanes(); 
-
+	INTERSECTION_TYPE IsCubeInsideFrustrumView(AA_BB& box);
 private: 
 	void CalculatePlanes(); 
 	std::array<plane, 6> planes;
@@ -62,6 +63,7 @@ private:
 	friend class Frustrum; 
 };
 
+#include "glmath.h"
 // ----------------------------------------------------------------- [Camera]
 class GameObject; 
 class GameObjectCamera : public GameObject
@@ -73,16 +75,19 @@ public:
 
 	void Update(); 
 	
+	// Do stuff 
 	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference = false);
 	void LookAt(const vec3& Spot); // oh yes indeed
 	void LookAt(const float3& Spot); // oh yes indeed
 	void Move(const vec3& Movement);
 	void FitCameraToObject(GameObject* obj);
+
+	// Getters
 	float* GetViewMatrix();
 	float* GetViewMatrixInverse();
 	float GetScrollSpeed(float dt, float zScroll);
 	renderingData GetRenderingData() const { return _renderingData; };
-
+	Frustrum* GetFrustrum() const { return frustrum; }; 
 private:
 	void CalculateViewMatrix();
 	void FocusObjectLogic();

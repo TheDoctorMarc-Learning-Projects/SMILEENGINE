@@ -5,6 +5,7 @@
 #include "parshapes/par_shapes.h"
 #include "DevIL/include/IL/il.h"
 #include "glmath.h"
+#include "MathGeoLib/include/MathGeoLib.h"
 
 #include <array>
 
@@ -20,11 +21,20 @@ struct debugData
 	bool vertexNormals = false; 
 	bool outilineMesh = false; 
 	bool outlineParent = false; 
+	bool AABB = true; 
+};
+
+
+struct AA_BB
+{
+	std::array<float3, 8> vertices; 
+	std::array<bool, 8> insideoutside; // we will debug em with a red or green color
 };
 
 // TODO = more generic 
 struct ModelMeshData
 {
+public: 
 	uint id_index = 0;
 	uint num_index = 0;
 	uint* index = nullptr;
@@ -45,8 +55,12 @@ struct ModelMeshData
 	uint num_UVs = 0;
 	float* UVs = nullptr;
 
-	// AABB
+public: 
+	AA_BB GetAABB() const { return AABB; };
+
 private:
+	// AABB
+	AA_BB AABB;
 	std::array<float, minMaxCoords::TOTAL_COORDS> minmaxCoords;
 	vec3 meshCenter;
 	double meshBoundingSphereRadius = 0;
