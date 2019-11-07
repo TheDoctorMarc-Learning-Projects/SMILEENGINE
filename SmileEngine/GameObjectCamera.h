@@ -39,6 +39,8 @@ private:
 	void CalculatePlanes(); 
 	std::array<plane, 6> planes;
 	GameObjectCamera* myCamera = nullptr; 
+
+	friend class GameObjectCamera;
 }; 
 
 // ----------------------------------------------------------------- [Render preferences]
@@ -57,7 +59,6 @@ private:
 	// Planes
 	float2 pNearSize = float2();
 	float2 pFarSize = float2();
-
 
 	friend class GameObjectCamera; 
 	friend class Frustrum; 
@@ -81,6 +82,7 @@ public:
 	void LookAt(const float3& Spot); // oh yes indeed
 	void Move(const vec3& Movement);
 	void FitCameraToObject(GameObject* obj);
+	void OnTransform() { GameObject::OnTransform(); frustrum->CalculatePlanes(); };
 
 	// Getters
 	float* GetViewMatrix();

@@ -52,9 +52,11 @@ public:
 	virtual void Disable();
 	virtual void CleanUp(); 
 
+	// Other
+	virtual void OnTransform(); 
+
 	// State
 	bool IsActive() const { return active; };
-	void OnTransform(); 
 
 	// Debug purposes
 	void DrawAxis(); 

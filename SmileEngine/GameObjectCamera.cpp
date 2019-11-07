@@ -566,7 +566,7 @@ Frustrum::INTERSECTION_TYPE Frustrum::IsCubeInsideFrustrumView(AA_BB& box)
 Frustrum::INTERSECTION_TYPE Frustrum::plane::GetIntersection(float3 vertex)
 {
 	float totalDist = normal.Dot(vertex - center); 
-	if(totalDist > 0)
+	if(totalDist >= 0)
 		return INTERSECTION_TYPE::INSIDE;
 
 	return INTERSECTION_TYPE::OUTSIDE; 

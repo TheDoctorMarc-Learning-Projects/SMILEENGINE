@@ -780,6 +780,8 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				transf->ChangePosition(math::float3(p));
 				transf->ChangeRotation(math::Quat(r));
 				transf->ChangeScale(math::float3(s));
+
+				transf->GetParent()->OnTransform(); 
 			}
 
 			break;
