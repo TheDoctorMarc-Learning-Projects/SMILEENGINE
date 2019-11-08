@@ -82,7 +82,8 @@ public:
 	void LookAt(const float3& Spot); // oh yes indeed
 	void Move(const vec3& Movement);
 	void FitCameraToObject(GameObject* obj);
-	void OnTransform() { GameObject::OnTransform(); frustrum->CalculatePlanes(); };
+
+	void OnTransform(bool[3]);
 
 	// Getters
 	float* GetViewMatrix();
@@ -91,7 +92,7 @@ public:
 	renderingData GetRenderingData() const { return _renderingData; };
 	Frustrum* GetFrustrum() const { return frustrum; }; 
 private:
-	void CalculateViewMatrix();
+	void CalculateViewMatrix(bool updateTransform = true);
 	void FocusObjectLogic();
 	void ComputeSpatialData(); 
 

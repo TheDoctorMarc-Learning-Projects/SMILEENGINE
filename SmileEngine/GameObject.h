@@ -7,7 +7,7 @@
  
 #include "ComponentTypes.h"
 
-#define debugLineSize 5
+#define debugLineSize 1.8
 #define debugLineHead 0.3
 
 class Component;
@@ -53,7 +53,7 @@ public:
 	virtual void CleanUp(); 
 
 	// Other
-	virtual void OnTransform(); 
+	virtual void OnTransform(bool [3]); // pos, rot, sc 
 
 	// State
 	bool IsActive() const { return active; };

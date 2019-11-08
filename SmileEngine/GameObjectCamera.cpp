@@ -274,11 +274,21 @@ float* GameObjectCamera::GetViewMatrixInverse()
 }
 
 // -----------------------------------------------------------------
-void GameObjectCamera::CalculateViewMatrix()
+void GameObjectCamera::CalculateViewMatrix(bool updateTransform)
 {
 	vec3 transfPos = GetTransform()->GetPositionVec3();
 	ViewMatrix = mat4x4(X.x, Y.x, Z.x, 0.0f, X.y, Y.y, Z.y, 0.0f, X.z, Y.z, Z.z, 0.0f, -dot(X, transfPos), -dot(Y, transfPos), -dot(Z, transfPos), 1.0f);
 	ViewMatrixInverse = inverse(ViewMatrix);
+
+	if (updateTransform)
+	{
+		float data[16];
+		for (int i = 0; i <= 15; ++i)
+			data[i] = ViewMatrix.M[i];
+		float4x4 mat = float4x4(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
+		GetTransform()->ChangeRotation(Quat(mat));
+	}
+
 }
 
 // -----------------------------------------------------------------
@@ -338,6 +348,25 @@ float GameObjectCamera::GetScrollSpeed(float dt, float zScroll)
 	return speed;
 }
 
+// -----------------------------------------------------------------
+void GameObjectCamera::OnTransform(bool transfData[3])
+{
+	GameObject::OnTransform(transfData);
+
+	// rotation
+	if (transfData[2])
+	{
+		Quat q = GetTransform()->GetRotation();
+		float4x4 mat = float4x4(q).Transposed();
+		
+		X = normalize(vec3(mat.Row3(0).x, mat.Row3(0).y, mat.Row3(0).z)); 
+		Y = normalize(vec3(mat.Row3(1).x, mat.Row3(1).y, mat.Row3(1).z));
+		Z = normalize(vec3(mat.Row3(2).x, mat.Row3(2).y, mat.Row3(2).z));
+	}
+
+	CalculateViewMatrix(false); 
+	frustrum->CalculatePlanes();
+}
 
 // -----------------------------------------------------------------
 // -----------------------------------------------------------------
@@ -350,52 +379,33 @@ Frustrum::Frustrum(GameObjectCamera* camera)
 
 void Frustrum::CalculatePlanes()
 {
-	// Step 1: retrieve render data and the camera looking direction (-Z for the mom) 
+	// Step 1: retrieve render data and the camera looking direction
 	renderingData renderData = myCamera->GetRenderingData(); 
-	float3 camLookVec = float3(0, 0, -1); float2 Up = float2(0, 1), Right = float2(1, 0);  // TODO: capture camera X,Y,Z dirs                                           
+	float3 camLookVec = float3(myCamera->Z.x, myCamera->Z.y, -myCamera->Z.z).Normalized(),
+		Right = (Cross(float3(0.0f, 1.0f, 0.0f), camLookVec)).Normalized(),
+		Up = Cross(camLookVec, -Right); 
 	float3 camPos = myCamera->GetTransform()->GetPosition();  
-	float2 camPos2d = float2(camPos.x, camPos.y); 
 
 	// Step 2: Get the middle point (center) of the near plane and the far plane
 	float3 middleNearPlanePoint = camPos + camLookVec * renderData.pNearDist;
 	float3 middleFarPlanePoint = camPos + camLookVec * renderData.pFarDist;
-	float2 middleNearPlanePoint2D = float2(middleNearPlanePoint.x, middleNearPlanePoint.y); 
-	float2 middleFarPlanePoint2D = float2(middleFarPlanePoint.x, middleFarPlanePoint.y);
 
 	// Step 3: construct the 4 vertices around the center with quick sassy math
 	
 	// Near Plane
 	plane nPlane; 
-
-	float2 nPlanepPoint1_2D = float2(middleNearPlanePoint2D + (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[0] = float3(nPlanepPoint1_2D, middleNearPlanePoint.z);
-	
-	float2 nPlanepPoint2_2D = float2(middleNearPlanePoint2D + (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[1] = float3(nPlanepPoint2_2D, middleNearPlanePoint.z);
-	
-	float2 nPlanepPoint3_2D = float2(middleNearPlanePoint2D - (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[2] = float3(nPlanepPoint3_2D, middleNearPlanePoint.z);
-	
-	float2 nPlanepPoint4_2D = float2(middleNearPlanePoint2D - (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
-	nPlane.vertices[3] = float3(nPlanepPoint4_2D, middleNearPlanePoint.z);
-
+	nPlane.vertices[0] = float3(middleNearPlanePoint + (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
+	nPlane.vertices[1] = float3(middleNearPlanePoint + (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
+	nPlane.vertices[2] = float3(middleNearPlanePoint - (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
+	nPlane.vertices[3] = float3(middleNearPlanePoint - (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
 	planes[0] = nPlane; 
 
 	// Far Plane
 	plane fPlane;
-
-	float2 fPlanepPoint1_2D = float2(middleFarPlanePoint2D + (Right * renderData.pFarSize.x / 2) - (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[0] = float3(fPlanepPoint1_2D, middleFarPlanePoint.z);
-
-	float2 fPlanepPoint2_2D = float2(middleFarPlanePoint2D + (Right * renderData.pFarSize.x / 2) + (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[1] = float3(fPlanepPoint2_2D, middleFarPlanePoint.z);
-
-	float2 fPlanepPoint3_2D = float2(middleFarPlanePoint2D - (Right * renderData.pFarSize.x / 2) + (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[2] = float3(fPlanepPoint3_2D, middleFarPlanePoint.z);
-
-	float2 fPlanepPoint4_2D = float2(middleFarPlanePoint2D - (Right * renderData.pFarSize.x / 2) - (Up * renderData.pFarSize.y / 2));
-	fPlane.vertices[3] = float3(fPlanepPoint4_2D, middleFarPlanePoint.z);
-
+	fPlane.vertices[0] = float3(middleFarPlanePoint + (Right * renderData.pFarSize.x / 2) - (Up * renderData.pFarSize.y / 2));
+	fPlane.vertices[1] = float3(middleFarPlanePoint + (Right * renderData.pFarSize.x / 2) + (Up * renderData.pFarSize.y / 2));
+	fPlane.vertices[2] = float3(middleFarPlanePoint - (Right * renderData.pFarSize.x / 2) + (Up * renderData.pFarSize.y / 2));
+	fPlane.vertices[3] = float3(middleFarPlanePoint - (Right * renderData.pFarSize.x / 2) - (Up * renderData.pFarSize.y / 2));
 	planes[1] = fPlane;
 
 	// Step 4: figure out the rest of the planes 

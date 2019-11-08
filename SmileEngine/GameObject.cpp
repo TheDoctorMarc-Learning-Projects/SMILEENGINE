@@ -134,7 +134,7 @@ void GameObject::Update()
 void GameObject::DrawAxis()
 {
 	math::float3 transfPos = dynamic_cast<ComponentTransform*>(GetComponent(TRANSFORM))->GetPosition(); 
-	glLineWidth(10); 
+	glLineWidth(5); 
 	glBegin(GL_LINES);
 
 	// Line
@@ -256,14 +256,14 @@ std::vector<GameObject*> GameObject::GetImmidiateChildren() const
 	return childObjects; 
 }
 
-void GameObject::OnTransform()
+void GameObject::OnTransform(bool data[3])
 {
 	// 1) First transform myself
 	dynamic_cast<ComponentTransform*>(components[TRANSFORM])->CalculateAllMatrixes(); 
 
 	// 2) Then update the children (gameobjects) 's transform
 	for (auto& obj : childObjects)
-			obj->OnTransform();
+			obj->OnTransform(data);
 
 }
 

@@ -777,11 +777,24 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 			if (keyState == KEY_DOWN)
 			{
-				transf->ChangePosition(math::float3(p));
-				transf->ChangeRotation(math::Quat(r));
-				transf->ChangeScale(math::float3(s));
-
-				transf->GetParent()->OnTransform(); 
+				bool data[3];
+				if (p[0] != pos.x || p[1] != pos.y || p[2] != pos.z)
+				{
+					transf->ChangePosition(math::float3(p));
+					data[0] = true; 
+				}
+				if (r[0] != rot.x || r[1] != rot.y || r[2] != rot.z || r[3] != rot.w)
+				{
+					transf->ChangeRotation(math::Quat(r));
+					data[1] = true;
+				}
+				if (s[0] != sc.x || s[1] != sc.y || s[2] != sc.z)
+				{
+					transf->ChangeScale(math::float3(s));
+					data[2] = true;
+				}
+			
+				transf->GetParent()->OnTransform(data);
 			}
 
 			break;
