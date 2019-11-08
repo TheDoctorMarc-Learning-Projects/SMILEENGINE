@@ -167,16 +167,20 @@ void SmileFBX::ReadFBXData(const char* path)
 						std::string assetsPath("Assets/Models/"); assetsPath += tex_path.data;
 						AssignTextureToObj(assetsPath.c_str(), object);
 						LOG("Asset loaded: %s", assetsPath.c_str());
+						SaveMaterial(dynamic_cast<ComponentMaterial*>(object->GetComponent(MATERIAL))->textureInfo);
 					}
+					
 				}
 			}
 			
 			// Add the Mesh to the GameObject and the GameObject to the parent GameObject
 			object->AddComponent(mesh);
 			object->SetupTransformAtMeshCenter(); 
-
+			SaveMesh(mesh_info);
+			
 			// Fit the camera to the object 
 			App->camera->FitCameraToObject(object);
+			//
 
 		}
 		
@@ -321,17 +325,52 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 }
 
-bool SmileFBX::LoadMesh()
+bool SmileFBX::LoadMesh(ModelMeshData* mesh)
 {
+	char* buffer;
+	char* cursor = buffer;
+	// amount of indices / vertices / colors / normals / texture_coords
+	uint ranges[4];
+	uint bytes = sizeof(ranges);
+	memcpy(ranges, cursor, bytes);
+	mesh->num_index = ranges[0];
+	mesh->num_vertex = ranges[1];
+	mesh->num_normals = ranges[2];
+	mesh->num_UVs = ranges[3];
 
+	// Load indices
+	cursor += bytes;
+	bytes = sizeof(uint) * mesh->num_index;
+	mesh->index = new uint[mesh->num_index];
+	memcpy(mesh->index, cursor, bytes);
+
+	//Load vertex
+	cursor += bytes;
+	bytes = sizeof(float) * mesh->num_vertex * 3;
+	mesh->vertex = new float[mesh->num_vertex * 3];
+	memcpy(mesh->vertex, cursor, bytes);
+
+	//Load normals
+	cursor += bytes;
+	bytes = sizeof(float) * mesh->num_normals * 3;
+	mesh->normals = new float[mesh->num_normals * 3];
+	memcpy(mesh->normals, cursor, bytes);
+
+	//Load UVs
+	cursor += bytes;
+	bytes = sizeof(float) * mesh->num_UVs * 2;
+	mesh->UVs = new float[mesh->num_UVs * 2];
+	memcpy(mesh->UVs, cursor, bytes);
+
+	
 	return false;
 }
 
-bool SmileFBX::SaveMesh(ModelMeshData* mesh, std::string& output_file)
+bool SmileFBX::SaveMesh(ModelMeshData* mesh)
 {
 	bool ret = false;
-	uint ranges[2] = { mesh->num_index, mesh->num_vertex };
-	uint size = sizeof(ranges) + sizeof(uint) * mesh->num_index + sizeof(float) * mesh->num_vertex * 3;
+	uint ranges[4] = { mesh->num_index, mesh->num_vertex, mesh->num_normals, mesh->num_UVs };
+	uint size = sizeof(ranges) + sizeof(uint) * mesh->num_index + sizeof(float) * mesh->num_vertex * 3 + sizeof(float) * mesh->num_normals * 3 + sizeof(float) * mesh->num_UVs * 2;
 	char* data = new char[size]; // Allocate
 	char* cursor = data;
 
@@ -340,7 +379,7 @@ bool SmileFBX::SaveMesh(ModelMeshData* mesh, std::string& output_file)
 
 	//index
 	cursor += bytes; // Store indices
-	bytes = sizeof(uint) * mesh->num_index * 3;
+	bytes = sizeof(uint) * mesh->num_index;
 	memcpy(cursor, mesh->index, bytes);
 
 	//vertex
@@ -358,8 +397,32 @@ bool SmileFBX::SaveMesh(ModelMeshData* mesh, std::string& output_file)
 	bytes = sizeof(float) * mesh->num_UVs * 2;
 	memcpy(cursor, mesh->UVs, bytes);
 
+	std::string output_file;
 	App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
 
+	RELEASE_ARRAY(data);
+	return ret;
+}
+
+bool SmileFBX::LoadMaterial(textureData* texture)
+{
+	return false;
+}
+
+bool SmileFBX::SaveMaterial(textureData* texture)
+{
+	bool ret = false;
+	ILuint size;
+	
+	ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
+	size = ilSaveL(IL_DDS, NULL, 0);
+	std::string output_file;
+	if (size > 0) {
+		texture->texture = new ILubyte[size];
+		if (ilSaveL(IL_DDS, texture->texture, size) > 0)
+			ret = App->fs->SaveUnique(output_file, texture->texture, size, LIBRARY_TEXTURES_FOLDER, "texture", "dds");
+		RELEASE_ARRAY(texture->texture);
+	}
 	return ret;
 }
 
