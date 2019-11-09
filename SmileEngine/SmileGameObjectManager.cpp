@@ -83,11 +83,6 @@ GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> com
 	return DBG_NEW GameObject(components, name, parent);
 }
 
-// -----------------------------------------------------------------
-GameObjectCamera* SmileGameObjectManager::CreateCamera(GameObject* parent, vec3 Position, vec3 Reference, renderingData data)
-{
-	return DBG_NEW GameObjectCamera(parent, Position, Reference, data);
-}
 
 // ----------------------------------------------------------------- [Primitive creation functions]
 par_shapes_mesh* CreateSphere()

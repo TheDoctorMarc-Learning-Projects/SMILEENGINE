@@ -206,7 +206,7 @@ void ComponentMesh::DebugDraw()
 // -----------------------------------------------------------------
 void ComponentMesh::Update()
 {
-	GameObjectCamera* cam = App->scene_intro->gameCamera; 
+	ComponentCamera* cam = App->scene_intro->gameCamera; 
 
 	if (cam && cam->GetFrustrum()->IsCubeInsideFrustrumView(model_mesh->AABB) != Frustrum::INTERSECTION_TYPE::OUTSIDE)
 	{

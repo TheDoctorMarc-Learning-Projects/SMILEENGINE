@@ -12,6 +12,7 @@ GameObject::GameObject(GameObject* parent)
 
 	// Components
 	FillComponentBuffers();
+	AddComponent((Component*)DBG_NEW ComponentTransform());
 }
 
 GameObject::GameObject(std::string name, GameObject* parent)
@@ -258,12 +259,14 @@ std::vector<GameObject*> GameObject::GetImmidiateChildren() const
 
 void GameObject::OnTransform(bool data[3])
 {
-	// 1) First transform myself
 	dynamic_cast<ComponentTransform*>(components[TRANSFORM])->CalculateAllMatrixes(); 
 
-	// 2) Then update the children (gameobjects) 's transform
+	for (auto& comp : components)
+		if (comp)
+			comp->OnTransform(data);
+
 	for (auto& obj : childObjects)
-			obj->OnTransform(data);
+		obj->OnTransform(data);
 
 }
 

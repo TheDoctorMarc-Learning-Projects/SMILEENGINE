@@ -1,6 +1,6 @@
 #include "SmileSetup.h"
 #include "SmileApp.h" 
-#include "GameObjectCamera.h"  
+#include "ComponentCamera.h"  
 #include "SafetyHandler.h"
 #include "RayTracer.h"
 
@@ -9,7 +9,7 @@
 #include "ComponentTransform.h"
 #include "ComponentMesh.h"
 
-static void CommonSetup(GameObjectCamera* callback)
+static void CommonSetup(ComponentCamera* callback)
 {
 	callback->SetName("Camera"); 
 	callback->X = vec3(1.0f, 0.0f, 0.0f);
@@ -17,27 +17,10 @@ static void CommonSetup(GameObjectCamera* callback)
 	callback->Z = vec3(0.0f, 0.0f, 1.0f);
 }; 
 
-GameObjectCamera::GameObjectCamera(GameObject* parent, renderingData data) : GameObject(parent)
+ComponentCamera::ComponentCamera(GameObject* parent, vec3 Reference, renderingData data) : Component(parent)
 {
-	AddComponent(DBG_NEW ComponentTransform()); 
-	CommonSetup(this);
-	CalculateViewMatrix();
-	Reference = vec3(0.0f, 0.0f, 0.0f);
-
-	// Compute Data before frustrum
-	this->_renderingData = data; 
-	ComputeSpatialData(); 
-
-	// Frustrum 
-	frustrum = DBG_NEW Frustrum(this); 
-}
-
-
-GameObjectCamera::GameObjectCamera(GameObject* parent, vec3 Position, vec3 Reference, renderingData data) : GameObject(parent)
-{
-	// Add a transform 
-	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float3(Position.x, Position.y, Position.z)); 
-	AddComponent((Component*)transf);
+	type = COMPONENT_TYPE::CAMERA;
+	SetName("Camera comp"); // TODO: change this once the hierachy is tree-like
 
 	// Setup
 	CommonSetup(this);
@@ -55,7 +38,8 @@ GameObjectCamera::GameObjectCamera(GameObject* parent, vec3 Position, vec3 Refer
 	frustrum = DBG_NEW Frustrum(this);
 }
 
-GameObjectCamera::~GameObjectCamera()
+
+ComponentCamera::~ComponentCamera()
 {
 	RELEASE(frustrum); 
 }
@@ -65,7 +49,7 @@ float renderingData::InitRatio()
 	return (float)(std::get<int>(App->window->GetWindowParameter("Width"))) / (float)(std::get<int>(App->window->GetWindowParameter("Height"))); 
 }
 
-void GameObjectCamera::ComputeSpatialData()
+void ComponentCamera::ComputeSpatialData()
 {
 	// Near plane size
 	_renderingData.pNearSize.y = abs(2 * tan((_renderingData.fovYangle * DEGTORAD) / 2) * _renderingData.pNearDist);
@@ -77,19 +61,17 @@ void GameObjectCamera::ComputeSpatialData()
 }
 
 // ----------------------------------------------------------------- 
-// This must be done before clearing the Depth buffer in the Render PreUpdate
-void GameObjectCamera::Update()
+void ComponentCamera::Update()
 {
-	// If the current looking camera is not myself, fuck transformations!
+	// If the current looking camera is not myself, fuck the logic!
 	if (App->renderer3D->targetCamera != this)
 	{
 		frustrum->DebugPlanes();
 		return;
 	}
 	
-
 	float dt = App->GetDT(); 
-	ComponentTransform* transf = GetTransform(); 
+	ComponentTransform* transf = parent->GetTransform(); 
 
 	// Check if the user clicks to select object 
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
@@ -130,7 +112,7 @@ void GameObjectCamera::Update()
 		if (zScroll != 0)
 			newPos += Z * GetScrollSpeed(dt, zScroll);
 
-		GetTransform()->AccumulatePosition(newPos); 
+		parent->GetTransform()->AccumulatePosition(newPos);
 		Reference += newPos;
 
 		// Rotation ----------------
@@ -174,7 +156,7 @@ void GameObjectCamera::Update()
 
 }
 
-void GameObjectCamera::FocusObjectLogic()
+void ComponentCamera::FocusObjectLogic()
 {
 	ComponentMesh* selectedMesh = App->scene_intro->selected_mesh;
 	GameObject* selectedObj = App->scene_intro->selectedObj;
@@ -203,9 +185,9 @@ void GameObjectCamera::FocusObjectLogic()
 }
 
 // -----------------------------------------------------------------
-void GameObjectCamera::Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference)
+void ComponentCamera::Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference)
 {
-	ComponentTransform* transf = GetTransform(); 
+	ComponentTransform* transf = parent->GetTransform();
 	transf->ChangePosition(math::float3(Position.x, Position.y, Position.z));
 	this->Reference = Reference;
 
@@ -223,13 +205,13 @@ void GameObjectCamera::Look(const vec3& Position, const vec3& Reference, bool Ro
 }
 
 // -----------------------------------------------------------------
-void GameObjectCamera::LookAt(const float3& Spot)
+void ComponentCamera::LookAt(const float3& Spot)
 {
 	vec3 SpotV(Spot.x, Spot.y, Spot.z);
 
 	Reference = SpotV;
   
-	Z = normalize(GetTransform()->GetPositionVec3() - Reference);
+	Z = normalize(parent->GetTransform()->GetPositionVec3() - Reference);
 	X = normalize(cross(vec3(0.0f, 1.0f, 0.0f), Z));
 	Y = cross(Z, X);
 
@@ -238,9 +220,9 @@ void GameObjectCamera::LookAt(const float3& Spot)
 
 
 // -----------------------------------------------------------------
-void GameObjectCamera::LookAt(const vec3& Spot)
+void ComponentCamera::LookAt(const vec3& Spot)
 {
-	ComponentTransform* transf = GetTransform();
+	ComponentTransform* transf = parent->GetTransform();
 	Reference = Spot;
 
 	Z = normalize(transf->GetPositionVec3() - Reference);
@@ -251,9 +233,9 @@ void GameObjectCamera::LookAt(const vec3& Spot)
 }
 
 // -----------------------------------------------------------------
-void GameObjectCamera::Move(const vec3& Movement)
+void ComponentCamera::Move(const vec3& Movement)
 {
-	ComponentTransform* transf = GetTransform();
+	ComponentTransform* transf = parent->GetTransform();
 	transf->AccumulatePosition(Movement);
 	Reference += Movement;
 
@@ -261,22 +243,22 @@ void GameObjectCamera::Move(const vec3& Movement)
 }
 
 // -----------------------------------------------------------------
-float* GameObjectCamera::GetViewMatrix()
+float* ComponentCamera::GetViewMatrix()
 {
 	return &ViewMatrix;
 }
 
 
 // -----------------------------------------------------------------
-float* GameObjectCamera::GetViewMatrixInverse()
+float* ComponentCamera::GetViewMatrixInverse()
 {
 	return &ViewMatrixInverse;
 }
 
 // -----------------------------------------------------------------
-void GameObjectCamera::CalculateViewMatrix(bool updateTransform)
+void ComponentCamera::CalculateViewMatrix(bool updateTransform)
 {
-	vec3 transfPos = GetTransform()->GetPositionVec3();
+	vec3 transfPos = parent->GetTransform()->GetPositionVec3();
 	ViewMatrix = mat4x4(X.x, Y.x, Z.x, 0.0f, X.y, Y.y, Z.y, 0.0f, X.z, Y.z, Z.z, 0.0f, -dot(X, transfPos), -dot(Y, transfPos), -dot(Z, transfPos), 1.0f);
 	ViewMatrixInverse = inverse(ViewMatrix);
 
@@ -286,16 +268,16 @@ void GameObjectCamera::CalculateViewMatrix(bool updateTransform)
 		for (int i = 0; i <= 15; ++i)
 			data[i] = ViewMatrix.M[i];
 		float4x4 mat = float4x4(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
-		GetTransform()->ChangeRotation(Quat(mat));
+		parent->GetTransform()->ChangeRotation(Quat(mat));
 	}
 
 }
 
 // -----------------------------------------------------------------
-void GameObjectCamera::FitCameraToObject(GameObject* obj)
+void ComponentCamera::FitCameraToObject(GameObject* obj)
 {
 
-	vec3 transfPos = GetTransform()->GetPositionVec3();
+	vec3 transfPos = parent->GetTransform()->GetPositionVec3();
 
 	// look at the mesh center
 	float3 centerMath = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM))->GetPosition();
@@ -322,9 +304,9 @@ void GameObjectCamera::FitCameraToObject(GameObject* obj)
 }
 
 // -----------------------------------------------------------------
-float GameObjectCamera::GetScrollSpeed(float dt, float zScroll)
+float ComponentCamera::GetScrollSpeed(float dt, float zScroll)
 {
-	vec3 transfPos = GetTransform()->GetPositionVec3();
+	vec3 transfPos = parent->GetTransform()->GetPositionVec3();
 
 	float speed = DEFAULT_SPEED * dt * sMath::Sign(zScroll);
 
@@ -349,14 +331,12 @@ float GameObjectCamera::GetScrollSpeed(float dt, float zScroll)
 }
 
 // -----------------------------------------------------------------
-void GameObjectCamera::OnTransform(bool transfData[3])
+void ComponentCamera::OnTransform(bool transfData[3])
 {
-	GameObject::OnTransform(transfData);
-
 	// rotation
 	if (transfData[2])
 	{
-		Quat q = GetTransform()->GetRotation();
+		Quat q = parent->GetTransform()->GetRotation();
 		float4x4 mat = float4x4(q).Transposed();
 		
 		X = normalize(vec3(mat.Row3(0).x, mat.Row3(0).y, mat.Row3(0).z)); 
@@ -371,7 +351,7 @@ void GameObjectCamera::OnTransform(bool transfData[3])
 // -----------------------------------------------------------------
 // -----------------------------------------------------------------
 // ----------------------------------------------------------------- [Frustrum]
-Frustrum::Frustrum(GameObjectCamera* camera)
+Frustrum::Frustrum(ComponentCamera* camera)
 {
 	myCamera = camera; 
 	Frustrum::CalculatePlanes(); 
@@ -384,7 +364,7 @@ void Frustrum::CalculatePlanes()
 	float3 camLookVec = float3(myCamera->Z.x, myCamera->Z.y, -myCamera->Z.z).Normalized(),
 		Right = (Cross(float3(0.0f, 1.0f, 0.0f), camLookVec)).Normalized(),
 		Up = Cross(camLookVec, -Right); 
-	float3 camPos = myCamera->GetTransform()->GetPosition();  
+	float3 camPos = myCamera->GetParent()->GetTransform()->GetPosition();
 
 	// Step 2: Get the middle point (center) of the near plane and the far plane
 	float3 middleNearPlanePoint = camPos + camLookVec * renderData.pNearDist;
@@ -479,7 +459,7 @@ void Frustrum::DebugPlanes()
 	glBegin(GL_LINES);
 
 	// 4 lines from the camera to the far plane 
-	float3 camPos = myCamera->GetTransform()->GetPosition(); 
+	float3 camPos = myCamera->GetParent()->GetTransform()->GetPosition();
 	
 	for (int i = 0; i <= 3; ++i)
 	{

@@ -25,6 +25,6 @@ public:
 	Light lights[MAX_LIGHTS];
 	mat3x3 NormalMatrix;
 	mat4x4 ModelMatrix, ViewMatrix, ProjectionMatrix;
-	GameObjectCamera* targetCamera = nullptr; 
+	ComponentCamera* targetCamera = nullptr; 
 	
 };

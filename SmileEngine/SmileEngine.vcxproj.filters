@@ -43,9 +43,6 @@
     <Filter Include="Source\Modules\Objects\GameObjects\Template">
       <UniqueIdentifier>{8c4ec64b-97fd-4050-9792-261a9a2ca2df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Objects\GameObjects\Other">
-      <UniqueIdentifier>{560a8c5d-05df-4b69-8a15-615c71c87e2c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -159,8 +156,8 @@
     <ClInclude Include="GameObject.h">
       <Filter>Source\Modules\Objects\GameObjects\Template</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjectCamera.h">
-      <Filter>Source\Modules\Objects\GameObjects\Other</Filter>
+    <ClInclude Include="ComponentCamera.h">
+      <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -248,8 +245,8 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Source\Modules\Objects\GameObjects\Template</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjectCamera.cpp">
-      <Filter>Source\Modules\Objects\GameObjects\Other</Filter>
+    <ClCompile Include="ComponentCamera.cpp">
+      <Filter>Source\Modules\Objects\Components</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

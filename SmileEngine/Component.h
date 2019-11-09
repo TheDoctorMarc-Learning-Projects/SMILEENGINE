@@ -19,6 +19,8 @@ public:
 	virtual void Disable() { active = false; };
 	virtual void CleanUp() {};
 
+	virtual void OnTransform(bool[3]) {};
+
 	std::string GetName() const { return name; };
 	void SetName(std::string name) { this->name = name; };
 	GameObject* GetParent() const { return parent; };
@@ -38,5 +40,6 @@ public:
 	friend class ComponentMaterial; 
 	friend class ComponentMesh;
 	friend class ComponentTransform; 
+	friend class ComponentCamera; 
 };
 

@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 #include "glmath.h"
-#include "GameObjectCamera.h"
+#include "ComponentCamera.h"
 
 par_shapes_mesh* CreateSphere();
 par_shapes_mesh* CreateCube();
@@ -31,9 +31,6 @@ public:
 	GameObject* CreateGameObject(std::string name = "no name", GameObject* parent = nullptr);
 	GameObject* CreateGameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
 	GameObject* CreateGameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
-
-	// Others
-	GameObjectCamera* CreateCamera(GameObject* parent, vec3 Position, vec3 Reference, renderingData data = {});
 
 	// Primitve tools
 	void GetAllPrimitiveTypesChar(char(&)[128], bool helpInfo = false);

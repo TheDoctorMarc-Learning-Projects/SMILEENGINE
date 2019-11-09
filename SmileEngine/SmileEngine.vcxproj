@@ -92,7 +92,7 @@
     <ClInclude Include="ComponentTransform.h" />
     <ClInclude Include="ComponentTypes.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GameObjectCamera.h" />
+    <ClInclude Include="ComponentCamera.h" />
     <ClInclude Include="glmath.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="JSONParser.h" />
@@ -130,7 +130,7 @@
     <ClCompile Include="ComponentMesh.cpp" />
     <ClCompile Include="ComponentTransform.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GameObjectCamera.cpp" />
+    <ClCompile Include="ComponentCamera.cpp" />
     <ClCompile Include="glmath.cpp" />
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="JSONParser.cpp" />

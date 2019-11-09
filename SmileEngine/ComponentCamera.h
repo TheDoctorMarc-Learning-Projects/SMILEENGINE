@@ -13,7 +13,7 @@
 class Frustrum
 {
 public: 
-	Frustrum(GameObjectCamera* camera);
+	Frustrum(ComponentCamera* camera);
 	~Frustrum() {};
 
 	enum class INTERSECTION_TYPE
@@ -38,9 +38,9 @@ public:
 private: 
 	void CalculatePlanes(); 
 	std::array<plane, 6> planes;
-	GameObjectCamera* myCamera = nullptr; 
+	ComponentCamera* myCamera = nullptr; 
 
-	friend class GameObjectCamera;
+	friend class ComponentCamera;
 }; 
 
 // ----------------------------------------------------------------- [Render preferences]
@@ -60,19 +60,19 @@ private:
 	float2 pNearSize = float2();
 	float2 pFarSize = float2();
 
-	friend class GameObjectCamera; 
+	friend class ComponentCamera; 
 	friend class Frustrum; 
 };
 
 #include "glmath.h"
 // ----------------------------------------------------------------- [Camera]
-class GameObject; 
-class GameObjectCamera : public GameObject
+class Component; 
+class ComponentCamera : public Component
 {
 public:
-	GameObjectCamera(GameObject* parent, renderingData data = {});
-	GameObjectCamera(GameObject* parent, vec3 Position, vec3 Reference, renderingData data = {});
-	~GameObjectCamera();
+	ComponentCamera(GameObject* parent, vec3 Reference, renderingData data = {});
+	~ComponentCamera();
+
 
 	void Update(); 
 	

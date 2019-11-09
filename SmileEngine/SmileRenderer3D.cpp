@@ -16,7 +16,7 @@
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "GameObjectCamera.h"
+#include "ComponentCamera.h"
 #include "GameObject.h"
 #include "ComponentTransform.h"
 
@@ -115,7 +115,7 @@ bool SmileRenderer3D::Start()
 // PreUpdate: clear buffer
 update_status SmileRenderer3D::PreUpdate(float dt)
 {
-	vec3 camPos = targetCamera->GetTransform()->GetPositionVec3();
+	vec3 camPos = targetCamera->GetParent()->GetTransform()->GetPositionVec3();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
@@ -140,8 +140,8 @@ update_status SmileRenderer3D::PostUpdate(float dt)
 
 	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
 	{
-		GameObjectCamera* gameCam = App->scene_intro->gameCamera;
-		GameObjectCamera* debugCam = App->scene_intro->debugCamera;
+		ComponentCamera* gameCam = App->scene_intro->gameCamera;
+		ComponentCamera* debugCam = App->scene_intro->debugCamera;
 
 		if (targetCamera == gameCam)
 			targetCamera = debugCam;

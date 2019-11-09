@@ -4,7 +4,7 @@
 #include "SmileFBX.h"
 #include "GameObject.h"
 #include "ComponentMesh.h"
-#include "GameObjectCamera.h"
+#include "ComponentCamera.h"
 #include <vector>
 
 #define MAXLINES 30
@@ -26,16 +26,10 @@ public:
 	GameObject* rootObj = nullptr;
 	GameObject* selectedObj = nullptr; 
 	ComponentMesh* selected_mesh = nullptr;
-	GameObjectCamera* debugCamera = nullptr; 
-	GameObjectCamera* gameCamera = nullptr;
+	ComponentCamera* debugCamera = nullptr; 
+	ComponentCamera* gameCamera = nullptr;
 
 	int lineWidth = 1;
 	float linesLength = 0.5f;
-	/*// test
-	par_shapes_mesh* testCube = nullptr;
-	uint* vertexIDarray = nullptr; 
-	uint* indexIDarray = nullptr;
-	uint vertexID = 0; 
-	uint indexID = vertexID; */
 
 };

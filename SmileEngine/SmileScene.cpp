@@ -9,7 +9,7 @@
 //#include <gl/GLU.h>*/
 
 #include "Glew/include/GL/glew.h"
-#include "GameObjectCamera.h"
+#include "ComponentCamera.h"
 #include "SmileGameObjectManager.h"
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -29,12 +29,17 @@ bool SmileScene::Start()
 	App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 
 	// Debug Camera
-	debugCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 20, 10), vec3(0, 0, 9));
-	
+	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 20, 10)), "Debug Camera", rootObj);
+	debugCamera = DBG_NEW ComponentCamera(debugCameraObj, vec3(0, 0, 9)); 
+	debugCameraObj->AddComponent(debugCamera);
+
 	// Game Camera
+	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 7)), "Game Camera", rootObj);
 	renderingData data; 
 	data.pFarDist = 10.f; 
-	gameCamera = App->object_manager->CreateCamera(rootObj, vec3(0, 0, 7), vec3(0, 0, 0), data);
+	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 0, 0), data); 
+	gameCameraObj->AddComponent(gameCamera);
+	
 
 	return true;
 }

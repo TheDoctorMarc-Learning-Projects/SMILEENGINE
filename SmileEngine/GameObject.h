@@ -71,5 +71,5 @@ private:
 	GameObject* parent = nullptr; 
 
 	friend class SmileGameObjectManager; 
-	friend class GameObjectCamera; 
+	friend class ComponentCamera; 
 };
