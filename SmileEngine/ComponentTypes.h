@@ -1,8 +1,5 @@
 #pragma once
 
-#include <map>
-#include <tuple>
-
 enum COMPONENT_TYPE : uint
 {
 	TRANSFORM,

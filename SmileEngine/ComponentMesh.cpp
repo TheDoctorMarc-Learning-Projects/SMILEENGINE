@@ -184,7 +184,7 @@ void ComponentMesh::DebugDraw()
 			glColor3f(1.0f, 0.0f, 0.0f);
 			glPointSize(10); 
 			glBegin(GL_POINTS);
-			auto AABB = model_mesh->GetAABB();
+			auto AABB = model_mesh->GetOBB();
 			for (int i = 0; i < AABB.vertices.size(); ++i)
 			{
 				if(AABB.insideoutside.at(i) == true)
@@ -208,7 +208,7 @@ void ComponentMesh::Update()
 {
 	ComponentCamera* cam = App->scene_intro->gameCamera; 
 
-	if (cam && cam->GetFrustrum()->IsCubeInsideFrustrumView(model_mesh->AABB) != Frustrum::INTERSECTION_TYPE::OUTSIDE)
+	if (cam && cam->GetFrustrum()->IsCubeInsideFrustrumView(model_mesh->OBB) != Frustrum::INTERSECTION_TYPE::OUTSIDE)
 	{
 		Draw();
 	}
@@ -350,56 +350,56 @@ void ModelMeshData::ComputeMeshSpatialData()
 		// in order to compare the following ones with it
 		if (i == 0)
 		{
-			minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
-			minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
-			minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
-			minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
-			minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
-			minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
+			OBB.minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
+			OBB.minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
+			OBB.minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
+			OBB.minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
+			OBB.minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
+			OBB.minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
 			continue;
 		}
 
 		// find min-max X coord
-		if (vertex[i] < minmaxCoords[minMaxCoords::MIN_X])
-			minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
-		else if (vertex[i] > minmaxCoords[minMaxCoords::MAX_X])
-			minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
+		if (vertex[i] < OBB.minmaxCoords[minMaxCoords::MIN_X])
+			OBB.minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
+		else if (vertex[i] > OBB.minmaxCoords[minMaxCoords::MAX_X])
+			OBB.minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
 
 		// find min-max Y coord
-		if (vertex[i + 1] < minmaxCoords[minMaxCoords::MIN_Y])
-			minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
-		else if (vertex[i + 1] > minmaxCoords[minMaxCoords::MAX_Y])
-			minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
+		if (vertex[i + 1] < OBB.minmaxCoords[minMaxCoords::MIN_Y])
+			OBB.minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
+		else if (vertex[i + 1] > OBB.minmaxCoords[minMaxCoords::MAX_Y])
+			OBB.minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
 
 		// find min-max Z coord
-		if (vertex[i + 2] < minmaxCoords[minMaxCoords::MIN_Z])
-			minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
-		else if (vertex[i + 2] > minmaxCoords[minMaxCoords::MAX_Z])
-			minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
+		if (vertex[i + 2] < OBB.minmaxCoords[minMaxCoords::MIN_Z])
+			OBB.minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
+		else if (vertex[i + 2] > OBB.minmaxCoords[minMaxCoords::MAX_Z])
+			OBB.minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
 
 	}
 
 	// 2) find the center 
-	float c_X = (minmaxCoords[minMaxCoords::MIN_X] + minmaxCoords[minMaxCoords::MAX_X]) / 2;
-	float c_Y = (minmaxCoords[minMaxCoords::MIN_Y] + minmaxCoords[minMaxCoords::MAX_Y]) / 2;
-	float c_Z = (minmaxCoords[minMaxCoords::MIN_Z] + minmaxCoords[minMaxCoords::MAX_Z]) / 2;
-	meshCenter = vec3(c_X, c_Y, c_Z);
+	float c_X = (OBB.minmaxCoords[minMaxCoords::MIN_X] + OBB.minmaxCoords[minMaxCoords::MAX_X]) / 2;
+	float c_Y = (OBB.minmaxCoords[minMaxCoords::MIN_Y] + OBB.minmaxCoords[minMaxCoords::MAX_Y]) / 2;
+	float c_Z = (OBB.minmaxCoords[minMaxCoords::MIN_Z] + OBB.minmaxCoords[minMaxCoords::MAX_Z]) / 2;
+	OBB.center = float3(c_X, c_Y, c_Z);
 
 	// 3) find the bounding sphere radius
-	vec3 min_Vec(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]);
-	vec3 max_Vec(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
+	vec3 min_Vec(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
+	vec3 max_Vec(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
 	vec3 rad_Vec = (max_Vec - min_Vec) / 2;
-	meshBoundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
+	OBB.boundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
 
 	// 4) find the proper AABB with the min-max coords
-	this->AABB.vertices[0] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]); 
-	this->AABB.vertices[1] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]);
-	this->AABB.vertices[2] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MIN_Z]);
-	this->AABB.vertices[3] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MIN_Z]);
-	this->AABB.vertices[4] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MAX_Z]);
-	this->AABB.vertices[5] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MAX_Z]);
-	this->AABB.vertices[6] = float3(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
-	this->AABB.vertices[7] = float3(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
+	OBB.vertices[0] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
+	OBB.vertices[1] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
+	OBB.vertices[2] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
+	OBB.vertices[3] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
+	OBB.vertices[4] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
+	OBB.vertices[5] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
+	OBB.vertices[6] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
+	OBB.vertices[7] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
 
 	computedData = true; 
 }

@@ -5,10 +5,8 @@
 #include "parshapes/par_shapes.h"
 #include "DevIL/include/IL/il.h"
 #include "glmath.h"
-#include "MathGeoLib/include/MathGeoLib.h"
-
-#include <array>
-
+#include "BoundingData.h"
+ 
 enum Mesh_Type
 {
 	PRIMITIVE,
@@ -22,13 +20,7 @@ struct debugData
 	bool outilineMesh = false; 
 	bool outlineParent = false; 
 	bool AABB = true; 
-};
-
-
-struct AA_BB
-{
-	std::array<float3, 8> vertices; 
-	std::array<bool, 8> insideoutside; // we will debug em with a red or green color
+	bool OBB = false; 
 };
 
 // TODO = more generic 
@@ -56,22 +48,20 @@ public:
 	float* UVs = nullptr;
 
 public: 
-	AA_BB GetAABB() const { return AABB; };
+	bounding::BoundingBox GetOBB() const { return OBB; };
+	bounding::BoundingBox GetAABB() const { return AABB; };
 
 private:
-	// AABB
-	AA_BB AABB;
-	std::array<float, minMaxCoords::TOTAL_COORDS> minmaxCoords;
-	vec3 meshCenter;
-	double meshBoundingSphereRadius = 0;
+	// Bounding boxes
+	bounding::BoundingBox AABB; 
+	bounding::BoundingBox OBB;
 	bool computedData = false; 
 	void ComputeMeshSpatialData(); 
 
 public:
-
-	vec3 GetMeshCenter() const { return meshCenter; }; // this will only work at the beginning 
-	double GetMeshSphereRadius() const { return meshBoundingSphereRadius; };
-	std::array<float, minMaxCoords::TOTAL_COORDS> GetMinMaxCoords() const { return minmaxCoords; };
+	float3 GetMeshCenter() const { return OBB.center; }; 
+	double GetMeshSphereRadius() const { return OBB.boundingSphereRadius; };
+	std::array<float, minMaxCoords::TOTAL_COORDS> GetMinMaxCoords() const { return OBB.minmaxCoords; };
 
 	friend class SmileFBX;
 	friend class ComponentMesh; 

@@ -44,6 +44,7 @@ public:
 	std::vector<GameObject*> GetChildrenRecursive() const; 
 	std::vector<GameObject*> GetImmidiateChildren() const; 
 	double GetBoundingSphereRadius() const; 
+	void GetOBB(); 
 
 	// Main functions 
 	virtual void Start(); 

@@ -43,6 +43,9 @@
     <Filter Include="Source\Modules\Objects\GameObjects\Template">
       <UniqueIdentifier>{8c4ec64b-97fd-4050-9792-261a9a2ca2df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\Advanced">
+      <UniqueIdentifier>{fa2139e7-a954-4905-9c3d-506e470deaf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -159,6 +162,12 @@
     <ClInclude Include="ComponentCamera.h">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
+    <ClInclude Include="SmileSpatialTree.h">
+      <Filter>Source\Modules\Advanced</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundingData.h">
+      <Filter>Source\Modules\Objects\Components\Help</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -247,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="ComponentCamera.cpp">
       <Filter>Source\Modules\Objects\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileSpatialTree.cpp">
+      <Filter>Source\Modules\Advanced</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BoundingData.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentMaterial.h" />
     <ClInclude Include="ComponentMesh.h" />
@@ -119,6 +120,7 @@
     <ClInclude Include="SmileModule.h" />
     <ClInclude Include="SmileInput.h" />
     <ClInclude Include="SmileScene.h" />
+    <ClInclude Include="SmileSpatialTree.h" />
     <ClInclude Include="SmileUtilitiesModule.h" />
     <ClInclude Include="SmileWindow.h" />
     <ClInclude Include="SmileGui.h" />
@@ -151,6 +153,7 @@
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileScene.cpp" />
     <ClCompile Include="SmileSetup.cpp" />
+    <ClCompile Include="SmileSpatialTree.cpp" />
     <ClCompile Include="SmileUtilitiesModule.cpp" />
     <ClCompile Include="SmileWindow.cpp" />
     <ClCompile Include="SmileGui.cpp" />

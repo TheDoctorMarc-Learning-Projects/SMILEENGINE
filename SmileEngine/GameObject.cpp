@@ -312,3 +312,8 @@ ComponentTransform* GameObject::GetTransform() const
 {
 	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
 }
+
+void GameObject::GetOBB()
+{
+	
+}
