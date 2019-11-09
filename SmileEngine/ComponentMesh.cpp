@@ -194,12 +194,12 @@ void ComponentMesh::DebugDraw()
 
 				glVertex3f(AABB.vertices.at(i).x, AABB.vertices.at(i).y, AABB.vertices.at(i).z);
 			}
-				
 			
 			glEnd();
+			glPointSize(1);
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
-		 
+		
 
 }
 
@@ -400,6 +400,14 @@ void ModelMeshData::ComputeMeshSpatialData()
 	OBB.vertices[5] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
 	OBB.vertices[6] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
 	OBB.vertices[7] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
+
+
+	// TODO: just testing for baker house to be used in Quadtree (as it is already axis aligned):
+	// Calculate the aabb every time the obb changes
+	this->AABB = this->OBB; 
+
+	// for the intersection method:
+	maabb = math::AABB(OBB.vertices[0], OBB.vertices[6]); 
 
 	computedData = true; 
 }

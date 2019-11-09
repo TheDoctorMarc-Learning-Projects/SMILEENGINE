@@ -6,6 +6,7 @@
 #include "DevIL/include/IL/il.h"
 #include "glmath.h"
 #include "BoundingData.h"
+#include "MathGeoLib/include/Geometry/AABB.h"
  
 enum Mesh_Type
 {
@@ -19,7 +20,7 @@ struct debugData
 	bool vertexNormals = false; 
 	bool outilineMesh = false; 
 	bool outlineParent = false; 
-	bool AABB = true; 
+	bool AABB = false; 
 	bool OBB = false; 
 };
 
@@ -48,13 +49,15 @@ public:
 	float* UVs = nullptr;
 
 public: 
-	bounding::BoundingBox GetOBB() const { return OBB; };
-	bounding::BoundingBox GetAABB() const { return AABB; };
+	smile_OBB GetOBB() const { return OBB; };
+	smile_AABB GetAABB() const { return AABB; };
+	math::AABB Getmaabb() const { return maabb; };
 
 private:
 	// Bounding boxes
-	bounding::BoundingBox AABB; 
-	bounding::BoundingBox OBB;
+	math::AABB maabb; // for the intersection method
+	smile_AABB AABB;
+	smile_OBB OBB;
 	bool computedData = false; 
 	void ComputeMeshSpatialData(); 
 

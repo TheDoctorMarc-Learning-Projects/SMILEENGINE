@@ -14,7 +14,7 @@
 #include "SmileUtilitiesModule.h"
 #include "SmileFBX.h"
 #include "SmileGameObjectManager.h" 
-
+#include "SmileSpatialTree.h"
 
 class SmileApp
 {
@@ -27,6 +27,7 @@ public:
 	SmileUtilitiesModule* utilities;
 	SmileFBX* fbx;
 	SmileGameObjectManager* object_manager;
+	SmileSpatialTree* spatial_tree; 
 
 private:
 

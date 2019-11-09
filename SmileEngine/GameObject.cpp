@@ -313,6 +313,11 @@ ComponentTransform* GameObject::GetTransform() const
 	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
 }
 
+ComponentMesh* GameObject::GetMesh() const
+{
+	return dynamic_cast<ComponentMesh*>(components[MESH]);
+}
+
 void GameObject::GetOBB()
 {
 	

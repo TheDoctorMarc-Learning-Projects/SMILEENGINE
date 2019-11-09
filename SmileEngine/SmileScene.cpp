@@ -11,6 +11,7 @@
 #include "Glew/include/GL/glew.h"
 #include "ComponentCamera.h"
 #include "SmileGameObjectManager.h"
+#include "SmileSpatialTree.h"
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -40,6 +41,9 @@ bool SmileScene::Start()
 	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 0, 0), data); 
 	gameCameraObj->AddComponent(gameCamera);
 	
+	// Octree
+	float3 mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
+	App->spatial_tree->CreateOctree(mapSize);
 
 	return true;
 }

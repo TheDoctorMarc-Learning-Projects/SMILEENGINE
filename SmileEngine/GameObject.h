@@ -34,6 +34,7 @@ public:
 
 	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
 	ComponentTransform* GetTransform() const; 
+	ComponentMesh* GetMesh() const;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; }; 
 
 	// Assign & Get data

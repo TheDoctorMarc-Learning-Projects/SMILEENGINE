@@ -11,7 +11,7 @@ class SmileGui;
 class SmileUtiliesModule;
 class SmileFBX;
 class SmileGameObjectManager;
-
+class SmileSpatialTree; 
 
 SmileApp::SmileApp()
 {
@@ -23,6 +23,7 @@ SmileApp::SmileApp()
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 	fbx = DBG_NEW SmileFBX(this);
 	object_manager = DBG_NEW SmileGameObjectManager(this);
+	spatial_tree = DBG_NEW SmileSpatialTree(this); 
 	 
 	// Main SmileModules
 	AddModule(window);
@@ -31,6 +32,7 @@ SmileApp::SmileApp()
 	// Scenes
 	AddModule(object_manager);
 	AddModule(scene_intro);
+	AddModule(spatial_tree); 
 	AddModule(gui); 
 	// Test 
 	AddModule(utilities);

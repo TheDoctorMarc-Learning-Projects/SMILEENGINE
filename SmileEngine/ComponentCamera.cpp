@@ -511,7 +511,7 @@ void Frustrum::DebugPlanes()
 	glColor3f(1.f, 1.f, 1.f);
 }
 
-Frustrum::INTERSECTION_TYPE Frustrum::IsCubeInsideFrustrumView(bounding::BoundingBox& box)
+Frustrum::INTERSECTION_TYPE Frustrum::IsCubeInsideFrustrumView(smile_OBB& box)
 {
 	Frustrum::INTERSECTION_TYPE type = Frustrum::INTERSECTION_TYPE::INSIDE; 
 
