@@ -52,6 +52,7 @@ public:
 
 public:
 	std::vector<GameObject*> childObjects;
+	uint randomID;
 
 private: 
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 

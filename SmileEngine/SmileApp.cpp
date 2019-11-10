@@ -30,6 +30,7 @@ SmileApp::SmileApp()
 	 
 	// Main SmileModules
 	AddModule(window);
+	AddModule(utilities);
 	AddModule(input);
 	AddModule(fbx);
 	AddModule(material_importer);
@@ -40,7 +41,7 @@ SmileApp::SmileApp()
 	AddModule(camera);
 	AddModule(gui); 
 	// Test 
-	AddModule(utilities);
+	
 	// Renderer last!
 	AddModule(renderer3D);
 }

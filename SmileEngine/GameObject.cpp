@@ -1,7 +1,15 @@
 #include "GameObject.h"
+#include "SmileApp.h"
 #include "Component.h"
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
+#include "SmileUtilitiesModule.h"
+#include "Utility.h"
+#include "RNG.h"
+#include <map>
+
+
+
 
 GameObject::GameObject(std::string name, GameObject* parent)
 {
@@ -11,6 +19,9 @@ GameObject::GameObject(std::string name, GameObject* parent)
 
 	// Name after assigning parent
 	SetName(name); 
+
+	//generating random number
+	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
 
 	// Components
 	FillComponentBuffers(); 
@@ -28,6 +39,7 @@ GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 	// Name after assigning parent
 	SetName(name);
 
+	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
 	// Components
 	FillComponentBuffers();
 	if (comp->type != TRANSFORM)
@@ -43,6 +55,8 @@ GameObject::GameObject(std::vector<Component*> components, std::string name, Gam
 
 	// Components
 	FillComponentBuffers();
+
+	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
 
 	bool foundTransform = false; 
 	

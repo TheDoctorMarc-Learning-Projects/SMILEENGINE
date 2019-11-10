@@ -398,6 +398,7 @@ bool SmileFBX::SaveMesh(ModelMeshData* mesh)
 	memcpy(cursor, mesh->UVs, bytes);
 
 	std::string output_file;
+	
 	App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
 
 	RELEASE_ARRAY(data);
@@ -406,7 +407,9 @@ bool SmileFBX::SaveMesh(ModelMeshData* mesh)
 
 bool SmileFBX::LoadMaterial(textureData* texture)
 {
-	return false;
+	
+	return true;
+	
 }
 
 bool SmileFBX::SaveMaterial(textureData* texture)
