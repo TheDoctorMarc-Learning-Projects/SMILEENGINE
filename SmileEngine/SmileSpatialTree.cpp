@@ -1,5 +1,7 @@
 #include "SmileSpatialTree.h"
 #include "Glew/include/GL/glew.h" 
+#include "SmileApp.h"
+#include "SmileScene.h"
 
 SmileSpatialTree::SmileSpatialTree(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled){}
 SmileSpatialTree::~SmileSpatialTree() {
@@ -7,24 +9,13 @@ SmileSpatialTree::~SmileSpatialTree() {
 	// TODO: how to release everything? :o 
 }
 
-bool SmileSpatialTree::CreateOctree(float3 fromTo[2], uint depth, uint maxNodeObjects)
+void SmileSpatialTree::CreateOctree(float3 fromTo[2], uint depth, uint maxNodeObjects)
 {
 	MAX_NODE_OBJECTS = maxNodeObjects; 
 	MAX_DEPTH = depth; 
 
 	CreateRoot(fromTo);
-
-	return true; 
 }
-
-bool SmileSpatialTree::InsertToTree(GameObject* obj)
-{
-	if (obj)
-		if (root->Insert(obj))
-			return true; 
-	return false; 
-}
-
 
 void SmileSpatialTree::CreateRoot(float3 fromTo[2])
 {
@@ -32,15 +23,21 @@ void SmileSpatialTree::CreateRoot(float3 fromTo[2])
 	[this, fromTo]()
 	{
 		root = DBG_NEW OctreeNode();
-		root->SetupAABB(math::AABB(fromTo[0], fromTo[1])); 
-
-		// just for testing, it should not split yet: 
-		root->Split(); 
+		root->SetupAABB(math::AABB(fromTo[0], fromTo[1]));  
+		ComputeObjectTree(); 
 	} ();
 
 }
-// ----------------------------------------------------------------- [OctreeNode]
 
+void SmileSpatialTree::ComputeObjectTree()
+{
+	auto gameObjects = App->scene_intro->rootObj->GetChildrenRecursive(); 
+
+	for (auto& obj : gameObjects)
+		root->InsertObject(obj);
+}
+
+// ----------------------------------------------------------------- [OctreeNode]
 OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 {
 	this->parentNode = parentNode; 
@@ -62,31 +59,41 @@ OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 	this->AABB = math::AABB(min, max); 
 }
 
-inline static bool IsLeaf(OctreeNode* node) { return node->GetChildren() == nullptr; };
+inline static bool IsLeaf(OctreeNode* node) { return node->GetChildrenPointer() == nullptr; };
 
-bool OctreeNode::Insert(GameObject* obj)
+void OctreeNode::InsertObject(GameObject* obj)
 {
-	if (IsLeaf(this) && insideObjs.size() < MAX_NODE_OBJECTS)
+	// if the Node has the maximum objects, but splitting means exceeding the max tree depth, rather keep the object for myself
+	if (insideObjs.size() == MAX_NODE_OBJECTS && depth == MAX_DEPTH)
+	{
+		insideObjs.push_back(obj);
+		return; 
+	}
+	
+	// If the Node has less than the maximum objects and it has no children, push it directly
+	if (insideObjs.size() < MAX_NODE_OBJECTS && IsLeaf(this))
 	{
 		insideObjs.push_back(obj);
 	}
-	else
-	{
-		if(IsLeaf(this))
-			Split();
 		
-		//RearrangeChildren(); 
-	}
-
-	/*if (AABB.Intersects(obj->GetMesh()->GetMeshData()->Getmaabb())) // todo: calculate a global aabb for the object encompassing everything inside
+	else // If the Node has the maximum objects, if and only if splitting means exceeding the max tree depth
 	{
-		insideObjs.push_back(obj); 
-		Split(); 
+		bool reArrange = false; 
+		// Split if no children and max depth not reached yet
+		if (IsLeaf(this) && depth < MAX_DEPTH)
+		{
+			Split();
+			reArrange = true; 
+		}
+			
+		// push the object, then spread it through chlildren if splitted
+		insideObjs.push_back(obj);
 
-		return true; 
+		if(reArrange)
+			RearrangeObjectsInChildren();
+
 	}
-	*/
-	return false; 
+
 }
 
 void OctreeNode::Split()
@@ -95,18 +102,52 @@ void OctreeNode::Split()
 		childNodes[i] = DBG_NEW OctreeNode(this, i);
 }
 
+void OctreeNode::RearrangeObjectsInChildren()
+{
+	for(std::vector<GameObject*>::iterator obj = insideObjs.begin(); obj != insideObjs.end();)
+	{
+		GameObject* capture = (*obj); 
+
+		std::array<bool, 8> intersections; 
+		std::fill(std::begin(intersections), std::end(intersections), false);
+
+		for (int i = 0; i < 8; ++i)
+		//	if (childNodes[i]->AABB.Intersects((*obj)->GetAABB()))
+				intersections.at(i) = true; 
+
+		// if the object intersects with all 8 child nodes, it'd be a waste to push it to all 8 nodes 
+		if (std::all_of(std::begin(intersections), std::end(intersections), [](bool value) { return value; }))
+		{
+			++obj; 
+		}
+			
+		else // otherwise erase it from the Node, and push it to all the intersecting children
+		{
+			obj = insideObjs.erase(obj);
+
+			for (int i = 0; i < 8; ++i)
+				if (intersections.at(i) == true)
+					childNodes[i]->InsertObject(capture);
+		}
+		
+
+	}
+}
+
 void OctreeNode::Debug()
 {
-	glColor3f(0.0f, 0.0f, 1.0f);
+	if(insideObjs.size() == 0)
+		glColor3f(1.0f, 0.0f, 0.0f);
+	else
+		glColor3f(0.0f, 1.0f, 0.0f);
+
 	glPointSize(10);
 	glBegin(GL_POINTS);
 	float3 pointsArray[8]; 
 	this->AABB.GetCornerPoints(pointsArray);
 	for (int i = 0; i < 8; ++i)
-	{
-	    glColor3f(0.0f, 0.0f, 1.0f);
 		glVertex3f((GLfloat)pointsArray[i].x, (GLfloat)pointsArray[i].y, (GLfloat)pointsArray[i].z);
-	}
+
 	glEnd();
 	glPointSize(1); 
 	glColor3f(1.0f, 1.0f, 1.0f);

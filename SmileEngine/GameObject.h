@@ -30,7 +30,7 @@ public:
 
 	// Components
 	bool AddComponent(Component* comp); // you can add it to the GameObject or to a mesh
-	void SetupTransformAtMeshCenter(); 
+	void PositionTransformAtMeshCenter();
 
 	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
 	ComponentTransform* GetTransform() const; 

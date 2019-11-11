@@ -134,7 +134,7 @@ void GameObject::Update()
 
 void GameObject::DrawAxis()
 {
-	math::float3 transfPos = dynamic_cast<ComponentTransform*>(GetComponent(TRANSFORM))->GetPosition(); 
+	math::float3 transfPos = dynamic_cast<ComponentTransform*>(GetComponent(TRANSFORM))->GetGlobalPosition(); 
 	glLineWidth(5); 
 	glBegin(GL_LINES);
 
@@ -259,8 +259,6 @@ std::vector<GameObject*> GameObject::GetImmidiateChildren() const
 
 void GameObject::OnTransform(bool data[3])
 {
-	dynamic_cast<ComponentTransform*>(components[TRANSFORM])->CalculateAllMatrixes(); 
-
 	for (auto& comp : components)
 		if (comp)
 			comp->OnTransform(data);
@@ -280,23 +278,16 @@ double GameObject::GetBoundingSphereRadius() const // The object radius = the me
 		return (double)0; 
 }
 
-void GameObject::SetupTransformAtMeshCenter()
+void GameObject::PositionTransformAtMeshCenter()
 {
-	// Asign the object a transform as the mesh center (computed before)
 	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]); 
+	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
 
-	if (mesh != nullptr)
-	{
-		ModelMeshData* mesh_info = mesh->GetMeshData(); 
-		ComponentTransform* transObj = DBG_NEW ComponentTransform();
-		math::float4x4 transfMat = math::float4x4::identity;
-		transObj->ChangePosition(math::float3(mesh->GetMeshData()->GetMeshCenter().x, mesh_info->GetMeshCenter().y, mesh_info->GetMeshCenter().z));
-		AddComponent(transObj);
-	}
+	// Setup transform local position to mesh center 
+	if (mesh != nullptr && transform != nullptr)
+		transform->ChangePosition(mesh->GetMeshData()->GetMeshCenter());
 	else
 		LOG("GameObject could not setup the transform: missing mesh")
-
-
 }
 
 void GameObject::SetName(std::string name)

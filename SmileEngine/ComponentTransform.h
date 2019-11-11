@@ -25,21 +25,22 @@ private:
 	void CalculateLocalMatrix(); 
 
 public: 
-	float4x4 GetLocalMatrix() const { return localMatrix; }; 
-	float4x4 GetGlobalMatrix() const { return globalMatrix; }; 
-
-	// Proper Transformations
+	
+	// Setters
 	void SetLocalMatrix(float4x4 mat);
 	void SetGlobalMatrix(float4x4 mat); 
-	void CalculateAllMatrixes(); 
-
 	void ChangeRotation(Quat q); 
 	void ChangePosition(float3 pos, bool recalculateMatrixes = true);
+	void SetGlobalPosition(float3 pos);
 	void AccumulatePosition(vec3 delta);
 	void ChangeScale(float3 scale); 
 
+	// Getters
+	float4x4 GetLocalMatrix() const { return localMatrix; };
+	float4x4 GetGlobalMatrix() const { return globalMatrix; };
 	Quat GetRotation() const { return rotation; };
 	float3 GetPosition() const { return position; };
+	float3 GetGlobalPosition() const { return globalMatrix.TranslatePart(); };
 	vec3 GetPositionVec3() const { return vec3(position.x, position.y, position.z); };
 	float3 GetScale() const { return scale; }; 
 

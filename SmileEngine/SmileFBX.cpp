@@ -173,8 +173,7 @@ void SmileFBX::ReadFBXData(const char* path)
 			
 			// Add the Mesh to the GameObject and the GameObject to the parent GameObject
 			object->AddComponent(mesh);
-			object->SetupTransformAtMeshCenter(); 
-
+			object->PositionTransformAtMeshCenter(); 
 		}
 		
 		// Start everything

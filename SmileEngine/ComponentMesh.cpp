@@ -17,9 +17,9 @@ ComponentMesh::ComponentMesh(par_shapes_mesh* mesh, std::string name)
 	// Generate mesh buffers from par_shapes
 	GenerateModelMeshFromParShapes(mesh); 
 
-	// Assign the parent transform once the mesh center has been computed 
+	// Position (setup) the parent transform once the mesh center has been computed 
 	if(parent)
-		parent->SetupTransformAtMeshCenter();
+		parent->PositionTransformAtMeshCenter();
 }
 
 ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh(mesh)
@@ -31,9 +31,9 @@ ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh
 	// Generate mesh buffers
     GenerateBuffers();
 
-	// Assign the parent transform once the mesh center has been computed 
+	// Position (setup) the parent transform once the mesh center has been computed 
 	if (parent)
-		parent->SetupTransformAtMeshCenter();
+		parent->PositionTransformAtMeshCenter();
 }
 
 ComponentMesh::~ComponentMesh()
