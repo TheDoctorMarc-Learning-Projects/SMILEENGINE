@@ -268,26 +268,14 @@ void GameObject::OnTransform(bool data[3])
 
 }
 
-double GameObject::GetBoundingSphereRadius() const // The object radius = the mesh's radius. In case of not having a mesh, returns 0
+float GameObject::GetBoundingSphereRadius() const // The object radius = the mesh's radius. In case of not having a mesh, returns 0
 {
 	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]); 
 
 	if (mesh != nullptr)
-		return mesh->GetMeshData()->GetMeshSphereRadius();
-	else
-		return (double)0; 
-}
+		return boundingData.OBB.HalfDiagonal().Length();
 
-void GameObject::PositionTransformAtMeshCenter()
-{
-	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]); 
-	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
-
-	// Setup transform local position to mesh center 
-	if (mesh != nullptr && transform != nullptr)
-		transform->ChangePosition(mesh->GetMeshData()->GetMeshCenter());
-	else
-		LOG("GameObject could not setup the transform: missing mesh")
+	return 0; 
 }
 
 void GameObject::SetName(std::string name)
@@ -309,7 +297,54 @@ ComponentMesh* GameObject::GetMesh() const
 	return dynamic_cast<ComponentMesh*>(components[MESH]);
 }
 
-void GameObject::GetOBB()
+void GameObject::SetupWithMesh()
 {
-	
+	SetupBounding(); 
+	PositionTransformAtMeshCenter();
+}
+
+
+void GameObject::PositionTransformAtMeshCenter()
+{
+	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]);
+	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
+
+	// Setup transform local position to mesh center 
+	if (mesh != nullptr && transform != nullptr)
+		transform->ChangePosition(boundingData.OBB.CenterPoint());
+	else
+		LOG("GameObject could not setup the transform: missing mesh")
+}
+
+// the object either: 
+// A) The object has no child objects, so the obb is built upon the mesh vertex buffer.
+// The enclosing AABB is directly computed
+// B) The object has child objects. 
+// Both the AABB and the OBB must be computed as the sum of all the objects' boxes  
+
+void GameObject::SetupBounding()  
+{
+	// No child objects = case A) 
+	if (childObjects.size() == 0)
+	{
+		ModelMeshData* data = GetMesh()->GetMeshData(); 
+		if (data)
+		{
+			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
+			boundingData.AABB.SetNegativeInfinity();
+			boundingData.AABB.Enclose((math::float3*)data->vertex, data->num_vertex);
+
+			// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
+			boundingData.OBB.SetFrom(boundingData.AABB); 
+			boundingData.OBB.Transform(GetTransform()->GetGlobalMatrix()); 
+
+			// Now calculate the real AABB: it must "contain" or "encompass" the OBB
+			boundingData.AABB.Enclose(boundingData.OBB); 
+		}
+
+	}
+	else
+	{
+		// what here haha 
+	}
 }

@@ -816,7 +816,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
 			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetMeshData()->num_vertex)).c_str());
-			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetMeshData()->GetMeshSphereRadius())).c_str());
+			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetParent()->GetBoundingSphereRadius())).c_str());
 			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");
 			ImGui::Text(std::string("Type: " + type).c_str());
 

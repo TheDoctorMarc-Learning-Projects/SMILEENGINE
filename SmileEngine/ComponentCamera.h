@@ -34,7 +34,7 @@ public:
 public: 
 	std::array<plane, 6> GetPlanes() const { return planes; }; 
 	void DebugPlanes(); 
-	INTERSECTION_TYPE IsCubeInsideFrustrumView(smile_OBB& box);
+	INTERSECTION_TYPE IsBoxInsideFrustrumView(math::OBB box);
 private: 
 	void CalculatePlanes(); 
 	std::array<plane, 6> planes;

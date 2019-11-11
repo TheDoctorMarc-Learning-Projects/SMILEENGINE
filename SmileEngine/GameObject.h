@@ -1,11 +1,13 @@
 #pragma once
+
 #include <map>
 #include <vector>
 #include "SmileSetup.h"
 #include <array>
-#include <string>
- 
+#include <string> 
 #include "ComponentTypes.h"
+#include "MathGeoLib/include/Geometry/AABB.h"
+#include  "MathGeoLib/include/Geometry/OBB.h"
 
 #define debugLineSize 1.8
 #define debugLineHead 0.3
@@ -13,6 +15,13 @@
 class Component;
 class ComponentMesh; 
 class ComponentTransform; 
+
+struct BoundingData
+{
+	math::AABB AABB; 
+	math::OBB OBB; 
+};
+
 // ----------------------------------------------------------------- [GameObject]
 class GameObject
 {
@@ -28,40 +37,41 @@ private:
 
 public: 
 
-	// Components
-	bool AddComponent(Component* comp); // you can add it to the GameObject or to a mesh
-	void PositionTransformAtMeshCenter();
-
-	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
-	ComponentTransform* GetTransform() const; 
-	ComponentMesh* GetMesh() const;
-	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; }; 
-
-	// Assign & Get data
-	void SetParent(GameObject* parent); 
+	// Setters
+	bool AddComponent(Component* comp);  
+	void SetParent(GameObject* parent);
 	void SetName(std::string name);
-	GameObject* GetParent() const { return parent;  };
-	std::string GetName() const { return name; }; 
-	std::vector<GameObject*> GetChildrenRecursive() const; 
-	std::vector<GameObject*> GetImmidiateChildren() const; 
-	double GetBoundingSphereRadius() const; 
-	void GetOBB(); 
 
-	// Main functions 
+
+	// Getters
+	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
+	ComponentTransform* GetTransform() const;
+	ComponentMesh* GetMesh() const;
+	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; };
+
+	BoundingData GetBoundingData() const { return boundingData; }; 
+	GameObject* GetParent() const { return parent; };
+	std::string GetName() const { return name; };
+	std::vector<GameObject*> GetChildrenRecursive() const;
+	std::vector<GameObject*> GetImmidiateChildren() const;
+	float GetBoundingSphereRadius() const;
+
+		// Main functions 
 	virtual void Start(); 
 	virtual void Enable(); 
 	virtual void Update();
 	virtual void Disable();
 	virtual void CleanUp(); 
 
-	// Other
+		// Other
 	virtual void OnTransform(bool [3]); // pos, rot, sc 
-
-	// State
 	bool IsActive() const { return active; };
-
-	// Debug purposes
 	void DrawAxis(); 
+
+		// Synchro with meshes
+	void SetupWithMesh(); // calls the two methods below: 
+	void PositionTransformAtMeshCenter();
+	void SetupBounding();  
 
 public:
 	std::vector<GameObject*> childObjects;
@@ -71,6 +81,7 @@ private:
 	bool active = true; 
 	std::string name; 
 	GameObject* parent = nullptr; 
+	BoundingData boundingData; 
 
 	friend class SmileGameObjectManager; 
 	friend class ComponentCamera; 

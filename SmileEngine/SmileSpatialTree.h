@@ -2,7 +2,7 @@
 
 #include "SmileModule.h"
 #include "ComponentMesh.h"
-#include "BoundingData.h"
+
 #include "MathGeoLib/include/Geometry/AABB.h"
 
 static uint MAX_NODE_OBJECTS = 10; 

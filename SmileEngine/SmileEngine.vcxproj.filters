@@ -165,9 +165,6 @@
     <ClInclude Include="SmileSpatialTree.h">
       <Filter>Source\Modules\Advanced</Filter>
     </ClInclude>
-    <ClInclude Include="BoundingData.h">
-      <Filter>Source\Modules\Objects\Components\Help</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">

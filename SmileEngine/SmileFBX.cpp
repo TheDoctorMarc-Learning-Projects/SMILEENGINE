@@ -148,7 +148,6 @@ void SmileFBX::ReadFBXData(const char* path)
 			}
 
 			// create a component mesh and fill it with the mesh info
-			mesh_info->ComputeMeshSpatialData();
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
 
 			// Assign a texture to the object
@@ -173,7 +172,6 @@ void SmileFBX::ReadFBXData(const char* path)
 			
 			// Add the Mesh to the GameObject and the GameObject to the parent GameObject
 			object->AddComponent(mesh);
-			object->PositionTransformAtMeshCenter(); 
 		}
 		
 		// Start everything

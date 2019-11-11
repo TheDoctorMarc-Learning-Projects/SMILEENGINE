@@ -5,7 +5,7 @@
 #include "parshapes/par_shapes.h"
 #include "DevIL/include/IL/il.h"
 #include "glmath.h"
-#include "BoundingData.h"
+
 #include "MathGeoLib/include/Geometry/AABB.h"
  
 enum Mesh_Type
@@ -20,7 +20,7 @@ struct debugData
 	bool vertexNormals = false; 
 	bool outilineMesh = false; 
 	bool outlineParent = false; 
-	bool AABB = false; 
+	bool AABB = true; 
 	bool OBB = false; 
 };
 
@@ -48,24 +48,6 @@ public:
 	uint num_UVs = 0;
 	float* UVs = nullptr;
 
-public: 
-	smile_OBB GetOBB() const { return OBB; };
-	smile_AABB GetAABB() const { return AABB; };
-	math::AABB Getmaabb() const { return maabb; };
-
-private:
-	// Bounding boxes
-	math::AABB maabb; // for the intersection method
-	smile_AABB AABB;
-	smile_OBB OBB;
-	bool computedData = false; 
-	void ComputeMeshSpatialData(); 
-
-public:
-	float3 GetMeshCenter() const { return OBB.center; }; 
-	double GetMeshSphereRadius() const { return OBB.boundingSphereRadius; };
-	std::array<float, minMaxCoords::TOTAL_COORDS> GetMinMaxCoords() const { return OBB.minmaxCoords; };
-
 	friend class SmileFBX;
 	friend class ComponentMesh; 
 };
@@ -79,31 +61,26 @@ public:
 	~ComponentMesh();
 
 public: 
-
+	void Enable(); 
 	void Update();
 	void CleanUp();
-
-	// If it has a mesh loaded from an FBX ("model_mesh"): 
 	void Draw(); 
-	void OnSelect(bool select);
+	void OnTransform(bool data[3]); // update obb, aabb
+
+	// Getters & Setters
 	ModelMeshData* GetMeshData() const { return model_mesh; };
+	void SetParent(GameObject* parent) { this->parent = parent; };
+	Mesh_Type GetMeshType() const { return meshType; };
+	debugData debugData;
 
 private: 
-
-	//generate a mesh form a par shapes
+	// Internal Creation
 	void GenerateModelMeshFromParShapes(par_shapes_mesh*);
-	void ComputeSpatialData(); 
 	void GenerateBuffers(); 
+	void ComputeSpatialData(); 
 
-	// debug
+	// Debug
 	void DebugDraw(); 
-
-
-public: 
-	// Assign & Get data
-	void SetParent(GameObject* parent) { this->parent = parent; };
-	Mesh_Type GetMeshType() const { return meshType; }; 
-	debugData debugData;
 
 private:
 	ModelMeshData* model_mesh = nullptr; 

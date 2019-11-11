@@ -511,13 +511,9 @@ void Frustrum::DebugPlanes()
 	glColor3f(1.f, 1.f, 1.f);
 }
 
-Frustrum::INTERSECTION_TYPE Frustrum::IsCubeInsideFrustrumView(smile_OBB& box)
+Frustrum::INTERSECTION_TYPE Frustrum::IsBoxInsideFrustrumView(math::OBB box)
 {
 	Frustrum::INTERSECTION_TYPE type = Frustrum::INTERSECTION_TYPE::INSIDE; 
-
-	// to debug a vertex with green color if inside all 6 planes, or in red otherwise: 
-	std::array<bool, 8> insideOutside; 
-	std::fill(std::begin(insideOutside), std::end(insideOutside), true);
 
 	for (int i = 0; i < 6; ++i) // planes 
 	{
@@ -526,30 +522,22 @@ Frustrum::INTERSECTION_TYPE Frustrum::IsCubeInsideFrustrumView(smile_OBB& box)
 
 		for (int j = 0; j < 8; ++j) // vertices in box
 		{ 
-			float3 vertex = box.vertices.at(j); 
+			float3 vertex = box.CornerPoint(j); 
 			if (planes[i].GetIntersection(vertex) == INTERSECTION_TYPE::OUTSIDE) // outside here means behind 
-			{
 				outsideCount++;
-				insideOutside[j] = false; 
-			}
-			
+
 			else if (planes[i].GetIntersection(vertex) == INTERSECTION_TYPE::INSIDE)
 				insideCount++; 
 		}
 
 		if (outsideCount == 8)
-		{
-			insideOutside.fill(false); 
-			box.insideoutside = insideOutside; 
 			return INTERSECTION_TYPE::OUTSIDE;
-		}
-			
 
-		if (insideCount > 0 && insideCount < 8)
+
+		if (insideCount > 0)
 			type = INTERSECTION_TYPE::INTERSECT; 
     }
 
-	box.insideoutside = insideOutside;
 	return type; 
 }
 

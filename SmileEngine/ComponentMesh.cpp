@@ -16,10 +16,6 @@ ComponentMesh::ComponentMesh(par_shapes_mesh* mesh, std::string name)
 
 	// Generate mesh buffers from par_shapes
 	GenerateModelMeshFromParShapes(mesh); 
-
-	// Position (setup) the parent transform once the mesh center has been computed 
-	if(parent)
-		parent->PositionTransformAtMeshCenter();
 }
 
 ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh(mesh)
@@ -31,9 +27,14 @@ ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh
 	// Generate mesh buffers
     GenerateBuffers();
 
-	// Position (setup) the parent transform once the mesh center has been computed 
+}
+
+void ComponentMesh::Enable() // Called in "AddComponent()" from GameObject 
+{
+	Component::Enable(); 
+
 	if (parent)
-		parent->PositionTransformAtMeshCenter();
+		parent->SetupWithMesh(); 
 }
 
 ComponentMesh::~ComponentMesh()
@@ -179,12 +180,12 @@ void ComponentMesh::DebugDraw()
 		}
 
 		// Debug AABB
-		if (this->debugData.AABB)
+		/*if (this->debugData.AABB) // use the math obb corners 
 		{
 			glColor3f(1.0f, 0.0f, 0.0f);
 			glPointSize(10); 
 			glBegin(GL_POINTS);
-			auto AABB = model_mesh->GetOBB();
+			auto AABB = GetParent()->GetBoundingData().AABB; 
 			for (int i = 0; i < AABB.vertices.size(); ++i)
 			{
 				if(AABB.insideoutside.at(i) == true)
@@ -198,7 +199,7 @@ void ComponentMesh::DebugDraw()
 			glEnd();
 			glPointSize(1);
 			glColor3f(1.0f, 1.0f, 1.0f);
-		}
+		}*/
 		
 
 }
@@ -208,10 +209,9 @@ void ComponentMesh::Update()
 {
 	ComponentCamera* cam = App->scene_intro->gameCamera; 
 
-	if (cam && cam->GetFrustrum()->IsCubeInsideFrustrumView(model_mesh->OBB) != Frustrum::INTERSECTION_TYPE::OUTSIDE)
-	{
+	if (cam && cam->GetFrustrum()->IsBoxInsideFrustrumView(GetParent()->GetBoundingData().OBB) 
+		!= Frustrum::INTERSECTION_TYPE::OUTSIDE)
 		Draw();
-	}
 
 }
 
@@ -295,20 +295,13 @@ void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 		 
 		// Generate Mesh Buffers
 		GenerateBuffers();
-
-		// bounding box
-		ComputeSpatialData();  // TODO: the par shapes already has a compute aabb function, pass it a float* AABB
+ 
 	}
 
 	par_shapes_free_mesh(mesh); 
 }
 
-void ComponentMesh::ComputeSpatialData()
-{
-	if (model_mesh != nullptr)
-		model_mesh->ComputeMeshSpatialData();
-}
-
+ 
 void ComponentMesh::GenerateBuffers()
 {
 	// Normals Buffer
@@ -337,82 +330,8 @@ void ComponentMesh::GenerateBuffers()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * model_mesh->num_index, model_mesh->index, GL_STATIC_DRAW);
 }
 
-// Executed only once 
-void ModelMeshData::ComputeMeshSpatialData()
+ 
+void ComponentMesh::OnTransform(bool data[3])
 {
-	if (computedData)
-		return; 
-
-	// 1) find the min-max coords
-	for (uint i = 0; i < num_vertex; i += 3)
-	{
-		// first, initialize the min-max coords to the first vertex, 
-		// in order to compare the following ones with it
-		if (i == 0)
-		{
-			OBB.minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
-			OBB.minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
-			OBB.minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
-			OBB.minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
-			OBB.minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
-			OBB.minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
-			continue;
-		}
-
-		// find min-max X coord
-		if (vertex[i] < OBB.minmaxCoords[minMaxCoords::MIN_X])
-			OBB.minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
-		else if (vertex[i] > OBB.minmaxCoords[minMaxCoords::MAX_X])
-			OBB.minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
-
-		// find min-max Y coord
-		if (vertex[i + 1] < OBB.minmaxCoords[minMaxCoords::MIN_Y])
-			OBB.minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
-		else if (vertex[i + 1] > OBB.minmaxCoords[minMaxCoords::MAX_Y])
-			OBB.minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
-
-		// find min-max Z coord
-		if (vertex[i + 2] < OBB.minmaxCoords[minMaxCoords::MIN_Z])
-			OBB.minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
-		else if (vertex[i + 2] > OBB.minmaxCoords[minMaxCoords::MAX_Z])
-			OBB.minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
-
-	}
-
-	// 2) find the center 
-	float c_X = (OBB.minmaxCoords[minMaxCoords::MIN_X] + OBB.minmaxCoords[minMaxCoords::MAX_X]) / 2;
-	float c_Y = (OBB.minmaxCoords[minMaxCoords::MIN_Y] + OBB.minmaxCoords[minMaxCoords::MAX_Y]) / 2;
-	float c_Z = (OBB.minmaxCoords[minMaxCoords::MIN_Z] + OBB.minmaxCoords[minMaxCoords::MAX_Z]) / 2;
-	OBB.center = float3(c_X, c_Y, c_Z);
-
-	// 3) find the bounding sphere radius
-	vec3 min_Vec(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
-	vec3 max_Vec(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
-	vec3 rad_Vec = (max_Vec - min_Vec) / 2;
-	OBB.boundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
-
-	// 4) find the proper AABB with the min-max coords
-	OBB.vertices[0] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
-	OBB.vertices[1] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
-	OBB.vertices[2] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
-	OBB.vertices[3] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MIN_Z]);
-	OBB.vertices[4] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
-	OBB.vertices[5] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MIN_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
-	OBB.vertices[6] = float3(OBB.minmaxCoords[minMaxCoords::MAX_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
-	OBB.vertices[7] = float3(OBB.minmaxCoords[minMaxCoords::MIN_X], OBB.minmaxCoords[minMaxCoords::MAX_Y], OBB.minmaxCoords[minMaxCoords::MAX_Z]);
-
-
-	// TODO: just testing for baker house to be used in Quadtree (as it is already axis aligned):
-	// Calculate the aabb every time the obb changes
-	this->AABB = this->OBB; 
-
-	// for the intersection method:
-	maabb = math::AABB(OBB.vertices[0], OBB.vertices[6]); 
-
-	computedData = true; 
-}
-
-void ComponentMesh::OnSelect(bool select)
-{
-	debugData.outilineMesh = !debugData.outilineMesh; 
+	
 }

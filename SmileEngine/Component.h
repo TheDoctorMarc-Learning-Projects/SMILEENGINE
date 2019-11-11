@@ -20,6 +20,7 @@ public:
 	virtual void CleanUp() {};
 
 	virtual void OnTransform(bool[3]) {};
+	// just after having a parent 
 
 	std::string GetName() const { return name; };
 	void SetName(std::string name) { this->name = name; };
