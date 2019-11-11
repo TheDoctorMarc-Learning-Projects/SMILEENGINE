@@ -740,6 +740,43 @@ void panelData::InspectorSpace::Execute(bool& ret)
 			for(auto& c : components)
 				if (c)
 					panelData::InspectorSpace::ComponentData(c);
+
+
+			// Other stuff
+			if (ImGui::TreeNode("Bounding Boxes"))
+			{
+				auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+				{
+					return std::string(
+						std::string((append) ? "(" : "") + std::to_string(xyz.x)
+						+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+						+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+						+ std::string((append) ? ")" : "");
+				};
+
+				if (ImGui::TreeNode("AABB"))
+				{
+
+					math::AABB AABB = selected->GetBoundingData().AABB;
+					ImGui::Text(std::string("Center:" + GetStringFrom3Values(AABB.CenterPoint(), true)).c_str());
+					ImGui::Text(std::string("Volume:" + std::to_string(AABB.Volume())).c_str());
+					ImGui::Checkbox("Show AABB", &selected->debugData.AABB);
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("OBB"))
+				{
+					math::OBB OBB = selected->GetBoundingData().OBB;
+					ImGui::Text(std::string("Center:" + GetStringFrom3Values(OBB.CenterPoint(), true)).c_str());
+					ImGui::Text(std::string("Volume:" + std::to_string(OBB.Volume())).c_str());
+					ImGui::Checkbox("Show OBB", &selected->debugData.OBB);
+					ImGui::TreePop();
+				}
+
+
+				ImGui::TreePop();
+			}
+
 		}
 	
 		ImGui::End(); 
@@ -787,7 +824,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				data[2] = true;
 			}
 
-			transf->GetParent()->OnTransform(data);
+			// if the parent has a camera, update it from here, otherwise it is internally updated in transform
+			if (transf->GetParent()->GetCamera() != nullptr)
+				transf->GetParent()->OnTransform();
 
 			break;
 		}

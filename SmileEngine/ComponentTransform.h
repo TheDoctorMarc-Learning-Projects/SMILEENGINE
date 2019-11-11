@@ -21,8 +21,8 @@ public:
 	~ComponentTransform();
 
 private: 
-	void CalculateGlobalMatrix(); 
-	void CalculateLocalMatrix(); 
+	void CalculateGlobalMatrix(bool updateBounding = true);
+	void CalculateLocalMatrix(bool updateBounding = true); 
 
 public: 
 	
@@ -30,7 +30,7 @@ public:
 	void SetLocalMatrix(float4x4 mat);
 	void SetGlobalMatrix(float4x4 mat); 
 	void ChangeRotation(Quat q); 
-	void ChangePosition(float3 pos, bool recalculateMatrixes = true);
+	void ChangePosition(float3 pos, bool recalculateMatrixes = true, bool updateBounding = true);
 	void SetGlobalPosition(float3 pos);
 	void AccumulatePosition(vec3 delta);
 	void ChangeScale(float3 scale); 
@@ -42,6 +42,8 @@ public:
 	float3 GetPosition() const { return position; };
 	float3 GetGlobalPosition() const { return globalMatrix.TranslatePart(); };
 	vec3 GetPositionVec3() const { return vec3(position.x, position.y, position.z); };
+	vec3 GetGlobalPositionVec3() const { return vec3(globalMatrix.TranslatePart().x, globalMatrix.TranslatePart().y,
+		globalMatrix.TranslatePart().z); };
 	float3 GetScale() const { return scale; }; 
 
 private:

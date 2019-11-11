@@ -15,11 +15,18 @@
 class Component;
 class ComponentMesh; 
 class ComponentTransform; 
+class ComponentCamera; 
 
 struct BoundingData
 {
 	math::AABB AABB; 
 	math::OBB OBB; 
+};
+
+struct DebugData
+{
+	bool AABB = true; 
+	bool OBB = true; 
 };
 
 // ----------------------------------------------------------------- [GameObject]
@@ -47,6 +54,7 @@ public:
 	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
 	ComponentTransform* GetTransform() const;
 	ComponentMesh* GetMesh() const;
+	ComponentCamera* GetCamera() const;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; };
 
 	BoundingData GetBoundingData() const { return boundingData; }; 
@@ -56,6 +64,7 @@ public:
 	std::vector<GameObject*> GetImmidiateChildren() const;
 	float GetBoundingSphereRadius() const;
 
+	
 		// Main functions 
 	virtual void Start(); 
 	virtual void Enable(); 
@@ -64,7 +73,7 @@ public:
 	virtual void CleanUp(); 
 
 		// Other
-	virtual void OnTransform(bool [3]); // pos, rot, sc 
+	virtual void OnTransform(bool updateBounding = true);
 	bool IsActive() const { return active; };
 	void DrawAxis(); 
 
@@ -72,9 +81,14 @@ public:
 	void SetupWithMesh(); // calls the two methods below: 
 	void PositionTransformAtMeshCenter();
 	void SetupBounding();  
+	void UpdateBounding();
+
+private: 
+	void Debug(); 
 
 public:
 	std::vector<GameObject*> childObjects;
+	DebugData debugData; 
 
 private: 
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 

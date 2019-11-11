@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
+#include "ComponentCamera.h"
 #include "Glew/include/GL/glew.h" 
 
 GameObject::GameObject(GameObject* parent)
@@ -130,6 +131,8 @@ void GameObject::Update()
 		if(obj->IsActive())
 			obj->Update();
 	
+	// Lastly debug stuff :) 
+	Debug(); 
 }
 
 void GameObject::DrawAxis()
@@ -257,15 +260,17 @@ std::vector<GameObject*> GameObject::GetImmidiateChildren() const
 	return childObjects; 
 }
 
-void GameObject::OnTransform(bool data[3])
+void GameObject::OnTransform(bool updateBounding) // called when the Transform sets a new global matrix
 {
+	// Update the bounding boxes -> right now false only when you setup the boxes, and then locate the transform at the 
+	// OBB center. In that case, the bounding must not be overwritten. From thet point on, it is true
+	if(updateBounding)
+		UpdateBounding();
+
+	// Update components if they need so (like camera)
 	for (auto& comp : components)
 		if (comp)
-			comp->OnTransform(data);
-
-	for (auto& obj : childObjects)
-		obj->OnTransform(data);
-
+			comp->OnTransform();
 }
 
 float GameObject::GetBoundingSphereRadius() const // The object radius = the mesh's radius. In case of not having a mesh, returns 0
@@ -297,21 +302,73 @@ ComponentMesh* GameObject::GetMesh() const
 	return dynamic_cast<ComponentMesh*>(components[MESH]);
 }
 
-void GameObject::SetupWithMesh()
+ComponentCamera* GameObject::GetCamera() const
 {
-	SetupBounding(); 
-	PositionTransformAtMeshCenter();
+	return dynamic_cast<ComponentCamera*>(components[CAMERA]);
 }
 
+void GameObject::SetupWithMesh()
+{
+	PositionTransformAtMeshCenter();
+	SetupBounding(); 
+}
+
+static float3 GetMidPoint(float* vertex, uint num_vertex)
+{
+	float minmax[6]; 
+
+	// 1) find the min-max coords
+	for (uint i = 0; i < num_vertex; i += 3)
+	{
+		// first, initialize the min-max coords to the first vertex, 
+		// in order to compare the following ones with it
+		if (i == 0)
+		{
+			minmax[0] = vertex[i];
+			minmax[1] = vertex[i];
+			minmax[2] = vertex[i + 1];
+			minmax[3] = vertex[i + 1];
+			minmax[4] = vertex[i + 2];
+			minmax[5] = vertex[i + 2];
+			continue;
+		}
+
+		// find min-max X coord
+		if (vertex[i] < minmax[0])
+			minmax[0] = vertex[i];
+		else if (vertex[i] > minmax[1])
+			minmax[1] = vertex[i];
+
+		// find min-max Y coord
+		if (vertex[i + 1] < minmax[2])
+			minmax[2] = vertex[i + 1];
+		else if (vertex[i + 1] > minmax[3])
+			minmax[3] = vertex[i + 1];
+
+		// find min-max Z coord
+		if (vertex[i + 2] < minmax[4])
+			minmax[4] = vertex[i + 2];
+		else if (vertex[i + 2] > minmax[5])
+			minmax[5] = vertex[i + 2];
+
+	}
+
+	// 2) find the center 
+	float c_X = (minmax[0] + minmax[1]) / 2;
+	float c_Y = (minmax[1] + minmax[2]) / 2;
+	float c_Z = (minmax[3] + minmax[4]) / 2;
+	
+	return float3(c_X, c_Y, c_Z);
+}
 
 void GameObject::PositionTransformAtMeshCenter()
 {
 	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]);
 	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
 
-	// Setup transform local position to mesh center 
+	// Setup transform local position to mesh center: do not update bounding box, previously calculated!!
 	if (mesh != nullptr && transform != nullptr)
-		transform->ChangePosition(boundingData.OBB.CenterPoint());
+		transform->ChangePosition(GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex), true, false);
 	else
 		LOG("GameObject could not setup the transform: missing mesh")
 }
@@ -324,6 +381,8 @@ void GameObject::PositionTransformAtMeshCenter()
 
 void GameObject::SetupBounding()  
 {
+	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix();
+
 	// No child objects = case A) 
 	if (childObjects.size() == 0)
 	{
@@ -336,7 +395,7 @@ void GameObject::SetupBounding()
 
 			// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
 			boundingData.OBB.SetFrom(boundingData.AABB); 
-			boundingData.OBB.Transform(GetTransform()->GetGlobalMatrix()); 
+		/	boundingData.OBB.Transform(transfGlobalMat);
 
 			// Now calculate the real AABB: it must "contain" or "encompass" the OBB
 			boundingData.AABB.Enclose(boundingData.OBB); 
@@ -347,4 +406,41 @@ void GameObject::SetupBounding()
 	{
 		// what here haha 
 	}
+}
+
+void GameObject::UpdateBounding()
+{
+	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix(); 
+
+	if (boundingData.AABB.IsDegenerate() == true || boundingData.OBB.IsDegenerate() == true
+		|| transfGlobalMat.IsFinite() == false)
+		return; 
+
+	// This should work:
+	boundingData.OBB.Transform(transfGlobalMat);
+	boundingData.AABB.Enclose(boundingData.OBB);
+}
+
+void GameObject::Debug()
+{
+	// TODO: AABB and OBB debug, for the mom vertices 
+
+	if (this->debugData.OBB)
+	{
+		glPointSize(10);
+		glColor3f(0, 0, 1);
+		glBegin(GL_POINTS);
+
+		float3 vertices[8]; 
+		boundingData.OBB.GetCornerPoints(vertices);
+		for (auto& vertex : vertices)
+			glVertex3f(vertex.x, vertex.y, vertex.z); 
+
+		glEnd();
+		glColor3f(1, 1, 1);
+		glPointSize(1);
+
+	}
+	
+
 }

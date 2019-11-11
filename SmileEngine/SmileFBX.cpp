@@ -49,7 +49,7 @@ bool SmileFBX::CleanUp()
 	return true;
 }
 
-void SmileFBX::ReadFBXData(const char* path)
+GameObject* SmileFBX::ReadFBXData(const char* path)
 {
 
 	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_Fast);
@@ -179,11 +179,16 @@ void SmileFBX::ReadFBXData(const char* path)
 
 		// Release the scene 
 		aiReleaseImport(scene);
+
+		// Return
+		return parentObj; 
 	}
 	else
 	{
 		LOG("Error loading FBX %s", path);
 	}
+
+	return nullptr; 
 }
 
 void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)

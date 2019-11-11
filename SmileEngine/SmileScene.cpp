@@ -13,6 +13,11 @@
 #include "SmileGameObjectManager.h"
 #include "SmileSpatialTree.h"
 
+// Testing, remove later:
+#include "Utility.h"
+#include "SmileUtilitiesModule.h"
+#include "RNG.h"
+
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
@@ -26,12 +31,21 @@ bool SmileScene::Start()
 	// Root
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
-	// Default Scene
-	App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
-
+	// Just testing Spatial Tree
+	float size[1]; 
+	for (auto& i : size)
+	{
+		float3 pos(0, 0, 0); 
+		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F)); 
+		pos.y = 0; 
+		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F));
+		GameObject* daHouse = App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
+		daHouse->GetTransform()->ChangePosition(pos);
+	}
+		
 	// Debug Camera
-	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 20, 10)), "Debug Camera", rootObj);
-	debugCamera = DBG_NEW ComponentCamera(debugCameraObj, vec3(0, 0, 9)); 
+	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 20, 15)), "Debug Camera", rootObj);
+	debugCamera = DBG_NEW ComponentCamera(debugCameraObj, vec3(0, 0, 8)); 
 	debugCameraObj->AddComponent(debugCamera);
 
 	// Game Camera
@@ -42,8 +56,8 @@ bool SmileScene::Start()
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
-	/* mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
-	App->spatial_tree->CreateOctree(mapSize);*/
+	float3 mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
+	App->spatial_tree->CreateOctree(mapSize);
 
 	return true;
 }
@@ -64,9 +78,7 @@ bool SmileScene::CleanUp()
 // Update
 update_status SmileScene::Update(float dt)
 {
-    
 	DrawGrid();
- 
 	return UPDATE_CONTINUE;
 }
 

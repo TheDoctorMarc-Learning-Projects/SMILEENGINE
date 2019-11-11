@@ -25,6 +25,9 @@ SmileApp::SmileApp()
 	object_manager = DBG_NEW SmileGameObjectManager(this);
 	spatial_tree = DBG_NEW SmileSpatialTree(this); 
 	 
+	// Test 
+	AddModule(utilities);
+
 	// Main SmileModules
 	AddModule(window);
 	AddModule(input);
@@ -34,8 +37,7 @@ SmileApp::SmileApp()
 	AddModule(scene_intro);
 	AddModule(spatial_tree); 
 	AddModule(gui); 
-	// Test 
-	AddModule(utilities);
+
 	// Renderer last!
 	AddModule(renderer3D);
 }

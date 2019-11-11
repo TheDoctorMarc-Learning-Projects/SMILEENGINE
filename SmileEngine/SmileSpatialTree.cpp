@@ -20,11 +20,13 @@ void SmileSpatialTree::CreateOctree(float3 fromTo[2], uint depth, uint maxNodeOb
 void SmileSpatialTree::CreateRoot(float3 fromTo[2])
 {
 	// the root is to be created once
-	[this, fromTo]()
+	static bool once = [this, fromTo]()
 	{
 		root = DBG_NEW OctreeNode();
 		root->SetupAABB(math::AABB(fromTo[0], fromTo[1]));  
 		ComputeObjectTree(); 
+
+		return true; 
 	} ();
 
 }

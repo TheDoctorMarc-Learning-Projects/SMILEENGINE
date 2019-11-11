@@ -19,7 +19,7 @@ public:
 	virtual void Disable() { active = false; };
 	virtual void CleanUp() {};
 
-	virtual void OnTransform(bool[3]) {};
+	virtual void OnTransform() {};
 	// just after having a parent 
 
 	std::string GetName() const { return name; };

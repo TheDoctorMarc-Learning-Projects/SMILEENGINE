@@ -36,8 +36,9 @@ ComponentTransform::~ComponentTransform()
 }
 
 
-void ComponentTransform::CalculateGlobalMatrix()
+void ComponentTransform::CalculateGlobalMatrix(bool updateBounding)
 {
+	// Calculate the global matrix
 	if (parent != nullptr && parent != App->scene_intro->rootObj)
 	{
 		float4x4 parentMat = dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix(); 
@@ -46,24 +47,24 @@ void ComponentTransform::CalculateGlobalMatrix()
 	else
 		globalMatrix = localMatrix; 
 
-	if (!parent || parent->GetName() == "Debug Camera")
-		return; 
 
-	LOG("GameObject: '%s' is in the global position (%f, %f, %f) and in the local position (%f, %f, %f)",
-		GetParent()->GetName().c_str(), GetGlobalPosition().x, GetGlobalPosition().y, GetGlobalPosition().z,
-		position.x, position.y, position.z); 
+	// Warn the parent! (To update OBB, ABB...). Caution! If it has a camera, nanai.  
+	// The camera is updated in the gui, because if we update it here, a circular situation occurs
+	if(parent && parent->GetCamera() == nullptr)
+		parent->OnTransform(updateBounding);
 }
 
-void ComponentTransform::CalculateLocalMatrix()
+void ComponentTransform::CalculateLocalMatrix(bool updateBounding)
 {
 	localMatrix = float4x4::FromTRS(position, rotation, scale); 
-	CalculateGlobalMatrix(); 
+	CalculateGlobalMatrix(updateBounding);
 
-	// Update children
-	if (!parent)
-		return; 
-	for (auto& child : parent->GetChildrenRecursive())
-		child->GetTransform()->CalculateGlobalMatrix(); 
+	if (parent)
+	{
+		// Inform my GameObject's children
+		for (auto& child : parent->GetChildrenRecursive())
+			child->GetTransform()->CalculateGlobalMatrix(updateBounding);
+	}
 
 }
 
@@ -81,11 +82,11 @@ void ComponentTransform::SetLocalMatrix(float4x4 mat)
 	CalculateGlobalMatrix(); 
 }
 
-void ComponentTransform::ChangePosition(float3 pos, bool recalculateMatrixes)
+void ComponentTransform::ChangePosition(float3 pos, bool recalculateMatrixes, bool updateBounding)
 {
 	position = pos; 
 	if(recalculateMatrixes)
-		CalculateLocalMatrix();
+		CalculateLocalMatrix(updateBounding);
 }
 
 void ComponentTransform::SetGlobalPosition(float3 pos)

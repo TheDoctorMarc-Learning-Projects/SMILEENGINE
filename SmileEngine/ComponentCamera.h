@@ -83,7 +83,7 @@ public:
 	void Move(const vec3& Movement);
 	void FitCameraToObject(GameObject* obj);
 
-	void OnTransform(bool[3]);
+	void OnTransform();
 
 	// Getters
 	float* GetViewMatrix();

@@ -28,7 +28,7 @@ public:
 	~SmileFBX();
 	bool Start();
 	bool CleanUp();
-	void ReadFBXData(const char* path);
+	GameObject* ReadFBXData(const char* path);
 
 
 	void AssignTextureToObj(const char* path, GameObject* obj); 

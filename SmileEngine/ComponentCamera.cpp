@@ -197,7 +197,7 @@ void ComponentCamera::Look(const vec3& Position, const vec3& Reference, bool Rot
 
 	if (!RotateAroundReference)
 	{
-		this->Reference = transf->GetPositionVec3();
+		this->Reference = transf->GetGlobalPositionVec3();
 		transf->AccumulatePosition(Z * 0.05f);
 	}
 
@@ -256,9 +256,11 @@ float* ComponentCamera::GetViewMatrixInverse()
 }
 
 // -----------------------------------------------------------------
-void ComponentCamera::CalculateViewMatrix(bool updateTransform)
+// If called from camera Update, it updates the transform, but if called from the transform
+// (by a change in the gui), it updates the camera values because the transform was changed previously 
+void ComponentCamera::CalculateViewMatrix(bool updateTransform) 
 {
-	vec3 transfPos = parent->GetTransform()->GetPositionVec3();
+	vec3 transfPos = parent->GetTransform()->GetGlobalPositionVec3();
 	ViewMatrix = mat4x4(X.x, Y.x, Z.x, 0.0f, X.y, Y.y, Z.y, 0.0f, X.z, Y.z, Z.z, 0.0f, -dot(X, transfPos), -dot(Y, transfPos), -dot(Z, transfPos), 1.0f);
 	ViewMatrixInverse = inverse(ViewMatrix);
 
@@ -277,36 +279,34 @@ void ComponentCamera::CalculateViewMatrix(bool updateTransform)
 void ComponentCamera::FitCameraToObject(GameObject* obj)
 {
 
-	vec3 transfPos = parent->GetTransform()->GetPositionVec3();
+	float3 transfPos = parent->GetTransform()->GetGlobalPosition();
 
 	// look at the mesh center
-	float3 centerMath = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM))->GetPosition();
-	vec3 center(centerMath.x, centerMath.y, centerMath.z);
+	float3 center = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM))->GetGlobalPosition();
 
 	// we will need the bounding sphere radius
 	LookAt(center);
 
 	// calculate the distance with the center
 	double camDistance = (obj->GetBoundingSphereRadius()) / math::Tan(math::DegToRad(_renderingData.fovYangle / 2.F));
-	math::float3 dir = (math::float3(transfPos.x, transfPos.y, transfPos.z) - math::float3(center.x, center.y, center.z));
+	math::float3 dir = transfPos - center;
 	dir.Normalize();
-	vec3 dirVec3(dir.x, dir.y, dir.z);
-
+	
 	// the targed pos (of the camera from the mesh) is the center plus the direction by the distance.
-	vec3 wantedPos = center + dirVec3 * camDistance;
+	float3 wantedPos = center + dir * camDistance;
 
 	// finally cap it 
 	if (abs((wantedPos - center).z) < MIN_DIST_TO_MESH)
 		wantedPos.z = MIN_DIST_TO_MESH;
 
-	Move(vec3(wantedPos - transfPos));
+	Move(vec3(vec3(wantedPos.x, wantedPos.y, wantedPos.z) - vec3(transfPos.x, transfPos.y, transfPos.z)));
 
 }
 
 // -----------------------------------------------------------------
 float ComponentCamera::GetScrollSpeed(float dt, float zScroll)
 {
-	vec3 transfPos = parent->GetTransform()->GetPositionVec3();
+	vec3 transfPos = parent->GetTransform()->GetGlobalPositionVec3();
 
 	float speed = DEFAULT_SPEED * dt * sMath::Sign(zScroll);
 
@@ -320,7 +320,7 @@ float ComponentCamera::GetScrollSpeed(float dt, float zScroll)
 		float3 captureCamPos(transfPos.x, transfPos.y, transfPos.z);
 		float3 captureZ(Z.x, Z.y, Z.z);
 
-		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(target->GetComponent(TRANSFORM))->GetPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR)* dt* sMath::Sign(zScroll);
+		float relSpeed = pow((abs((captureCamPos - dynamic_cast<ComponentTransform*>(target->GetComponent(TRANSFORM))->GetGlobalPosition()).Length())), EXPONENTIAL_ZOOM_FACTOR)* dt* sMath::Sign(zScroll);
 		relSpeed = (relSpeed > MAX_FRAME_SPEED) ? MAX_FRAME_SPEED : relSpeed;
 
 		float targetZ = abs((captureCamPos + captureZ * relSpeed).z);
@@ -331,19 +331,17 @@ float ComponentCamera::GetScrollSpeed(float dt, float zScroll)
 }
 
 // -----------------------------------------------------------------
-void ComponentCamera::OnTransform(bool transfData[3])
+void ComponentCamera::OnTransform()
 {
-	// rotation
-	if (transfData[2])
-	{
-		Quat q = parent->GetTransform()->GetRotation();
-		float4x4 mat = float4x4(q).Transposed();
-		
-		X = normalize(vec3(mat.Row3(0).x, mat.Row3(0).y, mat.Row3(0).z)); 
-		Y = normalize(vec3(mat.Row3(1).x, mat.Row3(1).y, mat.Row3(1).z));
-		Z = normalize(vec3(mat.Row3(2).x, mat.Row3(2).y, mat.Row3(2).z));
-	}
+	// Extract X,Y,Z from transform
+	Quat q = parent->GetTransform()->GetRotation();
+	float4x4 mat = float4x4(q).Transposed();
 
+	X = normalize(vec3(mat.Row3(0).x, mat.Row3(0).y, mat.Row3(0).z));
+	Y = normalize(vec3(mat.Row3(1).x, mat.Row3(1).y, mat.Row3(1).z));
+	Z = normalize(vec3(mat.Row3(2).x, mat.Row3(2).y, mat.Row3(2).z));
+
+	// Calculate the view matrix (no transform update) and update frustrum 
 	CalculateViewMatrix(false); 
 	frustrum->CalculatePlanes();
 }
@@ -364,7 +362,7 @@ void Frustrum::CalculatePlanes()
 	float3 camLookVec = float3(myCamera->Z.x, myCamera->Z.y, -myCamera->Z.z).Normalized(),
 		Right = (Cross(float3(0.0f, 1.0f, 0.0f), camLookVec)).Normalized(),
 		Up = Cross(camLookVec, -Right); 
-	float3 camPos = myCamera->GetParent()->GetTransform()->GetPosition();
+	float3 camPos = myCamera->GetParent()->GetTransform()->GetGlobalPosition();
 
 	// Step 2: Get the middle point (center) of the near plane and the far plane
 	float3 middleNearPlanePoint = camPos + camLookVec * renderData.pNearDist;
