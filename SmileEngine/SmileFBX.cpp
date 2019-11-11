@@ -49,7 +49,7 @@ bool SmileFBX::CleanUp()
 	return true;
 }
 
-void SmileFBX::ReadFBXData(const char* path)
+GameObject* SmileFBX::ReadFBXData(const char* path)
 {
 
 	const aiScene* scene = aiImportFile(path, aiProcessPreset_TargetRealtime_Fast);
@@ -167,7 +167,8 @@ void SmileFBX::ReadFBXData(const char* path)
 						std::string assetsPath("Assets/Models/"); assetsPath += tex_path.data;
 						AssignTextureToObj(assetsPath.c_str(), object);
 						LOG("Asset loaded: %s", assetsPath.c_str());
-						SaveMaterial(dynamic_cast<ComponentMaterial*>(object->GetComponent(MATERIAL))->textureInfo);
+						
+						SaveModel(mesh_info, dynamic_cast<ComponentMaterial*>(object->GetComponent(MATERIAL))->textureInfo, transf);
 					}
 					
 				}
@@ -176,7 +177,6 @@ void SmileFBX::ReadFBXData(const char* path)
 			// Add the Mesh to the GameObject and the GameObject to the parent GameObject
 			object->AddComponent(mesh);
 			object->SetupTransformAtMeshCenter(); 
-			SaveMesh(mesh_info);
 			
 			// Fit the camera to the object 
 			App->camera->FitCameraToObject(object);
@@ -189,11 +189,13 @@ void SmileFBX::ReadFBXData(const char* path)
 
 		// Release the scene 
 		aiReleaseImport(scene);
+		return parentObj;
 	}
 	else
 	{
 		LOG("Error loading FBX %s", path);
 	}
+	return nullptr;
 }
 
 void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
@@ -366,7 +368,7 @@ bool SmileFBX::LoadMesh(ModelMeshData* mesh)
 	return false;
 }
 
-bool SmileFBX::SaveMesh(ModelMeshData* mesh)
+std::string SmileFBX::SaveMesh(ModelMeshData* mesh)
 {
 	bool ret = false;
 	uint ranges[4] = { mesh->num_index, mesh->num_vertex, mesh->num_normals, mesh->num_UVs };
@@ -402,7 +404,9 @@ bool SmileFBX::SaveMesh(ModelMeshData* mesh)
 	App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
 
 	RELEASE_ARRAY(data);
-	return ret;
+	
+	mesh_path = std::string(LIBRARY_MESHES_FOLDER + std::string("mesh") + MESH_EXTENSION);
+	return mesh_path;
 }
 
 bool SmileFBX::LoadMaterial(textureData* texture)
@@ -412,7 +416,7 @@ bool SmileFBX::LoadMaterial(textureData* texture)
 	
 }
 
-bool SmileFBX::SaveMaterial(textureData* texture)
+std::string SmileFBX::SaveMaterial(textureData* texture)
 {
 	bool ret = false;
 	ILuint size;
@@ -426,7 +430,23 @@ bool SmileFBX::SaveMaterial(textureData* texture)
 			ret = App->fs->SaveUnique(output_file, texture->texture, size, LIBRARY_TEXTURES_FOLDER, "texture", "dds");
 		RELEASE_ARRAY(texture->texture);
 	}
-	return ret;
+	material_path = std::string(LIBRARY_TEXTURES_FOLDER + std::string("texture") + std::string("dds"));
+	return material_path;
+}
+
+bool SmileFBX::LoadModel()
+{
+	return false;
+}
+
+bool SmileFBX::SaveModel(ModelMeshData* mesh, textureData* texture, ComponentTransform* transf)
+{
+	std::string mesh_p = SaveMesh(mesh);
+	std::string texture_p = SaveMaterial(texture);
+	float3 position = transf->GetPosition();
+	float3 scale = transf->GetScale();
+	Quat rotation = transf->GetRotation();
+	return false;
 }
 
 

@@ -28,23 +28,26 @@ public:
 	~SmileFBX();
 	bool Start();
 	bool CleanUp();
-	void ReadFBXData(const char* path);
+	GameObject* ReadFBXData(const char* path);
 
 
 	void AssignTextureToObj(const char* path, GameObject* obj); 
 	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
 	//void FreeMeshTexture(ComponentMesh* mesh); 
 	bool LoadMesh(ModelMeshData* mesh);
-	bool SaveMesh(ModelMeshData* mesh);
+	std::string SaveMesh(ModelMeshData* mesh);
 	bool LoadMaterial(textureData* texture);
-	bool SaveMaterial(textureData* texture);
+	std::string SaveMaterial(textureData* texture);
+	bool LoadModel();
+	bool SaveModel(ModelMeshData* mesh, textureData* texture, ComponentTransform* transform);
 
 	globalTextureData GetGlobalTextureinfo() const { return textInfo; }; 
 private:
 	globalTextureData textInfo;
 public: 
 	bool debug = false;
-   
+	std::string mesh_path;
+	std::string material_path;
 	
 };
 
