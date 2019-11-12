@@ -28,21 +28,34 @@ public:
 	~SmileFBX();
 	bool Start();
 	bool CleanUp();
+
+	// Set & Get 
+	void AssignTextureToObj(const char* path, GameObject* obj); 
+	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
+	globalTextureData GetGlobalTextureinfo() const { return textInfo; };
+	//void FreeMeshTexture(ComponentMesh* mesh); 
+	
+	// FBX
 	GameObject* ReadFBXData(const char* path);
 
 
-	void AssignTextureToObj(const char* path, GameObject* obj); 
-	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
-	//void FreeMeshTexture(ComponentMesh* mesh); 
+	
+	
+private:
+	// FBX
+	ModelMeshData* FillMeshBuffers(aiMesh*, ModelMeshData*);
+	std::vector<std::string> ReadFBXMaterials(const aiScene*);
+	void ResolveObjectFromFBX(GameObject*, ComponentMesh*, std::vector<std::string>);
+
+	// Own File Format 
 	bool LoadMesh(ModelMeshData* mesh);
 	std::string SaveMesh(ModelMeshData* mesh);
 	bool LoadMaterial(textureData* texture);
 	std::string SaveMaterial(textureData* texture);
 	bool LoadModel();
-	bool SaveModel(ModelMeshData* mesh, textureData* texture, ComponentTransform* transform);
+	uint SaveModel(ModelMeshData* mesh, textureData* texture, ComponentTransform* transform);
 
-	globalTextureData GetGlobalTextureinfo() const { return textInfo; }; 
-private:
+private: 
 	globalTextureData textInfo;
 public: 
 	bool debug = false;
