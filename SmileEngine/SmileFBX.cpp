@@ -16,6 +16,7 @@
 
 #include "GameObject.h"
 #include "ComponentTransform.h"
+#include "ComponentMesh.h"
 #include "ComponentMaterial.h"
 #include <filesystem> // TODO: filesystem
 
@@ -106,7 +107,7 @@ GameObject* SmileFBX::ReadFBXData(const char* path)
 // ---------------------------------------------
 void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std::vector<std::string> materialsPaths)
 {
-		/// CREATE & ASSIGN COMPONENTS
+	/// 1) Create and Assign components
 	// Mesh
 	object->AddComponent(mesh);
 	object->SetupTransformAtMeshCenter();
@@ -121,7 +122,8 @@ void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std
 	// Setup
 	App->camera->FitCameraToObject(object);
 
-		/// SAVE TO OWN FILE FORMAT 
+	/// 2) Once the object is filled, save it to our own file format: 
+	SaveModel(object); 
 }
 
 // ---------------------------------------------
@@ -444,8 +446,7 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh)
 
 	RELEASE_ARRAY(data);
 	
-	mesh_path = std::string(LIBRARY_MESHES_FOLDER + std::string("mesh") + MESH_EXTENSION);
-	return mesh_path;
+	return std::string(LIBRARY_MESHES_FOLDER + std::string("mesh") + MESH_EXTENSION);
 }
 
 bool SmileFBX::LoadMaterial(textureData* texture)
@@ -469,8 +470,8 @@ std::string SmileFBX::SaveMaterial(textureData* texture)
 			ret = App->fs->SaveUnique(output_file, texture->texture, size, LIBRARY_TEXTURES_FOLDER, "texture", "dds");
 		RELEASE_ARRAY(texture->texture);
 	}
-	material_path = std::string(LIBRARY_TEXTURES_FOLDER + std::string("texture") + std::string("dds"));
-	return material_path;
+
+	return std::string(LIBRARY_TEXTURES_FOLDER + std::string("texture") + std::string("dds"));
 }
 
 bool SmileFBX::LoadModel()
@@ -478,13 +479,24 @@ bool SmileFBX::LoadModel()
 	return false;
 }
 
-uint SmileFBX::SaveModel(ModelMeshData* mesh, textureData* texture, ComponentTransform* transf)
+uint SmileFBX::SaveModel(GameObject* obj)
 {
-	std::string mesh_p = SaveMesh(mesh);
-	std::string texture_p = SaveMaterial(texture);
+	// 1) Save components 
+	auto mesh = obj->GetMesh(); 
+	auto transf = obj->GetTransform();
+	auto material = obj->GetMaterial();   
+
+	if(mesh)
+		SaveMesh(mesh->GetMeshData());
+	if(material)
+		SaveMaterial(material->GetTextureData());
+ 
 	float3 position = transf->GetPosition();
 	float3 scale = transf->GetScale();
 	Quat rotation = transf->GetRotation();
+
+	// 2) Save the object itself
+
 	return false;
 }
 

@@ -53,7 +53,7 @@ private:
 	bool LoadMaterial(textureData* texture);
 	std::string SaveMaterial(textureData* texture);
 	bool LoadModel();
-	uint SaveModel(ModelMeshData* mesh, textureData* texture, ComponentTransform* transform);
+	uint SaveModel(GameObject*);
 
 private: 
 	globalTextureData textInfo;

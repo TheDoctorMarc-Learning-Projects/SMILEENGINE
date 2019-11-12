@@ -9,6 +9,8 @@
 
 class Component;
 class ComponentMesh; 
+class ComponentMaterial; 
+class ComponentTransform;
 // ----------------------------------------------------------------- [GameObject]
 class GameObject
 {
@@ -29,6 +31,9 @@ public:
 
 	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; }; 
+	ComponentTransform* GetTransform() const { return dynamic_cast<ComponentTransform*>(components[TRANSFORM]); };
+	ComponentMesh* GetMesh() const { return dynamic_cast<ComponentMesh*>(components[MESH]); };
+	ComponentMaterial* GetMaterial() const { return dynamic_cast<ComponentMaterial*>(components[MATERIAL]); };
 
 	// Assign & Get data
 	void SetParent(GameObject* parent); 
