@@ -35,8 +35,8 @@ public:
 	std::array<plane, 6> GetPlanes() const { return planes; }; 
 	void DebugPlanes(); 
 	INTERSECTION_TYPE IsBoxInsideFrustrumView(math::OBB box);
+	void CalculatePlanes();
 private: 
-	void CalculatePlanes(); 
 	std::array<plane, 6> planes;
 	ComponentCamera* myCamera = nullptr; 
 
@@ -84,6 +84,7 @@ public:
 	void FitCameraToObject(GameObject* obj);
 
 	void OnTransform();
+	void OnInspector(float fovY[1] = {0}, float pNearDist[1] = { 0 }, float pFarDist[1] = { 0 });
 
 	// Getters
 	float* GetViewMatrix();

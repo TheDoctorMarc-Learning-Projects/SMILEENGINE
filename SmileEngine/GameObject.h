@@ -80,6 +80,8 @@ public:
 		// Synchro with meshes
 	void SetupWithMesh(); // calls the two methods below: 
 	void PositionTransformAtMeshCenter();
+	
+ 
 	void SetupBounding();  
 	void UpdateBounding();
 

@@ -37,7 +37,7 @@ bool SmileScene::Start()
 	{
 		float3 pos(0, 0, 0); 
 		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F)); 
-		pos.y = 0; 
+		pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 10.F));
 		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F));
 		GameObject* daHouse = App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 		daHouse->GetTransform()->ChangePosition(pos);

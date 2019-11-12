@@ -114,7 +114,7 @@ void OctreeNode::RearrangeObjectsInChildren()
 		std::fill(std::begin(intersections), std::end(intersections), false);
 
 		for (int i = 0; i < 8; ++i)
-		//	if (childNodes[i]->AABB.Intersects((*obj)->GetAABB()))
+			if (childNodes[i]->AABB.Intersects((*obj)->GetBoundingData().AABB))
 				intersections.at(i) = true; 
 
 		// if the object intersects with all 8 child nodes, it'd be a waste to push it to all 8 nodes 

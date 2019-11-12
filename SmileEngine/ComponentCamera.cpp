@@ -347,6 +347,17 @@ void ComponentCamera::OnTransform()
 }
 
 // -----------------------------------------------------------------
+void ComponentCamera::OnInspector(float fovY[1], float pNearDist[1], float pFarDist[1])
+{
+	this->_renderingData.fovYangle = fovY[0]; 
+	this->_renderingData.pNearDist = pNearDist[0];
+	this->_renderingData.pFarDist = pFarDist[0];
+
+	ComputeSpatialData();
+	frustrum->CalculatePlanes();
+}
+
+// -----------------------------------------------------------------
 // -----------------------------------------------------------------
 // ----------------------------------------------------------------- [Frustrum]
 Frustrum::Frustrum(ComponentCamera* camera)

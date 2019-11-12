@@ -758,7 +758,7 @@ void panelData::InspectorSpace::Execute(bool& ret)
 				{
 
 					math::AABB AABB = selected->GetBoundingData().AABB;
-					ImGui::Text(std::string("Center:" + GetStringFrom3Values(AABB.CenterPoint(), true)).c_str());
+					ImGui::Text(std::string("Global Center:" + GetStringFrom3Values(AABB.CenterPoint(), true)).c_str());
 					ImGui::Text(std::string("Volume:" + std::to_string(AABB.Volume())).c_str());
 					ImGui::Checkbox("Show AABB", &selected->debugData.AABB);
 					ImGui::TreePop();
@@ -767,7 +767,7 @@ void panelData::InspectorSpace::Execute(bool& ret)
 				if (ImGui::TreeNode("OBB"))
 				{
 					math::OBB OBB = selected->GetBoundingData().OBB;
-					ImGui::Text(std::string("Center:" + GetStringFrom3Values(OBB.CenterPoint(), true)).c_str());
+					ImGui::Text(std::string("Global Center:" + GetStringFrom3Values(OBB.CenterPoint(), true)).c_str());
 					ImGui::Text(std::string("Volume:" + std::to_string(OBB.Volume())).c_str());
 					ImGui::Checkbox("Show OBB", &selected->debugData.OBB);
 					ImGui::TreePop();
@@ -786,6 +786,16 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 {
 	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
 
+	auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+	{
+		return std::string(
+			std::string((append) ? "(" : "") + std::to_string(xyz.x)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+			+ std::string((append) ? ")" : "");
+	};
+
+
 	if (ImGui::TreeNode(c->GetName().c_str()))
 	{
 		switch (c->GetComponentType())
@@ -803,6 +813,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			ImGui::InputFloat3("Position", p); 
 			ImGui::InputFloat4("Rotation", r);
 			ImGui::InputFloat3("Scale", s);
+
+			// (info)
+			ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
 
 			if (keyState != KEY_DOWN)
 				break; 
@@ -862,8 +875,26 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			// debug
 			ImGui::Checkbox("Show vertex normals", &mesh->debugData.vertexNormals); 
 			ImGui::Checkbox("Show face normals", &mesh->debugData.faceNormals);
-
 			break;
+		}
+
+		case COMPONENT_TYPE::CAMERA:
+		{
+			ComponentCamera* cam = dynamic_cast<ComponentCamera*>(c);
+			renderingData camData = cam->GetRenderingData(); 
+			float fovY[1], pNearDist[1], pFarDist[1]; 
+			fovY[0] = camData.fovYangle;
+			pNearDist[0] = camData.pNearDist;
+			pFarDist[0] = camData.pFarDist;
+			ImGui::InputFloat("Field Of View Y", fovY);  
+			ImGui::InputFloat("Distance to near plane", pNearDist); 
+			ImGui::InputFloat("Distance to far plane", pFarDist); 
+
+			if (keyState == KEY_DOWN)
+				cam->OnInspector(fovY, pNearDist, pFarDist);
+
+				
+			break; 
 		}
 
 		default:

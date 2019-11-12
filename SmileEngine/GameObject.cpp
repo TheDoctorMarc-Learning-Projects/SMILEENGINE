@@ -390,15 +390,18 @@ void GameObject::SetupBounding()
 		if (data)
 		{
 			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
-			boundingData.AABB.SetNegativeInfinity();
-			boundingData.AABB.Enclose((math::float3*)data->vertex, data->num_vertex);
+			math::AABB temp; 
+			temp.SetNegativeInfinity();
+			temp.Enclose((math::float3*)data->vertex, data->num_vertex);
 
 			// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
-			boundingData.OBB.SetFrom(boundingData.AABB); 
-		/	boundingData.OBB.Transform(transfGlobalMat);
+			boundingData.OBB = temp; 
+			boundingData.OBB.Transform(transfGlobalMat);
 
 			// Now calculate the real AABB: it must "contain" or "encompass" the OBB
+			boundingData.AABB.SetNegativeInfinity();
 			boundingData.AABB.Enclose(boundingData.OBB); 
+	
 		}
 
 	}
@@ -410,15 +413,14 @@ void GameObject::SetupBounding()
 
 void GameObject::UpdateBounding()
 {
-	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix(); 
+	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix();
 
 	if (boundingData.AABB.IsDegenerate() == true || boundingData.OBB.IsDegenerate() == true
 		|| transfGlobalMat.IsFinite() == false)
 		return; 
 
 	// This should work:
-	boundingData.OBB.Transform(transfGlobalMat);
-	boundingData.AABB.Enclose(boundingData.OBB);
+	SetupBounding(); 
 }
 
 void GameObject::Debug()
