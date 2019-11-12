@@ -20,6 +20,10 @@
 #include "ComponentMaterial.h"
 #include <filesystem> // TODO: filesystem
 
+#include <fstream>
+#include "JSONParser.h"
+#include "SmileUtilitiesModule.h"
+
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
 {
 
@@ -62,10 +66,12 @@ const aiScene* OnFBXImport(const char* path, char* rawname)
 	return aiImportFile(path, aiProcessPreset_TargetRealtime_Fast);
 }
 
-static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene)
+static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene, const char* path)
 {
 	parentObj->Start();
 	aiReleaseImport(scene);
+
+	App->fbx->ResolveObjectFromFBX(parentObj);
 }
 
 GameObject* SmileFBX::ReadFBXData(const char* path)
@@ -73,35 +79,48 @@ GameObject* SmileFBX::ReadFBXData(const char* path)
 	char rawname[100];
 	const aiScene* scene = OnFBXImport(path, rawname);
 
-	if (scene != nullptr && scene->HasMeshes()) 
+	if (scene && scene->HasMeshes())
 	{
-		// Parent Object
-		ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity); 
-		GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
-
-		for (int i = 0; i < scene->mNumMeshes; ++i) 
-		    ObjectBegin
-			
-			// Mesh
-			ModelMeshData* mesh_info = FillMeshBuffers(scene->mMeshes[i], DBG_NEW ModelMeshData());
-			ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
-
-			// Materials
-			std::vector<std::string> materialsPaths = ReadFBXMaterials(scene); 
-			
-			// Child Object
-			ResolveObjectFromFBX(DBG_NEW GameObject(std::string(scene->mMeshes[i]->mName.C_Str()), parentObj), 
-				mesh, materialsPaths);
-
-			ObjectEnd
-
-		OnFBXImportEnd(parentObj, scene); 
-
-		return parentObj;
+		lastFBXPath = path;
+		// Prevent Loading an FBX if it was prevoiusly loaded and stored in a .model file
+		if (IsFBXPathAlreadyConvertedToModel(path))
+		{
+			LOG("FBX already converted to model, won't load again!", path);
+			return nullptr;
+		}
 	}
+	else
+	{
+		LOG("Error loading FBX %s", path);
+		return nullptr;
+	}
+	 
+		// Parent Object
+	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
+	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+
+	for (int i = 0; i < scene->mNumMeshes; ++i)
+		ObjectBegin
+
+		// Mesh
+	ModelMeshData* mesh_info = FillMeshBuffers(scene->mMeshes[i], DBG_NEW ModelMeshData());
+	ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
+
+	// Materials
+	std::vector<std::string> materialsPaths = ReadFBXMaterials(scene);
+
+	// Child Object
+	ResolveObjectFromFBX(DBG_NEW GameObject(std::string(scene->mMeshes[i]->mName.C_Str()), parentObj),
+		mesh, materialsPaths);
+
+	ObjectEnd
+
+	OnFBXImportEnd(parentObj, scene, path);
+
+	return parentObj;
+	 
 	
-	LOG("Error loading FBX %s", path);
-	return nullptr;
+	 
 }
 
 // ---------------------------------------------
@@ -479,25 +498,102 @@ bool SmileFBX::LoadModel()
 	return false;
 }
 
-uint SmileFBX::SaveModel(GameObject* obj)
+void SmileFBX::SaveModel(GameObject* obj)
 {
-	// 1) Save components 
+	// 1) Save components (at the same time when saving the model below)
 	auto mesh = obj->GetMesh(); 
 	auto transf = obj->GetTransform();
 	auto material = obj->GetMaterial();   
-
-	if(mesh)
-		SaveMesh(mesh->GetMeshData());
-	if(material)
-		SaveMaterial(material->GetTextureData());
  
 	float3 position = transf->GetPosition();
 	float3 scale = transf->GetScale();
 	Quat rotation = transf->GetRotation();
 
 	// 2) Save the object itself
+	std::ofstream saveConfigFile(".json");
+	rapidjson::StringBuffer buffer;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
-	return false;
+
+	// window 
+	writer.StartObject();
+	writer.Key("GameObject");
+
+	writer.StartArray();
+
+	writer.StartObject();
+
+	// Model variables
+	writer.Key("ID");
+	writer.Int(obj->GetID());
+
+	GameObject* parent = obj->GetParent(); 
+	if (parent)
+	{
+		writer.Key("Parent ID");
+		writer.Int(parent->GetID());
+	}
+
+	writer.Key("Name");
+	writer.String(obj->GetName().c_str());
+
+	writer.Key("Selected");
+	writer.Bool((App->scene_intro->selectedObj == obj) ? true : false);
+
+	writer.Key("FBX path");
+	writer.String(lastFBXPath);
+
+	// TODO: active, static, open in hierarchy , AABB, OBB 
+
+	// Components
+
+	if (mesh)
+	{
+		writer.Key("Mesh path");
+		writer.String(SaveMesh(mesh->GetMeshData()).c_str());
+	}
+		
+	if (material)
+	{
+		writer.Key("Material path");
+		writer.String(SaveMaterial(material->GetTextureData()).c_str());
+	}
+
+
+	// Components
+
+	writer.EndObject();
+
+	writer.EndArray();
+
+	writer.EndObject();
+
+	const char* output = buffer.GetString();
+	std::string dirPath; 
+	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, std::to_string(obj->GetID()).c_str(), ".json");
+
+
+	saveConfigFile.close();
+
+	return;
 }
 
+bool SmileFBX::IsFBXPathAlreadyConvertedToModel(const char* path)
+{
+	/*std::vector<std::string> files, dirs; 
+	App->fs->DiscoverFiles(LIBRARY_MODELS_FOLDER, files, dirs);
 
+	for (auto& path : files)
+	{
+		const std::filesystem::path& relativePath = path.c_str();
+		std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
+
+		rapidjson::Document modelDoc;
+		dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(absolutePath.string().c_str(), modelDoc);
+
+		if (rapidjson::GetValueByPointer(modelDoc, "/GameObject/0/FBX path")->GetString() == path)
+			return true; 
+	}
+	*/
+	return false; 
+}

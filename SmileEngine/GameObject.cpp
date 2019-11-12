@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
+#include "ComponentMaterial.h"
 #include "SmileUtilitiesModule.h"
 #include "Utility.h"
 #include "RNG.h"
@@ -261,4 +262,20 @@ void GameObject::SetName(std::string name)
 			name = parent->GetName() + std::string(" (") + std::to_string(parent->childObjects.size()) + std::string(")");
 	
 	this->name = name;
+}
+
+
+ComponentTransform* GameObject::GetTransform() const
+{
+	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
+}
+
+ComponentMesh* GameObject::GetMesh() const
+{
+	return dynamic_cast<ComponentMesh*>(components[MESH]);
+}
+
+ComponentMaterial* GameObject::GetMaterial() const
+{
+	return dynamic_cast<ComponentMaterial*>(components[MATERIAL]);
 }

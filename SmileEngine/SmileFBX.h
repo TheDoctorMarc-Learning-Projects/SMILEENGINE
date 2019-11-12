@@ -40,27 +40,28 @@ public:
 
 
 	
-	
+public: 
+	void ResolveObjectFromFBX(GameObject*, ComponentMesh* m = nullptr, std::vector<std::string> = {});
 private:
 	// FBX
 	ModelMeshData* FillMeshBuffers(aiMesh*, ModelMeshData*);
 	std::vector<std::string> ReadFBXMaterials(const aiScene*);
-	void ResolveObjectFromFBX(GameObject*, ComponentMesh*, std::vector<std::string>);
-
+	
 	// Own File Format 
 	bool LoadMesh(ModelMeshData* mesh);
 	std::string SaveMesh(ModelMeshData* mesh);
 	bool LoadMaterial(textureData* texture);
 	std::string SaveMaterial(textureData* texture);
 	bool LoadModel();
-	uint SaveModel(GameObject*);
+	void SaveModel(GameObject*);
+
+	bool IsFBXPathAlreadyConvertedToModel(const char* path);
 
 private: 
 	globalTextureData textInfo;
+	const char* lastFBXPath; 
 public: 
 	bool debug = false;
-	std::string mesh_path;
-	std::string material_path;
 	
 };
 

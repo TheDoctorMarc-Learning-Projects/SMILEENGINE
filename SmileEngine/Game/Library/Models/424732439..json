@@ -1,0 +1,13 @@
+{
+  "GameObject": 
+  [
+    {
+      "ID": 424732439,
+      "Parent ID": 768410985,
+      "Name": "Untitled.001",
+      "Selected": false,
+      "FBX path": "Assets/Models/BakerHouse.fbx",
+      "Mesh path": "/Library/Meshes/meshsmilemesh",
+      "Material path": "/Library/Textures/texturedds"
+    }
+  ]}

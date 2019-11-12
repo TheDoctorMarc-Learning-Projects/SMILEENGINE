@@ -55,8 +55,10 @@ enum update_status
 #define LIBRARY_FOLDER "/Library/"
 #define LIBRARY_MESHES_FOLDER "/Library/Meshes/"
 #define LIBRARY_TEXTURES_FOLDER "/Library/Textures/"
+#define LIBRARY_MODELS_FOLDER "/Library/Models/"
 #define MESH_EXTENSION "smilemesh"
 #define TEXTURES_EXTENSION "smiletexture"
+#define MODELS_EXTENSION "smilemodel"
 
 // Buffers -----------
 // Deletes a buffer
