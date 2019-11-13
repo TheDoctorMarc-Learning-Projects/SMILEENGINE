@@ -51,9 +51,8 @@ enum update_status
 #define VSYNC true
 #define TITLE "Smile 3D Engine"
 #define ORGANIZATION "SmileTek"
-#define ASSETS_FOLDER "/Assets/"
 #define LIBRARY_FOLDER "/Library/"
-#define MODELS_FOLDER "/Library/Models/"
+#define ASSETS_FOLDER "/Assets/"
 #define LIBRARY_MESHES_FOLDER "/Library/Meshes/"
 #define LIBRARY_TEXTURES_FOLDER "/Library/Textures/"
 #define LIBRARY_MODELS_FOLDER "/Library/Models/"
