@@ -131,13 +131,25 @@ bool SmileFBX::DoesFBXExistInAssets(const char* path)
 
 const char* SmileFBX::PushFBXToAssets(const char* path)
 {
-	App->fs->CopyFromOutsideFS(path, ASSETS_MODELS_FOLDER); 
+	App->fs->CopyFromOutsideFS(path, ASSETS_MODELS_FOLDER);
+
 	return path; 
 }
 
 bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
 {
-	return true; 
+	std::string cleanPath[1];
+	std::string file[1];
+	std::string extension[1];
+	App->fs->SplitFilePath(path, cleanPath, file, extension);
+
+	std::string target = std::string(std::string(MODELS_FOLDER) + file[0]);
+
+	if (App->fs->Exists(target.c_str()))
+		return true;
+
+
+	return false;
 }
 
 
