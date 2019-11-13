@@ -22,7 +22,7 @@ bool SmileScene::Start()
 { 
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
-	App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
+	App->fbx->LoadFBX("C://Users//marcdp1//Desktop//BakerHouse.fbx"); 
 
 	 
 	return true;

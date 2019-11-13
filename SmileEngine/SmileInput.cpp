@@ -171,16 +171,8 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 
 	if (index != std::string::npos)
 		extension = filename.substr(index + 1);
-	
-	if (extension == "FBX" || extension == "fbx")
-		App->fbx->ReadFBXData(path);
-	else if (extension == "PNG" || extension == "png" || extension == "jpg" || extension == "dds" || extension == "DDS")
-	{
-		ComponentMesh* hoveredMesh = std::get<ComponentMesh*>(rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, true));
-		if (hoveredMesh != nullptr)
-			App->fbx->AssignTextureToObj(path, hoveredMesh->GetParent());
-	}
-		
+	 
+	App->fbx->Load(path, extension);  
 }
 
 void SmileInput::ButCanItRunCrysis()

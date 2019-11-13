@@ -36,7 +36,8 @@ public:
 	//void FreeMeshTexture(ComponentMesh* mesh); 
 	
 	// FBX
-	GameObject* ReadFBXData(const char* path);
+	void Load(const char* path, std::string extension);
+	GameObject* LoadFBX(const char* path);
 
 
 	
@@ -46,13 +47,18 @@ private:
 	// FBX
 	ModelMeshData* FillMeshBuffers(aiMesh*, ModelMeshData*);
 	std::vector<std::string> ReadFBXMaterials(const aiScene*);
+	bool DoesFBXExistInAssets(const char* path); 
+	bool DoesFBXHaveLinkedModel(const char* path); 
+	const char* PushFBXToAssets(const char* path); 
+	GameObject* GenerateModelFromFBX(const char*,const aiScene*, char* rawname);
+
 	
 	// Own File Format 
 	bool LoadMesh(ModelMeshData* mesh);
 	std::string SaveMesh(ModelMeshData* mesh);
 	bool LoadMaterial(textureData* texture);
 	std::string SaveMaterial(textureData* texture);
-	bool LoadModel();
+	bool LoadModel(const char* path);
 	void SaveModel(GameObject*);
 
 	bool IsFBXPathAlreadyConvertedToModel(const char* path);

@@ -57,6 +57,20 @@ bool SmileFBX::CleanUp()
 }
 
 // ---------------------------------------------
+
+void SmileFBX::Load(const char* path, std::string extension)
+{
+	if (IsModelExtension(extension) == true)
+	{
+		if (IsOwnModelExtension(extension) == false) // 1) If FBX not in folder, push it to folder. 2) If .model does not exist, generate it
+			LoadFBX(path);
+		else
+			LoadModel(path); 
+
+    }
+}
+
+// ---------------------------------------------
 #define ObjectBegin {
 #define ObjectEnd }
 
@@ -74,28 +88,63 @@ static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene, const ch
 	App->fbx->ResolveObjectFromFBX(parentObj);
 }
 
-GameObject* SmileFBX::ReadFBXData(const char* path)
+GameObject* SmileFBX::LoadFBX(const char* path)
 {
+	
 	char rawname[100];
 	const aiScene* scene = OnFBXImport(path, rawname);
 
-	if (scene && scene->HasMeshes())
-	{
-		lastFBXPath = path;
-		// Prevent Loading an FBX if it was prevoiusly loaded and stored in a .model file
-		if (IsFBXPathAlreadyConvertedToModel(path))
-		{
-			LOG("FBX already converted to model, won't load again!", path);
-			return nullptr;
-		}
-	}
-	else
+	bool success = scene && scene->HasMeshes(); 
+ 	
+	if (!success)
 	{
 		LOG("Error loading FBX %s", path);
 		return nullptr;
 	}
+
+
+	// 1) If FBX not in folder, push it to folder
+	if (DoesFBXExistInAssets(path) == false)
+		path = PushFBXToAssets(path);
+
+	// 2) If.model does not exist, generate it
+		if (DoesFBXHaveLinkedModel(path) == false)
+			GenerateModelFromFBX(path, scene, rawname);
 	 
-		// Parent Object
+}
+
+bool SmileFBX::DoesFBXExistInAssets(const char* path)
+{
+	std::string cleanPath[1]; 
+	std::string file[1];
+	std::string extension[1];
+	App->fs->SplitFilePath(path, cleanPath, file, extension);
+
+	std::string target = std::string(std::string(ASSETS_FOLDER) + file[0]);
+
+	if (App->fs->Exists(target.c_str()))
+		return true; 
+
+	
+	return false; 
+}
+
+const char* SmileFBX::PushFBXToAssets(const char* path)
+{
+	App->fs->CopyFromOutsideFS(path, ASSETS_MODELS_FOLDER); 
+	return path; 
+}
+
+bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
+{
+	return true; 
+}
+
+
+GameObject* SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scene, char* rawname)
+{
+
+	// Parent Object
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
 	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
 
@@ -103,7 +152,7 @@ GameObject* SmileFBX::ReadFBXData(const char* path)
 		ObjectBegin
 
 		// Mesh
-	ModelMeshData* mesh_info = FillMeshBuffers(scene->mMeshes[i], DBG_NEW ModelMeshData());
+		ModelMeshData* mesh_info = FillMeshBuffers(scene->mMeshes[i], DBG_NEW ModelMeshData());
 	ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
 
 	// Materials
@@ -115,13 +164,11 @@ GameObject* SmileFBX::ReadFBXData(const char* path)
 
 	ObjectEnd
 
-	OnFBXImportEnd(parentObj, scene, path);
+		OnFBXImportEnd(parentObj, scene, path);
 
 	return parentObj;
-	 
-	
-	 
 }
+
 
 // ---------------------------------------------
 void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std::vector<std::string> materialsPaths)
@@ -493,7 +540,7 @@ std::string SmileFBX::SaveMaterial(textureData* texture)
 	return std::string(LIBRARY_TEXTURES_FOLDER + std::string("texture") + std::string("dds"));
 }
 
-bool SmileFBX::LoadModel()
+bool SmileFBX::LoadModel(const char* path)
 {
 	return false;
 }
@@ -510,7 +557,6 @@ void SmileFBX::SaveModel(GameObject* obj)
 	Quat rotation = transf->GetRotation();
 
 	// 2) Save the object itself
-	std::ofstream saveConfigFile(".json");
 	rapidjson::StringBuffer buffer;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
@@ -570,11 +616,9 @@ void SmileFBX::SaveModel(GameObject* obj)
 
 	const char* output = buffer.GetString();
 	std::string dirPath; 
-	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, std::to_string(obj->GetID()).c_str(), ".json");
+	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, obj->GetName().c_str(), MODELS_EXTENSION);
 
-
-	saveConfigFile.close();
-
+ 
 	return;
 }
 

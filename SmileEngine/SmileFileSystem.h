@@ -58,6 +58,7 @@ public:
 	const char* GetWritePath() const;
 	const char* GetReadPaths() const;
 
+	//const char* RelativeToAbsolute(const char* path); 
 private:
 
 	void CreateAssimpIO();
