@@ -60,7 +60,7 @@ public:
 	BoundingData GetBoundingData() const { return boundingData; }; 
 	GameObject* GetParent() const { return parent; };
 	std::string GetName() const { return name; };
-	std::vector<GameObject*> GetChildrenRecursive() const;
+	std::vector<GameObject*> GetChildrenRecursive() const; /// TODO: revise this, it is flawed
 	std::vector<GameObject*> GetImmidiateChildren() const;
 	float GetBoundingSphereRadius() const;
 

@@ -66,7 +66,7 @@ void ComponentCamera::Update()
 	// If the current looking camera is not myself, fuck the logic!
 	if (App->renderer3D->targetCamera != this)
 	{
-		frustrum->DebugPlanes();
+	//	frustrum->DebugPlanes();
 		return;
 	}
 	

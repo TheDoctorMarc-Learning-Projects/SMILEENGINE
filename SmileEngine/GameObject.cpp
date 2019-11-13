@@ -85,6 +85,11 @@ void GameObject::Enable()
 {
 	active = true;
 
+	// 0) Logic 
+	if(GetMesh() == nullptr) // other-wise setup by mesh
+		SetupBounding();
+
+
 	// 1) Components
 	for (auto& comp : components)
 		if (comp)
@@ -407,7 +412,13 @@ void GameObject::SetupBounding()
 	}
 	else
 	{
-		// what here haha 
+		transfGlobalMat = GetTransform()->GetGlobalMatrix();
+
+		// what here haha -> for the mom an arbitrarily-sized box at the right location
+		boundingData.OBB.SetNegativeInfinity(); 
+		boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3))); 
+		boundingData.AABB.SetNegativeInfinity();
+		boundingData.AABB.Enclose(boundingData.OBB);
 	}
 }
 

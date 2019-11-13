@@ -6,10 +6,7 @@
  
 
 SmileSpatialTree::SmileSpatialTree(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled){}
-SmileSpatialTree::~SmileSpatialTree() {
-
-	// TODO: how to release everything? :o 
-}
+SmileSpatialTree::~SmileSpatialTree() {}
 
 void SmileSpatialTree::CreateOctree(float3 fromTo[2], uint depth, uint maxNodeObjects)
 {
@@ -24,21 +21,30 @@ void SmileSpatialTree::CreateRoot(float3 fromTo[2])
 	// the root is to be created once
 	static bool once = [this, fromTo]()
 	{
-		root = DBG_NEW OctreeNode();
-		root->SetupAABB(math::AABB(fromTo[0], fromTo[1]));  
-		ComputeObjectTree(); 
+		root = DBG_NEW OctreeNode(math::AABB(fromTo[0], fromTo[1]));
+		ComputeObjectTree(App->scene_intro->rootObj); 
 
 		return true; 
 	} ();
 
 }
 
-void SmileSpatialTree::ComputeObjectTree()
+void SmileSpatialTree::ComputeObjectTree(GameObject* obj)
 {
-	auto gameObjects = App->scene_intro->rootObj->GetChildrenRecursive(); 
+	root->InsertObject(obj);
+	auto children = obj->GetImmidiateChildren();
+	for (auto& obj : children)
+		ComputeObjectTree(obj);
+}
 
-	for (auto& obj : gameObjects)
-		root->InsertObject(obj);
+
+
+bool SmileSpatialTree::CleanUp()
+{
+	root->CleanUp(); 
+	RELEASE(root);
+
+	return true; 
 }
 
 // ----------------------------------------------------------------- [OctreeNode]
@@ -67,35 +73,32 @@ inline static bool IsLeaf(OctreeNode* node) { return node->GetChildrenPointer() 
 
 void OctreeNode::InsertObject(GameObject* obj)
 {
-	// if the Node has the maximum objects, but splitting means exceeding the max tree depth, rather keep the object for myself
-	if (insideObjs.size() == MAX_NODE_OBJECTS && depth == MAX_DEPTH && IsLeaf(this))
+	// A) I have child nodes, then pass the object directly to them (conditions) 
+	if (IsLeaf(this) == false)
 	{
-		insideObjs.push_back(obj);
-		return; 
+		if (SendObjectToChildren(obj) == false) 
+			insideObjs.push_back(obj); 
 	}
-	
-	// If the Node has less than the maximum objects and it has no children, push it directly
-	if (insideObjs.size() < MAX_NODE_OBJECTS && IsLeaf(this))
+	else // B) I do not have child nodes right now
 	{
-		insideObjs.push_back(obj);
-	}
-		
-	else // If the Node has the maximum objects, if and only if splitting means exceeding the max tree depth
-	{
-		bool reArrange = false; 
-		// Split if no children and max depth not reached yet
-		if (IsLeaf(this) && depth < MAX_DEPTH)
+		// if I have the maximum objects, but splitting means exceeding the max tree depth, rather keep the object for myself
+		if (depth == MAX_DEPTH)
+		{
+			insideObjs.push_back(obj);
+			return;
+		}
+
+		// If I have less than the maximum objects, push it directly
+		if (insideObjs.size() < MAX_NODE_OBJECTS)
+			insideObjs.push_back(obj);
+
+		else // If I have the maximum objects, split and rearrange objects
 		{
 			Split();
-			reArrange = true; 
-		}
-			
-		// push the object, then spread it through chlildren if splitted
-		insideObjs.push_back(obj);
-
-		if(reArrange)
+			insideObjs.push_back(obj);
 			RearrangeObjectsInChildren();
 
+		}
 	}
 
 }
@@ -105,7 +108,32 @@ void OctreeNode::Split()
 	for (int i = 0; i < 8; ++i)
 		childNodes[i] = DBG_NEW OctreeNode(this, i);
 }
+ 
+// Push the object to children that can encompass it (check depth and object count) 
+bool OctreeNode::SendObjectToChildren(GameObject* obj) 
+{
+	uint success = 0; 
 
+	for (int i = 0; i < 8; ++i)
+	{
+		OctreeNode* childNode = childNodes[i]; 
+		if (childNode->AABB.Intersects(obj->GetBoundingData().AABB))
+		{
+			success++; 
+			childNode->InsertObject(obj); 
+		}
+	
+	}
+	
+	// If the object has been pushed to any of the child nodes, return true
+	if (success > 0)
+		return true; 
+
+	return false; 
+}
+
+
+// Takes all the objects and erases the ones that intersect with a child, while pushing it to the child's list
 void OctreeNode::RearrangeObjectsInChildren()
 {
 	for(std::vector<GameObject*>::iterator obj = insideObjs.begin(); obj != insideObjs.end();)
@@ -200,15 +228,41 @@ void OctreeNode::Debug()
 	glVertex3f((GLfloat)pointsArray[0].x, (GLfloat)pointsArray[0].y, (GLfloat)pointsArray[0].z);
 	glVertex3f((GLfloat)pointsArray[1].x, (GLfloat)pointsArray[1].y, (GLfloat)pointsArray[1].z);
 
-
-
 	glEnd();
 	glColor3f(1.0f, 1.0f, 1.0f);
 
+	if(logged == false)
+	{
+		if (this != App->spatial_tree->root)
+		{
+			LOG("Octree Node here! Depth: %i /// Objects: %i /// Parent Depth: %i /// Parent Objects: %i",
+				depth, insideObjs.size(), parentNode->depth, parentNode->insideObjs.size());
 
+		}
+		else
+		{
+			LOG("Octree Node here! Depth: %i /// Objects: %i /// No Parent, Root!!!",
+				depth, insideObjs.size());
+		}
+		logged = true; 
+	}
+	
+	
 	// children
 	if (IsLeaf(this) == false)
 		for (auto& node : childNodes)
 			node->Debug(); 
 		
+}
+
+void OctreeNode::CleanUp()
+{
+	if (IsLeaf(this) == true)
+		return; 
+
+	for (auto& childNode : childNodes)
+	{
+		childNode->CleanUp();
+		RELEASE(childNode);
+	}
 }

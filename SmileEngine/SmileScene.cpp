@@ -32,12 +32,12 @@ bool SmileScene::Start()
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
 	// Just testing Spatial Tree
-	float size[1]; 
+	float size[50]; 
 	for (auto& i : size)
 	{
 		float3 pos(0, 0, 0); 
 		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F)); 
-		pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 10.F));
+		//pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 10.F));
 		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F));
 		GameObject* daHouse = App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 		daHouse->GetTransform()->ChangePosition(pos);
@@ -49,15 +49,15 @@ bool SmileScene::Start()
 	debugCameraObj->AddComponent(debugCamera);
 
 	// Game Camera
-	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 15)), "Game Camera", rootObj);
+	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 25)), "Game Camera", rootObj);
 	renderingData data; 
-	data.pFarDist = 15.f; 
+	data.pFarDist = 35.f; 
 	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 0, 0), data); 
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
-	/*float3 mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
-	App->spatial_tree->CreateOctree(mapSize);*/
+	float3 mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
+	App->spatial_tree->CreateOctree(mapSize);
 	
 	return true;
 }
