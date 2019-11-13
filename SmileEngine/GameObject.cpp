@@ -381,7 +381,7 @@ void GameObject::PositionTransformAtMeshCenter()
 
 void GameObject::SetupBounding()  
 {
-	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix();
+	float4x4 transfGlobalMat = parent->GetTransform()->GetGlobalMatrix();
 
 	// No child objects = case A) 
 	if (childObjects.size() == 0)

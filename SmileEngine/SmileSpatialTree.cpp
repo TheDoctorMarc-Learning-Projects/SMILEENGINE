@@ -2,6 +2,8 @@
 #include "Glew/include/GL/glew.h" 
 #include "SmileApp.h"
 #include "SmileScene.h"
+#include "imgui/imgui.h"
+ 
 
 SmileSpatialTree::SmileSpatialTree(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled){}
 SmileSpatialTree::~SmileSpatialTree() {
@@ -66,7 +68,7 @@ inline static bool IsLeaf(OctreeNode* node) { return node->GetChildrenPointer() 
 void OctreeNode::InsertObject(GameObject* obj)
 {
 	// if the Node has the maximum objects, but splitting means exceeding the max tree depth, rather keep the object for myself
-	if (insideObjs.size() == MAX_NODE_OBJECTS && depth == MAX_DEPTH)
+	if (insideObjs.size() == MAX_NODE_OBJECTS && depth == MAX_DEPTH && IsLeaf(this))
 	{
 		insideObjs.push_back(obj);
 		return; 
@@ -138,20 +140,69 @@ void OctreeNode::RearrangeObjectsInChildren()
 
 void OctreeNode::Debug()
 {
-	if(insideObjs.size() == 0)
-		glColor3f(1.0f, 0.0f, 0.0f);
-	else
-		glColor3f(0.0f, 1.0f, 0.0f);
-
-	glPointSize(10);
-	glBegin(GL_POINTS);
+	
+	glBegin(GL_LINES);
 	float3 pointsArray[8]; 
 	this->AABB.GetCornerPoints(pointsArray);
-	for (int i = 0; i < 8; ++i)
-		glVertex3f((GLfloat)pointsArray[i].x, (GLfloat)pointsArray[i].y, (GLfloat)pointsArray[i].z);
+	
+	// Direct Mode :( -> for the mom, TODO: optimized debug
+	glVertex3f((GLfloat)pointsArray[0].x, (GLfloat)pointsArray[0].y, (GLfloat)pointsArray[0].z);
+	glVertex3f((GLfloat)pointsArray[1].x, (GLfloat)pointsArray[1].y, (GLfloat)pointsArray[1].z);
+	glVertex3f((GLfloat)pointsArray[1].x, (GLfloat)pointsArray[1].y, (GLfloat)pointsArray[1].z);
+	glVertex3f((GLfloat)pointsArray[3].x, (GLfloat)pointsArray[3].y, (GLfloat)pointsArray[3].z);
+	glVertex3f((GLfloat)pointsArray[3].x, (GLfloat)pointsArray[3].y, (GLfloat)pointsArray[3].z);
+	glVertex3f((GLfloat)pointsArray[2].x, (GLfloat)pointsArray[2].y, (GLfloat)pointsArray[2].z);
+	glVertex3f((GLfloat)pointsArray[2].x, (GLfloat)pointsArray[2].y, (GLfloat)pointsArray[2].z);
+	glVertex3f((GLfloat)pointsArray[0].x, (GLfloat)pointsArray[0].y, (GLfloat)pointsArray[0].z);
+
+	glVertex3f((GLfloat)pointsArray[3].x, (GLfloat)pointsArray[3].y, (GLfloat)pointsArray[3].z);
+	glVertex3f((GLfloat)pointsArray[7].x, (GLfloat)pointsArray[7].y, (GLfloat)pointsArray[7].z);
+	glVertex3f((GLfloat)pointsArray[7].x, (GLfloat)pointsArray[7].y, (GLfloat)pointsArray[7].z);
+	glVertex3f((GLfloat)pointsArray[5].x, (GLfloat)pointsArray[5].y, (GLfloat)pointsArray[5].z);
+	glVertex3f((GLfloat)pointsArray[5].x, (GLfloat)pointsArray[5].y, (GLfloat)pointsArray[5].z);
+	glVertex3f((GLfloat)pointsArray[1].x, (GLfloat)pointsArray[1].y, (GLfloat)pointsArray[1].z);
+	glVertex3f((GLfloat)pointsArray[1].x, (GLfloat)pointsArray[1].y, (GLfloat)pointsArray[1].z);
+	glVertex3f((GLfloat)pointsArray[3].x, (GLfloat)pointsArray[3].y, (GLfloat)pointsArray[3].z);
+
+	glVertex3f((GLfloat)pointsArray[7].x, (GLfloat)pointsArray[7].y, (GLfloat)pointsArray[7].z);
+	glVertex3f((GLfloat)pointsArray[6].x, (GLfloat)pointsArray[6].y, (GLfloat)pointsArray[6].z);
+	glVertex3f((GLfloat)pointsArray[6].x, (GLfloat)pointsArray[6].y, (GLfloat)pointsArray[6].z);
+	glVertex3f((GLfloat)pointsArray[4].x, (GLfloat)pointsArray[4].y, (GLfloat)pointsArray[4].z);
+	glVertex3f((GLfloat)pointsArray[4].x, (GLfloat)pointsArray[4].y, (GLfloat)pointsArray[4].z);
+	glVertex3f((GLfloat)pointsArray[5].x, (GLfloat)pointsArray[5].y, (GLfloat)pointsArray[5].z);
+	glVertex3f((GLfloat)pointsArray[5].x, (GLfloat)pointsArray[5].y, (GLfloat)pointsArray[5].z);
+	glVertex3f((GLfloat)pointsArray[7].x, (GLfloat)pointsArray[7].y, (GLfloat)pointsArray[7].z);
+
+	glVertex3f((GLfloat)pointsArray[2].x, (GLfloat)pointsArray[2].y, (GLfloat)pointsArray[2].z);
+	glVertex3f((GLfloat)pointsArray[6].x, (GLfloat)pointsArray[6].y, (GLfloat)pointsArray[6].z);
+	glVertex3f((GLfloat)pointsArray[6].x, (GLfloat)pointsArray[6].y, (GLfloat)pointsArray[6].z);
+	glVertex3f((GLfloat)pointsArray[4].x, (GLfloat)pointsArray[4].y, (GLfloat)pointsArray[4].z);
+	glVertex3f((GLfloat)pointsArray[4].x, (GLfloat)pointsArray[4].y, (GLfloat)pointsArray[4].z);
+	glVertex3f((GLfloat)pointsArray[0].x, (GLfloat)pointsArray[0].y, (GLfloat)pointsArray[0].z);
+	glVertex3f((GLfloat)pointsArray[0].x, (GLfloat)pointsArray[0].y, (GLfloat)pointsArray[0].z);
+	glVertex3f((GLfloat)pointsArray[2].x, (GLfloat)pointsArray[2].y, (GLfloat)pointsArray[2].z);
+
+	glVertex3f((GLfloat)pointsArray[3].x, (GLfloat)pointsArray[3].y, (GLfloat)pointsArray[3].z);
+	glVertex3f((GLfloat)pointsArray[7].x, (GLfloat)pointsArray[7].y, (GLfloat)pointsArray[7].z);
+	glVertex3f((GLfloat)pointsArray[7].x, (GLfloat)pointsArray[7].y, (GLfloat)pointsArray[7].z);
+	glVertex3f((GLfloat)pointsArray[6].x, (GLfloat)pointsArray[6].y, (GLfloat)pointsArray[6].z);
+	glVertex3f((GLfloat)pointsArray[6].x, (GLfloat)pointsArray[6].y, (GLfloat)pointsArray[6].z);
+	glVertex3f((GLfloat)pointsArray[2].x, (GLfloat)pointsArray[2].y, (GLfloat)pointsArray[2].z);
+	glVertex3f((GLfloat)pointsArray[2].x, (GLfloat)pointsArray[2].y, (GLfloat)pointsArray[2].z);
+	glVertex3f((GLfloat)pointsArray[3].x, (GLfloat)pointsArray[3].y, (GLfloat)pointsArray[3].z);
+
+	glVertex3f((GLfloat)pointsArray[1].x, (GLfloat)pointsArray[1].y, (GLfloat)pointsArray[1].z);
+	glVertex3f((GLfloat)pointsArray[5].x, (GLfloat)pointsArray[5].y, (GLfloat)pointsArray[5].z);
+	glVertex3f((GLfloat)pointsArray[5].x, (GLfloat)pointsArray[5].y, (GLfloat)pointsArray[5].z);
+	glVertex3f((GLfloat)pointsArray[4].x, (GLfloat)pointsArray[4].y, (GLfloat)pointsArray[4].z);
+	glVertex3f((GLfloat)pointsArray[4].x, (GLfloat)pointsArray[4].y, (GLfloat)pointsArray[4].z);
+	glVertex3f((GLfloat)pointsArray[0].x, (GLfloat)pointsArray[0].y, (GLfloat)pointsArray[0].z);
+	glVertex3f((GLfloat)pointsArray[0].x, (GLfloat)pointsArray[0].y, (GLfloat)pointsArray[0].z);
+	glVertex3f((GLfloat)pointsArray[1].x, (GLfloat)pointsArray[1].y, (GLfloat)pointsArray[1].z);
+
+
 
 	glEnd();
-	glPointSize(1); 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 

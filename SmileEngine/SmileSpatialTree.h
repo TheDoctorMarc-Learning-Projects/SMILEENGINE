@@ -5,7 +5,7 @@
 
 #include "MathGeoLib/include/Geometry/AABB.h"
 
-static uint MAX_NODE_OBJECTS = 10; 
+static uint MAX_NODE_OBJECTS = 3; 
 static uint MAX_DEPTH = 4; 
 
 // ----------------------------------------------------------------- [OctreeNode]
@@ -23,7 +23,7 @@ public:
 	OctreeNode* GetChildrenPointer() const { return childNodes[0]; };
 	void SetupAABB(math::AABB aabb) { this->AABB = aabb; }; 
 	void Debug();
-
+	
 private: 
 	uint depth = 0; 
 	math::AABB AABB; 
@@ -41,7 +41,7 @@ public:
 	SmileSpatialTree(SmileApp* app, bool start_enabled = true);
 	~SmileSpatialTree();
 
-	void CreateOctree(float3 fromTo[2], uint depth = 4, uint maxNodeObjects = 10);
+	void CreateOctree(float3 fromTo[2], uint depth = 4, uint maxNodeObjects = MAX_NODE_OBJECTS);
 	update_status Update(float dt) { /*root->Debug();*/ return update_status::UPDATE_CONTINUE; }; // to debug only
 private: 
 	void CreateRoot(float3 fromTo[2]); // for root 

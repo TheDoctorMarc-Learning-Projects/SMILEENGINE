@@ -49,16 +49,16 @@ bool SmileScene::Start()
 	debugCameraObj->AddComponent(debugCamera);
 
 	// Game Camera
-	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 7)), "Game Camera", rootObj);
+	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 15)), "Game Camera", rootObj);
 	renderingData data; 
-	data.pFarDist = 10.f; 
+	data.pFarDist = 15.f; 
 	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 0, 0), data); 
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
-	float3 mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
-	App->spatial_tree->CreateOctree(mapSize);
-
+	/*float3 mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
+	App->spatial_tree->CreateOctree(mapSize);*/
+	
 	return true;
 }
 
