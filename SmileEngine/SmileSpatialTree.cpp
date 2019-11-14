@@ -8,20 +8,20 @@
 SmileSpatialTree::SmileSpatialTree(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled){}
 SmileSpatialTree::~SmileSpatialTree() {}
 
-void SmileSpatialTree::CreateOctree(float3 fromTo[2], uint depth, uint maxNodeObjects)
+void SmileSpatialTree::CreateOctree(math::AABB aabb, uint depth, uint maxNodeObjects)
 {
 	MAX_NODE_OBJECTS = maxNodeObjects; 
 	MAX_DEPTH = depth; 
 
-	CreateRoot(fromTo);
+	CreateRoot(aabb);
 }
 
-void SmileSpatialTree::CreateRoot(float3 fromTo[2])
+void SmileSpatialTree::CreateRoot(math::AABB aabb)
 {
 	// the root is to be created once
-	static bool once = [this, fromTo]()
+	static bool once = [this, aabb]()
 	{
-		root = DBG_NEW OctreeNode(math::AABB(fromTo[0], fromTo[1]));
+		root = DBG_NEW OctreeNode(aabb);
 		ComputeObjectTree(App->scene_intro->rootObj); 
 
 		return true; 
@@ -37,8 +37,6 @@ void SmileSpatialTree::ComputeObjectTree(GameObject* obj)
 		ComputeObjectTree(obj);
 }
 
-
-
 bool SmileSpatialTree::CleanUp()
 {
 	root->CleanUp(); 
@@ -50,12 +48,29 @@ bool SmileSpatialTree::CleanUp()
 void SmileSpatialTree::OnStaticChange(GameObject* obj, bool isStatic)
 {
 	if (isStatic)
-		root->InsertObject(obj);
+		ComputeObjectTree(obj); 
 	else
 		root->DeleteObject(obj); 
 }
 
+ 
+// 1) Is node inside frustrum? 2) Is object inside node?
+void SmileSpatialTree::GetObjectsByNodesInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum)
+{
+	root->GetObjectsByNodeInFrustrum(objects, camFrustrum); 
+}
+
 // ----------------------------------------------------------------- [OctreeNode]
+void OctreeNode::GetObjectsByNodeInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum)
+{
+
+	if (camFrustrum.IsBoxInsideFrustrumView(this->AABB))
+	{
+
+	}
+ 
+}
+
 OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 {
 	this->parentNode = parentNode; 

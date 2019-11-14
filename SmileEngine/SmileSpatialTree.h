@@ -2,12 +2,14 @@
 
 #include "SmileModule.h"
 #include "ComponentMesh.h"
-
+#include "ComponentCamera.h"
 #include "MathGeoLib/include/Geometry/AABB.h"
+#include <vector>
 
 static uint MAX_NODE_OBJECTS = 10; 
 static uint MAX_DEPTH = 4; 
 
+class Frustrum;
 // ----------------------------------------------------------------- [OctreeNode]
 class OctreeNode
 {
@@ -17,6 +19,7 @@ public:
 	~OctreeNode() {};
 
 public: 
+	void GetObjectsByNodeInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum);
 	void DeleteObject(GameObject*);
 	void InsertObject(GameObject*);
 	OctreeNode* GetChildrenPointer() const { return childNodes[0]; };
@@ -47,13 +50,13 @@ public:
 	SmileSpatialTree(SmileApp* app, bool start_enabled = true);
 	~SmileSpatialTree();
 
-	void CreateOctree(float3 fromTo[2], uint depth = MAX_DEPTH, uint maxNodeObjects = MAX_NODE_OBJECTS);
+	void CreateOctree(math::AABB aabb, uint depth = MAX_DEPTH, uint maxNodeObjects = MAX_NODE_OBJECTS);
 	update_status Update(float dt) { root->Debug(); return update_status::UPDATE_CONTINUE; }; // to debug only
 	bool CleanUp(); 
 	void OnStaticChange(GameObject* obj, bool isStatic); 
-	
+	void GetObjectsByNodesInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum);
 private: 
-	void CreateRoot(float3 fromTo[2]); // for root 
+	void CreateRoot(math::AABB aabb); // for root 
 	void ComputeObjectTree(GameObject* obj);
 private: 
 	OctreeNode* root = nullptr; 

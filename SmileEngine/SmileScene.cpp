@@ -56,8 +56,8 @@ bool SmileScene::Start()
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
-	float3 mapSize[2] = { float3(-20,0,-20), float3(20, 40, 20) }; 
-	App->spatial_tree->CreateOctree(mapSize);
+	App->spatial_tree->CreateOctree(math::AABB(float3(-20, 0, -20), float3(20, 40, 20)));
+
 	
 	return true;
 }

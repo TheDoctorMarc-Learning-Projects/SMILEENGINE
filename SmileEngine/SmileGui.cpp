@@ -265,6 +265,9 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive, std::string(objName) + " 1");
 				GameObject* obj = App->object_manager->CreateGameObject(mesh, objName, App->scene_intro->rootObj);
 				obj->Start();
+
+				// TODO: check this ok
+				App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
 			}
 				
 		}
