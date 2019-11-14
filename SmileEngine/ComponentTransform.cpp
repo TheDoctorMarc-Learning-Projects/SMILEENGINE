@@ -114,3 +114,20 @@ void ComponentTransform::ChangeRotation(Quat q)
 	rotation = q; 
 	CalculateLocalMatrix();
 }
+
+void ComponentTransform::UpdateTransform(float values[3][3]) // position, rotation (rads), scale
+{
+	if (values[0][0] != position.x || values[0][1] != position.y || values[0][2] != position.z)
+		ChangePosition(math::float3(values[0]));
+
+	math::Quat newRot = math::Quat::FromEulerXYZ(values[1][0], values[1][1], values[1][2]); 
+	if (newRot.x != rotation.x || newRot.y != rotation.y || newRot.z != rotation.z || newRot.w != rotation.w)
+		ChangeRotation(newRot);
+
+	if (values[2][0] != scale.x || values[2][1] != scale.y || values[2][2] != scale.z)
+		ChangeScale(math::float3(values[2]));
+
+	// if the parent has a camera, update it from here, otherwise it is internally updated in transform
+	if (parent->GetCamera() != nullptr)
+		parent->OnTransform();
+}

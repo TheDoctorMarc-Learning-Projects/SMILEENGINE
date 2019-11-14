@@ -732,10 +732,14 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		GameObject* selected = App->scene_intro->selectedObj;
 		if (selected != nullptr)
 		{
+			// General info
 			ImGui::TextColored(c, selected->GetName().c_str());
 			static bool isStatic = selected->GetStatic(); 
 			if (ImGui::Checkbox("Static", &isStatic))
 				selected->SetStatic(isStatic); 
+
+			// Guizmo: it gets the transform values, and also updates the transform if changed
+			selected->DoGuizmo(); 
 			 
 			// Loop the object's components
 			std::array<Component*, MAX_COMPONENT_TYPES> components = selected->GetComponents(); 
@@ -808,13 +812,14 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentTransform* transf = dynamic_cast<ComponentTransform*>(c);
 			math::float3 pos = transf->GetPosition(); 
-			math::Quat rot = transf->GetRotation();
+			math::float3 rot = transf->GetRotation().ToEulerXYZ();
+			math::float3 degRot = RadToDeg(rot); 
 			math::float3 sc = transf->GetScale();
 			float p[3] = { pos.x, pos.y, pos.z };
-			float r[4] = { rot.x, rot.y, rot.z, rot.w };
+			float r[3] = { degRot.x, degRot.y, degRot.z};
 			float s[3] = { sc.x, sc.y, sc.z };
 			ImGui::InputFloat3("Position", p); 
-			ImGui::InputFloat4("Rotation", r);
+			ImGui::InputFloat3("Rotation", r);
 			ImGui::InputFloat3("Scale", s);
 
 			// (info)
@@ -823,26 +828,11 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			if (keyState != KEY_DOWN)
 				break; 
 
-			bool data[3];
-			if (p[0] != pos.x || p[1] != pos.y || p[2] != pos.z)
-			{
-				transf->ChangePosition(math::float3(p));
-				data[0] = true;
-			}
-			if (r[0] != rot.x || r[1] != rot.y || r[2] != rot.z || r[3] != rot.w)
-			{
-				transf->ChangeRotation(math::Quat(r));
-				data[1] = true;
-			}
-			if (s[0] != sc.x || s[1] != sc.y || s[2] != sc.z)
-			{
-				transf->ChangeScale(math::float3(s));
-				data[2] = true;
-			}
+			math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
+			float radR[3] = { radRot.x, radRot.y, radRot.z };
 
-			// if the parent has a camera, update it from here, otherwise it is internally updated in transform
-			if (transf->GetParent()->GetCamera() != nullptr)
-				transf->GetParent()->OnTransform();
+			float values[3][3] = { 	{p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
+			transf->UpdateTransform(values);
 
 			break;
 		}

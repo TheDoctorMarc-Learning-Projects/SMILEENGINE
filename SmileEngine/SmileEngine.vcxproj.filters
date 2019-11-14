@@ -165,6 +165,9 @@
     <ClInclude Include="SmileSpatialTree.h">
       <Filter>Source\Modules\Advanced</Filter>
     </ClInclude>
+    <ClInclude Include="imgui\ImGuizmo.h">
+      <Filter>Source\Tools\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -256,6 +259,9 @@
     </ClCompile>
     <ClCompile Include="SmileSpatialTree.cpp">
       <Filter>Source\Modules\Advanced</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\ImGuizmo.cpp">
+      <Filter>Source\Tools\GUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

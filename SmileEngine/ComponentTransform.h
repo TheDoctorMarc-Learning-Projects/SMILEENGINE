@@ -46,6 +46,9 @@ public:
 		globalMatrix.TranslatePart().z); };
 	float3 GetScale() const { return scale; }; 
 
+	// On inspector
+	void UpdateTransform(float values[3][3]); // pos, rotation, scale
+
 private:
 	float3 position, scale; 
 	Quat rotation; 

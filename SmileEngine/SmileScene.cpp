@@ -32,7 +32,7 @@ bool SmileScene::Start()
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
 	// Just testing Spatial Tree
-	float size[50]; 
+	float size[1]; 
 	for (auto& i : size)
 	{
 		float3 pos(0, 0, 0); 

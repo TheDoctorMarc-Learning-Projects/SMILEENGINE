@@ -19,6 +19,7 @@ public:
 	bool CleanUp();
 
 	void OnResize(int width, int height);
+	float* GetProjectionMatrix(); 
 
 public:
 	SDL_GLContext context;

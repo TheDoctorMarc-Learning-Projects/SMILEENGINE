@@ -187,4 +187,8 @@ void SmileRenderer3D::OnResize(int width, int height)
 		
 }
 
+float* SmileRenderer3D::GetProjectionMatrix()
+{
+	return &ProjectionMatrix; 
+}
 

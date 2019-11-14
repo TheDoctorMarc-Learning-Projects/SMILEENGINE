@@ -6,6 +6,9 @@
 #include "Glew/include/GL/glew.h" 
 #include "SmileSpatialTree.h"
 #include "SmileApp.h"
+#include "imgui.h"
+#include "ImGuizmo.h"
+
 
 GameObject::GameObject(GameObject* parent)
 {
@@ -464,4 +467,44 @@ void GameObject::SetStatic(bool isStatic)
 { 
 	this->isStatic = isStatic; 
 	App->spatial_tree->OnStaticChange(this, this->isStatic);
+}
+
+void GameObject::DoGuizmo()
+{
+	ComponentTransform* transf = GetTransform(); 
+	float4x4 mat = transf->GetGlobalMatrix(); 
+
+	// 0) Init da sassy guizmo!
+	static ImGuizmo::OPERATION gizmoOperation(ImGuizmo::TRANSLATE);
+	static ImGuizmo::MODE gizmoMode(ImGuizmo::LOCAL);
+
+	// 1) Fill the guizmo matrix with the object's matrix -> pass the rad rotation to degree rotation
+	float p[3], r[3], s[3];
+	float3 rotation = mat.RotatePart().ToEulerXYZ();
+	float3 degRotation = RadToDeg(rotation); 
+	mat.SetRotatePart(math::Quat::FromEulerXYZ(degRotation.x, degRotation.y, degRotation.z)); 
+	ImGuizmo::DecomposeMatrixToComponents(mat.ptr(), p, r, s);
+
+	// 2) Change the values and gizmo modes on input
+	/*ImGui::InputFloat3("Position", p);
+	if (ImGui::InputFloat3("Rotation", r))
+		gizmoOperation = ImGuizmo::OPERATION::ROTATE;
+	if (ImGui::InputFloat3("Scale", s))
+		gizmoOperation = ImGuizmo::OPERATION::SCALE;*/
+
+	// 3) Recompose the guizmo matrix with the inputted values
+	ImGuizmo::RecomposeMatrixFromComponents(p, r, s, mat.ptr());
+
+	// 4) Update the gizmo with the new values
+	ImGuiIO& io = ImGui::GetIO();
+	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	ImGuizmo::Manipulate(App->renderer3D->targetCamera->GetViewMatrix(), App->renderer3D->GetProjectionMatrix(),
+		gizmoOperation, gizmoMode, mat.ptr());
+
+	// 5) Update transform 
+	float3 newRadRotation = math::DegToRad(math::float3(r[0], r[1], r[2]));
+	float radR[3] = { newRadRotation.x, newRadRotation.y, newRadRotation.z };
+
+	float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
+	GetTransform()->UpdateTransform(values);
 }

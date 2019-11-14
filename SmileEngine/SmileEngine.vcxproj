@@ -53,7 +53,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <ExceptionHandling>false</ExceptionHandling>
-      <AdditionalIncludeDirectories>C:\Users\marcdp1\Documents\GitHub\SMILEENGINE\SmileEngine\MathGeoLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\Game;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\imgui;C:\Users\marcdp1\Documents\GitHub\SMILEENGINE\SmileEngine\MathGeoLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -94,6 +94,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="ComponentCamera.h" />
     <ClInclude Include="glmath.h" />
+    <ClInclude Include="imgui\ImGuizmo.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="JSONParser.h" />
     <ClInclude Include="Light.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="ComponentCamera.cpp" />
     <ClCompile Include="glmath.cpp" />
+    <ClCompile Include="imgui\ImGuizmo.cpp" />
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="JSONParser.cpp" />
     <ClCompile Include="Light.cpp" />
