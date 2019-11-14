@@ -36,9 +36,9 @@ bool SmileScene::Start()
 	for (auto& i : size)
 	{
 		float3 pos(0, 0, 0); 
-		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F)); 
-		//pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 10.F));
-		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-5.F, 5.F));
+		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F)); 
+		pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 20.F));
+		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F));
 		GameObject* daHouse = App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 		daHouse->GetTransform()->ChangePosition(pos);
 	}
@@ -56,7 +56,7 @@ bool SmileScene::Start()
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
-	float3 mapSize[2] = { float3(-10,0,-10), float3(10, 20, 10) }; 
+	float3 mapSize[2] = { float3(-20,0,-20), float3(20, 40, 20) }; 
 	App->spatial_tree->CreateOctree(mapSize);
 	
 	return true;

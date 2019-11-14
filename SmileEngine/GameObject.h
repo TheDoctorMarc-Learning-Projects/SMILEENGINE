@@ -63,7 +63,7 @@ public:
 	std::vector<GameObject*> GetChildrenRecursive() const; /// TODO: revise this, it is flawed
 	std::vector<GameObject*> GetImmidiateChildren() const;
 	float GetBoundingSphereRadius() const;
-
+	bool GetStatic() const { return isStatic; };
 	
 		// Main functions 
 	virtual void Start(); 
@@ -77,14 +77,14 @@ public:
 	bool IsActive() const { return active; };
 	void DrawAxis(); 
 
-		// Synchro with meshes
-	void SetupWithMesh(); // calls the two methods below: 
+		// Bounding and mesh stuff
+	void SetupWithMesh();  
 	void PositionTransformAtMeshCenter();
-	
- 
 	void SetupBounding();  
 	void UpdateBounding();
 
+		// Static stuff
+	void SetStatic(bool isStatic); 
 private: 
 	void Debug(); 
 
@@ -95,6 +95,7 @@ public:
 private: 
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 
 	bool active = true; 
+	bool isStatic = true; 
 	std::string name; 
 	GameObject* parent = nullptr; 
 	BoundingData boundingData; 

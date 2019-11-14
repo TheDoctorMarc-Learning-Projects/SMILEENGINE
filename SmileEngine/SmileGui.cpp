@@ -733,7 +733,10 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		if (selected != nullptr)
 		{
 			ImGui::TextColored(c, selected->GetName().c_str());
-
+			static bool isStatic = selected->GetStatic(); 
+			if (ImGui::Checkbox("Static", &isStatic))
+				selected->SetStatic(isStatic); 
+			 
 			// Loop the object's components
 			std::array<Component*, MAX_COMPONENT_TYPES> components = selected->GetComponents(); 
 

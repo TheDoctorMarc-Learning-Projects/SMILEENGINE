@@ -47,6 +47,14 @@ bool SmileSpatialTree::CleanUp()
 	return true; 
 }
 
+void SmileSpatialTree::OnStaticChange(GameObject* obj, bool isStatic)
+{
+	if (isStatic)
+		root->InsertObject(obj);
+	else
+		root->DeleteObject(obj); 
+}
+
 // ----------------------------------------------------------------- [OctreeNode]
 OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 {
@@ -166,6 +174,26 @@ void OctreeNode::RearrangeObjectsInChildren()
 	}
 }
 
+void OctreeNode::DeleteObject(GameObject* newObj)
+{
+	// Erase from the list if found. It won't be on any child's list, so return. 
+	for (std::vector<GameObject*>::iterator obj = insideObjs.begin(); obj != insideObjs.end(); ++obj)
+	{
+		if ((*obj) == newObj) 
+		{
+			obj = insideObjs.erase(obj);
+			return; 
+		}
+
+	}
+
+	// Otherwise, recurse
+	if (IsLeaf(this) == true)
+		return;
+	for (auto& childNode : childNodes)
+		childNode->DeleteObject(newObj); 
+}
+
 void OctreeNode::Debug()
 {
 	
@@ -257,6 +285,8 @@ void OctreeNode::Debug()
 
 void OctreeNode::CleanUp()
 {
+	insideObjs.clear(); 
+
 	if (IsLeaf(this) == true)
 		return; 
 

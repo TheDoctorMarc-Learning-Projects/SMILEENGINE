@@ -4,6 +4,8 @@
 #include "ComponentTransform.h"
 #include "ComponentCamera.h"
 #include "Glew/include/GL/glew.h" 
+#include "SmileSpatialTree.h"
+#include "SmileApp.h"
 
 GameObject::GameObject(GameObject* parent)
 {
@@ -456,4 +458,10 @@ void GameObject::Debug()
 	}
 	
 
+}
+
+void GameObject::SetStatic(bool isStatic)
+{ 
+	this->isStatic = isStatic; 
+	App->spatial_tree->OnStaticChange(this, this->isStatic);
 }

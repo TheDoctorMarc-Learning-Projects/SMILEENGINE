@@ -17,6 +17,7 @@ public:
 	~OctreeNode() {};
 
 public: 
+	void DeleteObject(GameObject*);
 	void InsertObject(GameObject*);
 	OctreeNode* GetChildrenPointer() const { return childNodes[0]; };
 	void Debug();
@@ -49,6 +50,8 @@ public:
 	void CreateOctree(float3 fromTo[2], uint depth = MAX_DEPTH, uint maxNodeObjects = MAX_NODE_OBJECTS);
 	update_status Update(float dt) { root->Debug(); return update_status::UPDATE_CONTINUE; }; // to debug only
 	bool CleanUp(); 
+	void OnStaticChange(GameObject* obj, bool isStatic); 
+	
 private: 
 	void CreateRoot(float3 fromTo[2]); // for root 
 	void ComputeObjectTree(GameObject* obj);
