@@ -65,9 +65,11 @@ private:
 
 private: 
 	globalTextureData textInfo;
-	const char* lastFBXPath; 
+	const char* lastFBXPath = "HEllo"; 
 public: 
 	bool debug = false;
+	std::string fbx_target;
+	std::string models_target;
 	
 };
 

@@ -108,8 +108,8 @@ GameObject* SmileFBX::LoadFBX(const char* path)
 		path = PushFBXToAssets(path);
 
 	// 2) If.model does not exist, generate it
-		if (DoesFBXHaveLinkedModel(path) == false)
-			GenerateModelFromFBX(path, scene, rawname);
+	if (DoesFBXHaveLinkedModel(path) == false)
+		GenerateModelFromFBX(path, scene, rawname);
 	 
 }
 
@@ -120,24 +120,22 @@ bool SmileFBX::DoesFBXExistInAssets(const char* path)
 	std::string extension[1];
 	App->fs->SplitFilePath(path, cleanPath, file, extension);
 
-	std::string target = std::string(std::string(ASSETS_MODELS_FOLDER) + file[0]);
+	fbx_target = std::string(std::string(ASSETS_MODELS_FOLDER) + file[0]);
 
-	const std::filesystem::path& relativePath = target.c_str();
 
-	std::filesystem::path& absolutePath = std::filesystem::absolute(relativePath);
-
-	std::string str = absolutePath.string();
-
-	if (App->fs->Exists(str.c_str()))
-		return true; 
-
+	if (App->fs->Exists(fbx_target.c_str()))
+	{
+		return true;
+	}
 	
-	return false; 
+	
+	return false;
+	
 }
 
 const char* SmileFBX::PushFBXToAssets(const char* path)
 {
-	App->fs->CopyFromOutsideFS(path, ASSETS_MODELS_FOLDER);
+	App->fs->CopyFromOutsideFS(path, fbx_target.c_str());
 
 	return path; 
 }
@@ -149,11 +147,15 @@ bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
 	std::string extension[1];
 	App->fs->SplitFilePath(path, cleanPath, file, extension);
 
-	std::string target = std::string(std::string(LIBRARY_MODELS_FOLDER) + file[0]);
+	models_target = std::string(std::string(LIBRARY_MODELS_FOLDER) + file[0]);
+	models_target = models_target.substr(0, models_target.find_last_of(".") + 1);
+	models_target = models_target.substr(models_target.find_last_of("/") + 1, models_target.find_last_of("."));
+	models_target = models_target + std::string(MODELS_EXTENSION);
 
-	if (App->fs->Exists(target.c_str()))
-		return true;*/
-
+	if (App->fs->Exists(models_target.c_str()))
+	{
+		return true;
+	}*/
 
 	return false;
 }
@@ -605,7 +607,7 @@ void SmileFBX::SaveModel(GameObject* obj)
 	writer.Bool((App->scene_intro->selectedObj == obj) ? true : false);
 
 	writer.Key("FBX path");
-	writer.String(lastFBXPath);
+	writer.String(lastFBXPath); // TODO: FILL THE LASTFBXPATH
 
 	// TODO: active, static, open in hierarchy , AABB, OBB 
 
