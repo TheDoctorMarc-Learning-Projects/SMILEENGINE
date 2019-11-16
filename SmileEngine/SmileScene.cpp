@@ -40,7 +40,7 @@ bool SmileScene::Start()
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
 	// Just testing Spatial Tree
-	float size[1]; 
+	float size[10]; 
 	for (auto& i : size)
 	{
 		float3 pos(0, 0, 0); 
@@ -196,7 +196,7 @@ std::variant<ComponentMesh*, GameObject*> SmileScene::ClickRayReturn(bool GetMes
 			if (GetMeshNotGameObject)
 				return (ComponentMesh*)nullptr;
 			else
-				return (GameObject*)App->scene_intro->selectedObj;
+				return (GameObject*)selectedObj;
 
 		}
 
@@ -243,6 +243,9 @@ std::variant<ComponentMesh*, GameObject*> SmileScene::HoverRayReturn(bool GetMes
 ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 {
 	lastRay = ray;
+	ComponentMesh* closest = nullptr; 
+	float minDistance = (float)INT_MAX; 
+	
 
 	// TODO: collect objects inside octree nodes and ultimately inside frustrum 
 	auto objects = rootObj->GetChildrenRecursive();
@@ -271,17 +274,23 @@ ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 			tri.Transform(targetMat); 
 
 			// Finally check if the ray interesects with the face (triangle) 
-			if (lastRay.Intersects(tri, nullptr, nullptr))
+			float newDistance = 0, intersectionPoint = 0; 
+			if (lastRay.Intersects(tri, &newDistance, (math::float3*)nullptr))
 			{
 				// TODO: push check the closest, keep searching 
 				// return dynamic_cast<ComponentMesh*>(mesh);
-				int allahu_akbar = 0;
+				if (newDistance < minDistance)
+				{
+					minDistance = newDistance; 
+					closest = mesh;
+				}
+			
 			}
 
 		}
 	}
 
-	return nullptr;
+	return closest;
 }
 
 
