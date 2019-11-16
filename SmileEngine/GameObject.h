@@ -69,6 +69,7 @@ public:
 	virtual void Start(); 
 	virtual void Enable(); 
 	virtual void Update();
+	void Draw(); 
 	virtual void Disable();
 	virtual void CleanUp(); 
 

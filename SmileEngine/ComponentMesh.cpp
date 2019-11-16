@@ -202,17 +202,6 @@ void ComponentMesh::DebugDraw()
 }
 
 // -----------------------------------------------------------------
-void ComponentMesh::Update()
-{
-	ComponentCamera* cam = App->scene_intro->gameCamera; 
-
-	if (cam && cam->GetFrustrum()->IsBoxInsideFrustrumView(GetParent()->GetBoundingData().OBB) 
-		!= Frustrum::INTERSECTION_TYPE::OUTSIDE)
-		Draw();
-
-}
-
-// -----------------------------------------------------------------
 void ComponentMesh::CleanUp()
 {
 	// Free model mesh

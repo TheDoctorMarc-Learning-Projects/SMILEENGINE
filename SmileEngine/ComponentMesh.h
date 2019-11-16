@@ -62,7 +62,6 @@ public:
 
 public: 
 	void Enable(); 
-	void Update();
 	void CleanUp();
 	void Draw(); 
 	void OnTransform(bool data[3]); // update obb, aabb

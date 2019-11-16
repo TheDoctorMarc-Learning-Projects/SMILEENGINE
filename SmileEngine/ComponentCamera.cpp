@@ -364,6 +364,23 @@ void ComponentCamera::OnInspector(float fovY[1], float pNearDist[1], float pFarD
 	frustrum->CalculatePlanes();
 }
 
+
+// -----------------------------------------------------------------
+void ComponentCamera::PruneInsideFrustrum(std::vector<GameObject*>& candidates)
+{
+	for (auto& obj = candidates.begin(); obj != candidates.end();)
+	{
+		if (frustrum->IsBoxInsideFrustrumView((*obj)->GetBoundingData().OBB)
+			== Frustrum::INTERSECTION_TYPE::OUTSIDE)
+		{
+			obj = candidates.erase(obj); 
+		}
+		else
+			++obj; 
+	}
+	
+}
+
 // -----------------------------------------------------------------
 // -----------------------------------------------------------------
 // ----------------------------------------------------------------- [Frustrum]

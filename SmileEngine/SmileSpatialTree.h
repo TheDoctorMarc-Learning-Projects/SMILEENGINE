@@ -42,6 +42,24 @@ public:
 		}
 	}
 
+	template<typename PRIMITIVE>
+	void CollectCandidatesA(std::vector<GameObject*>& gameObjects, const PRIMITIVE& primitive)
+	{
+		if (primitive.Intersects(AABB))
+		{
+			for (auto& obj : insideObjs)
+					gameObjects.push_back(obj);
+
+			if (IsLeaf() == false)
+			{
+				for (uint i = 0; i < 8; ++i)
+					childNodes[i]->CollectCandidatesA(gameObjects, primitive);
+			}
+
+		}
+	}
+
+
 private: 
 	inline bool IsLeaf() { return childNodes[0] == nullptr; };
 	void Split();
@@ -70,12 +88,20 @@ public:
 	bool CleanUp(); 
 	void OnStaticChange(GameObject* obj, bool isStatic); 
 
-	// To speed up frustrum and ray tracing 
+	// ultimately checks an obb
 	template<typename PRIMITIVE>
 	void CollectCandidates(std::vector<GameObject*>& gameObjects, const PRIMITIVE& primitive)
 	{
 		root->CollectCandidates(gameObjects, primitive); 
 	};
+
+	// ultimately checks an aabb
+	template<typename PRIMITIVE>
+	void CollectCandidatesA(std::vector<GameObject*>& gameObjects, const PRIMITIVE& primitive)
+	{
+		root->CollectCandidatesA(gameObjects, primitive);
+	};
+
 
 private: 
 	void CreateRoot(math::AABB aabb); // for root 

@@ -61,7 +61,7 @@ bool SmileScene::Start()
 	// Game Camera
 	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 25)), "Game Camera", rootObj);
 	renderingData data; 
-	data.pFarDist = 35.f; 
+	data.pFarDist = 25.f; 
 	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 0, 0), data); 
 	gameCameraObj->AddComponent(gameCamera);
 	
@@ -88,6 +88,20 @@ bool SmileScene::CleanUp()
 // Update
 update_status SmileScene::Update(float dt)
 {
+		// First update
+	rootObj->Update(); 
+
+		// Then draw
+	// collect candidates to be drawn: search for octree nodes inside frustrum 
+	std::vector<GameObject*> drawObjects; 
+	App->spatial_tree->CollectCandidatesA(drawObjects, App->renderer3D->targetCamera->calcFrustrum);
+ 
+	// then test the own objects OBBs with the frustrum
+	App->renderer3D->targetCamera->PruneInsideFrustrum(drawObjects);
+
+	for (auto& obj : drawObjects)
+		obj->Draw(); 
+
 	DrawGrid();
 	DebugLastRay(); 
 	return UPDATE_CONTINUE;

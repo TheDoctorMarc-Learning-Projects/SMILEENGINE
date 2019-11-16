@@ -477,6 +477,11 @@ void GameObject::SetStatic(bool isStatic)
 	App->spatial_tree->OnStaticChange(this, this->isStatic);
 }
 
+void GameObject::Draw()
+{
+    ComponentMesh* mesh = GetMesh(); if (mesh) mesh->Draw(); 
+}
+
 void GameObject::ShowTransformInspector()
 {
 	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);

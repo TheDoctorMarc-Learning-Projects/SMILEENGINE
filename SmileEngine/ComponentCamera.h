@@ -83,6 +83,7 @@ public:
 	void LookAt(const float3& Spot); // oh yes indeed
 	void Move(const vec3& Movement);
 	void FitCameraToObject(GameObject* obj);
+	void PruneInsideFrustrum(std::vector<GameObject*>& candidates); 
 
 	void OnTransform();
 	void OnInspector(float fovY[1] = {0}, float pNearDist[1] = { 0 }, float pFarDist[1] = { 0 });
