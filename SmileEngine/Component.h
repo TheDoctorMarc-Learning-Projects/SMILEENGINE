@@ -14,6 +14,7 @@ public:
 	~Component() {}
 
 public:
+	virtual void Start() { active = true;  };
 	virtual void Enable() { active = true; };
 	virtual void Update() {};
 	virtual void Disable() { active = false; };

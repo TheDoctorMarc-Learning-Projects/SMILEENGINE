@@ -78,6 +78,7 @@ private:
 	void GenerateModelMeshFromParShapes(par_shapes_mesh*);
 	void GenerateBuffers(); 
 	void ComputeSpatialData(); 
+	void ReLocateMeshVertices(); 
 
 	// Debug
 	void DebugDraw(); 

@@ -2,6 +2,7 @@
 
 #include "MathGeoLib/include/Math/float3.h"
 #include "MathGeoLib/include/Math/float2.h"
+#include "MathGeoLib/include/Geometry/Frustum.h"
 
 #define MIN_DIST_TO_MESH 5.F
 #define MAX_FRAME_SPEED 10.F
@@ -97,11 +98,13 @@ private:
 	void FocusObjectLogic();
 	void ComputeSpatialData(); 
 
-public:
-	vec3 X, Y, Z, Reference;
-
 private:
 	mat4x4 ViewMatrix, ViewMatrixInverse;
-	Frustrum* frustrum = nullptr; 
+	Frustrum* frustrum = nullptr;
 	renderingData _renderingData;
+
+public:
+	vec3 X, Y, Z, Reference;
+	math::Frustum calcFrustrum;
+
 };

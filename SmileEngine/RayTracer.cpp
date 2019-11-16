@@ -9,15 +9,9 @@
 namespace internal
 {
 	// Calculus
-	float3 GetMouse3DPos(int mouse_x, int mouse_y);
-	math::Ray GetRayBetweenCameraAndMouse3DPos(float3 mousePos3D);
-	ComponentMesh* GetIntersectedMesh(float3 mousePos3D, math::Ray ray);
-	bool IsMouseInsideEntityRadius(GameObject* obj, float3 mousePos3D);
-
-	// Skipper conditions: returns true to skip the object if it has no mesh or if it is too far from mouse
-	bool SkipperConditions(GameObject* obj, float3 mouse3Dpos);
-
-	// General skipper conditions: returns true if mouse is in the dark horizon or if alt+click is active (orbiting object)
+	float2 NormalizeMousePos(int x, int y); 
+	math::LineSegment TraceRay(float2 normalizedMousePos);
+	ComponentMesh* GetClosestIntersection(math::LineSegment ray);
 	bool GeneralSkipperConditions(); 
 
 	// Return and assignment
@@ -40,16 +34,13 @@ std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, 
 	}
 
 	// 1) Calculate the mouse pos in the world
-	const float3 mousePos = internal::GetMouse3DPos(mouse_x, mouse_y);
-	
-	if (mousePos.IsFinite() == false)
-		return internal::EmptyReturn(GetMeshNotGameObject, assignClicked);
+	const float2 normalizedMousePos = internal::NormalizeMousePos(mouse_x, mouse_y);
 	
 	// 2) Calculate a ray from the camera to the mouse pos in the world
-	math::Ray ray = internal::GetRayBetweenCameraAndMouse3DPos(mousePos);
+	math::LineSegment ray = internal::TraceRay(normalizedMousePos);
 
 	// 3) Loop meshes in the screen and find an intersection with the ray
-	ComponentMesh* found = internal::GetIntersectedMesh(mousePos, ray);
+	ComponentMesh* found = internal::GetClosestIntersection(ray);
 
 	// 4) Finally, return a mesh or a GameObject depending on the user's needs.
 	// Only assign a selected mesh or Gameobject if requested. 
@@ -62,73 +53,58 @@ std::variant<ComponentMesh*, GameObject*> rayTracer::MouseOverMesh(int mouse_x, 
 
 
 // ----------------------------------------------------------------- 
-float3 internal::GetMouse3DPos(int mouse_x, int mouse_y)
+float2 internal::NormalizeMousePos(int mouse_x, int mouse_y)
 {
 	// 1) Translate from window coordinates to inverted Y in OpenGL 
-	float mouse_X_GL, mouse_Y_GL;
-	GLfloat mouse_Z_GL;
-	mouse_X_GL = mouse_x;
-	mouse_Y_GL = std::get<int>(App->window->GetWindowParameter("Height")) - mouse_y;
+	float windowW = (float)std::get<int>(App->window->GetWindowParameter("Width")); 
+	float windowH = (float)std::get<int>(App->window->GetWindowParameter("Height"));
+	float2 mousePos(mouse_x, windowH - mouse_y);
 
-	// 2) Get matrixes and also a Z component to the mouse click
-	GLint viewport[4];
-	GLdouble projMatrix[16];
-	GLdouble mvMatrix[16];
+	// 2) Translate to normalized coords
+	float2 normMousPos = mousePos; 
+	normMousPos.x = (2.F * mousePos.x) / windowW - 1.F;
+	normMousPos.y = 1.F - (2.F * mousePos.y) / windowH;
 
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	glGetDoublev(GL_MODELVIEW_MATRIX, mvMatrix);
-	glGetDoublev(GL_PROJECTION_MATRIX, projMatrix);
-
-	glReadPixels(mouse_X_GL, mouse_Y_GL, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse_Z_GL);
-
-	// To Optimize, if the mouse Z depth is 1.f (the max, in the horizon), skip calculus and return infinite 
-	if ((float)mouse_Z_GL == 1.f)
-		return float3::inf; 
-
-	// 3) Unproject to find the final point coordinates in the world
-	GLdouble fPos[3];
-	gluUnProject(mouse_X_GL, mouse_Y_GL, mouse_Z_GL, mvMatrix, projMatrix, viewport, &fPos[0], &fPos[1], &fPos[2]);
-	math::float3 fPosMath(fPos[0], fPos[1], fPos[2]);
-
-	return fPosMath; 
+	return normMousPos;
 }
 
 
 // ----------------------------------------------------------------- 
-math::Ray internal::GetRayBetweenCameraAndMouse3DPos(float3 mouse3Dpos)
+math::LineSegment internal::TraceRay(float2 normMousePos)
 {
-	math::float3 camPos = App->scene_intro->debugCamera->GetParent()->GetTransform()->GetPosition(); 
-	// trace a ray (line) from the camera with the direction to the point  
-	math::float3 dir = (mouse3Dpos - camPos).Normalized();
-	return math::Ray(camPos, dir);
+	return App->renderer3D->targetCamera->calcFrustrum.UnProjectLineSegment(normMousePos.x, normMousePos.y); 
 }
 
 
-// ----------------------------------------------------------------- 
-ComponentMesh* internal::GetIntersectedMesh(float3 mouse3Dpos, math::Ray ray)
+// -----------------------------------------------------------------  
+ComponentMesh* internal::GetClosestIntersection(math::LineSegment ray)
 {
-	for (auto& gameObject : App->scene_intro->rootObj->GetChildrenRecursive())
+	// TODO: collect objects inside octree nodes and ultimately inside frustrum 
+	auto objects = App->scene_intro->rootObj->GetChildrenRecursive(); 
+
+	for (auto& gameObject : objects)
 	{
-		// Check conditions to optimize and discard the object
-		if (internal::SkipperConditions(gameObject, mouse3Dpos))
+		// Get the mesh and find an intersection
+		ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH)); 
+		ModelMeshData* mesh_info = (mesh) ? mesh->GetMeshData() : nullptr;
+		if (mesh_info == nullptr)
 			continue; 
 
-		// Do not skip: we assume it has a mesh (already checked)
-		ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH)); 
-		ModelMeshData* mesh_info = mesh->GetMeshData();
 		for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 		{
 			math::float3 v1(mesh_info->vertex[i], mesh_info->vertex[i + 1], mesh_info->vertex[i + 2]);
 			math::float3 v2(mesh_info->vertex[i + 3], mesh_info->vertex[i + 4], mesh_info->vertex[i + 5]);
 			math::float3 v3(mesh_info->vertex[i + 6], mesh_info->vertex[i + 7], mesh_info->vertex[i + 8]);
 
-			// form a triangle
+			// form a triangle and translate to global coords to test with ray!
 			math::Triangle tri = math::Triangle(v1, v2, v3);
 
 			// Finally check if the ray interesects with the face (triangle) 
-			if (ray.Intersects(tri))
+			if (ray.Intersects(tri, nullptr, nullptr))
 			{
-				return dynamic_cast<ComponentMesh*>(mesh);
+				// TODO: push check the closest, keep searching 
+				// return dynamic_cast<ComponentMesh*>(mesh);
+				int allahu_akbar = 0; 
 			}
 
 		}
@@ -137,19 +113,6 @@ ComponentMesh* internal::GetIntersectedMesh(float3 mouse3Dpos, math::Ray ray)
 	return nullptr; 
 }
 
-
-// ----------------------------------------------------------------- 
-bool internal::IsMouseInsideEntityRadius(GameObject* obj, float3 mousePos3D)
-{
-	auto transf = dynamic_cast<ComponentTransform*>(obj->GetComponent(TRANSFORM));
-	double distMouseToObj = abs((mousePos3D - transf->GetPosition()).Length());
-	double radius = obj->GetBoundingSphereRadius();
-
-	if (distMouseToObj <= radius)
-		return true;
-	else
-		return false;
-}
 
 bool internal::GeneralSkipperConditions()
 {
@@ -162,22 +125,6 @@ bool internal::GeneralSkipperConditions()
 	// Skip if mouse in the gui
 	if (App->gui->IsMouseOverTheGui())
 		ret = true; 
-
-	return ret; 
-}
-// ----------------------------------------------------------------- 
-bool internal::SkipperConditions(GameObject* obj, float3 mouse3Dpos)
-{
-	bool ret = false; 
-
-	// 1.A) SKIP the object directly if the mouse point distance to the object's center is greater than the object radius.
-	if (internal::IsMouseInsideEntityRadius(obj, mouse3Dpos) == false)
-		ret = true;
-
-	// 1.B) SKIP if the object has no mesh
-	auto mesh = dynamic_cast<ComponentMesh*>(obj->GetComponent(MESH));
-	if (mesh == nullptr)
-		ret = true;
 
 	return ret; 
 }

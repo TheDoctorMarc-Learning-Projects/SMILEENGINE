@@ -31,10 +31,7 @@ ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh
 
 void ComponentMesh::Enable() // Called in "AddComponent()" from GameObject 
 {
-	Component::Enable(); 
 
-	if (parent)
-		parent->SetupWithMesh(); 
 }
 
 ComponentMesh::~ComponentMesh()
@@ -49,7 +46,7 @@ void ComponentMesh::Draw()
 	{
 		// Transformation  
 		glPushMatrix(); 
-		glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr()); 
+		glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr()); 
 
 		// Cient states
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -334,4 +331,22 @@ void ComponentMesh::GenerateBuffers()
 void ComponentMesh::OnTransform(bool data[3])
 {
 	
+}
+
+void ComponentMesh::ReLocateMeshVertices() // when you set the object's transform at the mesh center pos, recompute vertices
+{		 
+	for (int i = 0; i < model_mesh->num_vertex; i += 3)
+	{
+		// Take the go's parent global pos and add the vertex local pos
+		float3 oldVertexPos = GetParent()->GetParent()->GetTransform()->GetGlobalPosition() + 
+			float3(model_mesh->vertex[i], model_mesh->vertex[i + 1], model_mesh->vertex[i + 2]);
+		
+		// the new vertex pos is the difference between the old global pos and the new go transform pos
+		float3 newTransfPos = GetParent()->GetTransform()->GetGlobalPosition(); 
+		float3 newVertexPos = oldVertexPos - newTransfPos; 
+
+		model_mesh->vertex[i] = newVertexPos.x; 
+		model_mesh->vertex[i + 1] = newVertexPos.y;
+		model_mesh->vertex[i + 2] = newVertexPos.z;
+	}
 }

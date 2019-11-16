@@ -742,13 +742,13 @@ void panelData::InspectorSpace::Execute(bool& ret)
 				selected->SetStatic(isStatic); 
 
 			// Guizmo: it gets the transform values, and also updates the transform if changed
-			selected->DoGuizmo(); 
-			 
+			selected->ShowTransformInspector(); 
+
 			// Loop the object's components
 			std::array<Component*, MAX_COMPONENT_TYPES> components = selected->GetComponents(); 
 
 			for(auto& c : components)
-				if (c)
+				if (c && c->GetComponentType() != TRANSFORM)
 					panelData::InspectorSpace::ComponentData(c);
 
 
@@ -810,36 +810,6 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 	{
 		switch (c->GetComponentType())
 		{
-
-		case COMPONENT_TYPE::TRANSFORM:
-		{
-			ComponentTransform* transf = dynamic_cast<ComponentTransform*>(c);
-			math::float3 pos = transf->GetPosition(); 
-			math::float3 rot = transf->GetRotation().ToEulerXYZ();
-			math::float3 degRot = RadToDeg(rot); 
-			math::float3 sc = transf->GetScale();
-			float p[3] = { pos.x, pos.y, pos.z };
-			float r[3] = { degRot.x, degRot.y, degRot.z};
-			float s[3] = { sc.x, sc.y, sc.z };
-			ImGui::InputFloat3("Position", p); 
-			ImGui::InputFloat3("Rotation", r);
-			ImGui::InputFloat3("Scale", s);
-
-			// (info)
-			ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
-
-			if (keyState != KEY_DOWN)
-				break; 
-
-			math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
-			float radR[3] = { radRot.x, radRot.y, radRot.z };
-
-			float values[3][3] = { 	{p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
-			transf->UpdateTransform(values);
-
-			break;
-		}
-
 		case COMPONENT_TYPE::MATERIAL:
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);

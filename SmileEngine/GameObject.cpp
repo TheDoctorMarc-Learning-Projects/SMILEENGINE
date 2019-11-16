@@ -83,17 +83,28 @@ void GameObject::FillComponentBuffers() // needed in order to have either a Comp
 
 void GameObject::Start()
 {
-	Enable(); 
+	active = true;
+
+	// 0) Logic 
+	if (GetMesh() == nullptr)
+		SetupBounding();
+	else
+		SetupWithMesh();
+
+	// 1) Components
+	for (auto& comp : components)
+		if (comp)
+				comp->Start();
+	
+
+	// 2) Children (gameObjects)
+	for (auto& obj : childObjects)
+			obj->Start();
 }
 
 void GameObject::Enable()
 {
 	active = true;
-
-	// 0) Logic 
-	if(GetMesh() == nullptr) // other-wise setup by mesh
-		SetupBounding();
-
 
 	// 1) Components
 	for (auto& comp : components)
@@ -319,7 +330,7 @@ ComponentCamera* GameObject::GetCamera() const
 
 void GameObject::SetupWithMesh()
 {
-	PositionTransformAtMeshCenter();
+	//PositionTransformAtMeshCenter();
 	SetupBounding(); 
 }
 
@@ -375,23 +386,20 @@ void GameObject::PositionTransformAtMeshCenter()
 {
 	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]);
 	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
-
 	// Setup transform local position to mesh center: do not update bounding box, previously calculated!!
 	if (mesh != nullptr && transform != nullptr)
-		transform->ChangePosition(GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex), true, false);
-	else
-		LOG("GameObject could not setup the transform: missing mesh")
-}
+	{
+		float3 meshGlobalPos = parent->GetTransform()->GetGlobalPosition() + GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex); 
+		transform->ChangePosition(meshGlobalPos, true, false);
+		// the mesh vertices need to be updated now!! (to be relative to the new transform)
+		mesh->ReLocateMeshVertices();
+	}
 
-// the object either: 
-// A) The object has no child objects, so the obb is built upon the mesh vertex buffer.
-// The enclosing AABB is directly computed
-// B) The object has child objects. 
-// Both the AABB and the OBB must be computed as the sum of all the objects' boxes  
+}
 
 void GameObject::SetupBounding()  
 {
-	float4x4 transfGlobalMat = parent->GetTransform()->GetGlobalMatrix();
+	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix();
 
 	// No child objects = case A) 
 	if (childObjects.size() == 0)
@@ -469,42 +477,40 @@ void GameObject::SetStatic(bool isStatic)
 	App->spatial_tree->OnStaticChange(this, this->isStatic);
 }
 
-void GameObject::DoGuizmo()
+void GameObject::ShowTransformInspector()
 {
+	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
+
+auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+{
+	return std::string(
+		std::string((append) ? "(" : "") + std::to_string(xyz.x)
+		+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+		+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+		+ std::string((append) ? ")" : "");
+};
+
 	ComponentTransform* transf = GetTransform(); 
-	float4x4 mat = transf->GetGlobalMatrix(); 
+	math::float3 pos = transf->GetPosition();
+	math::float3 rot = transf->GetRotation().ToEulerXYZ();
+	math::float3 degRot = RadToDeg(rot);
+	math::float3 sc = transf->GetScale();
+	float p[3] = { pos.x, pos.y, pos.z };
+	float r[3] = { degRot.x, degRot.y, degRot.z };
+	float s[3] = { sc.x, sc.y, sc.z };
+	ImGui::InputFloat3("Position", p);
+	ImGui::InputFloat3("Rotation", r);
+	ImGui::InputFloat3("Scale", s);
 
-	// 0) Init da sassy guizmo!
-	static ImGuizmo::OPERATION gizmoOperation(ImGuizmo::TRANSLATE);
-	static ImGuizmo::MODE gizmoMode(ImGuizmo::LOCAL);
+	// (info)
+	ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
 
-	// 1) Fill the guizmo matrix with the object's matrix -> pass the rad rotation to degree rotation
-	float p[3], r[3], s[3];
-	float3 rotation = mat.RotatePart().ToEulerXYZ();
-	float3 degRotation = RadToDeg(rotation); 
-	mat.SetRotatePart(math::Quat::FromEulerXYZ(degRotation.x, degRotation.y, degRotation.z)); 
-	ImGuizmo::DecomposeMatrixToComponents(mat.ptr(), p, r, s);
+	if (keyState != KEY_DOWN)
+		return;									
 
-	// 2) Change the values and gizmo modes on input
-	/*ImGui::InputFloat3("Position", p);
-	if (ImGui::InputFloat3("Rotation", r))
-		gizmoOperation = ImGuizmo::OPERATION::ROTATE;
-	if (ImGui::InputFloat3("Scale", s))
-		gizmoOperation = ImGuizmo::OPERATION::SCALE;*/
-
-	// 3) Recompose the guizmo matrix with the inputted values
-	ImGuizmo::RecomposeMatrixFromComponents(p, r, s, mat.ptr());
-
-	// 4) Update the gizmo with the new values
-	ImGuiIO& io = ImGui::GetIO();
-	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-	ImGuizmo::Manipulate(App->renderer3D->targetCamera->GetViewMatrix(), App->renderer3D->GetProjectionMatrix(),
-		gizmoOperation, gizmoMode, mat.ptr());
-
-	// 5) Update transform 
-	float3 newRadRotation = math::DegToRad(math::float3(r[0], r[1], r[2]));
-	float radR[3] = { newRadRotation.x, newRadRotation.y, newRadRotation.z };
+	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
+	float radR[3] = { radRot.x, radRot.y, radRot.z };
 
 	float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
-	GetTransform()->UpdateTransform(values);
+	transf->UpdateTransform(values);
 }

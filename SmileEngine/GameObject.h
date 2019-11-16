@@ -76,7 +76,7 @@ public:
 	virtual void OnTransform(bool updateBounding = true);
 	bool IsActive() const { return active; };
 	void DrawAxis(); // todo: delete this
-	void DoGuizmo(); 
+	void ShowTransformInspector(); 
 
 		// Bounding and mesh stuff
 	void SetupWithMesh();  

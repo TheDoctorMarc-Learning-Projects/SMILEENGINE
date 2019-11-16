@@ -66,7 +66,7 @@ void ComponentCamera::Update()
 	// If the current looking camera is not myself, fuck the logic!
 	if (App->renderer3D->targetCamera != this)
 	{
-	//	frustrum->DebugPlanes();
+        frustrum->DebugPlanes();
 		return;
 	}
 	
@@ -369,10 +369,10 @@ Frustrum::Frustrum(ComponentCamera* camera)
 void Frustrum::CalculatePlanes()
 {
 	// Step 1: retrieve render data and the camera looking direction
-	renderingData renderData = myCamera->GetRenderingData(); 
+	renderingData renderData = myCamera->GetRenderingData();
 	float3 camLookVec = float3(myCamera->Z.x, myCamera->Z.y, -myCamera->Z.z).Normalized(),
 		Right = (Cross(float3(0.0f, 1.0f, 0.0f), camLookVec)).Normalized(),
-		Up = Cross(camLookVec, -Right); 
+		Up = Cross(camLookVec, -Right);
 	float3 camPos = myCamera->GetParent()->GetTransform()->GetGlobalPosition();
 
 	// Step 2: Get the middle point (center) of the near plane and the far plane
@@ -380,14 +380,14 @@ void Frustrum::CalculatePlanes()
 	float3 middleFarPlanePoint = camPos + camLookVec * renderData.pFarDist;
 
 	// Step 3: construct the 4 vertices around the center with quick sassy math
-	
+
 	// Near Plane
-	plane nPlane; 
+	plane nPlane;
 	nPlane.vertices[0] = float3(middleNearPlanePoint + (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
 	nPlane.vertices[1] = float3(middleNearPlanePoint + (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
 	nPlane.vertices[2] = float3(middleNearPlanePoint - (Right * renderData.pNearSize.x / 2) + (Up * renderData.pNearSize.y / 2));
 	nPlane.vertices[3] = float3(middleNearPlanePoint - (Right * renderData.pNearSize.x / 2) - (Up * renderData.pNearSize.y / 2));
-	planes[0] = nPlane; 
+	planes[0] = nPlane;
 
 	// Far Plane
 	plane fPlane;
@@ -401,8 +401,8 @@ void Frustrum::CalculatePlanes()
 	// simplest approach is to look at the 0,1,2,3 order of the near and far planes' vertices and pick them
 
 	// Right Plane 
-	plane rPlane; 
-	rPlane.vertices[0] = nPlane.vertices[0]; 
+	plane rPlane;
+	rPlane.vertices[0] = nPlane.vertices[0];
 	rPlane.vertices[1] = fPlane.vertices[0];
 	rPlane.vertices[2] = fPlane.vertices[1];
 	rPlane.vertices[3] = nPlane.vertices[1];
@@ -433,34 +433,46 @@ void Frustrum::CalculatePlanes()
 	planes[5] = bPlane;
 
 	// Step 5: Calculate the plane's normals and center 
-	int i = 0; 
+	int i = 0;
 	for (auto& p : planes)
 	{
 		// normal
 		float3 v1 = p.vertices[1] - p.vertices[0];
-		float3 v2 = p.vertices[2] - p.vertices[1];  
-		
+		float3 v2 = p.vertices[2] - p.vertices[1];
+
 		if (i % 2 == 0)
 			p.normal = Cross(v2, v1);
 		else
 			p.normal = Cross(v1, v2);
 
-		p.normal /= p.normal.Length(); 
+		p.normal /= p.normal.Length();
 
 		// center
-		float3 flankDist = p.vertices[3] - p.vertices[0]; 
-		float3 flankMid = p.vertices[0] + flankDist / 2; 
+		float3 flankDist = p.vertices[3] - p.vertices[0];
+		float3 flankMid = p.vertices[0] + flankDist / 2;
 		float3 flank2Dist = p.vertices[2] - p.vertices[1];
 		float3 flank2Mid = p.vertices[1] + flank2Dist / 2;
-		float3 betweenFlanksDist = flank2Mid - flankMid; 
-		p.center = flankMid + betweenFlanksDist / 2; 
+		float3 betweenFlanksDist = flank2Mid - flankMid;
+		p.center = flankMid + betweenFlanksDist / 2;
 
-		++i; 
-	}; 
+		++i;
+	};
 
-	
+
+	// For calculus (rays, intersections)
+	renderingData camData = myCamera->GetRenderingData();
+	myCamera->calcFrustrum = math::Frustum();
+	myCamera->calcFrustrum.type = math::FrustumType::PerspectiveFrustum;
+	myCamera->calcFrustrum.farPlaneDistance = camData.pFarDist;
+	myCamera->calcFrustrum.nearPlaneDistance = camData.pNearDist;
+	myCamera->calcFrustrum.verticalFov = camData.fovYangle * DEGTORAD;
+	myCamera->calcFrustrum.horizontalFov = 2 * atan(tan(myCamera->calcFrustrum.verticalFov / 2) * camData.ratio); 
+	myCamera->calcFrustrum.pos = myCamera->GetParent()->GetTransform()->GetGlobalPosition();
+	myCamera->calcFrustrum.front = camLookVec; 
+	myCamera->calcFrustrum.up = Up; 
+
+
 }
-
 void Frustrum::DebugPlanes()
 {
 	glLineWidth(3);
@@ -515,6 +527,18 @@ void Frustrum::DebugPlanes()
 	glBegin(GL_POINTS);
 	for (auto& p : planes)
 		glVertex3f((GLfloat)p.center.x, (GLfloat)p.center.y, (GLfloat)p.center.z);
+	glEnd();
+	glPointSize(1);
+	glColor3f(1.f, 1.f, 1.f);
+
+	// extreme points (math frustrum)
+	glColor3f(1.0f, 0.2f, 0.04f);
+	glPointSize(10);
+	glBegin(GL_POINTS);
+	float3 points[8]; 
+	myCamera->calcFrustrum.GetCornerPoints(points); 
+	for (auto& p : points)
+		glVertex3f((GLfloat)p.x, (GLfloat)p.y, (GLfloat)p.z);
 	glEnd();
 	glPointSize(1);
 	glColor3f(1.f, 1.f, 1.f);

@@ -64,10 +64,6 @@ void SmileSpatialTree::GetObjectsByNodesInFrustrum(std::vector<GameObject*>& obj
 void OctreeNode::GetObjectsByNodeInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum)
 {
 
-	if (camFrustrum.IsBoxInsideFrustrumView(this->AABB))
-	{
-
-	}
  
 }
 

@@ -41,6 +41,7 @@ bool SmileScene::Start()
 		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F));
 		GameObject* daHouse = App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
 		daHouse->GetTransform()->ChangePosition(pos);
+
 	}
 		
 	// Debug Camera

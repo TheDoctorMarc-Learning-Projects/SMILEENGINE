@@ -15,7 +15,8 @@
 #include "SmileWindow.h"
 #include "SmileFBX.h"
 
-#include "MathGeoLib/include/MathGeoLib.h"
+#include "MathGeoLib/include/Math/float2.h"
+#include "MathGeoLib/include/Geometry/Ray.h"
 
 #ifdef NDEBUG //no debug
 #pragma comment (lib, "MathGeoLib/libx86/ReleaseLib/MathGeoLib.lib") 
