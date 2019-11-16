@@ -114,9 +114,6 @@
     <ClInclude Include="Light.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="RayTracer.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="SmileGui.h">
       <Filter>Source\Modules\Basic</Filter>
     </ClInclude>
@@ -216,9 +213,6 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>Source\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="RayTracer.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>
     <ClCompile Include="SmileGui.cpp">

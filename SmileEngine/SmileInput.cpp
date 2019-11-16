@@ -22,7 +22,6 @@
 #include <sstream>
 #include <filesystem>
 
-#include "RayTracer.h"
 
 #include "ComponentMesh.h"
 #include "SmileGameObjectManager.h"
@@ -176,7 +175,7 @@ void SmileInput::DropFileExtensionDecider(const char* path)
 		App->fbx->ReadFBXData(path);
 	else if (extension == "PNG" || extension == "png" || extension == "jpg" || extension == "dds" || extension == "DDS")
 	{
-		ComponentMesh* hoveredMesh = std::get<ComponentMesh*>(rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, true));
+		ComponentMesh* hoveredMesh = std::get<ComponentMesh*>(App->scene_intro->MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, true));
 		if (hoveredMesh != nullptr)
 			App->fbx->AssignTextureToObj(path, hoveredMesh->GetParent());
 	}

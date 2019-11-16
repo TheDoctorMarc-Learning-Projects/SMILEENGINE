@@ -6,6 +6,10 @@
 #include "ComponentMesh.h"
 #include "ComponentCamera.h"
 #include <vector>
+#include <variant>
+
+#include "MathGeoLib/include/Math/float2.h"
+#include "MathGeoLib/include/Geometry/LineSegment.h"
 
 #define MAXLINES 30
 
@@ -19,8 +23,22 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
+	std::variant<ComponentMesh*, GameObject*> MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject);
 private: 
 	void DrawGrid(); 
+
+
+	// Ray stuff (very splitted xd)
+	math::LineSegment lastRay;
+	bool SkipRayConditions() const; 
+	math::LineSegment TraceRay(float2 normalizedMousePos); 
+	float2 GetNormalizedMousePos(int, int); 
+	ComponentMesh* FindRayIntersection(math::LineSegment ray);
+	void DebugLastRay(); 
+	std::variant<ComponentMesh*, GameObject*> EmptyRayReturn(bool GetMeshNotGameObject, bool assignClicked);
+	std::variant<ComponentMesh*, GameObject*> ClickRayReturn(bool GetMeshNotGameObject, ComponentMesh* found);
+	std::variant<ComponentMesh*, GameObject*> HoverRayReturn(bool GetMeshNotGameObject, ComponentMesh* found);
+ 
 
 public:
 	GameObject* rootObj = nullptr;

@@ -389,10 +389,10 @@ void GameObject::PositionTransformAtMeshCenter()
 	// Setup transform local position to mesh center: do not update bounding box, previously calculated!!
 	if (mesh != nullptr && transform != nullptr)
 	{
-		float3 meshGlobalPos = parent->GetTransform()->GetGlobalPosition() + GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex); 
+		float3 meshGlobalPos = /*parent->GetTransform()->GetGlobalPosition() + */GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex); 
 		transform->ChangePosition(meshGlobalPos, true, false);
 		// the mesh vertices need to be updated now!! (to be relative to the new transform)
-		mesh->ReLocateMeshVertices();
+		//mesh->ReLocateMeshVertices();
 	}
 
 }
@@ -498,15 +498,15 @@ auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
 	float p[3] = { pos.x, pos.y, pos.z };
 	float r[3] = { degRot.x, degRot.y, degRot.z };
 	float s[3] = { sc.x, sc.y, sc.z };
-	ImGui::InputFloat3("Position", p);
-	ImGui::InputFloat3("Rotation", r);
-	ImGui::InputFloat3("Scale", s);
+	ImGui::SliderFloat3("Position", p, -500, 500);
+	ImGui::SliderFloat3("Rotation", r, -359.999, 359.999);
+	ImGui::SliderFloat3("Scale", s, 0, 500);
 
 	// (info)
 	ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
 
-	if (keyState != KEY_DOWN)
-		return;									
+	/*if (keyState != KEY_DOWN)
+		return;	*/							
 
 	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
 	float radR[3] = { radRot.x, radRot.y, radRot.z };

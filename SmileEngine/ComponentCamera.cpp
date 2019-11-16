@@ -2,12 +2,14 @@
 #include "SmileApp.h" 
 #include "ComponentCamera.h"  
 #include "SafetyHandler.h"
-#include "RayTracer.h"
 
 #include "GameObject.h"
 #include "Component.h"
 #include "ComponentTransform.h"
 #include "ComponentMesh.h"
+#include "SmileScene.h"
+
+#include "Glew/include/GL/glew.h"
 
 static void CommonSetup(ComponentCamera* callback)
 {
@@ -75,7 +77,7 @@ void ComponentCamera::Update()
 
 	// Check if the user clicks to select object 
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
-		rayTracer::MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), true, true);
+		App->scene_intro->MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), true, true);
 
 	if (App->gui->IsMouseOverTheGui() == false)
 	{
@@ -112,8 +114,12 @@ void ComponentCamera::Update()
 		if (zScroll != 0)
 			newPos += Z * GetScrollSpeed(dt, zScroll);
 
-		parent->GetTransform()->AccumulatePosition(newPos);
-		Reference += newPos;
+		if ((abs(newPos.x) > 0) || (abs(newPos.y) > 0) || (abs(newPos.z) > 0))
+		{
+			parent->GetTransform()->AccumulatePosition(newPos);
+			Reference += newPos;
+		}
+
 
 		// Rotation ----------------
 		if (App->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT && App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT)
@@ -152,6 +158,7 @@ void ComponentCamera::Update()
 	}
 
 	// Recalculate matrix -------------
+	frustrum->CalculatePlanes();
 	CalculateViewMatrix();
 
 }
@@ -371,8 +378,8 @@ void Frustrum::CalculatePlanes()
 	// Step 1: retrieve render data and the camera looking direction
 	renderingData renderData = myCamera->GetRenderingData();
 	float3 camLookVec = float3(myCamera->Z.x, myCamera->Z.y, -myCamera->Z.z).Normalized(),
-		Right = (Cross(float3(0.0f, 1.0f, 0.0f), camLookVec)).Normalized(),
-		Up = Cross(camLookVec, -Right);
+		Right = (Cross(camLookVec, float3(0.0f, 1.0f, 0.0f))).Normalized(),
+		Up = Cross(Right, camLookVec);
 	float3 camPos = myCamera->GetParent()->GetTransform()->GetGlobalPosition();
 
 	// Step 2: Get the middle point (center) of the near plane and the far plane
