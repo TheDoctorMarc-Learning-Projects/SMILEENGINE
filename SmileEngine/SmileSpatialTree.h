@@ -19,13 +19,31 @@ public:
 	~OctreeNode() {};
 
 public: 
-	void GetObjectsByNodeInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum);
 	void DeleteObject(GameObject*);
 	void InsertObject(GameObject*);
-	OctreeNode* GetChildrenPointer() const { return childNodes[0]; };
 	void Debug();
 
+	// Checks a primitive intersects with a quadtree node, then checks the primitive intersects with the objects inside the node
+	template<typename PRIMITIVE>
+	void CollectCandidates(std::vector<GameObject*>& gameObjects, const PRIMITIVE& primitive)
+	{
+		if (primitive.Intersects(AABB))
+		{
+			for (auto& obj : insideObjs)
+				if(primitive.Intersects(obj->GetBoundingData().OBB))
+					gameObjects.push_back(obj);
+				
+			if (IsLeaf() == false)
+			{
+				for (uint i = 0; i < 8; ++i)
+					childNodes[i]->CollectCandidates(gameObjects, primitive);
+			}
+			
+		}
+	}
+
 private: 
+	inline bool IsLeaf() { return childNodes[0] == nullptr; };
 	void Split();
 	bool SendObjectToChildren(GameObject* obj); 
 	void RearrangeObjectsInChildren();
@@ -36,9 +54,6 @@ private:
 	std::vector<GameObject*> insideObjs; 
 	OctreeNode* childNodes[8] = { nullptr };
 	OctreeNode* parentNode; 
-
-	// just debugging
-	bool logged = false; 
 
 	friend class SmileSpatialTree; 
 };
@@ -54,10 +69,18 @@ public:
 	update_status Update(float dt) { root->Debug(); return update_status::UPDATE_CONTINUE; }; // to debug only
 	bool CleanUp(); 
 	void OnStaticChange(GameObject* obj, bool isStatic); 
-	void GetObjectsByNodesInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum);
+
+	// To speed up frustrum and ray tracing 
+	template<typename PRIMITIVE>
+	void CollectCandidates(std::vector<GameObject*>& gameObjects, const PRIMITIVE& primitive)
+	{
+		root->CollectCandidates(gameObjects, primitive); 
+	};
+
 private: 
 	void CreateRoot(math::AABB aabb); // for root 
 	void ComputeObjectTree(GameObject* obj);
+
 private: 
 	OctreeNode* root = nullptr; 
  

@@ -53,20 +53,8 @@ void SmileSpatialTree::OnStaticChange(GameObject* obj, bool isStatic)
 		root->DeleteObject(obj); 
 }
 
- 
-// 1) Is node inside frustrum? 2) Is object inside node?
-void SmileSpatialTree::GetObjectsByNodesInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum)
-{
-	root->GetObjectsByNodeInFrustrum(objects, camFrustrum); 
-}
 
 // ----------------------------------------------------------------- [OctreeNode]
-void OctreeNode::GetObjectsByNodeInFrustrum(std::vector<GameObject*>& objects, Frustrum camFrustrum)
-{
-
- 
-}
-
 OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 {
 	this->parentNode = parentNode; 
@@ -88,12 +76,10 @@ OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 	this->AABB = math::AABB(min, max); 
 }
 
-inline static bool IsLeaf(OctreeNode* node) { return node->GetChildrenPointer() == nullptr; };
-
 void OctreeNode::InsertObject(GameObject* obj)
 {
 	// A) I have child nodes, then pass the object directly to them (conditions) 
-	if (IsLeaf(this) == false)
+	if (IsLeaf() == false)
 	{
 		if (SendObjectToChildren(obj) == false) 
 			insideObjs.push_back(obj); 
@@ -199,12 +185,12 @@ void OctreeNode::DeleteObject(GameObject* newObj)
 	}
 
 	// Otherwise, recurse
-	if (IsLeaf(this) == true)
+	if (IsLeaf() == true)
 		return;
 	for (auto& childNode : childNodes)
 		childNode->DeleteObject(newObj); 
 }
-
+ 
 void OctreeNode::Debug()
 {
 	
@@ -269,26 +255,10 @@ void OctreeNode::Debug()
 
 	glEnd();
 	glColor3f(1.0f, 1.0f, 1.0f);
-
-	if(logged == false)
-	{
-		if (this != App->spatial_tree->root)
-		{
-			LOG("Octree Node here! Depth: %i /// Objects: %i /// Parent Depth: %i /// Parent Objects: %i",
-				depth, insideObjs.size(), parentNode->depth, parentNode->insideObjs.size());
-
-		}
-		else
-		{
-			LOG("Octree Node here! Depth: %i /// Objects: %i /// No Parent, Root!!!",
-				depth, insideObjs.size());
-		}
-		logged = true; 
-	}
 	
 	
 	// children
-	if (IsLeaf(this) == false)
+	if (IsLeaf() == false)
 		for (auto& node : childNodes)
 			node->Debug(); 
 		
@@ -298,7 +268,7 @@ void OctreeNode::CleanUp()
 {
 	insideObjs.clear(); 
 
-	if (IsLeaf(this) == true)
+	if (IsLeaf() == true)
 		return; 
 
 	for (auto& childNode : childNodes)

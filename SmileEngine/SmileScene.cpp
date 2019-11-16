@@ -26,6 +26,7 @@
 
 #include "MathGeoLib/include/MathGeoLib.h"
 
+
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
@@ -247,8 +248,10 @@ ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 	float minDistance = (float)INT_MAX; 
 	
 
-	// TODO: collect objects inside octree nodes and ultimately inside frustrum 
-	auto objects = rootObj->GetChildrenRecursive();
+	// See the function definition in the spatial tree header
+	std::vector<GameObject*> objects; 
+	App->spatial_tree->CollectCandidates(objects, ray); 
+
 	for (auto& gameObject : objects)
 	{
 		// Get the mesh  
@@ -256,11 +259,6 @@ ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 		ModelMeshData* mesh_info = (mesh) ? mesh->GetMeshData() : nullptr;
 		if (mesh_info == nullptr)
 			continue;
-
-		// Find intersection frist with AABB
-		if (lastRay.Intersects(gameObject->GetBoundingData().AABB) == false)
-			continue;
-
 		// Find intersection then with mesh triangles
 		for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 		{
