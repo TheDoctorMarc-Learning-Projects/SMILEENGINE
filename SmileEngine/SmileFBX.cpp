@@ -567,14 +567,11 @@ bool SmileFBX::LoadModel(const char* path)
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
 	/*int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/ID")->GetInt();
-	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();
+	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();*/
+	//bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
 	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
-	bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
-	std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
-	
-	std::string material_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/Material path")->GetString();
+	//std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
 
-	std::string mesh_path;*/
 	
 	/*for (int i = 0; i < doc.Capacity(); i++)
 	{
@@ -593,9 +590,10 @@ bool SmileFBX::LoadModel(const char* path)
 	// Read Mesh paths: 
 	for (rapidjson::SizeType i = 0; i < doc["Meshes"].Size(); ++i)
 	{
-		std::string path = doc["Meshes"][i]["Mesh"].GetString(); 
-		if (path != "")
-			LOG("Found a mesh path in json model!");  
+		std::string path = doc["Meshes"][i]["Mesh"][0]["path"].GetString(); 
+		std::string materialPath = doc["Meshes"][i]["Mesh"][0]["materialPath"].GetString();
+
+		LOG("Loading a mesh and maybe a material!"); 
 	}
 
  
@@ -678,10 +676,30 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 
 	for (auto& child : children)
 	{
-		if (child->GetMesh()) {
+		if (child->GetMesh())
+		{
+			auto material = child->GetMaterial(); 
 			auto mesh = child->GetMesh();
+			
+
 			writer.Key("Mesh");
+			writer.StartArray();
+			writer.StartObject();
+
+			writer.Key("path");
 			writer.String(SaveMesh(mesh->GetMeshData(), obj).c_str());
+
+			writer.Key("materialPath");
+
+			if(material)
+				writer.String(SaveMaterial(material->GetTextureData()).c_str());
+			else
+				writer.String("empty");
+			
+
+			writer.EndObject();
+			writer.EndArray();
+			
 		}
 	}
 

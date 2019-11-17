@@ -2,8 +2,8 @@
   
   "GameObject": [
     {
-      "ID": 592811525,
-      "Parent ID": 731820993,
+      "ID": 1164725081,
+      "Parent ID": 1218632941,
       "Name": "bakerhouse",
       "Selected": false,
       "FBX path": "path"
@@ -11,8 +11,18 @@
   ],
   "Meshes": [
     {
-      "Mesh": "/Library/Meshes/meshsmilemesh",
-      "Mesh": "/Library/Meshes/meshsmilemesh"
+      "Mesh": [
+        {
+          "path": "/Library/Meshes/meshsmilemesh",
+          "materialPath": "/Library/Textures/texturedds"
+        }
+      ],
+      "Mesh": [
+        {
+          "path": "/Library/Meshes/meshsmilemesh",
+          "materialPath": "/Library/Textures/texturedds"
+        }
+      ]
     }
   ]
 }
