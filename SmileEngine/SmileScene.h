@@ -25,8 +25,9 @@ public:
 
 	std::variant<ComponentMesh*, GameObject*> MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject);
 private: 
+	void DrawObjects(); 
 	void DrawGrid(); 
-
+	void HandleGizmo(); 
 
 	// Ray stuff (very splitted xd)
 	math::LineSegment lastRay;

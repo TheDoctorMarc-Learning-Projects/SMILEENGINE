@@ -107,7 +107,8 @@ bool SmileRenderer3D::Init()
 bool SmileRenderer3D::Start()
 {
 	// Projection matrix 
-	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")));
+	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+		App->scene_intro->debugCamera);
 	
 	return true; 
 }
@@ -147,6 +148,10 @@ update_status SmileRenderer3D::PostUpdate(float dt)
 			targetCamera = debugCam;
 		else if (targetCamera == debugCam)
 			targetCamera = gameCam;
+
+		OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+			targetCamera);
+
 	}
 
 
@@ -164,27 +169,26 @@ bool SmileRenderer3D::CleanUp()
 }
 
 
-void SmileRenderer3D::OnResize(int width, int height)
-{
-	if (App->scene_intro->debugCamera) 
-	{
-		targetCamera = App->scene_intro->debugCamera;
-		renderingData data = targetCamera->GetRenderingData();
+void SmileRenderer3D::OnResize(int width, int height, ComponentCamera* targetCam)
+{ 	
+	targetCamera = targetCam; 
+	renderingData data = targetCamera->GetRenderingData();
 
-		data.ratio = (float)width / (float)height;
+	data.ratio = (float)width / (float)height;
+	glViewport(0, 4, width, height);
 
-		glViewport(0, 4, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	ProjectionMatrix = perspective(data.fovYangle, data.ratio,
+		data.pNearDist, data.pFarDist);
+	glLoadMatrixf(&ProjectionMatrix);
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		ProjectionMatrix = perspective(data.fovYangle, data.ratio,
-			data.pNearDist, data.pFarDist);
-		glLoadMatrixf(&ProjectionMatrix);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-		
+
+	targetCamera->GetFrustrum()->CalculatePlanes(); 
+
 }
 
 float* SmileRenderer3D::GetProjectionMatrix()
@@ -192,3 +196,10 @@ float* SmileRenderer3D::GetProjectionMatrix()
 	return &ProjectionMatrix; 
 }
 
+
+float* SmileRenderer3D::GetProjectionMatrixTransposed()
+{
+	mat4x4 ret = ProjectionMatrix;
+	ret.transpose();
+	return &ret;
+}

@@ -18,9 +18,9 @@ public:
 	update_status PostUpdate(float dt);
 	bool CleanUp();
 
-	void OnResize(int width, int height);
+	void OnResize(int width, int height, ComponentCamera* targetCam);
 	float* GetProjectionMatrix(); 
-
+	float* GetProjectionMatrixTransposed(); 
 public:
 	SDL_GLContext context;
 	Light lights[MAX_LIGHTS];

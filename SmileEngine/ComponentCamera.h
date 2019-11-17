@@ -90,6 +90,7 @@ public:
 
 	// Getters
 	float* GetViewMatrix();
+	float* GetViewMatrixTransposed();
 	float* GetViewMatrixInverse();
 	float GetScrollSpeed(float dt, float zScroll);
 	renderingData GetRenderingData() const { return _renderingData; };

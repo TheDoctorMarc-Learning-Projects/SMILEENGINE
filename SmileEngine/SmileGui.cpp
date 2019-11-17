@@ -7,6 +7,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "imgui/ImGuizmo.h"
 #include <gl/GL.h>
 
 #include <fstream>
@@ -116,6 +117,7 @@ update_status SmileGui::PreUpdate(float dt)
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(App->window->window);
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame(); 
 
 	// create the gui elements
 	if (GenerateGUI() == false)

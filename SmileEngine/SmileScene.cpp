@@ -26,6 +26,8 @@
 
 #include "MathGeoLib/include/MathGeoLib.h"
 
+#include "imgui/imgui.h"
+#include "imgui/ImGuizmo.h"
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -54,7 +56,7 @@ bool SmileScene::Start()
 	}
 		
 	// Debug Camera
-	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 15)), "Debug Camera", rootObj);
+	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 30)), "Debug Camera", rootObj);
 	debugCamera = DBG_NEW ComponentCamera(debugCameraObj, vec3(0, 0, -1)); 
 	debugCameraObj->AddComponent(debugCamera);
 
@@ -62,7 +64,7 @@ bool SmileScene::Start()
 	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 25)), "Game Camera", rootObj);
 	renderingData data; 
 	data.pFarDist = 25.f; 
-	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 0, 0), data); 
+	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 5, 0), data); 
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
@@ -88,24 +90,58 @@ bool SmileScene::CleanUp()
 // Update
 update_status SmileScene::Update(float dt)
 {
-		// First update
 	rootObj->Update(); 
+	DrawObjects();
+	HandleGizmo(); 
+	DrawGrid();
+	DebugLastRay(); 
+	
+	return UPDATE_CONTINUE;
+}
 
-		// Then draw
+void SmileScene::DrawObjects()
+{
 	// collect candidates to be drawn: search for octree nodes inside frustrum 
-	std::vector<GameObject*> drawObjects; 
+	std::vector<GameObject*> drawObjects;
 	App->spatial_tree->CollectCandidatesA(drawObjects, App->renderer3D->targetCamera->calcFrustrum);
- 
+
 	// then test the own objects OBBs with the frustrum
 	App->renderer3D->targetCamera->PruneInsideFrustrum(drawObjects);
 
 	for (auto& obj : drawObjects)
-		obj->Draw(); 
+		obj->Draw();
 
-	DrawGrid();
-	DebugLastRay(); 
-	return UPDATE_CONTINUE;
+	drawObjects.clear(); 
 }
+
+void SmileScene::HandleGizmo()
+{
+	static ImGuizmo::OPERATION op = ImGuizmo::OPERATION::TRANSLATE;
+	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_DOWN)
+		op = ImGuizmo::OPERATION::ROTATE;
+	if (App->input->GetKey(SDL_SCANCODE_R) == KEY_DOWN)
+		op = ImGuizmo::OPERATION::SCALE;
+
+	static ImGuizmo::MODE mode = ImGuizmo::MODE::WORLD; // TODOOO
+
+	if (selectedObj != nullptr)
+	{
+		ImGuizmo::Enable(true);
+		ImGuizmo::SetDrawlist();
+
+		float view[16], projection[16], object[16]; 
+		std::memcpy(view, debugCamera->GetViewMatrixTransposed(), sizeof(float) * 16);
+		std::memcpy(projection, App->renderer3D->GetProjectionMatrixTransposed(), sizeof(float) * 16);
+		std::memcpy(object, selectedObj->GetTransform()->GetGlobalMatrix().Transposed().ptr(), sizeof(float) * 16);
+
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+		ImGuizmo::Manipulate(view, projection, op, mode, object);
+	}
+	else
+		ImGuizmo::Enable(false);
+}
+		
 
 void SmileScene::DrawGrid()
 {
@@ -261,7 +297,6 @@ ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 	ComponentMesh* closest = nullptr; 
 	float minDistance = (float)INT_MAX; 
 	
-
 	// See the function definition in the spatial tree header
 	std::vector<GameObject*> objects; 
 	App->spatial_tree->CollectCandidates(objects, ray); 

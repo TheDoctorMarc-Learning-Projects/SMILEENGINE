@@ -503,15 +503,15 @@ auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
 	float p[3] = { pos.x, pos.y, pos.z };
 	float r[3] = { degRot.x, degRot.y, degRot.z };
 	float s[3] = { sc.x, sc.y, sc.z };
-	ImGui::SliderFloat3("Position", p, -500, 500);
-	ImGui::SliderFloat3("Rotation", r, -359.999, 359.999);
-	ImGui::SliderFloat3("Scale", s, 0, 500);
+	ImGui::InputFloat3("Position", p); // , -500, 500);
+	ImGui::InputFloat3("Rotation", r); // , -359.999, 359.999);
+	ImGui::InputFloat3("Scale", s); // , 0, 500);
 
 	// (info)
 	ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
 
-	/*if (keyState != KEY_DOWN)
-		return;	*/							
+	if (keyState != KEY_DOWN)
+		return;							
 
 	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
 	float radR[3] = { radRot.x, radRot.y, radRot.z };
