@@ -1,1 +1,18 @@
-{"GameObject":[{"ID":592811525,"Parent ID":731820993,"Name":"bakerhouse","Selected":false,"FBX path":"path"}],"Meshes":[{"Mesh":"/Library/Meshes/meshsmilemesh","Mesh":"/Library/Meshes/meshsmilemesh"}]}
+{
+  
+  "GameObject": [
+    {
+      "ID": 592811525,
+      "Parent ID": 731820993,
+      "Name": "bakerhouse",
+      "Selected": false,
+      "FBX path": "path"
+    }
+  ],
+  "Meshes": [
+    {
+      "Mesh": "/Library/Meshes/meshsmilemesh",
+      "Mesh": "/Library/Meshes/meshsmilemesh"
+    }
+  ]
+}

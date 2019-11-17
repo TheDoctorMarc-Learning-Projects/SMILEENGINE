@@ -64,13 +64,13 @@ enum update_status
 #include <string>
 static bool IsModelExtension(std::string extension)
 { 
-	if (extension == MODELS_EXTENSION || extension == "FBX" || extension == "fbx")
+	if (extension == MODELS_EXTENSION || extension == "FBX" || extension == "fbx" || extension == "json")
 		return true; 
 	return false; 	
 }
 
 static bool IsOwnModelExtension(std::string extension) { 
-	if (extension == MODELS_EXTENSION)
+	if (extension == MODELS_EXTENSION || extension == "json")
 		return true; 
 	return false; 
 }

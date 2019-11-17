@@ -566,7 +566,7 @@ bool SmileFBX::LoadModel(const char* path)
 {
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
-	int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/ID")->GetInt();
+	/*int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/ID")->GetInt();
 	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();
 	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
 	bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
@@ -574,20 +574,31 @@ bool SmileFBX::LoadModel(const char* path)
 	
 	std::string material_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/Material path")->GetString();
 
-	std::string mesh_path;
+	std::string mesh_path;*/
 	
 	/*for (int i = 0; i < doc.Capacity(); i++)
 	{
 		mesh_path = rapidjson::GetValueByPointer(doc, "/Meshes/0/Mesh/%i")->GetString();
 	}*/
 
-	char* rawname;
+	/*char* rawname;
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
-	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);*/
 
 	/*parentObj->AddComponent(mesh_path.c_str());
 	parentObj->SetupTransformAtMeshCenter();*/
 
+
+ 
+	// Read Mesh paths: 
+	for (rapidjson::SizeType i = 0; i < doc["Meshes"].Size(); ++i)
+	{
+		std::string path = doc["Meshes"][i]["Mesh"].GetString(); 
+		if (path != "")
+			LOG("Found a mesh path in json model!");  
+	}
+
+ 
 
 
 	return true;
