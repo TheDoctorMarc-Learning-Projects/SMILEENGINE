@@ -142,7 +142,7 @@ const char* SmileFBX::PushFBXToAssets(const char* path)
 
 bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
 {
-	/*std::string cleanPath[1];
+	std::string cleanPath[1];
 	std::string file[1];
 	std::string extension[1];
 	App->fs->SplitFilePath(path, cleanPath, file, extension);
@@ -155,7 +155,7 @@ bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
 	if (App->fs->Exists(models_target.c_str()))
 	{
 		return true;
-	}*/
+	}
 
 	return false;
 }
@@ -183,6 +183,7 @@ GameObject* SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scen
 		mesh, materialsPaths);
 
 	ObjectEnd
+		SaveModel(parentObj, path);
 
 		OnFBXImportEnd(parentObj, scene, path);
 
@@ -191,7 +192,7 @@ GameObject* SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scen
 
 
 // ---------------------------------------------
-void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std::vector<std::string> materialsPaths)
+void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std::vector<std::string> materialsPaths, const char* path)
 {
 	/// 1) Create and Assign components
 	// Mesh
@@ -208,8 +209,8 @@ void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std
 	// Setup
 	App->camera->FitCameraToObject(object);
 
-	/// 2) Once the object is filled, save it to our own file format: 
-	SaveModel(object); 
+	
+	
 }
 
 // ---------------------------------------------
@@ -495,8 +496,9 @@ bool SmileFBX::LoadMesh(ModelMeshData* mesh)
 	return false;
 }
 
-std::string SmileFBX::SaveMesh(ModelMeshData* mesh)
+std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj)
 {
+	
 	bool ret = false;
 	uint ranges[4] = { mesh->num_index, mesh->num_vertex, mesh->num_normals, mesh->num_UVs };
 	uint size = sizeof(ranges) + sizeof(uint) * mesh->num_index + sizeof(float) * mesh->num_vertex * 3 + sizeof(float) * mesh->num_normals * 3 + sizeof(float) * mesh->num_UVs * 2;
@@ -531,7 +533,7 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh)
 	App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
 
 	RELEASE_ARRAY(data);
-	
+	int obj_id = obj->GetID();
 	return std::string(LIBRARY_MESHES_FOLDER + std::string("mesh") + MESH_EXTENSION);
 }
 
@@ -562,16 +564,43 @@ std::string SmileFBX::SaveMaterial(textureData* texture)
 
 bool SmileFBX::LoadModel(const char* path)
 {
-	return false;
+	rapidjson::Document doc;
+	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
+	int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/ID")->GetInt();
+	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();
+	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
+	bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
+	std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
+	
+	std::string material_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/Material path")->GetString();
+
+	std::string mesh_path;
+	
+	/*for (int i = 0; i < doc.Capacity(); i++)
+	{
+		mesh_path = rapidjson::GetValueByPointer(doc, "/Meshes/0/Mesh/%i")->GetString();
+	}*/
+
+	char* rawname;
+	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
+	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+
+	/*parentObj->AddComponent(mesh_path.c_str());
+	parentObj->SetupTransformAtMeshCenter();*/
+
+
+
+	return true;
 }
 
-void SmileFBX::SaveModel(GameObject* obj)
+void SmileFBX::SaveModel(GameObject* obj, const char* path)
 {
 	// 1) Save components (at the same time when saving the model below)
-	auto mesh = obj->GetMesh(); 
+	
 	auto transf = obj->GetTransform();
 	auto material = obj->GetMaterial();   
- 
+	std::vector <GameObject*>children = obj->GetImmidiateChildren();
+
 	float3 position = transf->GetPosition();
 	float3 scale = transf->GetScale();
 	Quat rotation = transf->GetRotation();
@@ -606,6 +635,8 @@ void SmileFBX::SaveModel(GameObject* obj)
 	writer.Key("Selected");
 	writer.Bool((App->scene_intro->selectedObj == obj) ? true : false);
 
+	const char* lastFBXPath = "path";
+	
 	writer.Key("FBX path");
 	writer.String(lastFBXPath); // TODO: FILL THE LASTFBXPATH
 
@@ -613,11 +644,7 @@ void SmileFBX::SaveModel(GameObject* obj)
 
 	// Components
 
-	if (mesh)
-	{
-		writer.Key("Mesh path");
-		writer.String(SaveMesh(mesh->GetMeshData()).c_str());
-	}
+
 		
 	if (material)
 	{
@@ -632,32 +659,35 @@ void SmileFBX::SaveModel(GameObject* obj)
 
 	writer.EndArray();
 
+	writer.Key("Meshes");
+
+	writer.StartArray();
+
+	writer.StartObject();
+
+	for (auto& child : children)
+	{
+		if (child->GetMesh()) {
+			auto mesh = child->GetMesh();
+			writer.Key("Mesh");
+			writer.String(SaveMesh(mesh->GetMeshData(), obj).c_str());
+		}
+	}
+
 	writer.EndObject();
 
+	writer.EndArray();
+	writer.EndObject();
+	
+
+	
+
+	
 	const char* output = buffer.GetString();
 	std::string dirPath; 
-	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, obj->GetName().c_str(), MODELS_EXTENSION);
+	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, obj->GetName().c_str(), "json");
 
  
-	return;
 }
 
-bool SmileFBX::IsFBXPathAlreadyConvertedToModel(const char* path)
-{
-	/*std::vector<std::string> files, dirs; 
-	App->fs->DiscoverFiles(LIBRARY_MODELS_FOLDER, files, dirs);
 
-	for (auto& path : files)
-	{
-		const std::filesystem::path& relativePath = path.c_str();
-		std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
-
-		rapidjson::Document modelDoc;
-		dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(absolutePath.string().c_str(), modelDoc);
-
-		if (rapidjson::GetValueByPointer(modelDoc, "/GameObject/0/FBX path")->GetString() == path)
-			return true; 
-	}
-	*/
-	return false; 
-}
