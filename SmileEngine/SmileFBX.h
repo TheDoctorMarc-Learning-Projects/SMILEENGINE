@@ -54,9 +54,9 @@ private:
 
 	
 	// Own File Format 
-	bool LoadMesh(ModelMeshData* mesh);
+	bool LoadMesh(ModelMeshData* mesh, const char* path);
 	std::string SaveMesh(ModelMeshData* mesh, GameObject* obj);
-	bool LoadMaterial(textureData* texture);
+	bool LoadMaterial(textureData* texture, const char* path);
 	std::string SaveMaterial(textureData* texture);
 	bool LoadModel(const char* path);
 	void SaveModel(GameObject*, const char* path);

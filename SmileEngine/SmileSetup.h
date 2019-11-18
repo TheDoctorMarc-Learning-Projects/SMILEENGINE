@@ -53,7 +53,7 @@ enum update_status
 #define ORGANIZATION "SmileTek"
 #define LIBRARY_FOLDER "/Library/"
 #define ASSETS_FOLDER "/Assets/"
-#define LIBRARY_MESHES_FOLDER "/Library/Meshes/"
+#define LIBRARY_MESHES_FOLDER "Library/Meshes/"
 #define LIBRARY_TEXTURES_FOLDER "/Library/Textures/"
 #define LIBRARY_MODELS_FOLDER "/Library/Models/"
 #define ASSETS_MODELS_FOLDER "/Assets/Models/"
