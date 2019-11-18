@@ -320,3 +320,4 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 }
 
+
