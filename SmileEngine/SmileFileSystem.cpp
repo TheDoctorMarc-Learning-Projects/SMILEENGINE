@@ -354,6 +354,26 @@ int close_sdl_rwops(SDL_RWops* rw)
 	return 0;
 }
 
+bool SmileFileSystem::WriteRaw(const char* file, const void* buffer, unsigned int size) const
+{
+	bool ret = false; 
+
+	PHYSFS_file* fs_file = PHYSFS_openWrite(file);
+
+	if (file && PHYSFS_writeBytes(fs_file, (const void*)buffer, size) >= size)
+	{
+		ret = true;
+		LOG("FILESYSTEM: success on writting in file [ %s ]", file);
+	}
+	else
+		LOG("FILESYSTEM: failure on writting in file [ %s ]: %s", file, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+
+	if (PHYSFS_close(fs_file) == 0)
+		LOG("File System error while closing file %s: %s", file, PHYSFS_getLastError());
+
+	return ret; 
+}
+
 // Save a whole buffer to disk
 uint SmileFileSystem::Save(const char* file, const void* buffer, unsigned int size, bool append) const
 {

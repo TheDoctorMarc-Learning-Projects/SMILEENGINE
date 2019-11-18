@@ -496,7 +496,7 @@ bool SmileFBX::LoadMesh(ModelMeshData* mesh)
 	return false;
 }
 
-std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj)
+std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 {
 	
 	bool ret = false;
@@ -530,11 +530,14 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj)
 
 	std::string output_file;
 	
-	App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
+	//App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
+	output_file += std::string(LIBRARY_MESHES_FOLDER) += std::string(obj->GetName().c_str()) 
+		+= std::string("mesh") += std::to_string(index) += std::string(".") += std::string(MESH_EXTENSION); 
+	App->fs->WriteRaw(output_file.c_str(), cursor, size); 
 
 	RELEASE_ARRAY(data);
-	int obj_id = obj->GetID();
-	return std::string(LIBRARY_MESHES_FOLDER + std::string("mesh") + MESH_EXTENSION);
+	
+	return output_file;
 }
 
 bool SmileFBX::LoadMaterial(textureData* texture)
@@ -592,6 +595,8 @@ bool SmileFBX::LoadModel(const char* path)
 	{
 		std::string path = doc["Meshes"][i]["Mesh"][0]["path"].GetString(); 
 		std::string materialPath = doc["Meshes"][i]["Mesh"][0]["materialPath"].GetString();
+
+		LoadMesh(path, materialPath); 
 
 		LOG("Loading a mesh and maybe a material!"); 
 	}
@@ -674,10 +679,13 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 
 	writer.StartObject();
 
+	uint meshCount = 0; 
 	for (auto& child : children)
 	{
 		if (child->GetMesh())
 		{
+			meshCount++; 
+
 			auto material = child->GetMaterial(); 
 			auto mesh = child->GetMesh();
 			
@@ -687,7 +695,7 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 			writer.StartObject();
 
 			writer.Key("path");
-			writer.String(SaveMesh(mesh->GetMeshData(), obj).c_str());
+			writer.String(SaveMesh(mesh->GetMeshData(), obj, meshCount).c_str());
 
 			writer.Key("materialPath");
 
