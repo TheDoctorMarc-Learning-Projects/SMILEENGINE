@@ -455,11 +455,11 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 }
 
-bool SmileFBX::LoadMesh(ModelMeshData* mesh, const char* path)
+ComponentMesh* SmileFBX::LoadMesh(ModelMeshData* mesh, const char* full_path)
 {
 	
 	char* buffer = nullptr;
-	App->fs->Load(path, &buffer);
+	App->fs->Load(full_path, &buffer);
 
 	char* cursor = buffer;
 	uint ranges[4];
@@ -494,8 +494,14 @@ bool SmileFBX::LoadMesh(ModelMeshData* mesh, const char* path)
 	mesh->UVs = new float[mesh->num_UVs * 2];
 	memcpy(mesh->UVs, cursor, bytes);
 
+	std::string cleanPath[1];
+	std::string file[1];
+	std::string extension[1];
+
+	App->fs->SplitFilePath(full_path, cleanPath, file, extension);
+	ComponentMesh* component_mesh = DBG_NEW ComponentMesh(mesh,file[0]);
 	
-	return true;
+	return component_mesh;
 }
 
 std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
@@ -533,7 +539,7 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 	std::string name;
 	std::string output; 
 	name += std::string(obj->GetName().c_str()) += std::string("_mesh") += std::to_string(index);   
-
+	
 	App->fs->SaveUnique(output, data, size, LIBRARY_MESHES_FOLDER, name.c_str(), MESH_EXTENSION);
 
 	RELEASE_ARRAY(data);
@@ -541,29 +547,67 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 	return output;
 }
 
-bool SmileFBX::LoadMaterial(textureData* texture, const char* path)
+ComponentMaterial* SmileFBX::LoadMaterial(textureData* texdata, const char* path)
 {
 	
-	return true;
-	
+	uint imageID = 0;
+
+	ilGenImages(1, &imageID);
+	ilBindImage(imageID);
+	LOG("Loading texture: %s", path);
+	if ((bool)ilLoadImage(path))
+	{
+		
+		ILinfo img_info;
+		iluGetImageInfo(&img_info);
+
+		if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
+			iluFlipImage();
+
+		if (ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE)) {
+			
+			texdata = new textureData;
+
+			texdata->id_texture = ilutGLBindTexImage();
+			texdata->width = ilGetInteger(IL_IMAGE_WIDTH);
+			texdata->height = ilGetInteger(IL_IMAGE_HEIGHT);
+			texdata->path = path;
+			
+			
+		}
+		else
+			LOG("Image could not be converted, error: %s", iluErrorString(ilGetError()));
+	}
+	else
+		LOG("Error loading texture %s, error: %s", path, iluErrorString(ilGetError()));
+
+
+	ilDeleteImages(1, &imageID);
+	ComponentMaterial* material = DBG_NEW ComponentMaterial();
+	material->textureInfo->id_texture = texdata->id_texture;
+	material->textureInfo->width = texdata->width;
+	material->textureInfo->height = texdata->height;
+	material->textureInfo->path = texdata->path;
+	return material;
 }
 
-std::string SmileFBX::SaveMaterial(textureData* texture)
+std::string SmileFBX::SaveMaterial(textureData* texture, GameObject* obj, uint index)
 {
 	bool ret = false;
 	ILuint size;
-	
+	std::string name;
+	name += std::string(obj->GetName().c_str()) += std::string("_material") += std::to_string(index);
 	ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
 	size = ilSaveL(IL_DDS, NULL, 0);
 	std::string output_file;
 	if (size > 0) {
 		texture->texture = new ILubyte[size];
 		if (ilSaveL(IL_DDS, texture->texture, size) > 0)
-			ret = App->fs->SaveUnique(output_file, texture->texture, size, LIBRARY_TEXTURES_FOLDER, "texture", "dds");
+			ret = App->fs->SaveUnique(output_file, texture->texture, size, LIBRARY_TEXTURES_FOLDER, name.c_str(), "dds");
 		RELEASE_ARRAY(texture->texture);
 	}
 
-	return std::string(LIBRARY_TEXTURES_FOLDER + std::string("texture") + std::string(".dds"));
+	return output_file;
 }
 
 bool SmileFBX::LoadModel(const char* path)
@@ -577,27 +621,32 @@ bool SmileFBX::LoadModel(const char* path)
 	std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
 
 
-	/*char* rawname;
+	char rawname[100];
+	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
-	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);*/
+	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
 
-	/*parentObj->AddComponent(mesh_path.c_str());
-	parentObj->SetupTransformAtMeshCenter();*/
+	
 
-
+	rapidjson::SizeType size = doc["Meshes"].Size();
  
 	// Read Mesh paths: 
-	for (rapidjson::SizeType i = 0; i < doc["Meshes"].Size(); ++i)
+	for (rapidjson::SizeType i = 0; i < size; ++i)
 	{
 		std::string path = doc["Meshes"][i]["Mesh"][0]["path"].GetString(); 
 		std::string materialPath = doc["Meshes"][i]["Mesh"][0]["materialPath"].GetString();
 
 		LOG("Loading a mesh and maybe a material!"); 
 		ModelMeshData* mesh = new ModelMeshData;
-		
+		textureData* texdata = DBG_NEW textureData;
 
-		LoadMesh(mesh, path.c_str());
+		//LoadMesh(mesh, path.c_str());
 		
+		parentObj->AddComponent(LoadMesh(mesh,path.c_str()));
+		if (materialPath != "empty")
+			parentObj->AddComponent(LoadMaterial(texdata, materialPath.c_str()));
+
+		//parentObj->Start();
 	}
 
  
@@ -699,7 +748,7 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 			writer.Key("materialPath");
 
 			if(material)
-				writer.String(SaveMaterial(material->GetTextureData()).c_str());
+				writer.String(SaveMaterial(material->GetTextureData(), obj, meshCount).c_str());
 			else
 				writer.String("empty");
 			
