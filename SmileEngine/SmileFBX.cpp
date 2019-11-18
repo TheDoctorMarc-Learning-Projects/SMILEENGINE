@@ -455,14 +455,16 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 }
 
-bool SmileFBX::LoadMesh(ModelMeshData* mesh)
+bool SmileFBX::LoadMesh(ModelMeshData* mesh, const char* path)
 {
-	char* buffer;
+	
+	char* buffer = nullptr;
+	App->fs->Load(path, &buffer);
+
 	char* cursor = buffer;
-	// amount of indices / vertices / colors / normals / texture_coords
 	uint ranges[4];
 	uint bytes = sizeof(ranges);
-	memcpy(ranges, cursor, bytes);
+	memcpy(ranges, buffer, bytes);
 	mesh->num_index = ranges[0];
 	mesh->num_vertex = ranges[1];
 	mesh->num_normals = ranges[2];
@@ -472,28 +474,28 @@ bool SmileFBX::LoadMesh(ModelMeshData* mesh)
 	cursor += bytes;
 	bytes = sizeof(uint) * mesh->num_index;
 	mesh->index = new uint[mesh->num_index];
-	memcpy(mesh->index, cursor, bytes);
+	memcpy(mesh->index, buffer, bytes);
 
 	//Load vertex
 	cursor += bytes;
 	bytes = sizeof(float) * mesh->num_vertex * 3;
 	mesh->vertex = new float[mesh->num_vertex * 3];
-	memcpy(mesh->vertex, cursor, bytes);
+	memcpy(mesh->vertex, buffer, bytes);
 
 	//Load normals
 	cursor += bytes;
 	bytes = sizeof(float) * mesh->num_normals * 3;
 	mesh->normals = new float[mesh->num_normals * 3];
-	memcpy(mesh->normals, cursor, bytes);
+	memcpy(mesh->normals, buffer, bytes);
 
 	//Load UVs
 	cursor += bytes;
 	bytes = sizeof(float) * mesh->num_UVs * 2;
 	mesh->UVs = new float[mesh->num_UVs * 2];
-	memcpy(mesh->UVs, cursor, bytes);
+	memcpy(mesh->UVs, buffer, bytes);
 
 	
-	return false;
+	return true;
 }
 
 std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
@@ -528,19 +530,19 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 	bytes = sizeof(float) * mesh->num_UVs * 2;
 	memcpy(cursor, mesh->UVs, bytes);
 
-	std::string output_file;
-	
-	//App->fs->SaveUnique(output_file, data, size, LIBRARY_MESHES_FOLDER, "mesh", MESH_EXTENSION);
-	output_file += std::string(LIBRARY_MESHES_FOLDER) += std::string(obj->GetName().c_str()) 
-		+= std::string("mesh") += std::to_string(index) += std::string(".") += std::string(MESH_EXTENSION); 
-	App->fs->WriteRaw(output_file.c_str(), cursor, size); 
+	std::string name;
+	std::string output; 
+	name += std::string(obj->GetName().c_str()) += std::string("_mesh") += std::to_string(index);   
+
+	App->fs->SaveUnique(output, data, size, LIBRARY_MESHES_FOLDER, name.c_str(), MESH_EXTENSION);
+	//App->fs->WriteRaw(output_file.c_str(), cursor, size); 
 
 	RELEASE_ARRAY(data);
-	
-	return output_file;
+
+	return output;
 }
 
-bool SmileFBX::LoadMaterial(textureData* texture)
+bool SmileFBX::LoadMaterial(textureData* texture, const char* path)
 {
 	
 	return true;
@@ -562,7 +564,7 @@ std::string SmileFBX::SaveMaterial(textureData* texture)
 		RELEASE_ARRAY(texture->texture);
 	}
 
-	return std::string(LIBRARY_TEXTURES_FOLDER + std::string("texture") + std::string("dds"));
+	return std::string(LIBRARY_TEXTURES_FOLDER + std::string("texture") + std::string(".dds"));
 }
 
 bool SmileFBX::LoadModel(const char* path)
@@ -573,13 +575,8 @@ bool SmileFBX::LoadModel(const char* path)
 	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();*/
 	//bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
 	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
-	//std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
+	std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
 
-	
-	/*for (int i = 0; i < doc.Capacity(); i++)
-	{
-		mesh_path = rapidjson::GetValueByPointer(doc, "/Meshes/0/Mesh/%i")->GetString();
-	}*/
 
 	/*char* rawname;
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
@@ -596,9 +593,12 @@ bool SmileFBX::LoadModel(const char* path)
 		std::string path = doc["Meshes"][i]["Mesh"][0]["path"].GetString(); 
 		std::string materialPath = doc["Meshes"][i]["Mesh"][0]["materialPath"].GetString();
 
-		LoadMesh(path, materialPath); 
-
 		LOG("Loading a mesh and maybe a material!"); 
+		ModelMeshData* mesh = new ModelMeshData;
+		
+
+		LoadMesh(mesh, path.c_str());
+		
 	}
 
  
@@ -649,10 +649,10 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	writer.Key("Selected");
 	writer.Bool((App->scene_intro->selectedObj == obj) ? true : false);
 
-	const char* lastFBXPath = "path";
+	std::string lastFBXPath = path;
 	
 	writer.Key("FBX path");
-	writer.String(lastFBXPath); // TODO: FILL THE LASTFBXPATH
+	writer.String(lastFBXPath.c_str()); // TODO: FILL THE LASTFBXPATH
 
 	// TODO: active, static, open in hierarchy , AABB, OBB 
 
@@ -660,11 +660,11 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 
 
 		
-	if (material)
+	/*if (material)
 	{
 		writer.Key("Material path");
 		writer.String(SaveMaterial(material->GetTextureData()).c_str());
-	}
+	}*/
 
 
 	// Components
@@ -714,11 +714,8 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	writer.EndObject();
 
 	writer.EndArray();
+
 	writer.EndObject();
-	
-
-	
-
 	
 	const char* output = buffer.GetString();
 	std::string dirPath; 

@@ -44,6 +44,9 @@ public:
 	unsigned int Load(const char* path, const char* file, char** buffer) const;
 	unsigned int Load(const char* file, char** buffer) const;
 	SDL_RWops* Load(const char* file) const;
+
+	uint ReadFile(const char* file_name, char** buffer);
+
 	
 
 	// IO interfaces for other libs to handle files via PHYSfs

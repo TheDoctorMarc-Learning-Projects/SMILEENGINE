@@ -257,27 +257,7 @@ void SmileFileSystem::NormalizePath(std::string& full_path) const
 	}
 }
 
-//FileType SmileFileSystem::DetermineFileType(char* file_name)
-//{
-//	string extension = file_name;
-//	extension = extension.erase(NULL, extension.find_last_of("."));
-//
-//	if (extension == ".fbx" || extension == ".FBX" || extension == ".obj"
-//		|| extension == ".OBJ" || extension == ".dae" || extension == ".DAE") {
-//		return File_Mesh;
-//
-//	}
-//
-//	else if (extension == ".dds" || extension == ".DDS" || extension == ".png"
-//		|| extension == ".PNG" || extension == ".jpg" || extension == ".JPG"
-//		|| extension == ".jpeg" || extension == ".JPEG" || extension == ".tga" || extension == ".bmp") {
-//		return File_Material;
-//
-//	}
-//	else
-//		return File_Unknown;
-//
-//}
+
 
 unsigned int SmileFileSystem::Load(const char* path, const char* file, char** buffer) const
 {
@@ -335,6 +315,29 @@ SDL_RWops* SmileFileSystem::Load(const char* file) const
 	}
 	else
 		return nullptr;
+}
+
+uint SmileFileSystem::ReadFile(const char* file_name, char** buffer)
+{
+	PHYSFS_File* file = PHYSFS_openRead(file_name);
+	uint size = 0u;
+
+	if (file != nullptr)
+	{
+		size = PHYSFS_fileLength(file);
+
+		*buffer = new char[size];
+
+		if (PHYSFS_read(file, *buffer, 1, size) == -1)
+		{
+			size = 0u;
+			LOG("GL");
+		}
+		else
+			LOG("DONE");
+	}
+	PHYSFS_close(file);
+	return size;
 }
 
 //void * ModuleFileSystem::BassLoad(const char * file) const
