@@ -464,7 +464,7 @@ bool SmileFBX::LoadMesh(ModelMeshData* mesh, const char* path)
 	char* cursor = buffer;
 	uint ranges[4];
 	uint bytes = sizeof(ranges);
-	memcpy(ranges, buffer, bytes);
+	memcpy(ranges, cursor, bytes);
 	mesh->num_index = ranges[0];
 	mesh->num_vertex = ranges[1];
 	mesh->num_normals = ranges[2];
@@ -474,25 +474,25 @@ bool SmileFBX::LoadMesh(ModelMeshData* mesh, const char* path)
 	cursor += bytes;
 	bytes = sizeof(uint) * mesh->num_index;
 	mesh->index = new uint[mesh->num_index];
-	memcpy(mesh->index, buffer, bytes);
+	memcpy(mesh->index, cursor, bytes);
 
 	//Load vertex
 	cursor += bytes;
 	bytes = sizeof(float) * mesh->num_vertex * 3;
 	mesh->vertex = new float[mesh->num_vertex * 3];
-	memcpy(mesh->vertex, buffer, bytes);
+	memcpy(mesh->vertex, cursor, bytes);
 
 	//Load normals
 	cursor += bytes;
 	bytes = sizeof(float) * mesh->num_normals * 3;
 	mesh->normals = new float[mesh->num_normals * 3];
-	memcpy(mesh->normals, buffer, bytes);
+	memcpy(mesh->normals, cursor, bytes);
 
 	//Load UVs
 	cursor += bytes;
 	bytes = sizeof(float) * mesh->num_UVs * 2;
 	mesh->UVs = new float[mesh->num_UVs * 2];
-	memcpy(mesh->UVs, buffer, bytes);
+	memcpy(mesh->UVs, cursor, bytes);
 
 	
 	return true;
@@ -535,7 +535,6 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 	name += std::string(obj->GetName().c_str()) += std::string("_mesh") += std::to_string(index);   
 
 	App->fs->SaveUnique(output, data, size, LIBRARY_MESHES_FOLDER, name.c_str(), MESH_EXTENSION);
-	//App->fs->WriteRaw(output_file.c_str(), cursor, size); 
 
 	RELEASE_ARRAY(data);
 
