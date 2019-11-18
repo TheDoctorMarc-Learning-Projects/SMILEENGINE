@@ -181,10 +181,6 @@
 #define SDL_VIDEO_VULKAN 1
 #endif
 
-#if SDL_PLATFORM_SUPPORTS_METAL
-#define SDL_VIDEO_METAL 1
-#endif
-
 /* Enable system power support */
 #define SDL_POWER_UIKIT 1
 

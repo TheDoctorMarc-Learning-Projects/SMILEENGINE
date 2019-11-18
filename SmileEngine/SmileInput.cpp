@@ -2,6 +2,30 @@
 #include "SmileApp.h"
 #include "SmileInput.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl.h"
+#include "imgui/imgui_impl_opengl3.h"
+
+
+#define WIN32_LEAN_AND_MEAN
+#include<windows.h>
+#include <mmsystem.h>
+#pragma comment (lib, "winmm.lib")
+#include <stdlib.h>
+#include <Audioclient.h>
+
+#include <iostream>
+#include <shlobj.h>
+#include <time.h>
+#include <cstdlib>
+#include <string>
+#include <sstream>
+#include <filesystem>
+
+
+#include "ComponentMesh.h"
+#include "SmileGameObjectManager.h"
+
 #define MAX_KEYS 300
 
 SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -14,7 +38,7 @@ SmileInput::SmileInput(SmileApp* app, bool start_enabled) : SmileModule(app, sta
 // Destructor
 SmileInput::~SmileInput()
 {
-	delete[] keyboard;
+	RELEASE_ARRAY(keyboard);
 }
 
 // Called before render is available
@@ -88,6 +112,7 @@ update_status SmileInput::PreUpdate(float dt)
 	SDL_Event e;
 	while(SDL_PollEvent(&e))
 	{
+		ImGui_ImplSDL2_ProcessEvent(&e);
 		switch(e.type)
 		{
 			case SDL_MOUSEWHEEL:
@@ -107,10 +132,18 @@ update_status SmileInput::PreUpdate(float dt)
 			break;
 
 			case SDL_WINDOWEVENT:
-			{
 				if(e.window.event == SDL_WINDOWEVENT_RESIZED)
-					App->renderer3D->OnResize(e.window.data1, e.window.data2);
+					App->renderer3D->OnResize(e.window.data1, e.window.data2, App->renderer3D->targetCamera);
+			break; 
+
+			case SDL_DROPFILE:
+			{
+				DropFileExtensionDecider(e.drop.file); 
+				SDL_free(e.drop.file);
+				break;
 			}
+
+
 		}
 	}
 
@@ -126,4 +159,39 @@ bool SmileInput::CleanUp()
 	LOG("Quitting SDL input event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
+}
+
+// TODO: file system
+void SmileInput::DropFileExtensionDecider(const char* path)
+{
+	std::string extension = "null";
+	std::string filename(path); 
+	std::string::size_type index = filename.rfind('.');
+
+	if (index != std::string::npos)
+		extension = filename.substr(index + 1);
+	
+	if (extension == "FBX" || extension == "fbx")
+		App->fbx->ReadFBXData(path);
+	else if (extension == "PNG" || extension == "png" || extension == "jpg" || extension == "dds" || extension == "DDS")
+	{
+		ComponentMesh* hoveredMesh = std::get<ComponentMesh*>(App->scene_intro->MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, true));
+		if (hoveredMesh != nullptr)
+			App->fbx->AssignTextureToObj(path, hoveredMesh->GetParent());
+	}
+		
+}
+
+void SmileInput::ButCanItRunCrysis()
+{
+	Beep(1500, 1000);
+	mciSendString("set cdaudio door open", 0, 0, 0);
+	MessageBox(nullptr, TEXT("No, it can't"), TEXT("Incoming message:"), MB_OK);
+
+	const std::filesystem::path& relativePath = "Assets/bg/windows.png"; 
+	std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
+    std::string str = absolutePath.string(); 
+	SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (PVOID*)str.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+
+	App->gui->Log("\nCould not run Crysis"); 
 }

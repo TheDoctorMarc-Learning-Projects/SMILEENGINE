@@ -3,6 +3,7 @@
 
 ComponentMaterial::ComponentMaterial()
 {
+	SetName("Material");
 	type = MATERIAL;
 	textureInfo = DBG_NEW textureData; 
 }
@@ -14,6 +15,7 @@ ComponentMaterial::~ComponentMaterial()
 
 void ComponentMaterial::CleanUp()
 {
+
 	CleanUpTextureData();
 	RELEASE(textureInfo); 
 }
@@ -24,7 +26,8 @@ void ComponentMaterial::CleanUpTextureData()
 	{
 		glDeleteTextures(1, (GLuint*)&textureInfo->texture);
 		//delete[] mesh->texture; 
-		textureInfo->id_texture = 0; 
+		textureInfo->id_texture = 0;
 	}
 
 }
+

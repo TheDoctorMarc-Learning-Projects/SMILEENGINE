@@ -1,6 +1,7 @@
 #pragma once
 #include "SmileModule.h"
 #include "SmileSetup.h"
+#include "SDL/include/SDL.h"
 
 #define MAX_MOUSE_BUTTONS 5
 
@@ -57,6 +58,12 @@ public:
 	{
 		return mouse_y_motion;
 	}
+
+public: 
+	void ButCanItRunCrysis(); 
+
+private: 
+	void DropFileExtensionDecider(const char* path); 
 
 private:
 	KEY_STATE* keyboard;

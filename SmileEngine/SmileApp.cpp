@@ -1,35 +1,46 @@
 #include "SmileApp.h"
-#include "SmileSetup.h"
+
+class SmileSetup;
+class SmileModule;
+class SmileWindow;
+class SmileInput;
+class SmileScene;
+class SmileRenderer3D;
+class SmileCamera3D;
+class SmileGui;
+class SmileUtiliesModule;
+class SmileFBX;
+class SmileGameObjectManager;
+class SmileSpatialTree; 
+class SmileResourceManager; 
 
 SmileApp::SmileApp()
 {
 	window = DBG_NEW SmileWindow(this);
 	input = DBG_NEW SmileInput(this);
-	audio = DBG_NEW SmileAudio(this, true);
 	scene_intro = DBG_NEW SmileScene(this);
 	renderer3D = DBG_NEW SmileRenderer3D(this);
-	camera = DBG_NEW SmileCamera3D(this);
-	player = DBG_NEW SmilePlayer(this);
 	gui = DBG_NEW SmileGui(this);
-	test = DBG_NEW SmileTestModule(this); 
+	utilities = DBG_NEW SmileUtilitiesModule(this); 
+	fbx = DBG_NEW SmileFBX(this);
+	object_manager = DBG_NEW SmileGameObjectManager(this);
+	spatial_tree = DBG_NEW SmileSpatialTree(this); 
+	resources = DBG_NEW SmileResourceManager(this); 
 
-	// The order of calls is very important!
-	// SmileModules will Init() Start() and Update in this order
-	// They will CleanUp() in reverse order
+	// Test 
+	AddModule(utilities);
 
 	// Main SmileModules
 	AddModule(window);
 	AddModule(input);
-	AddModule(audio);
-	
-	// Scenes
-	AddModule(scene_intro);
-	AddModule(player);
-	AddModule(camera);
-	AddModule(gui); 
+	AddModule(fbx);
+	AddModule(resources); 
 
-	// Test --> Delete it in builds
-	AddModule(test); 
+	// Scenes
+	AddModule(object_manager);
+	AddModule(scene_intro);
+	AddModule(spatial_tree); 
+	AddModule(gui); 
 
 	// Renderer last!
 	AddModule(renderer3D);
@@ -39,9 +50,9 @@ SmileApp::~SmileApp()
 {
 	for (auto& item : list_Modules)
 		if (item != NULL)
-			delete item; 
+			RELEASE(item); 
 	list_Modules.clear(); 
-	
+
 }
 
 bool SmileApp::Init()
@@ -76,6 +87,19 @@ void SmileApp::PrepareUpdate()
 {
 	dt = (float)ms_timer.Read() / 1000.0f;
 	ms_timer.Start();
+
+	////FPS_LOG
+	fps_log.push_back(1 / dt);
+	if (fps_log.size() > 100)
+	{
+		fps_log.erase(fps_log.begin());
+	}
+	////MS_LOG
+	ms_log.push_back(dt * 1000);
+	if (ms_log.size() > 100)
+	{
+		ms_log.erase(ms_log.begin());
+	}
 }
 
 // ---------------------------------------------
