@@ -33,3 +33,4 @@ enum minMaxCoords : uint
 	MAX_Z,
 	TOTAL_COORDS
 };
+

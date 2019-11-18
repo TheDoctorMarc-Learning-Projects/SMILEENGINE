@@ -15,6 +15,7 @@ public:
 	void CleanUp(); 
 
 	textureData* GetTextureData() const { return textureInfo; }; 
+
 private: 
 	textureData* textureInfo = nullptr;
 
