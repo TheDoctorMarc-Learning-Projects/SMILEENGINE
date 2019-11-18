@@ -79,6 +79,39 @@ GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> com
 	return DBG_NEW GameObject(components, name, parent);
 }
 
+
+// -----------------------------------------------------------------
+void SmileGameObjectManager::DestroyObject(GameObject* obj)
+{
+	if (obj)
+	{
+	 
+		// 1) clean up the object himself, then clean up and release children
+		obj->CleanUp(); 
+		
+		// 2) erase from parent's list 
+		GameObject* parent = obj->GetParent(); 
+		if (parent)
+		{
+
+			for (auto item = parent->childObjects.begin(); item != parent->childObjects.end(); ++item)
+			{
+				if ((*item) != nullptr && (*item) == obj)
+				{
+
+					item = parent->childObjects.erase(item);
+					break;
+
+				}
+
+			}
+		}
+
+		// 3) finally destroy the object
+		RELEASE(obj); 
+	}
+}
+
 // ----------------------------------------------------------------- [Primitive creation functions]
 par_shapes_mesh* CreateSphere()
 {

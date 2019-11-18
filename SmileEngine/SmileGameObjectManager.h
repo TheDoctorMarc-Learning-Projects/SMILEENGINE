@@ -28,7 +28,7 @@ public:
 	GameObject* CreateGameObject(std::string name = "no name", GameObject* parent = nullptr);
 	GameObject* CreateGameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
 	GameObject* CreateGameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
-
+	void DestroyObject(GameObject* obj); 
 	// Primitve tools
 	void GetAllPrimitiveTypesChar(char(&)[128], bool helpInfo = false);
 

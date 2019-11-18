@@ -80,12 +80,11 @@ const aiScene* OnFBXImport(const char* path, char* rawname)
 	return aiImportFile(path, aiProcessPreset_TargetRealtime_Fast);
 }
 
-static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene, const char* path)
+static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene)
 {
-	parentObj->Start();
+ 
 	aiReleaseImport(scene);
-
-	App->fbx->ResolveObjectFromFBX(parentObj);
+	App->object_manager->DestroyObject(parentObj); 
 }
 
 GameObject* SmileFBX::LoadFBX(const char* path)
@@ -169,10 +168,11 @@ GameObject* SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scen
 	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
 
 	for (int i = 0; i < scene->mNumMeshes; ++i)
-		ObjectBegin
+
+	ObjectBegin
 
 		// Mesh
-		ModelMeshData* mesh_info = FillMeshBuffers(scene->mMeshes[i], DBG_NEW ModelMeshData());
+	ModelMeshData* mesh_info = FillMeshBuffers(scene->mMeshes[i], DBG_NEW ModelMeshData());
 	ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
 
 	// Materials
@@ -183,9 +183,9 @@ GameObject* SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scen
 		mesh, materialsPaths);
 
 	ObjectEnd
-		SaveModel(parentObj, path);
-
-		OnFBXImportEnd(parentObj, scene, path);
+		
+	SaveModel(parentObj, path);
+	OnFBXImportEnd(parentObj, scene);
 
 	return parentObj;
 }
@@ -205,12 +205,6 @@ void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std
 		AssignTextureToObj(path.c_str(), object);
 		LOG("Asset loaded: %s", path.c_str());
 	}
-	
-	// Setup
-	App->camera->FitCameraToObject(object);
-
-	
-	
 }
 
 // ---------------------------------------------
@@ -640,7 +634,7 @@ bool SmileFBX::LoadModel(const char* path)
 		ModelMeshData* mesh = new ModelMeshData;
 		textureData* texdata = DBG_NEW textureData;
 
-		//LoadMesh(mesh, path.c_str());
+		
 		
 		parentObj->AddComponent(LoadMesh(mesh,path.c_str()));
 		if (materialPath != "empty")
