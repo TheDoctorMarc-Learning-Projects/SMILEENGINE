@@ -46,6 +46,9 @@
     <Filter Include="Source\Modules\Advanced">
       <UniqueIdentifier>{fa2139e7-a954-4905-9c3d-506e470deaf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\Objects\Resources">
+      <UniqueIdentifier>{b2d8de6c-f669-462d-bfee-93ba80f03981}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -165,6 +168,12 @@
     <ClInclude Include="imgui\ImGuizmo.h">
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="SmileResourceManager.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -256,6 +265,9 @@
     </ClCompile>
     <ClCompile Include="imgui\ImGuizmo.cpp">
       <Filter>Source\Tools\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileResourceManager.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

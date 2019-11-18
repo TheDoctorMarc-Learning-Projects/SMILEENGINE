@@ -101,12 +101,14 @@
     <ClInclude Include="pcg\include\pcg_extras.hpp" />
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="SafetyHandler.h" />
     <ClInclude Include="SmileApp.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="SmileFBX.h" />
     <ClInclude Include="SmileGameObjectManager.h" />
+    <ClInclude Include="SmileResourceManager.h" />
     <ClInclude Include="SmileSetup.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -150,6 +152,7 @@
     <ClCompile Include="SmileMain.cpp" />
     <ClCompile Include="SmileInput.cpp" />
     <ClCompile Include="SmileRenderer3D.cpp" />
+    <ClCompile Include="SmileResourceManager.cpp" />
     <ClCompile Include="SmileScene.cpp" />
     <ClCompile Include="SmileSetup.cpp" />
     <ClCompile Include="SmileSpatialTree.cpp" />

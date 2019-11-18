@@ -32,6 +32,7 @@ void _log(const char file[], int line, const char* format, ...);
 #define _PI 3.141592653589793238462643383279502884197169399375105820974944f
 
 typedef unsigned int uint;
+typedef unsigned long long SmileUUID;
 
 enum update_status
 {
