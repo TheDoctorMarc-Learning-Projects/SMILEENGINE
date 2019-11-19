@@ -367,15 +367,17 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 			obj->AddComponent((Component*)targetMat);
 			textInfo.totalActiveTextures++;
 		}
-			
+
 		textInfo.rgb++;
 
-		if(targetMat->textureInfo->format == "RGBA")
+		if (targetMat->textureInfo->format == "RGBA")
 			textInfo.rgba--;
 
 		targetMat->textureInfo->format = "RGB";
 
 	}
+	else
+		LOG("Error trying to load a texture image :( %s", iluErrorString(ilGetError()));
 
 }
 
@@ -603,8 +605,10 @@ std::string SmileFBX::SaveMaterial(const char* path)
 		RELEASE_ARRAY(data); 
 	}
 	
-	
-	return output_file;
+
+	std::string library(LIBRARY_TEXTURES_FOLDER);
+	App->fs->EraseChunckFromString(library, 0, 1); 
+	return output_file = library + rawname + std::string(".dds");
 }
 
 bool SmileFBX::LoadModel(const char* path)
@@ -617,13 +621,10 @@ bool SmileFBX::LoadModel(const char* path)
 	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
 	std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
 
-
 	char rawname[100];
 	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
 	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
-
-	
 
 	rapidjson::Value& a = doc["Meshes"];
  
@@ -639,11 +640,9 @@ bool SmileFBX::LoadModel(const char* path)
 
 		GameObject* child = DBG_NEW GameObject;
 
-		
-		
 		child->AddComponent(LoadMesh(mesh,path.c_str()));
 		if (materialPath != "empty")
-			child->AddComponent(LoadMaterial(texdata, materialPath.c_str()));
+			AssignTextureToObj(materialPath.c_str(), child); 
 
 		child->SetParent(parentObj);
 		

@@ -62,6 +62,12 @@ public:
 	const char* GetWritePath() const;
 	const char* GetReadPaths() const;
 
+	// to deal with really stupid stuff
+	void EraseChunckFromString(std::string& str, uint begin, uint beginToEnd)
+	{
+		str.erase(str.begin() + begin, str.begin() + beginToEnd);
+	}
+
 	//const char* RelativeToAbsolute(const char* path); 
 private:
 
