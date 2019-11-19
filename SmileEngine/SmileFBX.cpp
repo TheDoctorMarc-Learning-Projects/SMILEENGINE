@@ -514,7 +514,7 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 
 	//vertex
 	cursor += bytes;
-	bytes = sizeof(uint) * mesh->num_vertex * 3;
+	bytes = sizeof(float) * mesh->num_vertex * 3;
 	memcpy(cursor, mesh->vertex, bytes);
 
 	//normals
@@ -650,7 +650,6 @@ bool SmileFBX::LoadModel(const char* path)
 	}
 
 	parentObj->Start();
-
 
 	return true;
 }
