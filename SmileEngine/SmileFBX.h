@@ -28,19 +28,46 @@ public:
 	~SmileFBX();
 	bool Start();
 	bool CleanUp();
-	GameObject* ReadFBXData(const char* path);
 
-
+	// Set & Get 
 	void AssignTextureToObj(const char* path, GameObject* obj); 
 	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
+	globalTextureData GetGlobalTextureinfo() const { return textInfo; };
 	//void FreeMeshTexture(ComponentMesh* mesh); 
-
-	globalTextureData GetGlobalTextureinfo() const { return textInfo; }; 
+	
+	// FBX
+	void Load(const char* path, std::string extension);
+	void LoadFBX(const char* path);
+	
+public: 
+	void ResolveObjectFromFBX(GameObject*, ComponentMesh* m = nullptr, std::vector<std::string> = {}, const char* path = nullptr);
 private:
+	// FBX
+	ModelMeshData* FillMeshBuffers(aiMesh*, ModelMeshData*);
+	std::vector<std::string> ReadFBXMaterials(const aiScene*);
+	bool DoesFBXExistInAssets(const char* path); 
+	bool DoesFBXHaveLinkedModel(const char* path); 
+	const char* PushFBXToAssets(const char* path); 
+	void GenerateModelFromFBX(const char*,const aiScene*, char* rawname);
+
+	
+	// Own File Format 
+
+
+	ComponentMesh* LoadMesh(ModelMeshData* mesh, const char* path);
+	std::string SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index);
+	std::string SaveMaterial(const char* path);
+	bool LoadModel(const char* path);
+	void SaveModel(GameObject*, const char* path);
+
+
+private: 
 	globalTextureData textInfo;
+	
 public: 
 	bool debug = false;
-   
+	std::string fbx_target;
+	std::string models_target;
 	
 };
 

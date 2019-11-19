@@ -43,17 +43,17 @@ bool SmileScene::Start()
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
 	// Just testing Spatial Tree
-	float size[10]; 
+	/*float size[10]; 
 	for (auto& i : size)
 	{
 		float3 pos(0, 0, 0); 
 		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F)); 
 		pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 20.F));
 		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F));
-		GameObject* daHouse = App->fbx->ReadFBXData("Assets/Models/BakerHouse.fbx"); 
+		GameObject* daHouse = App->fbx->LoadFBX("Assets/Models/BakerHouse.fbx"); 
 		daHouse->GetTransform()->ChangePosition(pos);
 
-	}
+	}*/
 		
 	// Debug Camera
 	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 30)), "Debug Camera", rootObj);
@@ -70,7 +70,6 @@ bool SmileScene::Start()
 	// Octree
 	App->spatial_tree->CreateOctree(math::AABB(float3(-20, 0, -20), float3(20, 40, 20)));
 
-	
 	return true;
 }
 
