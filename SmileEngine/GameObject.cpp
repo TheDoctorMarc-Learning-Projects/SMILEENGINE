@@ -6,8 +6,8 @@
 #include "Glew/include/GL/glew.h" 
 #include "SmileSpatialTree.h"
 #include "SmileApp.h"
-#include "imgui.h"
-#include "ImGuizmo.h"
+#include "imgui/imgui.h"
+#include "imgui/ImGuizmo.h"
 
 
 GameObject::GameObject(GameObject* parent)
