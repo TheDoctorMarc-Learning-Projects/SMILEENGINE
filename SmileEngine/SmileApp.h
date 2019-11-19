@@ -16,6 +16,9 @@
 #include "SmileGameObjectManager.h" 
 #include "SmileSpatialTree.h"
 #include "SmileResourceManager.h"
+#include "SmileMaterialImporter.h"
+#include "SmileFileSystem.h"
+
 
 class SmileApp
 {
@@ -27,6 +30,8 @@ public:
 	SmileGui* gui; 
 	SmileUtilitiesModule* utilities;
 	SmileFBX* fbx;
+	SmileFileSystem* fs;
+	SmileMaterialImporter* material_importer;
 	SmileGameObjectManager* object_manager;
 	SmileSpatialTree* spatial_tree; 
 	SmileResourceManager* resources;

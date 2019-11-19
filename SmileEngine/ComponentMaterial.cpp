@@ -15,8 +15,7 @@ ComponentMaterial::~ComponentMaterial()
 
 void ComponentMaterial::CleanUp()
 {
-
-	CleanUpTextureData();
+	CleanUpTextureData(); 
 	RELEASE(textureInfo); 
 }
 
@@ -30,4 +29,3 @@ void ComponentMaterial::CleanUpTextureData()
 	}
 
 }
-

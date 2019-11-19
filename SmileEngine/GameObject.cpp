@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "SmileApp.h"
 #include "Component.h"
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
@@ -6,9 +7,13 @@
 #include "Glew/include/GL/glew.h" 
 #include "SmileSpatialTree.h"
 #include "SmileApp.h"
-#include "imgui.h"
-#include "ImGuizmo.h"
-
+#include "imgui/imgui.h"
+#include "imgui/ImGuizmo.h"
+#include "ComponentMaterial.h"
+#include "SmileUtilitiesModule.h"
+#include "Utility.h"
+#include "RNG.h"
+#include <map>
 
 GameObject::GameObject(GameObject* parent)
 {
@@ -30,6 +35,9 @@ GameObject::GameObject(std::string name, GameObject* parent)
 	// Name after assigning parent
 	SetName(name); 
 
+	//generating random number
+	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
+
 	// Components
 	FillComponentBuffers(); 
 	AddComponent((Component*) DBG_NEW ComponentTransform());
@@ -45,6 +53,7 @@ GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 	// Name after assigning parent
 	SetName(name);
 
+	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
 	// Components
 	FillComponentBuffers();
 	if (comp->type != TRANSFORM)
@@ -60,6 +69,8 @@ GameObject::GameObject(std::vector<Component*> components, std::string name, Gam
 
 	// Components
 	FillComponentBuffers();
+
+	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
 
 	bool foundTransform = false; 
 	
@@ -486,16 +497,16 @@ void GameObject::ShowTransformInspector()
 {
 	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
 
-auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
-{
-	return std::string(
-		std::string((append) ? "(" : "") + std::to_string(xyz.x)
-		+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
-		+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
-		+ std::string((append) ? ")" : "");
-};
+	auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+	{
+		return std::string(
+			std::string((append) ? "(" : "") + std::to_string(xyz.x)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+			+ std::string((append) ? ")" : "");
+	};
 
-	ComponentTransform* transf = GetTransform(); 
+	ComponentTransform* transf = GetTransform();
 	math::float3 pos = transf->GetPosition();
 	math::float3 rot = transf->GetRotation().ToEulerXYZ();
 	math::float3 degRot = RadToDeg(rot);
@@ -511,11 +522,26 @@ auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
 	ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
 
 	if (keyState != KEY_DOWN)
-		return;							
+		return;
 
 	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
 	float radR[3] = { radRot.x, radRot.y, radRot.z };
 
 	float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
 	transf->UpdateTransform(values);
+}
+
+ComponentTransform* GameObject::GetTransform() const
+{
+	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
+}
+
+ComponentMesh* GameObject::GetMesh() const
+{
+	return dynamic_cast<ComponentMesh*>(components[MESH]);
+}
+
+ComponentMaterial* GameObject::GetMaterial() const
+{
+	return dynamic_cast<ComponentMaterial*>(components[MATERIAL]);
 }

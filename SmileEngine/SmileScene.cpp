@@ -70,7 +70,6 @@ bool SmileScene::Start()
 	// Octree
 	App->spatial_tree->CreateOctree(math::AABB(float3(-20, 0, -20), float3(20, 40, 20)));
 
-	
 	return true;
 }
 

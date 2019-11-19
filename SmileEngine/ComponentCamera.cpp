@@ -401,7 +401,7 @@ void Frustrum::CalculatePlanes()
 {
 	// Step 1: retrieve render data and the camera looking direction
 	renderingData renderData = myCamera->GetRenderingData();
-	float3 camLookVec = float3(myCamera->Z.x, myCamera->Z.y, -myCamera->Z.z).Normalized(),
+	float3 camLookVec = float3(-myCamera->Z.x, -myCamera->Z.y, -myCamera->Z.z).Normalized(),
 		Right = (Cross(camLookVec, float3(0.0f, 1.0f, 0.0f))).Normalized(),
 		Up = Cross(Right, camLookVec);
 	float3 camPos = myCamera->GetParent()->GetTransform()->GetGlobalPosition();
