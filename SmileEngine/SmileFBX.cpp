@@ -337,7 +337,6 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 		ComponentMaterial* targetMat = ((previousMat == nullptr) ? DBG_NEW ComponentMaterial() : previousMat);
 		targetMat->CleanUpTextureData();
 
-		iluFlipImage();
 		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
 		glGenTextures(1, (GLuint*)&targetMat->textureInfo->id_texture);
@@ -351,7 +350,7 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)ilGetInteger(IL_IMAGE_WIDTH),
-			(GLuint)ilGetInteger(IL_IMAGE_WIDTH), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
+			(GLuint)ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
 			ilGetData());
 
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -540,50 +539,6 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 	return output;
 }
 
-ComponentMaterial* SmileFBX::LoadMaterial(textureData* texdata, const char* path)
-{
-	
-	uint imageID = 0;
-
-	ilGenImages(1, &imageID);
-	ilBindImage(imageID);
-	LOG("Loading texture: %s", path);
-	if ((bool)ilLoadImage(path))
-	{
-		
-		ILinfo img_info;
-		iluGetImageInfo(&img_info);
-
-		if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
-			iluFlipImage();
-
-		if (ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE)) {
-			
-			texdata = DBG_NEW textureData;
-
-			texdata->id_texture = ilutGLBindTexImage();
-			texdata->width = ilGetInteger(IL_IMAGE_WIDTH);
-			texdata->height = ilGetInteger(IL_IMAGE_HEIGHT);
-			texdata->path = path;
-			
-			
-		}
-		else
-			LOG("Image could not be converted, error: %s", iluErrorString(ilGetError()));
-	}
-	else
-		LOG("Error loading texture %s, error: %s", path, iluErrorString(ilGetError()));
-	
-
-	ilDeleteImages(1, &imageID);
-	ComponentMaterial* material = DBG_NEW ComponentMaterial();
-	material->textureInfo->id_texture = texdata->id_texture;
-	material->textureInfo->width = texdata->width;
-	material->textureInfo->height = texdata->height;
-	material->textureInfo->path = texdata->path;
-
-	return material;
-}
 
 std::string SmileFBX::SaveMaterial(const char* path)
 {
@@ -598,7 +553,6 @@ std::string SmileFBX::SaveMaterial(const char* path)
 	size = ilSaveL(IL_DDS, NULL, 0);
 	if (size > 0) {
 		data = DBG_NEW ILubyte[size];
-		iluFlipImage();
 		if (ilSaveL(IL_DDS, data, size) > 0)
 			App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, rawname.c_str(), "dds");
 

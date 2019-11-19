@@ -58,7 +58,6 @@ private:
 
 	ComponentMesh* LoadMesh(ModelMeshData* mesh, const char* path);
 	std::string SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index);
-	ComponentMaterial* LoadMaterial(textureData* texdata, const char* path);
 	std::string SaveMaterial(const char* path);
 	bool LoadModel(const char* path);
 	void SaveModel(GameObject*, const char* path);
