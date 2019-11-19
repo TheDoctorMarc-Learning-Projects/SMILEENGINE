@@ -13,6 +13,8 @@ class SmileFBX;
 class SmileGameObjectManager;
 class SmileSpatialTree; 
 class SmileResourceManager; 
+class SmileMaterialImporter;
+class SmileFileSystem;
 
 SmileApp::SmileApp()
 {
@@ -23,6 +25,8 @@ SmileApp::SmileApp()
 	gui = DBG_NEW SmileGui(this);
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 	fbx = DBG_NEW SmileFBX(this);
+	material_importer = DBG_NEW SmileMaterialImporter(this);
+	fs = DBG_NEW SmileFileSystem(this, ASSETS_FOLDER);
 	object_manager = DBG_NEW SmileGameObjectManager(this);
 	spatial_tree = DBG_NEW SmileSpatialTree(this); 
 	resources = DBG_NEW SmileResourceManager(this); 
@@ -32,9 +36,13 @@ SmileApp::SmileApp()
 
 	// Main SmileModules
 	AddModule(window);
+	AddModule(utilities);
 	AddModule(input);
 	AddModule(fbx);
 	AddModule(resources); 
+
+	AddModule(material_importer);
+	AddModule(fs);
 
 	// Scenes
 	AddModule(object_manager);

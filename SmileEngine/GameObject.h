@@ -16,6 +16,7 @@ class Component;
 class ComponentMesh; 
 class ComponentTransform; 
 class ComponentCamera; 
+class ComponentMaterial;
 
 struct BoundingData
 {
@@ -55,7 +56,9 @@ public:
 	ComponentTransform* GetTransform() const;
 	ComponentMesh* GetMesh() const;
 	ComponentCamera* GetCamera() const;
+	ComponentMaterial* GetMaterial() const;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; };
+	uint GetID() const { return randomID; };
 
 	BoundingData GetBoundingData() const { return boundingData; }; 
 	GameObject* GetParent() const { return parent; };
@@ -94,7 +97,9 @@ public:
 	std::vector<GameObject*> childObjects;
 	DebugData debugData; 
 
+
 private: 
+	uint randomID;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 
 	bool active = true; 
 	bool isStatic = true; 
