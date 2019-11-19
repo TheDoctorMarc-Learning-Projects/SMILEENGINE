@@ -402,7 +402,6 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 		}
 	}
 
-	iluFlipImage();
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
 	glGenTextures(1, (GLuint*)&targetMat->textureInfo->id_texture);
@@ -596,10 +595,16 @@ bool SmileFBX::LoadModel(const char* path)
 			AssignTextureToObj(materialPath.c_str(), child); 
 
 		child->SetParent(parentObj);
+
+		// Add to octree!!!
+		App->spatial_tree->OnStaticChange(child, true); 
 		
 	}
 
+
+	// Add to octree!!!
 	parentObj->Start();
+	App->spatial_tree->OnStaticChange(parentObj, true);
 
 	return true;
 }
