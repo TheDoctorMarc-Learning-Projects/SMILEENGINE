@@ -7,6 +7,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "imgui/ImGuizmo.h"
 #include <gl/GL.h>
 
 #include <fstream>
@@ -116,6 +117,7 @@ update_status SmileGui::PreUpdate(float dt)
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(App->window->window);
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame(); 
 
 	// create the gui elements
 	if (GenerateGUI() == false)
@@ -264,8 +266,10 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 				// Create a mesh and an object
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive, std::string(objName) + " 1");
 				GameObject* obj = App->object_manager->CreateGameObject(mesh, objName, App->scene_intro->rootObj);
-				obj->SetupTransformAtMeshCenter(); 
 				obj->Start();
+
+				// TODO: check this ok
+				App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
 			}
 				
 		}
@@ -691,14 +695,16 @@ static void ObjectRecursiveNode(GameObject* obj)
 	{
 		if (ImGui::TreeNode(obj->GetName().c_str()))
 		{
-			App->scene_intro->selectedObj = obj; 
+			 
+			if (ImGui::IsItemClicked())
+				App->scene_intro->selectedObj = obj; 
 
-			/*if (obj->childObjects.size() > 0) // capped tree-like hierarchy for the assignment
+			if (obj->childObjects.size() > 0)  
 			{
 				for (auto& childObj : obj->childObjects)
 					ObjectRecursiveNode(childObj);
 			}
-			*/
+			
 			ImGui::TreePop();
 		}
 		
@@ -711,20 +717,11 @@ void panelData::HierarchySpace::Execute(bool& ret)
 	static bool showHierarchy = true; 
 
 	ImGui::Begin("Hierarchy ", &showHierarchy); 
-	
-		/*if (ImGui::TreeNode("Root"))
-		{
-			// Objects
-			for (auto& obj : App->scene_intro->rootObj->GetImmidiateChildren()) // capped tree-like hierarchy for the assignment
-				ObjectRecursiveNode(obj); */
 		
-			for (auto& obj : App->scene_intro->rootObj->GetChildrenRecursive())
-				ObjectRecursiveNode(obj);
+	for (auto& obj : App->scene_intro->rootObj->GetImmidiateChildren())
+		ObjectRecursiveNode(obj);
 
-		/*	ImGui::TreePop();
-		}*/
-	
-		ImGui::End(); 
+	ImGui::End(); 
 	
 }
 
@@ -740,14 +737,58 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		GameObject* selected = App->scene_intro->selectedObj;
 		if (selected != nullptr)
 		{
+			// General info
 			ImGui::TextColored(c, selected->GetName().c_str());
+			static bool isStatic = selected->GetStatic(); 
+			if (ImGui::Checkbox("Static", &isStatic))
+				selected->SetStatic(isStatic); 
+
+			// Guizmo: it gets the transform values, and also updates the transform if changed
+			selected->ShowTransformInspector(); 
 
 			// Loop the object's components
 			std::array<Component*, MAX_COMPONENT_TYPES> components = selected->GetComponents(); 
 
 			for(auto& c : components)
-				if (c)
+				if (c && c->GetComponentType() != TRANSFORM)
 					panelData::InspectorSpace::ComponentData(c);
+
+
+			// Other stuff
+			if (ImGui::TreeNode("Bounding Boxes"))
+			{
+				auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+				{
+					return std::string(
+						std::string((append) ? "(" : "") + std::to_string(xyz.x)
+						+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+						+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+						+ std::string((append) ? ")" : "");
+				};
+
+				if (ImGui::TreeNode("AABB"))
+				{
+
+					math::AABB AABB = selected->GetBoundingData().AABB;
+					ImGui::Text(std::string("Global Center:" + GetStringFrom3Values(AABB.CenterPoint(), true)).c_str());
+					ImGui::Text(std::string("Volume:" + std::to_string(AABB.Volume())).c_str());
+					ImGui::Checkbox("Show AABB", &selected->debugData.AABB);
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("OBB"))
+				{
+					math::OBB OBB = selected->GetBoundingData().OBB;
+					ImGui::Text(std::string("Global Center:" + GetStringFrom3Values(OBB.CenterPoint(), true)).c_str());
+					ImGui::Text(std::string("Volume:" + std::to_string(OBB.Volume())).c_str());
+					ImGui::Checkbox("Show OBB", &selected->debugData.OBB);
+					ImGui::TreePop();
+				}
+
+
+				ImGui::TreePop();
+			}
+
 		}
 	
 		ImGui::End(); 
@@ -755,38 +796,22 @@ void panelData::InspectorSpace::Execute(bool& ret)
 
 void panelData::InspectorSpace::ComponentData(Component* c)
 {
+	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
+
+	auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+	{
+		return std::string(
+			std::string((append) ? "(" : "") + std::to_string(xyz.x)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+			+ std::string((append) ? ")" : "");
+	};
+
 
 	if (ImGui::TreeNode(c->GetName().c_str()))
 	{
 		switch (c->GetComponentType())
 		{
-
-		case COMPONENT_TYPE::TRANSFORM:
-		{
-			ComponentTransform* transf = dynamic_cast<ComponentTransform*>(c);
-			math::float3 pos = transf->GetPosition(); 
-			math::Quat rot = transf->GetRotation();
-			math::float3 sc = transf->GetScale();
-			static float p[3] = { pos.x, pos.y, pos.z };
-			static float r[4] = { rot.x, rot.y, rot.z, rot.w };
-			static float s[3] = { sc.x, sc.y, sc.z };
-			if (ImGui::InputFloat3("Position", p))
-			{
-
-			}
-			if (ImGui::InputFloat4("Rotation", r))
-			{
-
-			}
-			if (ImGui::InputFloat3("Scale", s))
-			{
-
-			}
-
-
-			break;
-		}
-
 		case COMPONENT_TYPE::MATERIAL:
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
@@ -811,15 +836,33 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
 			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetMeshData()->num_vertex)).c_str());
-			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetMeshData()->GetMeshSphereRadius())).c_str());
+			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetParent()->GetBoundingSphereRadius())).c_str());
 			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");
 			ImGui::Text(std::string("Type: " + type).c_str());
 
 			// debug
 			ImGui::Checkbox("Show vertex normals", &mesh->debugData.vertexNormals); 
 			ImGui::Checkbox("Show face normals", &mesh->debugData.faceNormals);
-
 			break;
+		}
+
+		case COMPONENT_TYPE::CAMERA:
+		{
+			ComponentCamera* cam = dynamic_cast<ComponentCamera*>(c);
+			renderingData camData = cam->GetRenderingData(); 
+			float fovY[1], pNearDist[1], pFarDist[1]; 
+			fovY[0] = camData.fovYangle;
+			pNearDist[0] = camData.pNearDist;
+			pFarDist[0] = camData.pFarDist;
+			ImGui::InputFloat("Field Of View Y", fovY);  
+			ImGui::InputFloat("Distance to near plane", pNearDist); 
+			ImGui::InputFloat("Distance to far plane", pFarDist); 
+
+			if (keyState == KEY_DOWN)
+				cam->OnInspector(fovY, pNearDist, pFarDist);
+
+				
+			break; 
 		}
 
 		default:

@@ -6,8 +6,8 @@
 #include "DevIL/include/IL/il.h"
 #include "glmath.h"
 
-#include <array>
-
+#include "MathGeoLib/include/Geometry/AABB.h"
+ 
 enum Mesh_Type
 {
 	PRIMITIVE,
@@ -20,11 +20,14 @@ struct debugData
 	bool vertexNormals = false; 
 	bool outilineMesh = false; 
 	bool outlineParent = false; 
+	bool AABB = true; 
+	bool OBB = false; 
 };
 
 // TODO = more generic 
 struct ModelMeshData
 {
+public: 
 	uint id_index = 0;
 	uint num_index = 0;
 	uint* index = nullptr;
@@ -45,20 +48,6 @@ struct ModelMeshData
 	uint num_UVs = 0;
 	float* UVs = nullptr;
 
-	// AABB
-private:
-	std::array<float, minMaxCoords::TOTAL_COORDS> minmaxCoords;
-	vec3 meshCenter;
-	double meshBoundingSphereRadius = 0;
-	bool computedData = false; 
-	void ComputeMeshSpatialData(); 
-
-public:
-
-	vec3 GetMeshCenter() const { return meshCenter; }; // this will only work at the beginning 
-	double GetMeshSphereRadius() const { return meshBoundingSphereRadius; };
-	std::array<float, minMaxCoords::TOTAL_COORDS> GetMinMaxCoords() const { return minmaxCoords; };
-
 	friend class SmileFBX;
 	friend class ComponentMesh; 
 };
@@ -72,31 +61,26 @@ public:
 	~ComponentMesh();
 
 public: 
-
-	void Update();
+	void Enable(); 
 	void CleanUp();
-
-	// If it has a mesh loaded from an FBX ("model_mesh"): 
 	void Draw(); 
-	void OnSelect(bool select);
+	void OnTransform(bool data[3]); // update obb, aabb
+
+	// Getters & Setters
 	ModelMeshData* GetMeshData() const { return model_mesh; };
+	void SetParent(GameObject* parent) { this->parent = parent; };
+	Mesh_Type GetMeshType() const { return meshType; };
+	debugData debugData;
 
 private: 
-
-	//generate a mesh form a par shapes
+	// Internal Creation
 	void GenerateModelMeshFromParShapes(par_shapes_mesh*);
-	void ComputeSpatialData(); 
 	void GenerateBuffers(); 
+	void ComputeSpatialData(); 
+	void ReLocateMeshVertices(); 
 
-	// debug
+	// Debug
 	void DebugDraw(); 
-
-
-public: 
-	// Assign & Get data
-	void SetParent(GameObject* parent) { this->parent = parent; };
-	Mesh_Type GetMeshType() const { return meshType; }; 
-	debugData debugData;
 
 private:
 	ModelMeshData* model_mesh = nullptr; 

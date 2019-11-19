@@ -22,7 +22,6 @@
 #include <sstream>
 #include <filesystem>
 
-#include "RayTracer.h"
 
 #include "ComponentMesh.h"
 #include "SmileGameObjectManager.h"
@@ -134,7 +133,7 @@ update_status SmileInput::PreUpdate(float dt)
 
 			case SDL_WINDOWEVENT:
 				if(e.window.event == SDL_WINDOWEVENT_RESIZED)
-					App->renderer3D->OnResize(e.window.data1, e.window.data2);
+					App->renderer3D->OnResize(e.window.data1, e.window.data2, App->renderer3D->targetCamera);
 			break; 
 
 			case SDL_DROPFILE:
@@ -166,13 +165,13 @@ bool SmileInput::CleanUp()
 void SmileInput::DropFileExtensionDecider(const char* path)
 {
 	std::string extension = "null";
-	std::string filename(path); 
+	std::string filename(path);
 	std::string::size_type index = filename.rfind('.');
 
 	if (index != std::string::npos)
 		extension = filename.substr(index + 1);
-	 
-	App->fbx->Load(path, extension);  
+
+	App->fbx->Load(path, extension);
 }
 
 void SmileInput::ButCanItRunCrysis()

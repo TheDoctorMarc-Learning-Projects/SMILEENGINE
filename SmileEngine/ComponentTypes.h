@@ -1,14 +1,12 @@
 #pragma once
 
-#include <map>
-#include <tuple>
-
 enum COMPONENT_TYPE : uint
 {
 	TRANSFORM,
 	MESH,
 	MATERIAL,
 	LIGHT,
+	CAMERA,
 	MAX_COMPONENT_TYPES,
 	NO_TYPE
 };

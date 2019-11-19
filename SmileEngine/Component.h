@@ -14,10 +14,14 @@ public:
 	~Component() {}
 
 public:
+	virtual void Start() { active = true;  };
 	virtual void Enable() { active = true; };
 	virtual void Update() {};
 	virtual void Disable() { active = false; };
 	virtual void CleanUp() {};
+
+	virtual void OnTransform() {};
+	// just after having a parent 
 
 	std::string GetName() const { return name; };
 	void SetName(std::string name) { this->name = name; };
@@ -38,5 +42,6 @@ public:
 	friend class ComponentMaterial; 
 	friend class ComponentMesh;
 	friend class ComponentTransform; 
+	friend class ComponentCamera; 
 };
 

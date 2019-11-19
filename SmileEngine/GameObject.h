@@ -1,20 +1,40 @@
 #pragma once
+
 #include <map>
 #include <vector>
 #include "SmileSetup.h"
 #include <array>
-#include <string>
- 
+#include <string> 
 #include "ComponentTypes.h"
+#include "MathGeoLib/include/Geometry/AABB.h"
+#include  "MathGeoLib/include/Geometry/OBB.h"
+
+#define debugLineSize 1.8
+#define debugLineHead 0.3
 
 class Component;
 class ComponentMesh; 
-class ComponentMaterial; 
-class ComponentTransform;
+class ComponentTransform; 
+class ComponentCamera; 
+class ComponentMaterial;
+
+struct BoundingData
+{
+	math::AABB AABB; 
+	math::OBB OBB; 
+};
+
+struct DebugData
+{
+	bool AABB = true; 
+	bool OBB = true; 
+};
+
 // ----------------------------------------------------------------- [GameObject]
 class GameObject
 {
-public: 
+public:
+	GameObject(GameObject* parent); 
 	GameObject(std::string name = "no name", GameObject* parent = nullptr);  
 	GameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
 	GameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
@@ -25,47 +45,68 @@ private:
 
 public: 
 
-	// Components
-	bool AddComponent(Component* comp); // you can add it to the GameObject or to a mesh
-	void SetupTransformAtMeshCenter(); 
+	// Setters
+	bool AddComponent(Component* comp);  
+	void SetParent(GameObject* parent);
+	void SetName(std::string name);
 
+
+	// Getters
 	Component* GetComponent(COMPONENT_TYPE type) const { return components[type]; }
-	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; }; 
-	ComponentTransform* GetTransform() const; 
-	ComponentMesh* GetMesh() const; 
-	ComponentMaterial* GetMaterial() const; 
+	ComponentTransform* GetTransform() const;
+	ComponentMesh* GetMesh() const;
+	ComponentCamera* GetCamera() const;
+	ComponentMaterial* GetMaterial() const;
+	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; };
 	uint GetID() const { return randomID; };
 
-	// Assign & Get data
-	void SetParent(GameObject* parent); 
-	void SetName(std::string name);
-	GameObject* GetParent() const { return parent;  };
-	std::string GetName() const { return name; }; 
-	std::vector<GameObject*> GetChildrenRecursive() const; 
-	std::vector<GameObject*> GetImmidiateChildren() const; 
-	double GetBoundingSphereRadius() const; 
+	BoundingData GetBoundingData() const { return boundingData; }; 
+	GameObject* GetParent() const { return parent; };
+	std::string GetName() const { return name; };
+	std::vector<GameObject*> GetChildrenRecursive() const; /// TODO: revise this, it is flawed
+	std::vector<GameObject*> GetImmidiateChildren() const;
+	float GetBoundingSphereRadius() const;
+	bool GetStatic() const { return isStatic; };
+	
+		// Main functions 
+	virtual void Start(); 
+	virtual void Enable(); 
+	virtual void Update();
+	void Draw(); 
+	virtual void Disable();
+	virtual void CleanUp(); 
 
-	// Main functions 
-	void Start(); 
-	void Enable(); 
-	void Update();
-	void Disable();
-	void CleanUp(); 
-
-	// State
+		// Other
+	virtual void OnTransform(bool updateBounding = true);
 	bool IsActive() const { return active; };
-	void OnTransform(); 
+	void DrawAxis(); // todo: delete this
+	void ShowTransformInspector(); 
+
+		// Bounding and mesh stuff
+	void SetupWithMesh();  
+	void PositionTransformAtMeshCenter();
+	void SetupBounding();  
+	void UpdateBounding();
+
+		// Static stuff
+	void SetStatic(bool isStatic); 
+private: 
+	void Debug(); 
 
 public:
 	std::vector<GameObject*> childObjects;
+	DebugData debugData; 
 
 
 private: 
 	uint randomID;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 
 	bool active = true; 
+	bool isStatic = true; 
 	std::string name; 
 	GameObject* parent = nullptr; 
+	BoundingData boundingData; 
 
 	friend class SmileGameObjectManager; 
+	friend class ComponentCamera; 
 };

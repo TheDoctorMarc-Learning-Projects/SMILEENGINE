@@ -37,9 +37,7 @@ public:
 	
 	// FBX
 	void Load(const char* path, std::string extension);
-	GameObject* LoadFBX(const char* path);
-
-
+	void LoadFBX(const char* path);
 	
 public: 
 	void ResolveObjectFromFBX(GameObject*, ComponentMesh* m = nullptr, std::vector<std::string> = {}, const char* path = nullptr);
@@ -50,7 +48,7 @@ private:
 	bool DoesFBXExistInAssets(const char* path); 
 	bool DoesFBXHaveLinkedModel(const char* path); 
 	const char* PushFBXToAssets(const char* path); 
-	GameObject* GenerateModelFromFBX(const char*,const aiScene*, char* rawname);
+	void GenerateModelFromFBX(const char*,const aiScene*, char* rawname);
 
 	
 	// Own File Format 

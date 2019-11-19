@@ -5,10 +5,13 @@
 #include "parshapes/par_shapes.h"
 #include <map>
 #include <string>
+#include "glmath.h"
+#include "ComponentCamera.h"
 
 par_shapes_mesh* CreateSphere();
 par_shapes_mesh* CreateCube();
 // TODO
+
 
 class SmileGameObjectManager : public SmileModule
 {

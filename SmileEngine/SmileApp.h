@@ -10,11 +10,12 @@
 #include "SmileInput.h"
 #include "SmileScene.h"
 #include "SmileRenderer3D.h"
-#include "SmileCamera3D.h"
 #include "SmileGui.h"
 #include "SmileUtilitiesModule.h"
 #include "SmileFBX.h"
 #include "SmileGameObjectManager.h" 
+#include "SmileSpatialTree.h"
+#include "SmileResourceManager.h"
 #include "SmileMaterialImporter.h"
 #include "SmileFileSystem.h"
 
@@ -26,13 +27,14 @@ public:
 	SmileInput* input;
 	SmileScene* scene_intro;
 	SmileRenderer3D* renderer3D;
-	SmileCamera3D* camera;
 	SmileGui* gui; 
 	SmileUtilitiesModule* utilities;
 	SmileFBX* fbx;
 	SmileFileSystem* fs;
 	SmileMaterialImporter* material_importer;
 	SmileGameObjectManager* object_manager;
+	SmileSpatialTree* spatial_tree; 
+	SmileResourceManager* resources;
 
 private:
 

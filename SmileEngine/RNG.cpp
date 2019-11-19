@@ -39,3 +39,11 @@ std::variant<int, float> RNG::GetRandomValue(std::variant<int, float> start,
 
 	return number;
 }
+
+SmileUUID RNG::GetRandomUUID()
+{
+	SmileUUID ret = 0;
+	long double min = 0, max = ULLONG_MAX; 
+	std::uniform_real_distribution <long double> uniform_dist(min, max);
+	return ret = uniform_dist(rng);
+}

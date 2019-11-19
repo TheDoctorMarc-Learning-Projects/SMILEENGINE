@@ -16,9 +16,14 @@
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#include "ComponentCamera.h"
+#include "GameObject.h"
+#include "ComponentTransform.h"
+
 SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
-{
+{ 
 }
+
 
 // Destructor
 SmileRenderer3D::~SmileRenderer3D()
@@ -96,22 +101,30 @@ bool SmileRenderer3D::Init()
 
 	}
 
-	// Projection matrix 
-	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")));
 	return ret;
+}
+
+bool SmileRenderer3D::Start()
+{
+	// Projection matrix 
+	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+		App->scene_intro->debugCamera);
+	
+	return true; 
 }
 
 // PreUpdate: clear buffer
 update_status SmileRenderer3D::PreUpdate(float dt)
 {
+	vec3 camPos = targetCamera->GetParent()->GetTransform()->GetPositionVec3();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(App->camera->GetViewMatrix());
+	glLoadMatrixf(targetCamera->GetViewMatrix());
 
 	// light 0 on cam pos
-	lights[0].SetPos(App->camera->Position.x, App->camera->Position.y, App->camera->Position.z);
+	lights[0].SetPos(camPos.x, camPos.y, camPos.z);
 
 	for (uint i = 0; i < MAX_LIGHTS; ++i)
 		lights[i].Render();
@@ -122,8 +135,26 @@ update_status SmileRenderer3D::PreUpdate(float dt)
 // PostUpdate present buffer to screen
 update_status SmileRenderer3D::PostUpdate(float dt)
 {
+
     App->gui->HandleRender(); 
 	SDL_GL_SwapWindow(App->window->window);
+
+	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
+	{
+		ComponentCamera* gameCam = App->scene_intro->gameCamera;
+		ComponentCamera* debugCam = App->scene_intro->debugCamera;
+
+		if (targetCamera == gameCam)
+			targetCamera = debugCam;
+		else if (targetCamera == debugCam)
+			targetCamera = gameCam;
+
+		OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+			targetCamera);
+
+	}
+
+
 	return UPDATE_CONTINUE;
 }
 
@@ -138,17 +169,37 @@ bool SmileRenderer3D::CleanUp()
 }
 
 
-void SmileRenderer3D::OnResize(int width, int height)
-{
-	glViewport(0, 0, width, height);
+void SmileRenderer3D::OnResize(int width, int height, ComponentCamera* targetCam)
+{ 	
+	targetCamera = targetCam; 
+	renderingData data = targetCamera->GetRenderingData();
+
+	data.ratio = (float)width / (float)height;
+	glViewport(0, 4, width, height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	ProjectionMatrix = perspective(FOV_Y, (float)width / (float)height, 0.125f, 512.0f);
+	ProjectionMatrix = perspective(data.fovYangle, data.ratio,
+		data.pNearDist, data.pFarDist);
 	glLoadMatrixf(&ProjectionMatrix);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+
+	targetCamera->GetFrustrum()->CalculatePlanes(); 
+
+}
+
+float* SmileRenderer3D::GetProjectionMatrix()
+{
+	return &ProjectionMatrix; 
 }
 
 
+float* SmileRenderer3D::GetProjectionMatrixTransposed()
+{
+	mat4x4 ret = ProjectionMatrix;
+	ret.transpose();
+	return &ret;
+}

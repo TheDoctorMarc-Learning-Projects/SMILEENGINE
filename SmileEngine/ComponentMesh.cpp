@@ -16,10 +16,6 @@ ComponentMesh::ComponentMesh(par_shapes_mesh* mesh, std::string name)
 
 	// Generate mesh buffers from par_shapes
 	GenerateModelMeshFromParShapes(mesh); 
-
-	// Assign the parent transform once the mesh center has been computed 
-	if(parent)
-		parent->SetupTransformAtMeshCenter();
 }
 
 ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh(mesh)
@@ -31,9 +27,11 @@ ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh
 	// Generate mesh buffers
     GenerateBuffers();
 
-	// Assign the parent transform once the mesh center has been computed 
-	if (parent)
-		parent->SetupTransformAtMeshCenter();
+}
+
+void ComponentMesh::Enable() // Called in "AddComponent()" from GameObject 
+{
+
 }
 
 ComponentMesh::~ComponentMesh()
@@ -48,7 +46,7 @@ void ComponentMesh::Draw()
 	{
 		// Transformation  
 		glPushMatrix(); 
-		glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr()); 
+		glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr()); 
 
 		// Cient states
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -178,55 +176,29 @@ void ComponentMesh::DebugDraw()
 			}
 		}
 
-
-		// stencil
-		if (debugData.outilineMesh || debugData.outlineParent)
+		// Debug AABB
+		/*if (this->debugData.AABB) // use the math obb corners 
 		{
-			// Init 
-			if (!glIsEnabled(GL_STENCIL_TEST))
-				glEnable(GL_STENCIL_TEST);
+			glColor3f(1.0f, 0.0f, 0.0f);
+			glPointSize(10); 
+			glBegin(GL_POINTS);
+			auto AABB = GetParent()->GetBoundingData().AABB; 
+			for (int i = 0; i < AABB.vertices.size(); ++i)
+			{
+				if(AABB.insideoutside.at(i) == true)
+					glColor3f(0.0f, 1.0f, 0.0f);
+				else
+					glColor3f(1.0f, 0.0f, 0.0f);
 
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-			glStencilMask(0x00);
-
-			// Transformation  
-			glPushMatrix();
-			glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr());
-
-			// Cient states
-			glEnableClientState(GL_VERTEX_ARRAY);
-
-			// Set drawing data: todo = colors diff on mesh vs obj
-			glColor3f(0, 1, 0);
-			glLineWidth(3);
-
-			// The vertex and index data should be provided inside 
-			// vertex buffer
-			glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
-			glVertexPointer(3, GL_FLOAT, 0, NULL);
-
-			// index buffer 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
-			glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, (meshType == MODEL) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT, NULL);
-
-			// Disable Cient states && clear data
+				glVertex3f(AABB.vertices.at(i).x, AABB.vertices.at(i).y, AABB.vertices.at(i).z);
+			}
+			
+			glEnd();
+			glPointSize(1);
 			glColor3f(1.0f, 1.0f, 1.0f);
-			glLineWidth(1);
-			glDisableClientState(GL_VERTEX_ARRAY);
-			glDisable(GL_STENCIL_TEST);
+		}*/
+		
 
-			// Transformation
-			glPopMatrix();
-		}
-
-
-}
-
-// -----------------------------------------------------------------
-void ComponentMesh::Update()
-{
-	Draw(); 
 }
 
 // -----------------------------------------------------------------
@@ -309,20 +281,13 @@ void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 		 
 		// Generate Mesh Buffers
 		GenerateBuffers();
-
-		// bounding box
-		ComputeSpatialData();  // TODO: the par shapes already has a compute aabb function, pass it a float* AABB
+ 
 	}
 
 	par_shapes_free_mesh(mesh); 
 }
 
-void ComponentMesh::ComputeSpatialData()
-{
-	if (model_mesh != nullptr)
-		model_mesh->ComputeMeshSpatialData();
-}
-
+ 
 void ComponentMesh::GenerateBuffers()
 {
 	// Normals Buffer
@@ -351,65 +316,26 @@ void ComponentMesh::GenerateBuffers()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * model_mesh->num_index, model_mesh->index, GL_STATIC_DRAW);
 }
 
-// Executed only once 
-void ModelMeshData::ComputeMeshSpatialData()
+ 
+void ComponentMesh::OnTransform(bool data[3])
 {
-	if (computedData)
-		return; 
-
-	// 1) find the min-max coords
-	for (uint i = 0; i < num_vertex; i += 3)
-	{
-		// first, initialize the min-max coords to the first vertex, 
-		// in order to compare the following ones with it
-		if (i == 0)
-		{
-			minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
-			minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
-			minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
-			minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
-			minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
-			minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
-			continue;
-		}
-
-		// find min-max X coord
-		if (vertex[i] < minmaxCoords[minMaxCoords::MIN_X])
-			minmaxCoords[minMaxCoords::MIN_X] = vertex[i];
-		else if (vertex[i] > minmaxCoords[minMaxCoords::MAX_X])
-			minmaxCoords[minMaxCoords::MAX_X] = vertex[i];
-
-		// find min-max Y coord
-		if (vertex[i + 1] < minmaxCoords[minMaxCoords::MIN_Y])
-			minmaxCoords[minMaxCoords::MIN_Y] = vertex[i + 1];
-		else if (vertex[i + 1] > minmaxCoords[minMaxCoords::MAX_Y])
-			minmaxCoords[minMaxCoords::MAX_Y] = vertex[i + 1];
-
-		// find min-max Z coord
-		if (vertex[i + 2] < minmaxCoords[minMaxCoords::MIN_Z])
-			minmaxCoords[minMaxCoords::MIN_Z] = vertex[i + 2];
-		else if (vertex[i + 2] > minmaxCoords[minMaxCoords::MAX_Z])
-			minmaxCoords[minMaxCoords::MAX_Z] = vertex[i + 2];
-
-	}
-
-	// 2) find the center 
-	float c_X = (minmaxCoords[minMaxCoords::MIN_X] + minmaxCoords[minMaxCoords::MAX_X]) / 2;
-	float c_Y = (minmaxCoords[minMaxCoords::MIN_Y] + minmaxCoords[minMaxCoords::MAX_Y]) / 2;
-	float c_Z = (minmaxCoords[minMaxCoords::MIN_Z] + minmaxCoords[minMaxCoords::MAX_Z]) / 2;
-	meshCenter = vec3(c_X, c_Y, c_Z);
-
-	// 3) find the bounding sphere radius
-	vec3 min_Vec(minmaxCoords[minMaxCoords::MIN_X], minmaxCoords[minMaxCoords::MIN_Y], minmaxCoords[minMaxCoords::MIN_Z]);
-	vec3 max_Vec(minmaxCoords[minMaxCoords::MAX_X], minmaxCoords[minMaxCoords::MAX_Y], minmaxCoords[minMaxCoords::MAX_Z]);
-	vec3 rad_Vec = (max_Vec - min_Vec) / 2;
-	meshBoundingSphereRadius = (double)sqrt(rad_Vec.x * rad_Vec.x + rad_Vec.y * rad_Vec.y + rad_Vec.y * rad_Vec.y);
-
-		
-	computedData = true; 
+	
 }
 
-void ComponentMesh::OnSelect(bool select)
-{
-	debugData.outilineMesh = !debugData.outilineMesh; 
+void ComponentMesh::ReLocateMeshVertices() // when you set the object's transform at the mesh center pos, recompute vertices
+{		 
+	for (int i = 0; i < model_mesh->num_vertex; i += 3)
+	{
+		// Take the go's parent global pos and add the vertex local pos
+		float3 oldVertexPos = GetParent()->GetParent()->GetTransform()->GetGlobalPosition() + 
+			float3(model_mesh->vertex[i], model_mesh->vertex[i + 1], model_mesh->vertex[i + 2]);
+		
+		// the new vertex pos is the difference between the old global pos and the new go transform pos
+		float3 newTransfPos = GetParent()->GetTransform()->GetGlobalPosition(); 
+		float3 newVertexPos = oldVertexPos - newTransfPos; 
+
+		model_mesh->vertex[i] = newVertexPos.x; 
+		model_mesh->vertex[i + 1] = newVertexPos.y;
+		model_mesh->vertex[i + 2] = newVertexPos.z;
+	}
 }

@@ -53,7 +53,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <ExceptionHandling>false</ExceptionHandling>
-      <AdditionalIncludeDirectories>C:\Users\marcdp1\Documents\GitHub\SMILEENGINE\SmileEngine\MathGeoLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\Game;C:\Users\mdpdo\OneDrive\Documentos\Github\SmileEngine\SmileEngine\imgui;C:\Users\marcdp1\Documents\GitHub\SMILEENGINE\SmileEngine\MathGeoLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -92,14 +92,16 @@
     <ClInclude Include="ComponentTransform.h" />
     <ClInclude Include="ComponentTypes.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="ComponentCamera.h" />
     <ClInclude Include="glmath.h" />
+    <ClInclude Include="imgui\ImGuizmo.h" />
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="JSONParser.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="pcg\include\pcg_extras.hpp" />
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
-    <ClInclude Include="RayTracer.h" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="SafetyHandler.h" />
     <ClInclude Include="SmileApp.h" />
@@ -107,6 +109,7 @@
     <ClInclude Include="SmileFBX.h" />
     <ClInclude Include="SmileFileSystem.h" />
     <ClInclude Include="SmileGameObjectManager.h" />
+    <ClInclude Include="SmileResourceManager.h" />
     <ClInclude Include="SmileMaterialImporter.h" />
     <ClInclude Include="SmileSetup.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -116,11 +119,11 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="SmileCamera3D.h" />
     <ClInclude Include="SmileRenderer3D.h" />
     <ClInclude Include="SmileModule.h" />
     <ClInclude Include="SmileInput.h" />
     <ClInclude Include="SmileScene.h" />
+    <ClInclude Include="SmileSpatialTree.h" />
     <ClInclude Include="SmileUtilitiesModule.h" />
     <ClInclude Include="SmileWindow.h" />
     <ClInclude Include="SmileGui.h" />
@@ -132,11 +135,12 @@
     <ClCompile Include="ComponentMesh.cpp" />
     <ClCompile Include="ComponentTransform.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="ComponentCamera.cpp" />
     <ClCompile Include="glmath.cpp" />
+    <ClCompile Include="imgui\ImGuizmo.cpp" />
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="JSONParser.cpp" />
     <ClCompile Include="Light.cpp" />
-    <ClCompile Include="RayTracer.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="SmileApp.cpp" />
     <ClCompile Include="Color.cpp" />
@@ -149,12 +153,13 @@
     <ClCompile Include="SmileFileSystem.cpp" />
     <ClCompile Include="SmileGameObjectManager.cpp" />
     <ClCompile Include="SmileMain.cpp" />
-    <ClCompile Include="SmileCamera3D.cpp" />
     <ClCompile Include="SmileInput.cpp" />
     <ClCompile Include="SmileMaterialImporter.cpp" />
     <ClCompile Include="SmileRenderer3D.cpp" />
+    <ClCompile Include="SmileResourceManager.cpp" />
     <ClCompile Include="SmileScene.cpp" />
     <ClCompile Include="SmileSetup.cpp" />
+    <ClCompile Include="SmileSpatialTree.cpp" />
     <ClCompile Include="SmileUtilitiesModule.cpp" />
     <ClCompile Include="SmileWindow.cpp" />
     <ClCompile Include="SmileGui.cpp" />
