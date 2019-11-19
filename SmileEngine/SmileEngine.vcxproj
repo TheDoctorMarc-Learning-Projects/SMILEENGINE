@@ -111,6 +111,7 @@
     <ClInclude Include="SmileGameObjectManager.h" />
     <ClInclude Include="SmileResourceManager.h" />
     <ClInclude Include="SmileMaterialImporter.h" />
+    <ClInclude Include="SmileSerialization.h" />
     <ClInclude Include="SmileSetup.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -158,6 +159,7 @@
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileResourceManager.cpp" />
     <ClCompile Include="SmileScene.cpp" />
+    <ClCompile Include="SmileSerialization.cpp" />
     <ClCompile Include="SmileSetup.cpp" />
     <ClCompile Include="SmileSpatialTree.cpp" />
     <ClCompile Include="SmileUtilitiesModule.cpp" />

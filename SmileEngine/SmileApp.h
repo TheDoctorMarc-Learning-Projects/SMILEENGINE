@@ -18,7 +18,7 @@
 #include "SmileResourceManager.h"
 #include "SmileMaterialImporter.h"
 #include "SmileFileSystem.h"
-
+#include "SmileSerialization.h"
 
 class SmileApp
 {
@@ -35,6 +35,7 @@ public:
 	SmileGameObjectManager* object_manager;
 	SmileSpatialTree* spatial_tree; 
 	SmileResourceManager* resources;
+	SmileSerialization* serialization;
 
 private:
 

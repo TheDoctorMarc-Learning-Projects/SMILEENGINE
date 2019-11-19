@@ -180,6 +180,9 @@
     <ClInclude Include="SmileFileSystem.h">
       <Filter>Source\Modules\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="SmileSerialization.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -274,12 +277,15 @@
     </ClCompile>
     <ClCompile Include="SmileResourceManager.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
-    </ClCompile>  
+    </ClCompile>
     <ClCompile Include="SmileMaterialImporter.cpp">
       <Filter>Source\Modules\Objects</Filter>
     </ClCompile>
     <ClCompile Include="SmileFileSystem.cpp">
       <Filter>Source\Modules\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileSerialization.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

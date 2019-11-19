@@ -15,6 +15,7 @@ class SmileSpatialTree;
 class SmileResourceManager; 
 class SmileMaterialImporter;
 class SmileFileSystem;
+class SmileSerialization;
 
 SmileApp::SmileApp()
 {
@@ -30,6 +31,7 @@ SmileApp::SmileApp()
 	object_manager = DBG_NEW SmileGameObjectManager(this);
 	spatial_tree = DBG_NEW SmileSpatialTree(this); 
 	resources = DBG_NEW SmileResourceManager(this); 
+	serialization = DBG_NEW SmileSerialization(this);
 
 	// Test 
 	AddModule(utilities);
