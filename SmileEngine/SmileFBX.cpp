@@ -44,6 +44,7 @@ bool SmileFBX::Start()
 	// Devil
 	ilInit(); 
 	iluInit(); 
+	ilutInit(); 
 	ilutRenderer(ILUT_OPENGL); 
 
 	return ret;
@@ -376,11 +377,6 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 
 	}
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-	ilDeleteImage(tempID);
-
-
-
 }
 
 
@@ -587,22 +583,24 @@ ComponentMaterial* SmileFBX::LoadMaterial(textureData* texdata, const char* path
 	return material;
 }
 
-std::string SmileFBX::SaveMaterial(textureData* texture, GameObject* obj, uint index)
+std::string SmileFBX::SaveMaterial(const char* path)
 {
-	bool ret = false;
 	ILuint size;
 	ILubyte* data;
-	std::string name;
-	name += std::string(obj->GetName().c_str()) += std::string("_material") += std::to_string(index);
+	std::string fullName(path); 
+	std::string output_file, cleanPath, extension, fileName; 
+	App->fs->SplitFilePath(path, &output_file, &fileName); 
+	std::string rawname = fileName.substr(0, fileName.find_last_of("."));
+
 	ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
 	size = ilSaveL(IL_DDS, NULL, 0);
-	std::string output_file;
 	if (size > 0) {
-		//ILubyte* texture_data = texture->texture;
-		data = new ILubyte[size];
+		data = DBG_NEW ILubyte[size];
 		iluFlipImage();
 		if (ilSaveL(IL_DDS, data, size) > 0)
-			App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, name.c_str(), "dds");
+			App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, rawname.c_str(), "dds");
+
+		RELEASE_ARRAY(data); 
 	}
 	
 	
@@ -747,7 +745,7 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 			writer.Key("materialPath");
 
 			if(material)
-				writer.String(SaveMaterial(material->GetTextureData(), child, meshCount).c_str());
+				writer.String(SaveMaterial(material->GetTextureData()->path.c_str()).c_str());
 			else
 				writer.String("empty");
 			
