@@ -575,7 +575,7 @@ ComponentMaterial* SmileFBX::LoadMaterial(textureData* texdata, const char* path
 	}
 	else
 		LOG("Error loading texture %s, error: %s", path, iluErrorString(ilGetError()));
-
+	
 
 	ilDeleteImages(1, &imageID);
 	ComponentMaterial* material = DBG_NEW ComponentMaterial();
@@ -583,6 +583,7 @@ ComponentMaterial* SmileFBX::LoadMaterial(textureData* texdata, const char* path
 	material->textureInfo->width = texdata->width;
 	material->textureInfo->height = texdata->height;
 	material->textureInfo->path = texdata->path;
+
 	return material;
 }
 
@@ -590,17 +591,20 @@ std::string SmileFBX::SaveMaterial(textureData* texture, GameObject* obj, uint i
 {
 	bool ret = false;
 	ILuint size;
+	ILubyte* data;
 	std::string name;
 	name += std::string(obj->GetName().c_str()) += std::string("_material") += std::to_string(index);
 	ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
 	size = ilSaveL(IL_DDS, NULL, 0);
 	std::string output_file;
 	if (size > 0) {
-		ILubyte* texture_data = texture->texture;
-		if (ilSaveL(IL_DDS, texture_data, size) > 0)
-			ret = App->fs->SaveUnique(output_file, texture_data, size, LIBRARY_TEXTURES_FOLDER, name.c_str(), "dds");
-		
+		//ILubyte* texture_data = texture->texture;
+		data = new ILubyte[size];
+		iluFlipImage();
+		if (ilSaveL(IL_DDS, data, size) > 0)
+			App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, name.c_str(), "dds");
 	}
+	
 	
 	return output_file;
 }
