@@ -88,9 +88,9 @@ static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene)
 	App->object_manager->DestroyObject(parentObj); 
 }
 
-GameObject* SmileFBX::LoadFBX(const char* path)
+void SmileFBX::LoadFBX(const char* path)
 {
-	
+	GameObject* ret; 
 	char rawname[100];
 	const aiScene* scene = OnFBXImport(path, rawname);
 
@@ -99,7 +99,7 @@ GameObject* SmileFBX::LoadFBX(const char* path)
 	if (!success)
 	{
 		LOG("Error loading FBX %s", path);
-		return nullptr;
+		return;
 	}
 
 
@@ -110,7 +110,7 @@ GameObject* SmileFBX::LoadFBX(const char* path)
 	// 2) If.model does not exist, generate it
 	if (DoesFBXHaveLinkedModel(path) == false)
 		GenerateModelFromFBX(path, scene, rawname);
-	 
+	
 }
 
 bool SmileFBX::DoesFBXExistInAssets(const char* path)
@@ -161,7 +161,7 @@ bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
 }
 
 
-GameObject* SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scene, char* rawname)
+void SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scene, char* rawname)
 {
 
 	// Parent Object
@@ -187,8 +187,6 @@ GameObject* SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scen
 		
 	SaveModel(parentObj, path);
 	OnFBXImportEnd(parentObj, scene);
-
-	return parentObj;
 }
 
 
@@ -198,7 +196,6 @@ void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std
 	/// 1) Create and Assign components
 	// Mesh
 	object->AddComponent(mesh);
-	object->SetupTransformAtMeshCenter();
 
 	// Materials
 	for (auto& path : materialsPaths)
@@ -314,8 +311,6 @@ ModelMeshData* SmileFBX::FillMeshBuffers(aiMesh* new_mesh, ModelMeshData* mesh_i
 		LOG("Number of vertices: %i", new_mesh->mNumVertices);
 	}
 
-	// This is replaced in the other branch I believe: 
-	mesh_info->ComputeMeshSpatialData();
 
 	return mesh_info; 
 }

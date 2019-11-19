@@ -36,7 +36,6 @@ SmileApp::SmileApp()
 
 	// Main SmileModules
 	AddModule(window);
-	AddModule(utilities);
 	AddModule(input);
 	AddModule(fbx);
 	AddModule(resources); 

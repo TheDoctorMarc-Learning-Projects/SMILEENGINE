@@ -324,20 +324,6 @@ void GameObject::SetName(std::string name)
 	this->name = name;
 }
 
-ComponentTransform* GameObject::GetTransform() const
-{
-	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
-}
-
-ComponentMesh* GameObject::GetMesh() const
-{
-	return dynamic_cast<ComponentMesh*>(components[MESH]);
-}
-
-ComponentCamera* GameObject::GetCamera() const
-{
-	return dynamic_cast<ComponentCamera*>(components[CAMERA]);
-}
 
 void GameObject::SetupWithMesh()
 {
@@ -539,6 +525,11 @@ ComponentTransform* GameObject::GetTransform() const
 ComponentMesh* GameObject::GetMesh() const
 {
 	return dynamic_cast<ComponentMesh*>(components[MESH]);
+}
+
+ComponentCamera* GameObject::GetCamera() const
+{
+	return dynamic_cast<ComponentCamera*>(components[CAMERA]);
 }
 
 ComponentMaterial* GameObject::GetMaterial() const
