@@ -7,6 +7,7 @@
 #include "ComponentTransform.h"
 /*#include <gl/GL.h>
 //#include <gl/GLU.h>*/
+#include"SmileSerialization.h"
 
 #include "Glew/include/GL/glew.h"
 #include "ComponentCamera.h"
@@ -94,6 +95,10 @@ update_status SmileScene::Update(float dt)
 	HandleGizmo(); 
 	DrawGrid();
 	DebugLastRay(); 
+	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_DOWN)
+	{
+		App->serialization->SaveScene();
+	}
 	
 	return UPDATE_CONTINUE;
 }

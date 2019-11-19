@@ -55,10 +55,11 @@ private:
 
 
 	ComponentMesh* LoadMesh(ModelMeshData* mesh, const char* path);
-	std::string SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index);
+	std::string SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index = INT_MAX);
 	std::string SaveMaterial(const char* path);
 	bool LoadModel(const char* path);
 	void SaveModel(GameObject*, const char* path);
+
 
 
 private: 
@@ -69,5 +70,7 @@ public:
 	std::string fbx_target;
 	std::string models_target;
 	
+
+	friend class SmileSerialization;
 };
 

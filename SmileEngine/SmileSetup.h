@@ -58,9 +58,11 @@ enum update_status
 #define LIBRARY_TEXTURES_FOLDER "/Library/Textures/"
 #define LIBRARY_MODELS_FOLDER "/Library/Models/"
 #define ASSETS_MODELS_FOLDER "/Assets/Models/"
+#define SCENE_FOLDER "/Library/Scenes/"
 #define MESH_EXTENSION "smilemesh"
 #define TEXTURES_EXTENSION "smiletexture"
 #define MODELS_EXTENSION "smilemodel"
+#define SCENE_EXTENSION "smilescene"
 
 #include <string>
 static bool IsModelExtension(std::string extension)

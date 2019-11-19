@@ -525,8 +525,10 @@ std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
 
 	std::string name;
 	std::string output; 
-	name += std::string(obj->GetName().c_str()) += std::string("_mesh") += std::to_string(index);   
-	
+	name += std::string(obj->GetName().c_str()) += std::string("_mesh");
+	if (index != INT_MAX)
+		name += std::to_string(index);  
+		
 	App->fs->SaveUnique(output, data, size, LIBRARY_MESHES_FOLDER, name.c_str(), MESH_EXTENSION);
 
 	RELEASE_ARRAY(data);
@@ -610,10 +612,6 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	auto material = obj->GetMaterial();   
 	std::vector <GameObject*>children = obj->GetImmidiateChildren();
 
-	float3 position = transf->GetPosition();
-	float3 scale = transf->GetScale();
-	Quat rotation = transf->GetRotation();
-
 	// 2) Save the object itself
 	rapidjson::StringBuffer buffer;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
@@ -631,6 +629,8 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	writer.Key("ID");
 	writer.Int(obj->GetID());
 
+
+
 	GameObject* parent = obj->GetParent(); 
 	if (parent)
 	{
@@ -647,22 +647,7 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	std::string lastFBXPath = path;
 	
 	writer.Key("FBX path");
-	writer.String(lastFBXPath.c_str()); // TODO: FILL THE LASTFBXPATH
-
-	// TODO: active, static, open in hierarchy , AABB, OBB 
-
-	// Components
-
-
-		
-	/*if (material)
-	{
-		writer.Key("Material path");
-		writer.String(SaveMaterial(material->GetTextureData()).c_str());
-	}*/
-
-
-	// Components
+	writer.String(lastFBXPath.c_str());
 
 	writer.EndObject();
 
@@ -713,5 +698,6 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 
  
 }
+
 
 
