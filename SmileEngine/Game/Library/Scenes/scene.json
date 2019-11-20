@@ -1,7 +1,7 @@
 {
   
   "GameObject": {
-    "UID": 443257843,
+    "UID": -842150451,
     "Name": "root",
     "Selected": false,
     "Static": true,
@@ -12,14 +12,13 @@
           "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
           "Scale": [ 1.0, 1.0, 1.0 ]
         }
-      },
-      { "Mesh": "empty" }
+      }
     ],
     "Children": [
       {
         "GameObject": {
-          "UID": 421202116,
-          "Parent ID": 443257843,
+          "UID": -842150451,
+          "Parent ID": -842150451,
           "Name": "Debug Camera",
           "Selected": false,
           "Static": true,
@@ -30,16 +29,15 @@
                 "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
                 "Scale": [ 1.0, 1.0, 1.0 ]
               }
-            },
-            { "Mesh": "empty" }
+            }
           ],
-          "Children": "Empty"
+          "Children": []
         }
       },
       {
         "GameObject": {
-          "UID": 1986317729,
-          "Parent ID": 443257843,
+          "UID": -842150451,
+          "Parent ID": -842150451,
           "Name": "Game Camera",
           "Selected": false,
           "Static": true,
@@ -50,16 +48,15 @@
                 "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
                 "Scale": [ 1.0, 1.0, 1.0 ]
               }
-            },
-            { "Mesh": "empty" }
+            }
           ],
-          "Children": "Empty"
+          "Children": []
         }
       },
       {
         "GameObject": {
-          "UID": 1525371195,
-          "Parent ID": 443257843,
+          "UID": -842150451,
+          "Parent ID": -842150451,
           "Name": "bakerhouse",
           "Selected": false,
           "Static": true,
@@ -70,14 +67,13 @@
                 "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
                 "Scale": [ 1.0, 1.0, 1.0 ]
               }
-            },
-            { "Mesh": "empty" }
+            }
           ],
           "Children": [
             {
               "GameObject": {
-                "UID": 1296523783,
-                "Parent ID": 1525371195,
+                "UID": -842150451,
+                "Parent ID": -842150451,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -97,13 +93,13 @@
                     }
                   }
                 ],
-                "Children": "Empty"
+                "Children": []
               }
             },
             {
               "GameObject": {
-                "UID": 1129470434,
-                "Parent ID": 1525371195,
+                "UID": -842150451,
+                "Parent ID": -842150451,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -123,7 +119,79 @@
                     }
                   }
                 ],
-                "Children": "Empty"
+                "Children": []
+              }
+            }
+          ]
+        }
+      },
+      {
+        "GameObject": {
+          "UID": -842150451,
+          "Parent ID": -842150451,
+          "Name": "bakerhouse",
+          "Selected": false,
+          "Static": true,
+          "Components": [
+            {
+              "Transform": {
+                "Position": [ 0.0, 0.0, 0.0 ],
+                "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
+                "Scale": [ 1.0, 1.0, 1.0 ]
+              }
+            }
+          ],
+          "Children": [
+            {
+              "GameObject": {
+                "UID": -842150451,
+                "Parent ID": -842150451,
+                "Name": "no name",
+                "Selected": false,
+                "Static": true,
+                "Components": [
+                  {
+                    "Transform": {
+                      "Position": [ 0.0, 0.0, 0.0 ],
+                      "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
+                      "Scale": [ 1.0, 1.0, 1.0 ]
+                    }
+                  },
+                  {
+                    "Mesh": {
+                      "path": "/library/meshes/no name_mesh.smilemesh",
+                      "materialPath": "Library/Textures/baker_house.dds",
+                      "Selected": false
+                    }
+                  }
+                ],
+                "Children": []
+              }
+            },
+            {
+              "GameObject": {
+                "UID": -842150451,
+                "Parent ID": -842150451,
+                "Name": "no name",
+                "Selected": false,
+                "Static": true,
+                "Components": [
+                  {
+                    "Transform": {
+                      "Position": [ 0.0, 0.0, 0.0 ],
+                      "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
+                      "Scale": [ 1.0, 1.0, 1.0 ]
+                    }
+                  },
+                  {
+                    "Mesh": {
+                      "path": "/library/meshes/no name_mesh.smilemesh",
+                      "materialPath": "Library/Textures/baker_house.dds",
+                      "Selected": false
+                    }
+                  }
+                ],
+                "Children": []
               }
             }
           ]

@@ -10,6 +10,7 @@
 #include "SmileUtilitiesModule.h"
 #include <filesystem>
 #include "SmileApp.h"
+#include "ComponentTypes.h"
 
 SmileSerialization::SmileSerialization(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -26,8 +27,6 @@ bool SmileSerialization::SaveScene()
 	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 	
 	SaveSceneNode(App->scene_intro->rootObj, writer);
-
-
 
 	const char* output = buffer.GetString();
 	std::string dirPath;
@@ -121,11 +120,12 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	//static, bounding box
 
 	// - - - - - - - - - - - - Mesh
-	writer.StartObject();
-	writer.Key("Mesh");
+	
 	
 	if (obj->GetMesh())
 	{
+		writer.StartObject();
+		writer.Key("Mesh");
 
 		writer.StartObject();
 
@@ -148,11 +148,11 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 
 		writer.EndObject();
 
-	}
-	else
-		writer.String("empty"); 
 
-	writer.EndObject();
+		writer.EndObject();
+	}
+	
+
 	// - - - - - - - - - - - - (end mesh)
 
 
@@ -161,57 +161,93 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 
     // - - - - - - - - - - - - - - - - - - - - Children
 	writer.Key("Children");
-	if (children.size() > 0) {
-
-
-		writer.StartArray();
-		//writer.StartObject();
+	writer.StartArray();
+	
+	if (children.size() > 0) 
+	{
 		for (auto& child : children)
 		{
 			SaveSceneNode(child, writer);
 		}
-		//writer.EndObject();
-		writer.EndArray();
 
 	}
-	else
-		writer.String("Empty"); 
+	writer.EndArray();
 
 
 	writer.EndObject();
-
 
 	writer.EndObject(); // end gameObject object
 
 	return false;
 }
 
-bool SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Value& mynode, rapidjson::Document& doc)
+GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Value& mynode, rapidjson::Document& doc)
 {
+	// Create object
 	GameObject* obj = DBG_NEW GameObject();
-	obj->SetParent(parent);
 
-	//int id = rapidjson::GetValueByPointer(doc, "/GameObject/UID")->GetInt();
-	//
-	//int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/Parent ID")->GetInt();
+	// General data
+	if(parent)
+		obj->SetParent(parent);
 
-	//std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/Name")->GetString();
-	//obj->SetName(name);
-	//bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/Selected")->GetBool();
-	//if (selected == true)
-	//	App->scene_intro->selectedObj = obj;
+	obj->randomID = (SmileUUID)mynode["UID"].GetInt64();  // Set it (already in constructor, careful)
+	obj->SetName(mynode["Name"].GetString());
+	bool selected = mynode["Selected"].GetBool();
+	if (selected)
+		App->scene_intro->selectedObj = obj;
+	obj->SetStatic(mynode["Static"].GetBool()); 
 
+	// Components
+	// We must assume transform:
+	auto compArray = mynode["Components"].GetArray(); 
+	uint i = 0; 
+	for (auto& comp : compArray) // component array node
+	{
+		// get the name of the memeber inside the node
+		for (rapidjson::Value::ConstMemberIterator iter = comp.MemberBegin(); iter != comp.MemberEnd(); ++iter)
+		{
+			auto name =  iter->name.GetString();
+			auto object = iter->value.GetObjectA(); 
 
-	
-	
-	auto& children_array = mynode["Children"].GetArray();
-	for (auto& child : children_array) {
-		assert(child.IsObject());
+			switch (componentTypeMap.at(name))
+			{
+			case TRANSFORM: 
+			{
+				auto pos = object["Position"].GetArray(); 
+				auto rot = object["Rotation"].GetArray();
+				auto scale = object["Scale"].GetArray();
+			     
+				break; 
+			}
 
-		//LoadSceneNode(obj, child, doc);
+			case MESH:
+			{
+				break;
+			}
+
+			case CAMERA:
+			{
+				break;
+			}
+
+			default:
+				break;
+			}
+		}
 	}
 	
-	return false;
+ 
+
+
+	// Children
+	auto children_array = mynode["Children"].GetArray();
+	if (children_array.Empty())
+		return obj; 
+
+	for (auto& child : children_array) 
+		LoadSceneNode(obj, child["GameObject"], doc);
+	
+	return obj;
 }
 
 void SmileSerialization::LoadScene(const char* path)
@@ -220,6 +256,11 @@ void SmileSerialization::LoadScene(const char* path)
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
 	
 
-	LoadSceneNode(nullptr, doc["GameObject"], doc);
+	// When Loading: 
+	// 1) Clear Octree
+	// 2) Clear All Objects
+	// 3) Then Load
+	App->scene_intro->rootObj = LoadSceneNode(nullptr, doc["GameObject"], doc);
+	// 4) Afterwards, create Octree again
 
 }

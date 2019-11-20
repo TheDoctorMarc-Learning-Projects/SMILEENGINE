@@ -2,6 +2,9 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "Glew/include/GL/glew.h" 
+#include "SmileUtilitiesModule.h"
+#include "Utility.h"
+#include "RNG.h"
 
 SmileGameObjectManager::SmileGameObjectManager(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -10,6 +13,7 @@ SmileGameObjectManager::SmileGameObjectManager(SmileApp* app, bool start_enabled
 SmileGameObjectManager::~SmileGameObjectManager()
 {
 	primitiveMap.clear(); 
+	componentTypeMap.clear(); 
 }
 
 void SmileGameObjectManager::FillMaps()
@@ -65,20 +69,29 @@ par_shapes_mesh* SmileGameObjectManager::GeneratePrimitive(std::string type)
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(std::string name, GameObject* parent)
 {
-	return DBG_NEW GameObject(name, parent);
+	GameObject * ret;  
+	ret = DBG_NEW GameObject(name, parent);
+	ret->randomID = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(); 
+	return ret;
 }
 
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(Component* comp, std::string name, GameObject* parent)
 {
-	return DBG_NEW GameObject(comp, name, parent);
+	GameObject* ret;
+	ret = DBG_NEW GameObject(comp, name, parent);
+	ret->randomID = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID();
+	return ret; 
 }
 
 
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> components, std::string name, GameObject* parent)
 {
-	return DBG_NEW GameObject(components, name, parent);
+	GameObject* ret;
+	ret = DBG_NEW GameObject(components, name, parent);
+	ret->randomID = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID();
+	return ret;
 }
 
 

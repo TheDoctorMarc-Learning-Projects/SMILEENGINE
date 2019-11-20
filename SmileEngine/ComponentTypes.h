@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 enum COMPONENT_TYPE : uint
 {
 	TRANSFORM,
@@ -33,3 +35,11 @@ enum minMaxCoords : uint
 	MAX_Z,
 	TOTAL_COORDS
 };
+
+static std::map<std::string, COMPONENT_TYPE> componentTypeMap =
+{
+	{ "Transform", TRANSFORM},
+	{ "Mesh", MESH},
+	{ "Material", MATERIAL},
+	{ "Camera", CAMERA},
+}; 

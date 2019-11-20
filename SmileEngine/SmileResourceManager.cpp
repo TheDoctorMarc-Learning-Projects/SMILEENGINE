@@ -6,6 +6,7 @@
 
 bool SmileResourceManager::Start()
 {
+
 	return true; 
 }
 

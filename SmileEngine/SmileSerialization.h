@@ -17,7 +17,7 @@ private:
 
 	
 	bool SaveSceneNode(GameObject* go, rapidjson::Writer<rapidjson::StringBuffer>& writer);
-	bool LoadSceneNode(GameObject* go, rapidjson::Value& mynode, rapidjson::Document& doc);
+	GameObject* LoadSceneNode(GameObject* go, rapidjson::Value& mynode, rapidjson::Document& doc);
 	
 
 };

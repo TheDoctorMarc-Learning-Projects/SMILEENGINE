@@ -44,5 +44,4 @@ public:
 
 private: 
 	std::map<std::string, par_shapes_mesh*(*)()> primitiveMap;
-
 };
