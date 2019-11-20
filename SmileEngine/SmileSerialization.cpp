@@ -72,6 +72,48 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	writer.Key("Selected");
 	writer.Bool((App->scene_intro->selectedObj == obj) ? true : false);
 	
+
+	// - - - - - - - - - - - - Transform
+	writer.Key("Transform");
+	writer.StartArray();
+	writer.StartObject();
+
+	// Pos
+	writer.Key("Position");
+	writer.StartArray();
+
+	writer.Int(position.x);
+	writer.Int(position.y);
+	writer.Int(position.z);
+
+	writer.EndArray();
+
+	// Rot
+	writer.Key("Rotation");
+	writer.StartArray();
+
+	writer.Int(rotation.x);
+	writer.Int(rotation.y);
+	writer.Int(rotation.z);
+	writer.Int(rotation.w);
+
+	writer.EndArray();
+
+	// Scale
+	writer.Key("Scale");
+	writer.StartArray();
+
+	writer.Int(scale.x);
+	writer.Int(scale.y);
+	writer.Int(scale.z);
+
+	writer.EndArray();
+
+	writer.EndObject();
+	writer.EndArray();
+
+	// - - - - - - - - - - - - (end tranform)
+
 	//static, bounding box
 
 	
