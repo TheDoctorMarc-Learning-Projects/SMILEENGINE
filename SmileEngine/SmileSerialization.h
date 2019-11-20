@@ -12,12 +12,12 @@ public:
 	SmileSerialization(SmileApp* app, bool start_enabled = true);
 	~SmileSerialization();
 	bool SaveScene();
-	GameObject* LoadScene(const char* path);
+	void LoadScene(const char* path);
 private:
 
 	
 	bool SaveSceneNode(GameObject* go, rapidjson::Writer<rapidjson::StringBuffer>& writer);
-	bool LoadSceneNode(GameObject* go, const char* path);
+	bool LoadSceneNode(GameObject* go, rapidjson::Value& mynode, rapidjson::Document& doc);
 	
 
 };

@@ -99,6 +99,10 @@ update_status SmileScene::Update(float dt)
 	{
 		App->serialization->SaveScene();
 	}
+	if (App->input->GetKey(SDL_SCANCODE_L) == KEY_DOWN)
+	{
+		App->serialization->LoadScene("Library/Scenes/scene.json");
+	}
 	
 	return UPDATE_CONTINUE;
 }
