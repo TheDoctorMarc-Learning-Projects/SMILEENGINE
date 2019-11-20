@@ -51,8 +51,6 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	writer.StartObject();
 	writer.Key("GameObject");
 
-	writer.StartArray();
-
 	writer.StartObject();
 
 	// Model variables
@@ -75,7 +73,6 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 
 	// - - - - - - - - - - - - Transform
 	writer.Key("Transform");
-	writer.StartArray();
 	writer.StartObject();
 
 	// Pos
@@ -110,54 +107,47 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	writer.EndArray();
 
 	writer.EndObject();
-	writer.EndArray();
 
 	// - - - - - - - - - - - - (end tranform)
 
 	//static, bounding box
 
-	
-	
-	//Meshes
-
-
+	// - - - - - - - - - - - - Mesh
 	writer.Key("Mesh");
-
-	writer.StartArray();
-
-
 	
 	if (obj->GetMesh())
 	{
-			writer.StartObject();
-			
 
-			auto material = obj->GetMaterial();
-			auto mesh = obj->GetMesh();
+		writer.StartObject();
+
+		auto material = obj->GetMaterial();
+		auto mesh = obj->GetMesh();
 
 
-			writer.Key("path");
-			writer.String(App->fbx->SaveMesh(mesh->GetMeshData(), obj).c_str());
+		writer.Key("path");
+		writer.String(App->fbx->SaveMesh(mesh->GetMeshData(), obj).c_str());
 
-			writer.Key("materialPath");
+		writer.Key("materialPath");
 
-			if (material)
-				writer.String(App->fbx->SaveMaterial(material->GetTextureData()->path.c_str()).c_str());
-			else
-				writer.String("empty");
+		if (material)
+			writer.String(App->fbx->SaveMaterial(material->GetTextureData()->path.c_str()).c_str());
+		else
+			writer.String("Empty");
 
-			writer.EndObject();
+		writer.EndObject();
 
 	}
-	
-	writer.EndArray();
+	else
+		writer.String("empty"); 
 
+	
+	// - - - - - - - - - - - - (end mesh)
 
 	//children
-
+	writer.Key("Children");
 	if (children.size() > 0) {
-		
-		writer.Key("Children");
+
+
 		writer.StartArray();
 		//writer.StartObject();
 		for (auto& child : children)
@@ -166,18 +156,21 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 		}
 		//writer.EndObject();
 		writer.EndArray();
-		
+
 	}
+	else
+		writer.String("Empty"); 
+
+
 	writer.EndObject();
 
-	writer.EndArray();
 
-	writer.EndObject();
+	writer.EndObject(); // end gameObject object
 
 	return false;
 }
 
-bool SmileSerialization::LoadSceneNode(GameObject* go, const char* path)
+GameObject* SmileSerialization::LoadScene(const char* path)
 {
 	GameObject* obj = DBG_NEW GameObject;
 	rapidjson::Document doc;
