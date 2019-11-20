@@ -186,21 +186,57 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	return false;
 }
 
+bool SmileSerialization::LoadSceneNode(GameObject* go, const char* path)
+{
+	GameObject* obj = DBG_NEW GameObject;
+	rapidjson::Document doc;
+	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
+	int id = rapidjson::GetValueByPointer(doc, "/GameObject/UID")->GetInt();
+	
+	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/Parent ID")->GetInt();
+
+	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/Name")->GetString();
+	obj->SetName(name);
+	bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/Selected")->GetBool();
+	if (selected == true)
+		App->scene_intro->selectedObj = obj;
+
+	
+	std::vector<GameObject*> children = go->GetImmidiateChildren();
+
+	rapidjson::Value& a = doc["Children"];
+	
+	
+	for (auto& child : children) 
+	{
+		for (rapidjson::SizeType i = 0; i < a.Size(); i++)
+		{
+			std::string transform = a[i]["Transform"].GetString();
+			std::string materialPath = a[i]["materialPath"].GetString();
+
+			
+
+			LoadSceneNode(child, path);
+		}
+
+
+		child->SetParent(go);
+	}
+	
+	return false;
+}
+
 GameObject* SmileSerialization::LoadScene(const char* path)
 {
 	GameObject* parent = DBG_NEW GameObject;
-	rapidjson::Document doc;
-	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
-	int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/UID")->GetInt();
-	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();
-
-	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
-	bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
 
 	char rawname[100];
 	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity); // put correct position of the saved obj
 	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+	
+
+	LoadSceneNode(parentObj, path);
 
 	return parent;
 }
