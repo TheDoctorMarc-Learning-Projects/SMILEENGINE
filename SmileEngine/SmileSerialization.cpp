@@ -237,6 +237,12 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 
 			case MESH:
 			{
+				auto meshpath = object["path"].GetString();
+				auto materialpath = object["materialPath"].GetString();
+				auto selectedMesh = object["Selected"].GetBool();
+				obj->AddComponent(App->fbx->LoadMesh(obj->GetMesh()->GetMeshData(), meshpath));
+				if (materialpath != "empty")
+					App->fbx->AssignTextureToObj(materialpath, obj);
 				break;
 			}
 
