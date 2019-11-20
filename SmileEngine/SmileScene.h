@@ -22,6 +22,8 @@ public:
 	bool Start();
 	update_status Update(float dt);
 	bool CleanUp();
+	bool Reset(); 
+
 
 	std::variant<ComponentMesh*, GameObject*> MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject);
 private: 

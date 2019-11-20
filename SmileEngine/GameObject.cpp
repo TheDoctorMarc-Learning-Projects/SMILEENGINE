@@ -393,7 +393,7 @@ void GameObject::SetupBounding()
 	// No child objects = case A) 
 	if (childObjects.size() == 0)
 	{
-		ModelMeshData* data = GetMesh()->GetMeshData(); 
+		ModelMeshData* data = (GetMesh()) ? GetMesh()->GetMeshData() : nullptr;
 		if (data)
 		{
 			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
@@ -409,19 +409,18 @@ void GameObject::SetupBounding()
 			boundingData.AABB.SetNegativeInfinity();
 			boundingData.AABB.Enclose(boundingData.OBB); 
 	
+			return; 
 		}
 
 	}
-	else
-	{
-		transfGlobalMat = GetTransform()->GetGlobalMatrix();
+	
+	transfGlobalMat = GetTransform()->GetGlobalMatrix();
 
-		// what here haha -> for the mom an arbitrarily-sized box at the right location
-		boundingData.OBB.SetNegativeInfinity(); 
-		boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3))); 
-		boundingData.AABB.SetNegativeInfinity();
-		boundingData.AABB.Enclose(boundingData.OBB);
-	}
+	// what here haha -> for the mom an arbitrarily-sized box at the right location
+	boundingData.OBB.SetNegativeInfinity();
+	boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3)));
+	boundingData.AABB.SetNegativeInfinity();
+	boundingData.AABB.Enclose(boundingData.OBB);
 }
 
 void GameObject::UpdateBounding()

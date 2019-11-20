@@ -158,6 +158,12 @@ update_status SmileRenderer3D::PostUpdate(float dt)
 	return UPDATE_CONTINUE;
 }
 
+bool SmileRenderer3D::Reset()
+{
+	targetCamera = nullptr; 
+	return true; 
+}
+
 // Called before quitting
 bool SmileRenderer3D::CleanUp()
 {

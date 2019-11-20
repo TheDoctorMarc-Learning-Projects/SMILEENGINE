@@ -117,22 +117,19 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 
 	// - - - - - - - - - - - - (end tranform)
 
-	//static, bounding box
-
 	// - - - - - - - - - - - - Mesh
-	
-	
-	if (obj->GetMesh())
+	auto mesh = obj->GetMesh();
+	if (mesh)
 	{
+		auto material = obj->GetMaterial();
+
 		writer.StartObject();
 		writer.Key("Mesh");
 
 		writer.StartObject();
 
-		auto material = obj->GetMaterial();
-		auto mesh = obj->GetMesh();
-
-
+	
+		 
 		writer.Key("path");
 		writer.String(App->fbx->SaveMesh(mesh->GetMeshData(), obj).c_str());
 
@@ -151,14 +148,51 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 
 		writer.EndObject();
 	}
-	
-
 	// - - - - - - - - - - - - (end mesh)
 
+	// - - - - - - - - - - - - Camera
+	auto camera = obj->GetCamera(); 
+	if (camera)
+	{
+		writer.StartObject();
+		writer.Key("Camera");
+		writer.StartObject();
+
+		auto data = camera->GetRenderingData(); 
+
+		writer.Key("FovY"); 
+		writer.Double(data.fovYangle); 
+		writer.Key("Near Plane Distance");
+		writer.Double(data.pNearDist);
+		writer.Key("Far Plane Distance");
+		writer.Double(data.pFarDist);
+		writer.Key("Ratio");
+		writer.Double(data.ratio);
+
+		auto ref = camera->Reference; 
+		writer.Key("Reference");
+		writer.StartArray();
+
+		writer.Double(ref.x);
+		writer.Double(ref.y);
+		writer.Double(ref.z);
+
+		writer.EndArray();
+
+		// Game vs Debug camera and Target 
+		writer.Key("Is Debug");
+		writer.Bool(App->scene_intro->debugCamera == camera); 
+
+		writer.Key("Is Target");
+		writer.Bool(App->renderer3D->targetCamera == camera);
+
+		writer.EndObject();
+		writer.EndObject();
+	}
+	// - - - - - - - - - - - - (end camera)
 
 	writer.EndArray();
 	// - - - - - - - - - - - - - - - - - - - - (end Components)
-
     // - - - - - - - - - - - - - - - - - - - - Children
 	writer.Key("Children");
 	writer.StartArray();
@@ -184,11 +218,12 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Value& mynode, rapidjson::Document& doc)
 {
 	// Create object
-	GameObject* obj = DBG_NEW GameObject();
+	GameObject* obj = (parent) ? DBG_NEW GameObject() : App->scene_intro->rootObj;
 
 	// General data
 	if(parent)
 		obj->SetParent(parent);
+
 
 	obj->randomID = (SmileUUID)mynode["UID"].GetInt64();  // Set it (already in constructor, careful)
 	obj->SetName(mynode["Name"].GetString());
@@ -251,6 +286,37 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 
 			case CAMERA:
 			{
+				auto fovY = object["FovY"].GetDouble();
+				auto nPlaneDist = object["Near Plane Distance"].GetDouble();
+				auto fPlaneDist = object["Far Plane Distance"].GetDouble();
+				auto ratio = object["Ratio"].GetDouble();
+				auto reference = object["Reference"].GetArray();
+				float refArray[3]; 
+				for (rapidjson::SizeType i = 0; i < reference.Size(); i++)
+					refArray[i] = reference[i].GetDouble();
+				vec3 referenceFloat3 = vec3(refArray[0], refArray[1], refArray[2]);
+
+
+				// Debug vs Game and Target
+				bool debug = object["Is Debug"].GetBool(); 
+				bool target = object["Is Target"].GetBool();
+
+				renderingData data;
+				data.pNearDist = nPlaneDist; 
+				data.pFarDist = fPlaneDist; 
+				data.fovYangle = fovY; 
+				data.ratio = ratio; 
+				ComponentCamera* cam = DBG_NEW ComponentCamera(obj, referenceFloat3, data);
+				obj->AddComponent(cam);
+
+				if (debug)
+					App->scene_intro->debugCamera = cam;
+				else
+					App->scene_intro->gameCamera = cam;  // TODO: support multiple game cameras
+
+				if (target)
+					App->renderer3D->targetCamera = cam; 
+
 				break;
 			}
 
@@ -284,10 +350,11 @@ void SmileSerialization::LoadScene(const char* path)
 	// 1) Clear Octree
 	App->spatial_tree->CleanUp();
 	// 2) Clear All Objects
-	App->scene_intro->CleanUp();
-	// 3) Then Load
-	App->scene_intro->rootObj = LoadSceneNode(nullptr, doc["GameObject"], doc);
-	App->scene_intro->rootObj->Start(); // start all children (compute bounding etc) 
-	// 4) Afterwards, create Octree again
-
+	App->scene_intro->Reset();
+	// 3) Reset current camera
+	App->renderer3D->Reset(); 
+	// 4) Then Load
+	LoadSceneNode(nullptr, doc["GameObject"], doc)->Start();  // starts root 
+	// 5) Afterwards, create Octree again
+	App->spatial_tree->CreateOctree(math::AABB(float3(-20, 0, -20), float3(20, 40, 20)));
 }

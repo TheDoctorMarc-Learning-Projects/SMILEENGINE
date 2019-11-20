@@ -36,7 +36,7 @@ SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, sta
 
 SmileScene::~SmileScene()
 {
-	
+	RELEASE(rootObj);
 }
 
 // Load assets
@@ -78,13 +78,25 @@ bool SmileScene::Start()
 
 bool SmileScene::CleanUp()
 {
-	rootObj->CleanUp(); // does recursion
-	RELEASE(rootObj);
-
+	rootObj->CleanUp();  
+ 
 	selectedObj = nullptr; 
 	selected_mesh = nullptr; 
 	debugCamera = nullptr; 
 	gameCamera = nullptr; 
+
+	return true;
+}
+
+bool SmileScene::Reset() // similar, but root needs a transform after being cleaned, called by load scene
+{
+	rootObj->CleanUp();
+	rootObj->AddComponent(DBG_NEW ComponentTransform()); 
+
+	selectedObj = nullptr;
+	selected_mesh = nullptr;
+	debugCamera = nullptr;
+	gameCamera = nullptr;
 
 	return true;
 }

@@ -1,6 +1,6 @@
 {
-  "GameObject": 
-  {
+  
+  "GameObject": {
     "UID": -842150451,
     "Name": "root",
     "Selected": false,
@@ -29,6 +29,17 @@
                 "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
                 "Scale": [ 1.0, 1.0, 1.0 ]
               }
+            },
+            {
+              "Camera": {
+                "FovY": 60.0,
+                "Near Plane Distance": 1.0,
+                "Far Plane Distance": 512.0,
+                "Ratio": 1.7777777910232545,
+                "Reference": [ 0.0, 0.0, -1.0 ],
+                "Is Debug": true,
+                "Is Target": true
+              }
             }
           ],
           "Children": []
@@ -48,6 +59,17 @@
                 "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
                 "Scale": [ 1.0, 1.0, 1.0 ]
               }
+            },
+            {
+              "Camera": {
+                "FovY": 60.0,
+                "Near Plane Distance": 1.0,
+                "Far Plane Distance": 25.0,
+                "Ratio": 1.7777777910232545,
+                "Reference": [ 0.0, 5.0, 0.0 ],
+                "Is Debug": false,
+                "Is Target": false
+              }
             }
           ],
           "Children": []
@@ -55,7 +77,7 @@
       },
       {
         "GameObject": {
-          "UID": -931848192,
+          "UID": -1492805120,
           "Parent ID": -842150451,
           "Name": "bakerhouse",
           "Selected": false,
@@ -72,8 +94,8 @@
           "Children": [
             {
               "GameObject": {
-                "UID": 54728704,
-                "Parent ID": -931848192,
+                "UID": -1297117184,
+                "Parent ID": -1492805120,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -98,8 +120,8 @@
             },
             {
               "GameObject": {
-                "UID": -348658688,
-                "Parent ID": -931848192,
+                "UID": -1460981760,
+                "Parent ID": -1492805120,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -127,7 +149,7 @@
       },
       {
         "GameObject": {
-          "UID": 1397037056,
+          "UID": 826365952,
           "Parent ID": -842150451,
           "Name": "bakerhouse",
           "Selected": false,
@@ -144,8 +166,8 @@
           "Children": [
             {
               "GameObject": {
-                "UID": -116940800,
-                "Parent ID": 1397037056,
+                "UID": 1357116160,
+                "Parent ID": 826365952,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -170,8 +192,8 @@
             },
             {
               "GameObject": {
-                "UID": 2041210880,
-                "Parent ID": 1397037056,
+                "UID": -1658641408,
+                "Parent ID": 826365952,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -198,4 +220,5 @@
         }
       }
     ]
-  }}
+  }
+}
