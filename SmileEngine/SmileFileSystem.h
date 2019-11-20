@@ -68,6 +68,7 @@ public:
 		str.erase(str.begin() + begin, str.begin() + beginToEnd);
 	}
 
+	std::string GetDirectoryFromPath(const char* path); 
 	//const char* RelativeToAbsolute(const char* path); 
 private:
 

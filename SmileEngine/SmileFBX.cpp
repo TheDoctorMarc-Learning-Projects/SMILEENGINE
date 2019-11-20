@@ -72,8 +72,6 @@ void SmileFBX::Load(const char* path, std::string extension)
 }
 
 // ---------------------------------------------
-#define ObjectBegin {
-#define ObjectEnd }
 
 const aiScene* OnFBXImport(const char* path, char* rawname)
 {
@@ -93,29 +91,28 @@ void SmileFBX::LoadFBX(const char* path)
 	GameObject* ret; 
 	char rawname[100];
 	const aiScene* scene = OnFBXImport(path, rawname);
-
 	bool success = scene && scene->HasMeshes(); 
- 	
-	if (!success)
-	{
-		LOG("Error loading FBX %s", path);
-		return;
-	}
+
+if (!success)
+{
+	LOG("Error loading FBX %s", path);
+	return;
+}
 
 
-	// 1) If FBX not in folder, push it to folder
-	if (DoesFBXExistInAssets(path) == false)
-		path = PushFBXToAssets(path);
+// 1) If FBX not in folder, push it to folder
+if (DoesFBXExistInAssets(path) == false)
+path = PushFBXToAssets(path);
 
-	// 2) If.model does not exist, generate it
-	if (DoesFBXHaveLinkedModel(path) == false)
-		GenerateModelFromFBX(path, scene, rawname);
-	
+// 2) If.model does not exist, generate it
+if (DoesFBXHaveLinkedModel(path) == false)
+GenerateModelFromFBX(path, scene, rawname);
+
 }
 
 bool SmileFBX::DoesFBXExistInAssets(const char* path)
 {
-	std::string cleanPath[1]; 
+	std::string cleanPath[1];
 	std::string file[1];
 	std::string extension[1];
 	App->fs->SplitFilePath(path, cleanPath, file, extension);
@@ -127,17 +124,17 @@ bool SmileFBX::DoesFBXExistInAssets(const char* path)
 	{
 		return true;
 	}
-	
-	
+
+
 	return false;
-	
+
 }
 
 const char* SmileFBX::PushFBXToAssets(const char* path)
 {
 	App->fs->CopyFromOutsideFS(path, fbx_target.c_str());
 
-	return path; 
+	return path;
 }
 
 bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
@@ -163,75 +160,85 @@ bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
 
 void SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scene, char* rawname)
 {
+	lastFbxFolder = App->fs->GetDirectoryFromPath(path); 
 
 	// Parent Object
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
-	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+	fbxParent = App->object_manager->CreateGameObject(transf, rawname, App->scene_intro->rootObj);
 
-	for (int i = 0; i < scene->mNumMeshes; ++i)
+	// Load nodes recursively 
+	uint index = 0; 
+	LoadFBXnode(scene->mRootNode, scene);
 
-	ObjectBegin
+	// Get parent object transform and start everything
+	aiVector3D position, scale;
+	aiQuaternion rot;
+	scene->mRootNode->mTransformation.Decompose(scale, rot, position);
+	transf->SetupTransform(float4x4::FromTRS(float3(position.x, position.y, position.z),
+		Quat(rot.x, rot.y, rot.z, rot.w), float3(scale.x, scale.y, scale.z)));
+
+
+
+
+	// Save parent
+	SaveModel(fbxParent, path);
+
+	// Destroy obj created from fbx and scene
+	OnFBXImportEnd(fbxParent, scene);
+}
+
+
+void SmileFBX::LoadFBXnode(aiNode* node, const aiScene* scene)
+{
+	
+	for (int i = 0; i < node->mNumMeshes; ++i)
+	{
+
+		aiMesh* aiMesh = scene->mMeshes[node->mMeshes[i]]; 
 
 		// Mesh
-	ModelMeshData* mesh_info = FillMeshBuffers(scene->mMeshes[i], DBG_NEW ModelMeshData());
-	ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
+		ModelMeshData* mesh_info = FillMeshBuffers(aiMesh, DBG_NEW ModelMeshData());
+		ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
 
-	// Materials
-	std::vector<std::string> materialsPaths = ReadFBXMaterials(scene);
+		// Materials
+		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
+		aiString fileName;
+		material->GetTexture(aiTextureType_DIFFUSE, 0, &fileName);
+		 
+		// get the file (nane  extension) alone, without anything on the left
+		std::string realFile, path;
+		App->fs->SplitFilePath(fileName.C_Str(), &path, &realFile);
 
-	// Child Object
-	ResolveObjectFromFBX(DBG_NEW GameObject(std::string(scene->mMeshes[i]->mName.C_Str()), parentObj),
-		mesh, materialsPaths);
+		std::string matPath = lastFbxFolder + realFile.c_str();
 
-	ObjectEnd
+		// Capture pos, rot, scale
+		aiVector3D position, scale;
+		aiQuaternion rot;
+		node->mTransformation.Decompose(scale, rot, position);
+	 
+		ComponentTransform* transf = DBG_NEW ComponentTransform(); 
+		transf->SetupTransform(float4x4::FromTRS(float3(position.x, position.y, position.z), 
+			Quat(rot.x, rot.y, rot.z, rot.w), float3(scale.x, scale.y, scale.z)));
+
+		// Child Object -> add mesh, material, transform
+		std::vector<Component*> comps;
+		comps.push_back(transf); 
+		comps.push_back(mesh); 
+
+		GameObject* childObj = App->object_manager->CreateGameObject(comps, node->mName.C_Str(), fbxParent);
+		AssignTextureToObj(matPath.c_str(), childObj);
+
+		 
 		
-	SaveModel(parentObj, path);
-	OnFBXImportEnd(parentObj, scene);
-}
-
-
-// ---------------------------------------------
-void SmileFBX::ResolveObjectFromFBX(GameObject* object, ComponentMesh* mesh, std::vector<std::string> materialsPaths, const char* path)
-{
-	/// 1) Create and Assign components
-	// Mesh
-	object->AddComponent(mesh);
-
-	// Materials
-	for (auto& path : materialsPaths)
-	{
-		AssignTextureToObj(path.c_str(), object);
-		LOG("Asset loaded: %s", path.c_str());
-	}
-}
-
-// ---------------------------------------------
-std::vector<std::string> SmileFBX::ReadFBXMaterials(const aiScene* scene)
-{
-	std::vector<std::string> materialsPaths; 
-
-	if (scene->HasMaterials())
-	{
-		for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
-		{
-			const aiMaterial* material = scene->mMaterials[i];
-			uint nTex = material->GetTextureCount(aiTextureType_DIFFUSE);
-
-			for (uint i = 0; i < nTex; ++i)
-			{
-				aiString tex_path;
-				scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, i, &tex_path);
-
-				materialsPaths.push_back(std::string("Assets/Models/") + std::string(tex_path.data));
-
-			}
-
-		}
 	}
 
-	return materialsPaths; 
-}
+	for (uint i = 0; i < node->mNumChildren; i++)
+	{
+		LoadFBXnode(node->mChildren[i], scene);
+	}
 
+}
+ 
 // ---------------------------------------------
 ModelMeshData* SmileFBX::FillMeshBuffers(aiMesh* new_mesh, ModelMeshData* mesh_info)
 {
@@ -564,12 +571,9 @@ bool SmileFBX::LoadModel(const char* path)
 {
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
-	/*int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/ID")->GetInt();
-	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();*/
-	//bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
 	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
-	std::string fbx_path = rapidjson::GetValueByPointer(doc, "/GameObject/0/FBX path")->GetString();
 
+	// TODO: load root transform (?) (identity?)
 	char rawname[100];
 	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
@@ -577,23 +581,42 @@ bool SmileFBX::LoadModel(const char* path)
 
 	rapidjson::Value& a = doc["Meshes"];
  
-	// Read Mesh paths: 
+	// Mesh, material, transform
 	for (rapidjson::SizeType i = 0; i < a.Size(); i++)
 	{
+
 		std::string path = a[i]["path"].GetString(); 
 		std::string materialPath = a[i]["materialPath"].GetString();
+		std::string childName = name + std::string(" (") + std::to_string(i + 1) + std::string(")"); 
 
-		LOG("Loading a mesh and maybe a material!"); 
-		
-		textureData* texdata = DBG_NEW textureData;
+		// Transform
+		auto childTransfObj = a[i]["Transform"].GetObjectA(); 
+	
+		auto pos = childTransfObj["Position"].GetArray();
+		auto rot = childTransfObj["Rotation"].GetArray();
+		auto scale = childTransfObj["Scale"].GetArray();
 
-		GameObject* child = App->object_manager->CreateGameObject(); 
+		float3 realPos = float3(0, 0, 0), realScale = float3(0, 0, 0);
+		math::Quat realRot = Quat(); float captureRot[4];
+
+		for (rapidjson::SizeType i = 0; i < pos.Size(); i++)
+			realPos[i] = pos[i].GetDouble();
+
+		for (rapidjson::SizeType i = 0; i < scale.Size(); i++)
+			realScale[i] = scale[i].GetDouble();
+
+		for (rapidjson::SizeType i = 0; i < rot.Size(); i++)
+			captureRot[i] = rot[i].GetDouble();
+		realRot = Quat(captureRot[0], captureRot[1], captureRot[2], captureRot[3]); 
+
+
+		ComponentTransform* transf = DBG_NEW ComponentTransform();
+		GameObject* child = App->object_manager->CreateGameObject(transf, childName, parentObj);
+		transf->SetLocalMatrix(math::float4x4::FromTRS(realPos, realRot, realScale));
 
 		child->AddComponent(LoadMesh(path.c_str()));
-		if (materialPath != "empty")
+		if (materialPath != "Empty")
 			AssignTextureToObj(materialPath.c_str(), child); 
-
-		child->SetParent(parentObj);
 
 		// Add to octree!!!
 		App->spatial_tree->OnStaticChange(child, true); 
@@ -610,11 +633,13 @@ bool SmileFBX::LoadModel(const char* path)
 
 void SmileFBX::SaveModel(GameObject* obj, const char* path)
 {
-	// 1) Save components (at the same time when saving the model below)
-	
 	auto transf = obj->GetTransform();
-	auto material = obj->GetMaterial();   
+	auto material = obj->GetMaterial();
 	std::vector <GameObject*>children = obj->GetImmidiateChildren();
+
+	float3 position = transf->GetPosition();
+	float3 scale = transf->GetScale();
+	Quat rotation = transf->GetRotation();
 
 	// 2) Save the object itself
 	rapidjson::StringBuffer buffer;
@@ -630,28 +655,51 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	writer.StartObject();
 
 	// Model variables
-	writer.Key("ID");
-	writer.Int(obj->GetID());
-
-
-
-	GameObject* parent = obj->GetParent(); 
-	if (parent)
-	{
-		writer.Key("Parent ID");
-		writer.Int(parent->GetID());
-	}
-
 	writer.Key("Name");
 	writer.String(obj->GetName().c_str());
 
-	writer.Key("Selected");
-	writer.Bool((App->scene_intro->selectedObj == obj) ? true : false);
+	// Transform
+	// Transform !! 
+	writer.Key("Transform");
+	writer.StartObject();
 
-	std::string lastFBXPath = path;
-	
-	writer.Key("FBX path");
-	writer.String(lastFBXPath.c_str());
+	// Pos
+	writer.Key("Position");
+	writer.StartArray();
+
+	writer.Double(position.x);
+	writer.Double(position.y);
+	writer.Double(position.z);
+
+	writer.EndArray();
+
+	// Rot
+	writer.Key("Rotation");
+	writer.StartArray();
+
+	writer.Double(rotation.x);
+	writer.Double(rotation.y);
+	writer.Double(rotation.z);
+	writer.Double(rotation.w);
+
+	writer.EndArray();
+
+	// Scale
+	writer.Key("Scale");
+	writer.StartArray();
+
+	writer.Double(scale.x);
+	writer.Double(scale.y);
+	writer.Double(scale.z);
+
+	writer.EndArray();
+
+	writer.EndObject();
+
+	// end transform
+
+
+	// Components
 
 	writer.EndObject();
 
@@ -661,46 +709,89 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 
 	writer.StartArray();
 
-	
 
-	uint meshCount = 0; 
+
+	uint meshCount = 0;
 	for (auto& child : children)
 	{
 		if (child->GetMesh())
 		{
 			writer.StartObject();
-			meshCount++; 
+			meshCount++;
 
-			auto material = child->GetMaterial(); 
+			auto material = child->GetMaterial();
 			auto mesh = child->GetMesh();
-			
+
 
 			writer.Key("path");
 			writer.String(SaveMesh(mesh->GetMeshData(), child, meshCount).c_str());
 
 			writer.Key("materialPath");
 
-			if(material)
+			if (material)
 				writer.String(SaveMaterial(material->GetTextureData()->path.c_str()).c_str());
 			else
 				writer.String("empty");
-			
+
+			// Transform !! 
+			auto childPos = child->GetTransform()->GetPosition(); 
+			writer.Key("Transform");
+			writer.StartObject();
+
+			// Pos
+			writer.Key("Position");
+			writer.StartArray();
+
+			writer.Double(childPos.x);
+			writer.Double(childPos.y);
+			writer.Double(childPos.z);
+
+			writer.EndArray();
+
+			// Rot
+			auto childRot = child->GetTransform()->GetRotation();
+			writer.Key("Rotation");
+			writer.StartArray();
+
+			writer.Double(childRot.x);
+			writer.Double(childRot.y);
+			writer.Double(childRot.z);
+			writer.Double(childRot.w);
+
+			writer.EndArray();
+
+			// Scale
+			auto childScale = child->GetTransform()->GetScale();
+			writer.Key("Scale");
+			writer.StartArray();
+
+			writer.Double(childScale.x);
+			writer.Double(childScale.y);
+			writer.Double(childScale.z);
+
+			writer.EndArray();
+
 			writer.EndObject();
-			
+
+			// end transform
+
+
+			writer.EndObject();
+			// end mesh node
+
+
 		}
 	}
 
-	
+
 
 	writer.EndArray();
 
 	writer.EndObject();
-	
-	const char* output = buffer.GetString();
-	std::string dirPath; 
-	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, obj->GetName().c_str(), "json");
 
- 
+	const char* output = buffer.GetString();
+	std::string dirPath;
+	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, obj->GetName().c_str(), "json");
 }
 
 

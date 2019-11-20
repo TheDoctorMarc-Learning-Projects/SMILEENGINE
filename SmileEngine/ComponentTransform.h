@@ -34,6 +34,7 @@ public:
 	void SetGlobalPosition(float3 pos);
 	void AccumulatePosition(vec3 delta);
 	void ChangeScale(float3 scale); 
+	void SetupTransform(float4x4 localMat);
 
 	// Getters
 	float4x4 GetLocalMatrix() const { return localMatrix; };

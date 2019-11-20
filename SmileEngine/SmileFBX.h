@@ -38,13 +38,13 @@ public:
 	// FBX
 	void Load(const char* path, std::string extension);
 	void LoadFBX(const char* path);
-	
-public: 
-	void ResolveObjectFromFBX(GameObject*, ComponentMesh* m = nullptr, std::vector<std::string> = {}, const char* path = nullptr);
+	void LoadFBXnode(aiNode* node, const aiScene* scene);
+ 
+ 
 private:
 	// FBX
 	ModelMeshData* FillMeshBuffers(aiMesh*, ModelMeshData*);
-	std::vector<std::string> ReadFBXMaterials(const aiScene*);
+	std::vector<std::string> ReadFBXMaterials(const aiScene*, const char* path);
 	bool DoesFBXExistInAssets(const char* path); 
 	bool DoesFBXHaveLinkedModel(const char* path); 
 	const char* PushFBXToAssets(const char* path); 
@@ -64,7 +64,9 @@ private:
 
 private: 
 	globalTextureData textInfo;
-	
+	GameObject* fbxParent; 
+	std::string lastFbxFolder; 
+
 public: 
 	bool debug = false;
 	std::string fbx_target;

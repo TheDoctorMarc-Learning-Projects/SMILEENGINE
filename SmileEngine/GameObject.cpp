@@ -59,6 +59,10 @@ GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 
 GameObject::GameObject(std::vector<Component*> components, std::string name, GameObject* parent)
 {
+	// Parent-child
+	if (parent)
+		SetParent(parent);
+
 	SetName(name); 
 
 	// Components
@@ -409,6 +413,7 @@ void GameObject::SetupBounding()
 			boundingData.AABB.SetNegativeInfinity();
 			boundingData.AABB.Enclose(boundingData.OBB); 
 	
+
 			return; 
 		}
 

@@ -477,6 +477,20 @@ const char* SmileFileSystem::GetReadPaths() const
 	return paths;
 }
 
+
+std::string SmileFileSystem::GetDirectoryFromPath(const char* file)	  
+{
+	std::string path = file;
+
+	uint unwanted = path.find_last_of("\\/"); 
+
+	if (unwanted != std::string::npos)
+		path = path.erase(unwanted + 1);
+
+	return path;
+}
+
+
 // -----------------------------------------------------
 // ASSIMP IO
 // -----------------------------------------------------
