@@ -55,7 +55,7 @@
       },
       {
         "GameObject": {
-          "UID": -842150451,
+          "UID": -2066641920,
           "Parent ID": -842150451,
           "Name": "bakerhouse",
           "Selected": false,
@@ -72,8 +72,8 @@
           "Children": [
             {
               "GameObject": {
-                "UID": -842150451,
-                "Parent ID": -842150451,
+                "UID": 697329664,
+                "Parent ID": -2066641920,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -98,8 +98,8 @@
             },
             {
               "GameObject": {
-                "UID": -842150451,
-                "Parent ID": -842150451,
+                "UID": -1573513728,
+                "Parent ID": -2066641920,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -127,7 +127,7 @@
       },
       {
         "GameObject": {
-          "UID": -842150451,
+          "UID": 666011648,
           "Parent ID": -842150451,
           "Name": "bakerhouse",
           "Selected": false,
@@ -144,8 +144,8 @@
           "Children": [
             {
               "GameObject": {
-                "UID": -842150451,
-                "Parent ID": -842150451,
+                "UID": 1129020416,
+                "Parent ID": 666011648,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,
@@ -170,8 +170,8 @@
             },
             {
               "GameObject": {
-                "UID": -842150451,
-                "Parent ID": -842150451,
+                "UID": 1742164480,
+                "Parent ID": 666011648,
                 "Name": "no name",
                 "Selected": false,
                 "Static": true,

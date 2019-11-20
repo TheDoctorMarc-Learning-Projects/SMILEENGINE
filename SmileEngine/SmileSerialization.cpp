@@ -217,6 +217,21 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				auto rot = object["Rotation"].GetArray();
 				auto scale = object["Scale"].GetArray();
 			     
+				float3 realPos = float3(0, 0, 0), realScale = float3(0, 0, 0); 
+				math::Quat realRot = Quat(); float captureRot[4]; 
+
+				for (rapidjson::SizeType i = 0; i < pos.Size(); i++) 
+					realPos[i] = pos[i].GetDouble();
+			
+				for (rapidjson::SizeType i = 0; i < scale.Size(); i++)
+					realScale[i] = scale[i].GetDouble();
+
+				for (rapidjson::SizeType i = 0; i < rot.Size(); i++)
+					captureRot[i] = rot[i].GetDouble(); 
+				realRot = Quat(captureRot[0], captureRot[1], captureRot[2], captureRot[3]);
+
+				obj->AddComponent((Component*)DBG_NEW ComponentTransform(math::float4x4::FromTRS(realPos, realRot, realScale)));
+
 				break; 
 			}
 
@@ -261,6 +276,7 @@ void SmileSerialization::LoadScene(const char* path)
 	// 2) Clear All Objects
 	// 3) Then Load
 	App->scene_intro->rootObj = LoadSceneNode(nullptr, doc["GameObject"], doc);
+	App->scene_intro->rootObj->Start(); // start all children (compute bounding etc) 
 	// 4) Afterwards, create Octree again
 
 }

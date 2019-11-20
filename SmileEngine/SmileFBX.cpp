@@ -573,7 +573,7 @@ bool SmileFBX::LoadModel(const char* path)
 	char rawname[100];
 	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity);
-	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+	GameObject* parentObj = App->object_manager->CreateGameObject(transf, rawname, App->scene_intro->rootObj); 
 
 	rapidjson::Value& a = doc["Meshes"];
  
@@ -587,7 +587,7 @@ bool SmileFBX::LoadModel(const char* path)
 		ModelMeshData* mesh = DBG_NEW ModelMeshData;
 		textureData* texdata = DBG_NEW textureData;
 
-		GameObject* child = DBG_NEW GameObject;
+		GameObject* child = App->object_manager->CreateGameObject(); 
 
 		child->AddComponent(LoadMesh(mesh,path.c_str()));
 		if (materialPath != "empty")
