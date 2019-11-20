@@ -170,9 +170,8 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	return false;
 }
 
-GameObject* SmileSerialization::LoadScene(const char* path)
+bool SmileSerialization::LoadSceneNode(GameObject* go, const char* path)
 {
-	GameObject* parent = DBG_NEW GameObject;
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
 	int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/UID")->GetInt();
@@ -181,10 +180,18 @@ GameObject* SmileSerialization::LoadScene(const char* path)
 	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
 	bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
 
+	
+	return false;
+}
+
+GameObject* SmileSerialization::LoadScene(const char* path)
+{
+	GameObject* parent = DBG_NEW GameObject;
 	char rawname[100];
 	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
 	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity); // put correct position of the saved obj
 	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+	LoadSceneNode(parentObj, path);
 
 	return parent;
 }
