@@ -237,12 +237,13 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 
 			case MESH:
 			{
-				auto meshpath = object["path"].GetString();
-				auto materialpath = object["materialPath"].GetString();
+				auto meshPath = object["path"].GetString();
+				auto materialPath = object["materialPath"].GetString();
 				auto selectedMesh = object["Selected"].GetBool();
-				obj->AddComponent(App->fbx->LoadMesh(obj->GetMesh()->GetMeshData(), meshpath));
-				if (materialpath != "empty")
-					App->fbx->AssignTextureToObj(materialpath, obj);
+
+				obj->AddComponent(App->fbx->LoadMesh(meshPath));
+				if (materialPath != "empty")
+					App->fbx->AssignTextureToObj(materialPath, obj);
 				if (selectedMesh)
 					App->scene_intro->selected_mesh = obj->GetMesh();
 				break;
@@ -281,7 +282,9 @@ void SmileSerialization::LoadScene(const char* path)
 
 	// When Loading: 
 	// 1) Clear Octree
+	App->spatial_tree->CleanUp();
 	// 2) Clear All Objects
+	App->scene_intro->CleanUp();
 	// 3) Then Load
 	App->scene_intro->rootObj = LoadSceneNode(nullptr, doc["GameObject"], doc);
 	App->scene_intro->rootObj->Start(); // start all children (compute bounding etc) 

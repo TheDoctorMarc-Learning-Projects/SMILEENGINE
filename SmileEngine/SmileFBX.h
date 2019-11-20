@@ -54,7 +54,7 @@ private:
 	// Own File Format 
 
 
-	ComponentMesh* LoadMesh(ModelMeshData* mesh, const char* path);
+	ComponentMesh* LoadMesh(const char* path);
 	std::string SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index = INT_MAX);
 	std::string SaveMaterial(const char* path);
 	bool LoadModel(const char* path);

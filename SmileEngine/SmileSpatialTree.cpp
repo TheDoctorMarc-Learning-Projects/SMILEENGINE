@@ -6,26 +6,27 @@
  
 
 SmileSpatialTree::SmileSpatialTree(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled){}
-SmileSpatialTree::~SmileSpatialTree() {}
+SmileSpatialTree::~SmileSpatialTree() 
+{
+	RELEASE(root);
+}
 
 void SmileSpatialTree::CreateOctree(math::AABB aabb, uint depth, uint maxNodeObjects)
 {
 	MAX_NODE_OBJECTS = maxNodeObjects; 
 	MAX_DEPTH = depth; 
 
-	CreateRoot(aabb);
+	if(root)
+		ComputeObjectTree(App->scene_intro->rootObj);
+	else
+		CreateRoot(aabb);
 }
 
 void SmileSpatialTree::CreateRoot(math::AABB aabb)
 {
 	// the root is to be created once
-	static bool once = [this, aabb]()
-	{
-		root = DBG_NEW OctreeNode(aabb);
-		ComputeObjectTree(App->scene_intro->rootObj); // TODO: do not push non-static objs from the start
-
-		return true; 
-	} ();
+	root = DBG_NEW OctreeNode(aabb);
+	ComputeObjectTree(App->scene_intro->rootObj);
 
 }
 
@@ -40,7 +41,7 @@ void SmileSpatialTree::ComputeObjectTree(GameObject* obj)
 bool SmileSpatialTree::CleanUp()
 {
 	root->CleanUp(); 
-	RELEASE(root);
+	
 
 	return true; 
 }

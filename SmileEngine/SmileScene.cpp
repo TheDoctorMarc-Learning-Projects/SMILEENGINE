@@ -35,7 +35,9 @@ SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, sta
 }
 
 SmileScene::~SmileScene()
-{}
+{
+	
+}
 
 // Load assets
 bool SmileScene::Start()
@@ -77,7 +79,7 @@ bool SmileScene::Start()
 bool SmileScene::CleanUp()
 {
 	rootObj->CleanUp(); // does recursion
-	RELEASE(rootObj); 
+	RELEASE(rootObj);
 
 	selectedObj = nullptr; 
 	selected_mesh = nullptr; 

@@ -439,9 +439,9 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 }
 
-ComponentMesh* SmileFBX::LoadMesh(ModelMeshData* mesh, const char* full_path)
+ComponentMesh* SmileFBX::LoadMesh(const char* full_path)
 {
-	
+	ModelMeshData* mesh = DBG_NEW ModelMeshData;
 	char* buffer = nullptr;
 	App->fs->Load(full_path, &buffer);
 
@@ -584,12 +584,12 @@ bool SmileFBX::LoadModel(const char* path)
 		std::string materialPath = a[i]["materialPath"].GetString();
 
 		LOG("Loading a mesh and maybe a material!"); 
-		ModelMeshData* mesh = DBG_NEW ModelMeshData;
+		
 		textureData* texdata = DBG_NEW textureData;
 
 		GameObject* child = App->object_manager->CreateGameObject(); 
 
-		child->AddComponent(LoadMesh(mesh,path.c_str()));
+		child->AddComponent(LoadMesh(path.c_str()));
 		if (materialPath != "empty")
 			AssignTextureToObj(materialPath.c_str(), child); 
 
