@@ -2,120 +2,120 @@
   "GameObject": [
     
     {
-      "UID": 1683367641,
+      "UID": 1729718245,
       "Name": "root",
-      "Selected": false
-    }
-  ],
-  "Mesh": [],
-  "Children": [
-    {
-      "GameObject": [
-        {
-          "UID": 1617567802,
-          "Parent ID": 1683367641,
-          "Name": "Debug Camera",
-          "Selected": false
-        }
-      ],
-      "Mesh": []
-    },
-    {
-      "GameObject": [
-        {
-          "UID": 727572735,
-          "Parent ID": 1683367641,
-          "Name": "Game Camera",
-          "Selected": false
-        }
-      ],
-      "Mesh": []
-    },
-    {
-      "GameObject": [
-        {
-          "UID": 1106621480,
-          "Parent ID": 1683367641,
-          "Name": "bakerhouse",
-          "Selected": false
-        }
-      ],
+      "Selected": false,
       "Mesh": [],
       "Children": [
         {
           "GameObject": [
             {
-              "UID": 2106242213,
-              "Parent ID": 1106621480,
-              "Name": "no name",
-              "Selected": false
-            }
-          ],
-          "Mesh": [
-            {
-              "path": "/library/meshes/no name_mesh.smilemesh",
-              "materialPath": "Library/Textures/baker_house.dds"
+              "UID": 1185403194,
+              "Parent ID": 1729718245,
+              "Name": "Debug Camera",
+              "Selected": false,
+              "Mesh": []
             }
           ]
         },
         {
           "GameObject": [
             {
-              "UID": 195287510,
-              "Parent ID": 1106621480,
-              "Name": "no name",
-              "Selected": false
-            }
-          ],
-          "Mesh": [
-            {
-              "path": "/library/meshes/no name_mesh.smilemesh",
-              "materialPath": "Library/Textures/baker_house.dds"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "GameObject": [
-        {
-          "UID": 1053403960,
-          "Parent ID": 1683367641,
-          "Name": "bakerhouse",
-          "Selected": false
-        }
-      ],
-      "Mesh": [],
-      "Children": [
-        {
-          "GameObject": [
-            {
-              "UID": 244784775,
-              "Parent ID": 1053403960,
-              "Name": "no name",
-              "Selected": false
-            }
-          ],
-          "Mesh": [
-            {
-              "path": "/library/meshes/no name_mesh.smilemesh",
-              "materialPath": "Library/Textures/baker_house.dds"
+              "UID": 2091047170,
+              "Parent ID": 1729718245,
+              "Name": "Game Camera",
+              "Selected": false,
+              "Mesh": []
             }
           ]
         },
         {
           "GameObject": [
             {
-              "UID": 1569532340,
-              "Parent ID": 1053403960,
-              "Name": "no name",
-              "Selected": false
+              "UID": 342931613,
+              "Parent ID": 1729718245,
+              "Name": "bakerhouse",
+              "Selected": false,
+              "Mesh": [],
+              "Children": [
+                {
+                  "GameObject": [
+                    {
+                      "UID": 11643999,
+                      "Parent ID": 342931613,
+                      "Name": "no name",
+                      "Selected": false,
+                      "Mesh": [
+                        {
+                          "path": "/library/meshes/no name_mesh.smilemesh",
+                          "materialPath": "Library/Textures/baker_house.dds"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "GameObject": [
+                    {
+                      "UID": 501088529,
+                      "Parent ID": 342931613,
+                      "Name": "no name",
+                      "Selected": false,
+                      "Mesh": [
+                        {
+                          "path": "/library/meshes/no name_mesh.smilemesh",
+                          "materialPath": "Library/Textures/baker_house.dds"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
-          ],
-          "Mesh": [
+          ]
+        },
+        {
+          "GameObject": [
             {
-              "path": "/library/meshes/no name_mesh.smilemesh",
-              "materialPath": "Library/Textures/baker_house.dds"
+              "UID": 376537942,
+              "Parent ID": 1729718245,
+              "Name": "bakerhouse",
+              "Selected": false,
+              "Mesh": [],
+              "Children": [
+                {
+                  "GameObject": [
+                    {
+                      "UID": 2021751595,
+                      "Parent ID": 376537942,
+                      "Name": "no name",
+                      "Selected": false,
+                      "Mesh": [
+                        {
+                          "path": "/library/meshes/no name_mesh.smilemesh",
+                          "materialPath": "Library/Textures/baker_house.dds"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "GameObject": [
+                    {
+                      "UID": 222783216,
+                      "Parent ID": 376537942,
+                      "Name": "no name",
+                      "Selected": false,
+                      "Mesh": [
+                        {
+                          "path": "/library/meshes/no name_mesh.smilemesh",
+                          "materialPath": "Library/Textures/baker_house.dds"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

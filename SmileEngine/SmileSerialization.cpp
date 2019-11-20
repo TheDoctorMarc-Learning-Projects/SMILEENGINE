@@ -8,6 +8,7 @@
 #include <fstream>
 #include "JSONParser.h"
 #include "SmileUtilitiesModule.h"
+#include <filesystem>
 #include "SmileApp.h"
 
 SmileSerialization::SmileSerialization(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -39,7 +40,7 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 {
 
 	auto transf = obj->GetTransform();
-	auto material = obj->GetMaterial();
+	
 	std::vector <GameObject*>children = obj->GetImmidiateChildren();
 
 	float3 position = transf->GetPosition();
@@ -73,9 +74,7 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	
 	//static, bounding box
 
-	writer.EndObject();
-
-	writer.EndArray();
+	
 	
 	//Meshes
 
@@ -127,6 +126,9 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 		writer.EndArray();
 		
 	}
+	writer.EndObject();
+
+	writer.EndArray();
 
 	writer.EndObject();
 
@@ -136,5 +138,18 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 GameObject* SmileSerialization::LoadScene(const char* path)
 {
 	GameObject* parent = DBG_NEW GameObject;
+	rapidjson::Document doc;
+	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
+	int id = rapidjson::GetValueByPointer(doc, "/GameObject/0/UID")->GetInt();
+	int parent_id = rapidjson::GetValueByPointer(doc, "/GameObject/0/Parent ID")->GetInt();
+
+	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();
+	bool selected = rapidjson::GetValueByPointer(doc, "/GameObject/0/Selected")->GetBool();
+
+	char rawname[100];
+	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
+	ComponentTransform* transf = DBG_NEW ComponentTransform(math::float4x4::identity); // put correct position of the saved obj
+	GameObject* parentObj = DBG_NEW GameObject(transf, rawname, App->scene_intro->rootObj);
+
 	return parent;
 }

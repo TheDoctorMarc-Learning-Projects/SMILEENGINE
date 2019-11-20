@@ -323,7 +323,6 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 	ILuint tempID;
 	ilGenImages(1, &tempID);
 	ilBindImage(tempID);
-
 	ILboolean success = ilLoadImage(path);
 
 	if ((bool)success)
