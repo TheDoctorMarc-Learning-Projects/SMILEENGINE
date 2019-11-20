@@ -22,7 +22,7 @@ void SmileSpatialTree::CreateRoot(math::AABB aabb)
 	static bool once = [this, aabb]()
 	{
 		root = DBG_NEW OctreeNode(aabb);
-		ComputeObjectTree(App->scene_intro->rootObj); 
+		ComputeObjectTree(App->scene_intro->rootObj); // TODO: do not push non-static objs from the start
 
 		return true; 
 	} ();

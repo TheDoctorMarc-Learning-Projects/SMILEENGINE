@@ -70,8 +70,15 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	writer.Key("Selected");
 	writer.Bool((App->scene_intro->selectedObj == obj) ? true : false);
 	
+	writer.Key("Static");
+	writer.Bool(obj->GetStatic());
+
+	// - - - - - - - - - - - - - - - - - - - - Components
+	writer.Key("Components");
+	writer.StartArray();
 
 	// - - - - - - - - - - - - Transform
+	writer.StartObject();
 	writer.Key("Transform");
 	writer.StartObject();
 
@@ -79,9 +86,9 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	writer.Key("Position");
 	writer.StartArray();
 
-	writer.Int(position.x);
-	writer.Int(position.y);
-	writer.Int(position.z);
+	writer.Double(position.x);
+	writer.Double(position.y);
+	writer.Double(position.z);
 
 	writer.EndArray();
 
@@ -89,10 +96,10 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	writer.Key("Rotation");
 	writer.StartArray();
 
-	writer.Int(rotation.x);
-	writer.Int(rotation.y);
-	writer.Int(rotation.z);
-	writer.Int(rotation.w);
+	writer.Double(rotation.x);
+	writer.Double(rotation.y);
+	writer.Double(rotation.z);
+	writer.Double(rotation.w);
 
 	writer.EndArray();
 
@@ -100,19 +107,21 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	writer.Key("Scale");
 	writer.StartArray();
 
-	writer.Int(scale.x);
-	writer.Int(scale.y);
-	writer.Int(scale.z);
+	writer.Double(scale.x);
+	writer.Double(scale.y);
+	writer.Double(scale.z);
 
 	writer.EndArray();
 
 	writer.EndObject();
+	writer.EndObject(); 
 
 	// - - - - - - - - - - - - (end tranform)
 
 	//static, bounding box
 
 	// - - - - - - - - - - - - Mesh
+	writer.StartObject();
 	writer.Key("Mesh");
 	
 	if (obj->GetMesh())
@@ -134,16 +143,23 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 		else
 			writer.String("Empty");
 
+		writer.Key("Selected");
+		writer.Bool((App->scene_intro->selected_mesh == mesh) ? true : false);
+
 		writer.EndObject();
 
 	}
 	else
 		writer.String("empty"); 
 
-	
+	writer.EndObject();
 	// - - - - - - - - - - - - (end mesh)
 
-	//children
+
+	writer.EndArray();
+	// - - - - - - - - - - - - - - - - - - - - (end Components)
+
+    // - - - - - - - - - - - - - - - - - - - - Children
 	writer.Key("Children");
 	if (children.size() > 0) {
 
