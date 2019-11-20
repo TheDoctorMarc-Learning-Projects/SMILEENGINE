@@ -170,7 +170,7 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	return false;
 }
 
-GameObject* SmileSerialization::LoadScene(const char* path)
+bool SmileSerialization::LoadSceneNode(GameObject* go, const char* path)
 {
 	GameObject* obj = DBG_NEW GameObject;
 	rapidjson::Document doc;
