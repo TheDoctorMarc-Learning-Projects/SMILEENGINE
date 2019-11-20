@@ -76,7 +76,7 @@ void SmileFBX::Load(const char* path, std::string extension)
 const aiScene* OnFBXImport(const char* path, char* rawname)
 {
 	strcpy(rawname, std::filesystem::path(path).stem().string().c_str());
-	return aiImportFile(path, aiProcessPreset_TargetRealtime_Fast);
+	return aiImportFile(path, aiProcessPreset_TargetRealtime_MaxQuality);
 }
 
 static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene)
@@ -117,7 +117,7 @@ bool SmileFBX::DoesFBXExistInAssets(const char* path)
 	std::string extension[1];
 	App->fs->SplitFilePath(path, cleanPath, file, extension);
 
-	fbx_target = std::string(std::string(ASSETS_MODELS_FOLDER) + file[0]);
+	fbx_target = cleanPath[0] + file[0];
 
 
 	if (App->fs->Exists(fbx_target.c_str()))
@@ -204,13 +204,16 @@ void SmileFBX::LoadFBXnode(aiNode* node, const aiScene* scene)
 		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
 		aiString fileName;
 		material->GetTexture(aiTextureType_DIFFUSE, 0, &fileName);
-		 
-		// get the file (nane  extension) alone, without anything on the left
-		std::string realFile, path;
-		App->fs->SplitFilePath(fileName.C_Str(), &path, &realFile);
+		std::string matPath = "empty"; 
+		if (strcmp(fileName.C_Str(), "") != 0)
+		{
+			// get the file (nane  extension) alone, without anything on the left
+			std::string realFile, path;
+			App->fs->SplitFilePath(fileName.C_Str(), &path, &realFile);
+			matPath = lastFbxFolder + realFile.c_str();
 
-		std::string matPath = lastFbxFolder + realFile.c_str();
-
+		}
+		
 		// Capture pos, rot, scale
 		aiVector3D position, scale;
 		aiQuaternion rot;
@@ -226,10 +229,10 @@ void SmileFBX::LoadFBXnode(aiNode* node, const aiScene* scene)
 		comps.push_back(mesh); 
 
 		GameObject* childObj = App->object_manager->CreateGameObject(comps, node->mName.C_Str(), fbxParent);
-		AssignTextureToObj(matPath.c_str(), childObj);
+	
+		if(matPath != "empty")
+			AssignTextureToObj(matPath.c_str(), childObj);
 
-		 
-		
 	}
 
 	for (uint i = 0; i < node->mNumChildren; i++)
@@ -338,6 +341,12 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 		ComponentMaterial* targetMat = ((previousMat == nullptr) ? DBG_NEW ComponentMaterial() : previousMat);
 		targetMat->CleanUpTextureData();
 
+		ILinfo img_info;
+		iluGetImageInfo(&img_info);
+
+		if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
+			iluFlipImage();
+
 		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
 		glGenTextures(1, (GLuint*)&targetMat->textureInfo->id_texture);
@@ -407,6 +416,12 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 			checkImage[i][j][3] = (GLubyte)255;
 		}
 	}
+
+	ILinfo img_info;
+	iluGetImageInfo(&img_info);
+
+	if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
+		iluFlipImage();
 
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
@@ -551,16 +566,23 @@ std::string SmileFBX::SaveMaterial(const char* path)
 	App->fs->SplitFilePath(path, &output_file, &fileName); 
 	std::string rawname = fileName.substr(0, fileName.find_last_of("."));
 
-	ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
-	size = ilSaveL(IL_DDS, NULL, 0);
-	if (size > 0) {
-		data = DBG_NEW ILubyte[size];
-		if (ilSaveL(IL_DDS, data, size) > 0)
-			App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, rawname.c_str(), "dds");
 
-		RELEASE_ARRAY(data); 
+	char* buffer = nullptr;
+	uint lenght = App->fs->ReadFile(path, &buffer); 
+
+	if (ilLoadL(IL_TYPE_UNKNOWN, (const void*)buffer, lenght))
+	{
+		ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
+		iluFlipImage();
+		size = ilSaveL(IL_DDS, NULL, 0);
+		if (size > 0) {
+			data = DBG_NEW ILubyte[size];
+			if (ilSaveL(IL_DDS, data, size) > 0)
+				App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, rawname.c_str(), "dds");
+
+			RELEASE_ARRAY(data);
+		}
 	}
-	
 
 	std::string library(LIBRARY_TEXTURES_FOLDER);
 	App->fs->EraseChunckFromString(library, 0, 1); 
