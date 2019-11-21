@@ -168,6 +168,9 @@ void SmileGui::HandleRender()
 // ----------------------------------------------------------------- [Main Menu Bar]
 void panelData::mainMenuSpace::Execute(bool& ret)
 {
+	if (TimeManager::IsPlaying())
+		return;
+
 	static bool showdemowindow = false;
 	static bool showabout = false;
 
@@ -587,6 +590,9 @@ void panelData::configSpace::Execute(bool& ret)
 
 void panelData::configSpace::CapsInformation() {
 
+	if (TimeManager::IsPlaying())
+		return; 
+
 	bool rdtsc = SDL_HasRDTSC();
 	bool mmx = SDL_HasMMX();
 	bool sse = SDL_HasSSE();
@@ -664,6 +670,10 @@ void SmileGui::Log(const char* log)
 
 void panelData::consoleSpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
 	static ImGuiTextFilter     Filter; 
 	static bool consoleWindow; 
 	static bool scrollToBottom = true; 
@@ -721,6 +731,13 @@ static void ObjectRecursiveNode(GameObject* obj)
 
 void panelData::HierarchySpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
+	ImGui::SetNextWindowSize(ImVec2(250, 500));
+	ImGui::SetNextWindowPos(ImVec2(20, 40));
+
 	static bool showHierarchy = true; 
 
 	ImGui::Begin("Hierarchy ", &showHierarchy); 
@@ -735,6 +752,14 @@ void panelData::HierarchySpace::Execute(bool& ret)
 // ----------------------------------------------------------------- [Inspector]
 void panelData::InspectorSpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
+
+	ImGui::SetNextWindowSize(ImVec2(400, 500));
+	ImGui::SetNextWindowPos(ImVec2(870, 250));
+
 
 	static bool showInspector = true;
 	static const ImVec4 c(11, 100, 88, 255); 
@@ -911,7 +936,7 @@ void panelData::PlaySpace::Execute(bool& ret)
 		TimeManager::PlayOne();
 	ImGui::End();
 
-	ImGui::SetNextWindowSize(ImVec2(400, 200));
+	ImGui::SetNextWindowSize(ImVec2(400, 150));
 	ImGui::SetNextWindowPos(ImVec2(870, 25));
 
 

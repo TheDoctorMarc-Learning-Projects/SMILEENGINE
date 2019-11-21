@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "SmileSerialization.h" // do not include this there
 #include "SmileApp.h"
+#include "SmileRenderer3D.h"
 
 namespace TimeManager
 {
@@ -28,12 +29,16 @@ namespace TimeManager
 			gameClock.Start();
 			App->serialization->SaveScene();
 			App->SetDtMultiplier(_timeData.gameTimeScale);
+			App->renderer3D->SwitchCamera(); 
+			App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN_DESKTOP, (SDL_bool)true);
 		}
 		else
 		{
-			App->SetDtMultiplier(1.F);
 			gameClock.Stop();
+			App->renderer3D->SwitchCamera();
+			App->SetDtMultiplier(1.F);
 			App->serialization->LoadScene("Library/Scenes/scene.json");
+			App->window->SetFullscreen(0, (SDL_bool)false);
 		}
 	
 	}; 

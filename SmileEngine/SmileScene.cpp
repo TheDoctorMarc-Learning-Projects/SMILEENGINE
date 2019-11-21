@@ -30,6 +30,8 @@
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
 
+#include "SmileGameTimeManager.h"
+
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
@@ -109,11 +111,11 @@ update_status SmileScene::Update(float dt)
 	HandleGizmo(); 
 	DrawGrid();
 	DebugLastRay(); 
-	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_DOWN && TimeManager::IsPlaying() == false)
 	{
 		App->serialization->SaveScene();
 	}
-	if (App->input->GetKey(SDL_SCANCODE_L) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_L) == KEY_DOWN && TimeManager::IsPlaying() == false)
 	{
 		App->serialization->LoadScene("Library/Scenes/scene.json");
 	}

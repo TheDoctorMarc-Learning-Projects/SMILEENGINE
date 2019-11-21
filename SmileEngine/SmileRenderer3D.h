@@ -18,6 +18,7 @@ public:
 	update_status PostUpdate(float dt);
 	bool CleanUp();
 	bool Reset(); 
+	void SwitchCamera(); 
 
 	void OnResize(int width, int height, ComponentCamera* targetCam);
 	float* GetProjectionMatrix(); 
