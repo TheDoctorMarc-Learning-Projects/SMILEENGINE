@@ -168,6 +168,9 @@ void SmileGui::HandleRender()
 // ----------------------------------------------------------------- [Main Menu Bar]
 void panelData::mainMenuSpace::Execute(bool& ret)
 {
+	if (TimeManager::IsPlaying())
+		return;
+
 	static bool showdemowindow = false;
 	static bool showabout = false;
 
@@ -587,6 +590,9 @@ void panelData::configSpace::Execute(bool& ret)
 
 void panelData::configSpace::CapsInformation() {
 
+	if (TimeManager::IsPlaying())
+		return; 
+
 	bool rdtsc = SDL_HasRDTSC();
 	bool mmx = SDL_HasMMX();
 	bool sse = SDL_HasSSE();
@@ -664,6 +670,10 @@ void SmileGui::Log(const char* log)
 
 void panelData::consoleSpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
 	static ImGuiTextFilter     Filter; 
 	static bool consoleWindow; 
 	static bool scrollToBottom = true; 
@@ -721,6 +731,13 @@ static void ObjectRecursiveNode(GameObject* obj)
 
 void panelData::HierarchySpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
+	ImGui::SetNextWindowSize(ImVec2(250, 500));
+	ImGui::SetNextWindowPos(ImVec2(20, 40));
+
 	static bool showHierarchy = true; 
 
 	ImGui::Begin("Hierarchy ", &showHierarchy); 
@@ -735,6 +752,14 @@ void panelData::HierarchySpace::Execute(bool& ret)
 // ----------------------------------------------------------------- [Inspector]
 void panelData::InspectorSpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
+
+	ImGui::SetNextWindowSize(ImVec2(400, 500));
+	ImGui::SetNextWindowPos(ImVec2(870, 250));
+
 
 	static bool showInspector = true;
 	static const ImVec4 c(11, 100, 88, 255); 
@@ -890,14 +915,15 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 // ----------------------------------------------------------------- [Play]
 void panelData::PlaySpace::Execute(bool& ret)
 {
-	static bool truee = true; 
+ 
 	std::string playStop = (TimeManager::IsPlaying()) ? "Stop" : "Play"; 
 	std::string pauseResume = (TimeManager::IsPlaying()) ? "Pause" : "Resume";
 
-	ImGui::SetNextWindowSize(ImVec2(320, 22)); 
+
+	ImGui::SetNextWindowSize(ImVec2(330, 22));
 	ImGui::SetNextWindowPos(ImVec2(500, 30));
 
-
+	// Do stuff
 	ImGui::Begin("Game", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize 
 		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 	if (ImGui::Button(playStop.c_str(), ImVec2(100, 20)))
@@ -908,6 +934,45 @@ void panelData::PlaySpace::Execute(bool& ret)
 	ImGui::SameLine();
 	if (ImGui::Button("|> ||", ImVec2(100, 20)))
 		TimeManager::PlayOne();
+	ImGui::End();
+
+	ImGui::SetNextWindowSize(ImVec2(400, 150));
+	ImGui::SetNextWindowPos(ImVec2(870, 25));
+
+
+	// Show stuff
+	ImGui::Begin("Sesion", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+
+	if (playStop == "Stop")
+	{
+		ImGui::Text("Game Speed Multiplier: ");
+		ImGui::SameLine();
+		float multi = TimeManager::_timeData.gameTimeScale;
+		if (ImGui::SliderFloat("Times", &multi, 1, 10))
+			App->SetDtMultiplier(TimeManager::_timeData.gameTimeScale = multi);
+	}
+
+
+	ImGui::Text("Total Seconds Since Startup: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(TimeManager::realTimeClock.ReadSec()).c_str());
+
+	ImGui::Text("Total Seconds Since Game Start: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(TimeManager::gameClock.ReadSec()).c_str());
+
+	ImGui::Text("App Delta Time: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(App->GetDtNoMulti()).c_str());
+
+	ImGui::Text("Game Delta Time: ");
+	ImGui::SameLine();
+	ImGui::Text((playStop == "Stop") ? std::to_string(App->GetDT() * App->GetDTMulti()).c_str() : "Not playing");
+
+	ImGui::Text("Frames since Startup: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(App->GetFrameCount()).c_str());
 
 	ImGui::End();
 }

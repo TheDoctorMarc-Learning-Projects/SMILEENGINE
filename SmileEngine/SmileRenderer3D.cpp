@@ -140,19 +140,7 @@ update_status SmileRenderer3D::PostUpdate(float dt)
 	SDL_GL_SwapWindow(App->window->window);
 
 	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
-	{
-		ComponentCamera* gameCam = App->scene_intro->gameCamera;
-		ComponentCamera* debugCam = App->scene_intro->debugCamera;
-
-		if (targetCamera == gameCam)
-			targetCamera = debugCam;
-		else if (targetCamera == debugCam)
-			targetCamera = gameCam;
-
-		OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
-			targetCamera);
-
-	}
+		SwitchCamera(); 
 
 
 	return UPDATE_CONTINUE;
@@ -215,4 +203,20 @@ mat4x4 SmileRenderer3D::GetProjectionMatrixTransposedA()
 	mat4x4 ret = ProjectionMatrix;
 	ret.transpose();
 	return ret;
+}
+
+
+void SmileRenderer3D::SwitchCamera()
+{
+	ComponentCamera* gameCam = App->scene_intro->gameCamera;
+	ComponentCamera* debugCam = App->scene_intro->debugCamera;
+
+	if (targetCamera == gameCam)
+		targetCamera = debugCam;
+	else if (targetCamera == debugCam)
+		targetCamera = gameCam;
+
+	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+		targetCamera);
+
 }
