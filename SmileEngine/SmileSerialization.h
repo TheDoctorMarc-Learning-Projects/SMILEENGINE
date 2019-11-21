@@ -12,7 +12,7 @@ public:
 	SmileSerialization(SmileApp* app, bool start_enabled = true);
 	~SmileSerialization();
 	bool SaveScene();
-	void LoadScene(const char* path);
+	void LoadScene(const char* path, bool startup = false);
 private:
 
 	

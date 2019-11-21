@@ -84,7 +84,7 @@ public:
 	~SmileSpatialTree();
 
 	void CreateOctree(math::AABB aabb, uint depth = MAX_DEPTH, uint maxNodeObjects = MAX_NODE_OBJECTS);
-	update_status Update(float dt) { root->Debug(); return update_status::UPDATE_CONTINUE; }; // to debug only
+	update_status Update(float dt) { if(root) root->Debug(); return update_status::UPDATE_CONTINUE; }; // to debug only
 	bool CleanUp(); 
 	void OnStaticChange(GameObject* obj, bool isStatic); 
 

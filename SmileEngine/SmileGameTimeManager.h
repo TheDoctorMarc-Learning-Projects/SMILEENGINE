@@ -20,9 +20,9 @@ namespace TimeManager
 		Timer gameClock = Timer(false);
 	}
 
-	bool IsPlaying() { return gameClock.IsRunning(); };
+	static bool IsPlaying() { return gameClock.IsRunning(); };
 
-	void PlayButton() 
+	static void PlayButton() 
 	{
 		if (IsPlaying() == false)
 		{
@@ -43,7 +43,7 @@ namespace TimeManager
 	
 	}; 
 
-	void PauseButton()
+	static void PauseButton()
 	{
 
 		if (IsPlaying() == true)
@@ -59,7 +59,7 @@ namespace TimeManager
 		
 	}; 
 
-	void PlayOne() {}; 
+	static void PlayOne() {};
 
 }
 

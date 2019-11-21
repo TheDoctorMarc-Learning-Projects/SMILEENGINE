@@ -113,6 +113,8 @@ bool SmileGui::Start()
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer3D->context);
 	ImGui_ImplOpenGL3_Init();
 
+	// Init play mode
+	TimeManager::PlayButton();
 
 	return ret;
 }
@@ -120,6 +122,7 @@ bool SmileGui::Start()
 // -----------------------------------------------------------------
 update_status SmileGui::PreUpdate(float dt)
 {
+
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(App->window->window);
@@ -181,7 +184,11 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		{
 			if (ImGui::MenuItem("Quit"))
 				ret = false;
+			if (ImGui::MenuItem("Save Scene"))
+				App->serialization->SaveScene(); 
 
+			if (ImGui::MenuItem("Load Scene"))
+				App->serialization->LoadScene("\Library\Scenes\scene.json");
 
 			ImGui::EndMenu();
 		}

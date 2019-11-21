@@ -46,34 +46,10 @@ bool SmileScene::Start()
 { 
 	// Root
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
-
-	// Just testing Spatial Tree
-	/*float size[10]; 
-	for (auto& i : size)
-	{
-		float3 pos(0, 0, 0); 
-		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F)); 
-		pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 20.F));
-		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F));
-		GameObject* daHouse = App->fbx->LoadFBX("Assets/Models/BakerHouse.fbx"); 
-		daHouse->GetTransform()->ChangePosition(pos);
-
-	}*/
-		
-	// Debug Camera
-	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 30)), "Debug Camera", rootObj);
-	debugCamera = DBG_NEW ComponentCamera(debugCameraObj, vec3(0, 0, -1)); 
-	debugCameraObj->AddComponent(debugCamera);
-
-	// Game Camera
-	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 25)), "Game Camera", rootObj);
-	renderingData data; 
-	data.pFarDist = 25.f; 
-	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 5, 0), data); 
-	gameCameraObj->AddComponent(gameCamera);
 	
-	// Octree
-	App->spatial_tree->CreateOctree(math::AABB(float3(-500, -500, -500), float3(500, 500, 500)));
+	// Scene and octree
+	App->serialization->LoadScene("Library/Scenes/scene.json", true);
+	//	App->spatial_tree->CreateOctree(math::AABB(float3(-500, -500, -500), float3(500, 500, 500)));
 
 	return true;
 }
@@ -111,15 +87,7 @@ update_status SmileScene::Update(float dt)
 	HandleGizmo(); 
 	DrawGrid();
 	DebugLastRay(); 
-	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_DOWN && TimeManager::IsPlaying() == false)
-	{
-		App->serialization->SaveScene();
-	}
-	if (App->input->GetKey(SDL_SCANCODE_L) == KEY_DOWN && TimeManager::IsPlaying() == false)
-	{
-		App->serialization->LoadScene("Library/Scenes/scene.json");
-	}
-	
+ 
 	return UPDATE_CONTINUE;
 }
 

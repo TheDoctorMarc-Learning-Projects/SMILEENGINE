@@ -1,4 +1,5 @@
 #include "SmileApp.h"
+#include "SmileGameTimeManager.h"
 
 class SmileSetup;
 class SmileModule;
@@ -86,6 +87,8 @@ bool SmileApp::Init()
 		ret = (*item)->Start();
 		++item;
 	}
+
+
 
 	ms_timer.Start();
 	return ret;

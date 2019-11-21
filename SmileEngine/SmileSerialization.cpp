@@ -230,8 +230,7 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 	bool selected = mynode["Selected"].GetBool();
 	if (selected)
 		App->scene_intro->selectedObj = obj;
-	obj->SetStatic(mynode["Static"].GetBool()); 
-
+ 
 	// Components
 	// We must assume transform:
 	auto compArray = mynode["Components"].GetArray(); 
@@ -340,19 +339,22 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 	return obj;
 }
 
-void SmileSerialization::LoadScene(const char* path)
+void SmileSerialization::LoadScene(const char* path, bool startup)
 {	
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
 	
 
-	// When Loading: 
-	// 1) Clear Octree
-	App->spatial_tree->CleanUp();
-	// 2) Clear All Objects
-	App->scene_intro->Reset();
-	// 3) Reset current camera
-	App->renderer3D->Reset(); 
+	if (startup == false)
+	{
+		// 1) Clear Octree
+		App->spatial_tree->CleanUp();
+		// 2) Clear All Objects
+		App->scene_intro->Reset();
+		// 3) Reset current camera
+		App->renderer3D->Reset();
+	}
+
 	// 4) Then Load
 	LoadSceneNode(nullptr, doc["GameObject"], doc)->Start();  // starts root 
 	// 5) Afterwards, create Octree again
