@@ -27,21 +27,22 @@ public:
 	SmileInput* input;
 	SmileScene* scene_intro;
 	SmileRenderer3D* renderer3D;
-	SmileGui* gui; 
+	SmileGui* gui;
 	SmileUtilitiesModule* utilities;
 	SmileFBX* fbx;
 	SmileFileSystem* fs;
 	SmileMaterialImporter* material_importer;
 	SmileGameObjectManager* object_manager;
-	SmileSpatialTree* spatial_tree; 
+	SmileSpatialTree* spatial_tree;
 	SmileResourceManager* resources;
 	SmileSerialization* serialization;
 
 private:
 
 	Timer	ms_timer;
-	
-	float dtMulti = 1.F; 
+	uint frameCount = 0; 
+	float dtNoMulti; 
+	float dtMulti = 1.F;
 	float	dt;
 	bool    terminated;
 	std::list<SmileModule*> list_Modules;
@@ -49,7 +50,7 @@ private:
 public:
 	std::vector<float> fps_log;
 	std::vector<float> ms_log;
-	
+
 	SmileApp();
 	~SmileApp();
 
@@ -57,7 +58,10 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+	uint GetFrameCount() const { return frameCount; };
+	float GetDtNoMulti() const { return dtNoMulti; }; 
 	float GetDT() const { return dt; }; 
+	float GetDTMulti() const { return dtMulti; };
 	void SetDtMultiplier(float value) { dtMulti = value; };
 private:
 
