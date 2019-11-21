@@ -263,6 +263,13 @@ float* ComponentCamera::GetViewMatrixTransposed()
 	return &ret;
 }
 
+mat4x4 ComponentCamera::GetViewMatrixTransposedA()
+{
+	mat4x4 ret = ViewMatrix;
+	ret.transpose();
+	return ret;
+}
+
 // -----------------------------------------------------------------
 float* ComponentCamera::GetViewMatrixInverse()
 {

@@ -209,3 +209,10 @@ float* SmileRenderer3D::GetProjectionMatrixTransposed()
 	ret.transpose();
 	return &ret;
 }
+
+mat4x4 SmileRenderer3D::GetProjectionMatrixTransposedA()
+{
+	mat4x4 ret = ProjectionMatrix;
+	ret.transpose();
+	return ret;
+}

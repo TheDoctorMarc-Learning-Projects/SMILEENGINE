@@ -22,6 +22,7 @@ public:
 	void OnResize(int width, int height, ComponentCamera* targetCam);
 	float* GetProjectionMatrix(); 
 	float* GetProjectionMatrixTransposed(); 
+	mat4x4 GetProjectionMatrixTransposedA();
 public:
 	SDL_GLContext context;
 	Light lights[MAX_LIGHTS];

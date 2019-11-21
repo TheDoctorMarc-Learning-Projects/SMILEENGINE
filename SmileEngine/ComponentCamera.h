@@ -91,6 +91,7 @@ public:
 	// Getters
 	float* GetViewMatrix();
 	float* GetViewMatrixTransposed();
+	mat4x4 GetViewMatrixTransposedA();
 	float* GetViewMatrixInverse();
 	float GetScrollSpeed(float dt, float zScroll);
 	renderingData GetRenderingData() const { return _renderingData; };

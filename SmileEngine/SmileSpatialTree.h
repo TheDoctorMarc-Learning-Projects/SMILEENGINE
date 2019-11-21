@@ -7,7 +7,7 @@
 #include <vector>
 
 static uint MAX_NODE_OBJECTS = 10; 
-static uint MAX_DEPTH = 4; 
+static uint MAX_DEPTH = 8; 
 
 class Frustrum;
 // ----------------------------------------------------------------- [OctreeNode]

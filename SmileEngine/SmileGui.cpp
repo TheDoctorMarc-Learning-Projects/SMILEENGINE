@@ -20,8 +20,9 @@
 #include "ComponentTransform.h"
 #include "ComponentMaterial.h"
 
-#include <filesystem> // TODO: filesystem (muahahaha)
- 
+#include <filesystem>  
+#include "SmileGameTimeManager.h"
+
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
 {
@@ -62,6 +63,11 @@ namespace panelData
 		void ComponentData(Component*);
 	}
 
+	namespace PlaySpace
+	{
+		void Execute(bool& ret);
+	}
+
 }
 
 // -----------------------------------------------------------------
@@ -78,6 +84,7 @@ void SmileGui::FillMenuFunctionsVector()
 	menuFunctions.push_back(&panelData::mainMenuSpace::Execute);
 	menuFunctions.push_back(&panelData::HierarchySpace::Execute);
 	menuFunctions.push_back(&panelData::InspectorSpace::Execute);
+	menuFunctions.push_back(&panelData::PlaySpace::Execute);
 }
 
 // -----------------------------------------------------------------
@@ -877,6 +884,32 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		ImGui::TreePop();
 	}
 	
+}
+
+
+// ----------------------------------------------------------------- [Play]
+void panelData::PlaySpace::Execute(bool& ret)
+{
+	static bool truee = true; 
+	std::string playStop = (TimeManager::IsPlaying()) ? "Stop" : "Play"; 
+	std::string pauseResume = (TimeManager::IsPlaying()) ? "Pause" : "Resume";
+
+	ImGui::SetNextWindowSize(ImVec2(320, 22)); 
+	ImGui::SetNextWindowPos(ImVec2(500, 30));
+
+
+	ImGui::Begin("Game", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize 
+		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+	if (ImGui::Button(playStop.c_str(), ImVec2(100, 20)))
+		TimeManager::PlayButton();
+	ImGui::SameLine(); 
+	if (ImGui::Button(pauseResume.c_str(), ImVec2(100, 20)))
+		TimeManager::PauseButton();
+	ImGui::SameLine();
+	if (ImGui::Button("|> ||", ImVec2(100, 20)))
+		TimeManager::PlayOne();
+
+	ImGui::End();
 }
 
 // ----------------------------------------------------------------- (Utilities)

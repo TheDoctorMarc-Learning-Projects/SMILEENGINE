@@ -71,7 +71,7 @@ bool SmileScene::Start()
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
-	App->spatial_tree->CreateOctree(math::AABB(float3(-20, 0, -20), float3(20, 40, 20)));
+	App->spatial_tree->CreateOctree(math::AABB(float3(-500, -500, -500), float3(500, 500, 500)));
 
 	return true;
 }
@@ -124,7 +124,7 @@ update_status SmileScene::Update(float dt)
 void SmileScene::DrawObjects()
 {
 	// collect candidates to be drawn: search for octree nodes inside frustrum 
-	std::vector<GameObject*> drawObjects;
+	static std::vector<GameObject*> drawObjects;
 	App->spatial_tree->CollectCandidatesA(drawObjects, App->renderer3D->targetCamera->calcFrustrum);
 
 	// then test the own objects OBBs with the frustrum
@@ -149,16 +149,19 @@ void SmileScene::HandleGizmo()
 	if (selectedObj != nullptr)
 	{
 		ImGuizmo::Enable(true);
-		ImGuizmo::SetDrawlist();
-
-		float view[16], projection[16], object[16]; 
-		std::memcpy(view, debugCamera->GetViewMatrixTransposed(), sizeof(float) * 16);
-		std::memcpy(projection, App->renderer3D->GetProjectionMatrixTransposed(), sizeof(float) * 16);
-		std::memcpy(object, selectedObj->GetTransform()->GetGlobalMatrix().Transposed().ptr(), sizeof(float) * 16);
+	    
+		float4x4 object = selectedObj->GetTransform()->GetGlobalMatrix().Transposed(); 
+		mat4x4 view = debugCamera->GetViewMatrixTransposedA();
+		mat4x4 proj = App->renderer3D->GetProjectionMatrixTransposedA(); 
+		float4x4 diff;
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-		ImGuizmo::Manipulate(view, projection, op, mode, object);
+		ImGuizmo::SetDrawlist();
+		ImGuizmo::Manipulate(view.M, proj.M, op, mode, object.ptr(), diff.ptr());
+
+		if (ImGuizmo::IsUsing() && !diff.IsIdentity())
+			selectedObj->GetTransform()->SetLocalMatrix(object.Transposed());
 	}
 	else
 		ImGuizmo::Enable(false);

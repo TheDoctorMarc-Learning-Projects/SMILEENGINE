@@ -109,6 +109,7 @@
     <ClInclude Include="SmileFBX.h" />
     <ClInclude Include="SmileFileSystem.h" />
     <ClInclude Include="SmileGameObjectManager.h" />
+    <ClInclude Include="SmileGameTimeManager.h" />
     <ClInclude Include="SmileResourceManager.h" />
     <ClInclude Include="SmileMaterialImporter.h" />
     <ClInclude Include="SmileSerialization.h" />

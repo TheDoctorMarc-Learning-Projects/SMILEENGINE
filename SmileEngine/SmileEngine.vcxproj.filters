@@ -183,6 +183,9 @@
     <ClInclude Include="SmileSerialization.h">
       <Filter>Source\Modules\Objects\Managers</Filter>
     </ClInclude>
+    <ClInclude Include="SmileGameTimeManager.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
