@@ -186,6 +186,12 @@
     <ClInclude Include="SmileGameTimeManager.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceMesh.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceTexture.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -289,6 +295,9 @@
     </ClCompile>
     <ClCompile Include="SmileSerialization.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceMesh.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
