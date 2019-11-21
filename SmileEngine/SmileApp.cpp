@@ -95,6 +95,7 @@ bool SmileApp::Init()
 void SmileApp::PrepareUpdate()
 {
 	dt = (float)ms_timer.Read() / 1000.0f;
+	dt *= dtMulti; 
 	ms_timer.Start();
 
 	////FPS_LOG

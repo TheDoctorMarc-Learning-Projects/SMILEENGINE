@@ -41,6 +41,7 @@ private:
 
 	Timer	ms_timer;
 	
+	float dtMulti = 1.F; 
 	float	dt;
 	bool    terminated;
 	std::list<SmileModule*> list_Modules;
@@ -57,6 +58,7 @@ public:
 	bool CleanUp();
 
 	float GetDT() const { return dt; }; 
+	void SetDtMultiplier(float value) { dtMulti = value; };
 private:
 
 	void AddModule(SmileModule* mod);

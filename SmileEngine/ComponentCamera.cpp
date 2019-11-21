@@ -124,7 +124,7 @@ void ComponentCamera::Update()
 		// Rotation ----------------
 		if (App->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT && App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT)
 		{
-			float Sensitivity = 0.25f;
+			float Sensitivity = 15.f * dt;
 
 			transf->AccumulatePosition(-Reference);
 
