@@ -154,6 +154,7 @@ void SmileScene::HandleGizmo()
 		mat4x4 view = debugCamera->GetViewMatrixTransposedA();
 		mat4x4 proj = App->renderer3D->GetProjectionMatrixTransposedA(); 
 		float4x4 diff;
+		
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);

@@ -102,6 +102,8 @@
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ResourceTexture.h" />
+    <ClInclude Include="ResourceMesh.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="SafetyHandler.h" />
     <ClInclude Include="SmileApp.h" />
@@ -143,6 +145,7 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="JSONParser.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="ResourceMesh.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="SmileApp.cpp" />
     <ClCompile Include="Color.cpp" />
