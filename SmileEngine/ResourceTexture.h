@@ -8,8 +8,10 @@ class ResourceTexture : public Resource
 public:
 	ResourceTexture(SmileUUID uuid) : Resource(uuid, Resource_Type::RESOURCE_TEXTURE) {};
 	virtual ~ResourceTexture() {};
+	void FreeMemory();
 
+	textureData* GetTextureData() const { return textureInfo; };
 private:
-	textureData* textureResource = nullptr;
+	textureData* textureInfo = nullptr;
 
 };

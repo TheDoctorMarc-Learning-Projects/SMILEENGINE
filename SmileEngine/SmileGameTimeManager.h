@@ -4,6 +4,7 @@
 #include "SmileSerialization.h" // do not include this there
 #include "SmileApp.h"
 #include "SmileRenderer3D.h"
+#include "SmileGui.h"
 
 namespace TimeManager
 {
@@ -30,7 +31,7 @@ namespace TimeManager
 			App->serialization->SaveScene();
 			App->SetDtMultiplier(_timeData.gameTimeScale);
 			App->renderer3D->SwitchCamera(); 
-			App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN_DESKTOP, (SDL_bool)true);
+			//App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN_DESKTOP, (SDL_bool)true);
 		}
 		else
 		{
@@ -38,7 +39,7 @@ namespace TimeManager
 			App->renderer3D->SwitchCamera();
 			App->SetDtMultiplier(1.F);
 			App->serialization->LoadScene("Library/Scenes/scene.json");
-			App->window->SetFullscreen(0, (SDL_bool)false);
+		//	App->window->SetFullscreen(0, (SDL_bool)false);
 		}
 	
 	}; 
@@ -59,7 +60,16 @@ namespace TimeManager
 		
 	}; 
 
-	static void PlayOne() {};
+	static void PlayOne()
+	{
+
+		if (IsPlaying() == false)
+		{
+			PlayButton(); 
+			gameClock.PlayOne(); 
+		}
+
+	};
 
 }
 

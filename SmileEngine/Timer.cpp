@@ -39,10 +39,30 @@ void Timer::Resume()
 
 
 // ---------------------------------------------
+void Timer::PlayOne()
+{
+	toPlayOne++; 
+}
+
+// ---------------------------------------------
+void Timer::CheckToPlayOne()
+{
+	if (toPlayOne == 1)
+		toPlayOne++;
+	else if (toPlayOne == 2)
+	{
+		Stop();
+		toPlayOne = 0;
+	}
+}
+
+// ---------------------------------------------
 Uint32 Timer::Read()
 {
+
 	if(running == true)
 	{
+		CheckToPlayOne(); 
 		return SDL_GetTicks() - started_at;
 	}
 	else
@@ -57,6 +77,7 @@ Uint32 Timer::ReadSec()
 {
 	if (running == true)
 	{
+		CheckToPlayOne(); 
 		return (SDL_GetTicks() - started_at) / 1000.0f;
 	}
 	else

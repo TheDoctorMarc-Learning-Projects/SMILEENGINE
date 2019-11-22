@@ -2,6 +2,7 @@
 #include "Resource.h"
 #include "SmileSetup.h"
 #include "ComponentMesh.h"
+#include "MathGeoLib/include/Geometry/AABB.h" 
 
 class ResourceMesh : public Resource
 {
@@ -21,6 +22,7 @@ public:
 
 	void LoadOnMemory();
 	void FreeMemory();
+	AABB GetEnclosingAABB(); 
 
 public:
 	uint buffers[max_b];

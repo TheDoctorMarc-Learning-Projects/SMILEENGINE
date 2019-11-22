@@ -64,6 +64,13 @@ void ResourceMesh::FreeMemory()
 			RELEASE_ARRAY(UVs);
 		}
 
-		//RELEASE();
 	}
+}
+
+AABB ResourceMesh::GetEnclosingAABB()
+{
+	math::AABB ret;
+	ret.SetNegativeInfinity();
+	ret.Enclose((math::float3*)vertex, buffersSize[mesh_b_vertex] * 3);
+	return ret; 
 }
