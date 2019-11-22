@@ -7,7 +7,7 @@
 #include "SmileModule.h"
 #include "parshapes/par_shapes.h"
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
-
+#include "ResourceMesh.h"
 #include <list>
 #include "DevIL/include/IL/il.h"
 #include "glmath.h"
@@ -20,6 +20,8 @@ struct globalTextureData
 	uint rgb = 0; 
 	uint rgba = 0; 
 };
+
+class ResourceMesh;
 
 class SmileFBX : public SmileModule
 {
@@ -55,7 +57,7 @@ private:
 
 
 	ComponentMesh* LoadMesh(const char* path);
-	std::string SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index = INT_MAX);
+	std::string SaveMesh(ResourceMesh* resource, GameObject* obj, uint index = INT_MAX);
 	std::string SaveMaterial(const char* path);
 	bool LoadModel(const char* path);
 	void SaveModel(GameObject*, const char* path);

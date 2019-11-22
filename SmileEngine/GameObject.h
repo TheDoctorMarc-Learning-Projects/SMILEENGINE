@@ -85,7 +85,7 @@ public:
 
 		// Bounding and mesh stuff
 	void SetupWithMesh();  
-	void PositionTransformAtMeshCenter();
+	//void PositionTransformAtMeshCenter();
 	void SetupBounding();  
 	void UpdateBounding();
 

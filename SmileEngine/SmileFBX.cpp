@@ -5,6 +5,7 @@
 #include "Assimp/include/scene.h"
 #include "Assimp/include/postprocess.h"
 #include "Assimp/include/cfileio.h"
+#include "ResourceMesh.h"
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
 #include "DevIL/include/IL/ilu.h"
@@ -511,11 +512,11 @@ ComponentMesh* SmileFBX::LoadMesh(const char* full_path)
 	return component_mesh;
 }
 
-std::string SmileFBX::SaveMesh(ModelMeshData* mesh, GameObject* obj, uint index)
+std::string SmileFBX::SaveMesh(ResourceMesh* resource, GameObject* obj, uint index)
 {
 	
 	bool ret = false;
-	uint ranges[4] = { mesh->num_index, mesh->num_vertex, mesh->num_normals, mesh->num_UVs };
+	uint ranges[4] = { resource->index,resource->GetVertex(), resource->GetNormals(), resource->GetUVs() };
 	uint size = sizeof(ranges) + sizeof(uint) * mesh->num_index + sizeof(float) * mesh->num_vertex * 3 + sizeof(float) * mesh->num_normals * 3 + sizeof(float) * mesh->num_UVs * 2;
 	char* data = new char[size]; // Allocate
 	char* cursor = data;

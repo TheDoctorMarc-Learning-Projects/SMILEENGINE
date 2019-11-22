@@ -299,5 +299,8 @@
     <ClCompile Include="ResourceMesh.cpp">
       <Filter>Source\Modules\Objects\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceTexture.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

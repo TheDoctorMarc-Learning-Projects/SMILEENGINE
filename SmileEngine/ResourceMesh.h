@@ -4,36 +4,52 @@
 #include "ComponentMesh.h"
 #include "MathGeoLib/include/Geometry/AABB.h" 
 
+
+struct ModelMeshData
+{
+public:
+	uint id_index = 0;
+	uint num_index = 0;
+	uint* index = nullptr;
+
+	uint num_normals = 0;
+	uint id_normals = 0;
+	float* normals = nullptr;
+
+	uint id_vertex = 0;
+	uint num_vertex = 0;
+	float* vertex = nullptr;
+
+	uint id_color = 0;
+	uint num_color = 0;
+	float* color = nullptr;
+
+	uint id_UVs = 0;
+	uint num_UVs = 0;
+	float* UVs = nullptr;
+
+	friend class SmileFBX;
+	friend class ComponentMesh;
+};
+
+
 class ResourceMesh : public Resource
 {
 public:
-	enum Mesh_Buffers
-	{
-		mesh_b_index,
-		mesh_b_vertex,
-		mesh_b_normals,
-		mesh_b_colors,
-		mesh_b_UVs,
-		max_b,
-	};
 
 	ResourceMesh(SmileUUID uuid) : Resource(uuid, Resource_Type::RESOURCE_MESH) {};
+	ResourceMesh(SmileUUID uuid, par_shapes_mesh* parshapes) : Resource(uuid, Resource_Type::RESOURCE_MESH) { GenerateModelMeshFromParShapes(parshapes); };
+
 	virtual ~ResourceMesh() {};
 
 	void LoadOnMemory();
 	void FreeMemory();
 	AABB GetEnclosingAABB(); 
+	void GenerateModelMeshFromParShapes(par_shapes_mesh* mesh);
 
 public:
-	uint buffers[max_b];
-	uint buffersSize[max_b];
+	ModelMeshData* model_mesh;
 
-	uint* index = nullptr;
-	float* vertex = nullptr;
-	float* normals = nullptr;
-	float* colors = nullptr;
-	float* UVs = nullptr;
 
-	
 	
 };

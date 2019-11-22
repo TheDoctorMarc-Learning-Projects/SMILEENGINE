@@ -3,7 +3,7 @@
 #include "SmileGui.h"
 #include "SmileApp.h"
 #include "SmileWindow.h"
-
+#include "ResourceMesh.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -265,30 +265,30 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 {
 	if (ImGui::BeginMenu("Geometry"))
 	{
-		// Primitives
-		static char objName[128] = "Insert name";
-		static ImVec4 col(0.f, 255.f, 1.f, 255.f);
-		static char text[128];
-		if(text[0] == '\0')
-			App->object_manager->GetAllPrimitiveTypesChar(text, true);
-		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName));
-		ImGui::TextColored(col, text);
-
-		if (ImGui::MenuItem("Create Object"))
+		// Primitive
+		if (ImGui::MenuItem("Create Cube"))
 		{
-			par_shapes_mesh* primitive = App->object_manager->GeneratePrimitive(std::string(objName));
-
-			if (primitive != nullptr)
-			{
 				// Create a mesh and an object
-				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive, std::string(objName) + " 1");
-				GameObject* obj = App->object_manager->CreateGameObject(mesh, objName, App->scene_intro->rootObj);
+				ComponentMesh* mesh = DBG_NEW ComponentMesh(App->object_manager->Cube->GetUID(), "CubeMesh");
+				GameObject* obj = App->object_manager->CreateGameObject(mesh, "CUBE", App->scene_intro->rootObj);
 				obj->Start();
 
 				// TODO: check this ok
 				App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
-			}
+			
 				
+		}
+		if (ImGui::MenuItem("Create Sphere"))
+		{
+			// Create a mesh and an object
+			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->object_manager->Sphere->GetUID(), "SphereMesh");
+			GameObject* obj = App->object_manager->CreateGameObject(mesh, "SPHERE", App->scene_intro->rootObj);
+			obj->Start();
+
+			// TODO: check this ok
+			App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
+
+
 		}
 		
 		ImGui::EndMenu(); 

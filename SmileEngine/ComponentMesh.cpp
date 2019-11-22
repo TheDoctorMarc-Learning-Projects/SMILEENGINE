@@ -7,25 +7,19 @@
 #include "Component.h"
 #include "ComponentTransform.h"
 #include "ComponentMaterial.h"
+#include "SmileResourceManager.h"
+#include "ResourceMesh.h"
+#include "SmileApp.h"
 
-ComponentMesh::ComponentMesh(par_shapes_mesh* mesh, std::string name)
-{
-	SetName(name); 
-	type = MESH; 
-	meshType = Mesh_Type::PRIMITIVE; 
 
-	// Generate mesh buffers from par_shapes
-	GenerateModelMeshFromParShapes(mesh); 
-}
 
-ComponentMesh::ComponentMesh(ModelMeshData* mesh, std::string name) : model_mesh(mesh)
+ComponentMesh::ComponentMesh(SmileUUID uid, std::string name)
 {
 	SetName(name);
 	type = MESH;
 	meshType = Mesh_Type::MODEL;
+	uid = myresourceID;
 
-	// Generate mesh buffers
-    GenerateBuffers();
 
 }
 
@@ -41,6 +35,7 @@ ComponentMesh::~ComponentMesh()
 
 void ComponentMesh::Draw()
 {
+	auto model_mesh = dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID))->model_mesh;
 	// Draw the OpenGL mesh 
 	if (model_mesh != nullptr)  
 	{
@@ -105,7 +100,7 @@ void ComponentMesh::Draw()
 
 void ComponentMesh::DebugDraw()
 {
-	
+	auto model_mesh = dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID))->model_mesh;
 		if (model_mesh->normals != nullptr)
 		{
 			// draw vertex normals
@@ -204,116 +199,10 @@ void ComponentMesh::DebugDraw()
 // -----------------------------------------------------------------
 void ComponentMesh::CleanUp()
 {
-	// Free model mesh
-	if (model_mesh != nullptr)
-	{
-		if (model_mesh->vertex != nullptr)
-		{
-			glDeleteBuffers(1, (GLuint*)& model_mesh->vertex);
-			RELEASE_ARRAY(model_mesh->vertex);
-		}
-
-		if (model_mesh->index != nullptr)
-		{
-			glDeleteBuffers(1, (GLuint*)& model_mesh->index);
-			RELEASE_ARRAY(model_mesh->index);
-		}
-
-		if (model_mesh->normals != nullptr)
-		{
-			glDeleteBuffers(1, (GLuint*)& model_mesh->normals);
-			RELEASE_ARRAY(model_mesh->normals);
-		}
-
-		if (model_mesh->color != nullptr)
-		{
-			glDeleteBuffers(1, (GLuint*)& model_mesh->color);
-			RELEASE_ARRAY(model_mesh->color);
-		}
-
-		if (model_mesh->UVs != nullptr)
-		{
-			glDeleteBuffers(1, (GLuint*)& model_mesh->UVs);
-			RELEASE_ARRAY(model_mesh->UVs);
-		}
-
-		RELEASE(model_mesh); 
-	}
+	
 
 
 
-
-}
-
-
-
-void ComponentMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh) 
-{
-	if (model_mesh == nullptr)
-	{
-		par_shapes_unweld(mesh, true);
-		par_shapes_compute_normals(mesh);
-		par_shapes_translate(mesh, 0.f, 0.f, 0.f); // TODO: do this with the gameobject transform
-
-		model_mesh = DBG_NEW ModelMeshData();
-
-		model_mesh->num_vertex = mesh->npoints;
-		model_mesh->vertex = new float[model_mesh->num_vertex * 3];
-		memcpy(model_mesh->vertex, mesh->points, sizeof(float) * model_mesh->num_vertex * 3);
-
-		model_mesh->num_index = mesh->ntriangles * 3;
-		model_mesh->index = new uint[model_mesh->num_index];
-		memcpy(model_mesh->index, mesh->triangles, sizeof(uint) * model_mesh->num_index);
-
-		if (mesh->normals != nullptr)
-		{
-			model_mesh->num_normals = model_mesh->num_vertex; 
-			model_mesh->normals = new float[model_mesh->num_vertex * 3];
-			memcpy(model_mesh->normals, mesh->normals, sizeof(float) * model_mesh->num_vertex * 3);
-		}
-
-		if (mesh->tcoords != nullptr) 
-		{
-			model_mesh->num_UVs = model_mesh->num_vertex;
-			model_mesh->UVs = new float[model_mesh->num_vertex * 2];
-			memcpy(model_mesh->UVs, mesh->tcoords, sizeof(float) * model_mesh->num_UVs);
-		}
-		 
-		// Generate Mesh Buffers
-		GenerateBuffers();
- 
-	}
-
-	par_shapes_free_mesh(mesh); 
-}
-
- 
-void ComponentMesh::GenerateBuffers()
-{
-	// Normals Buffer
-	glGenBuffers(1, (GLuint*) & (model_mesh->id_normals));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_normals);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * model_mesh->num_normals * 3, model_mesh->normals, GL_STATIC_DRAW);
-
-	// Uvs vBuffer
-	glGenBuffers(1, (GLuint*) & (model_mesh->id_UVs));
-	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model_mesh->num_UVs * 2, model_mesh->UVs, GL_STATIC_DRAW);
-
-	// Color Buffer
-	glGenBuffers(1, (GLuint*) & (model_mesh->id_color));
-	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_color);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model_mesh->num_color * 3, model_mesh->color, GL_STATIC_DRAW);
-
-	// Vertex Buffer
-	glGenBuffers(1, (GLuint*) & (model_mesh->id_vertex));
-	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model_mesh->num_vertex * 3, model_mesh->vertex, GL_STATIC_DRAW);
-
-	// Index Buffer
-	glGenBuffers(1, (GLuint*) & (model_mesh->id_index));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * model_mesh->num_index, model_mesh->index, GL_STATIC_DRAW);
 }
 
  
@@ -322,20 +211,7 @@ void ComponentMesh::OnTransform(bool data[3])
 	
 }
 
-void ComponentMesh::ReLocateMeshVertices() // when you set the object's transform at the mesh center pos, recompute vertices
-{		 
-	for (int i = 0; i < model_mesh->num_vertex; i += 3)
-	{
-		// Take the go's parent global pos and add the vertex local pos
-		float3 oldVertexPos = GetParent()->GetParent()->GetTransform()->GetGlobalPosition() + 
-			float3(model_mesh->vertex[i], model_mesh->vertex[i + 1], model_mesh->vertex[i + 2]);
-		
-		// the new vertex pos is the difference between the old global pos and the new go transform pos
-		float3 newTransfPos = GetParent()->GetTransform()->GetGlobalPosition(); 
-		float3 newVertexPos = oldVertexPos - newTransfPos; 
-
-		model_mesh->vertex[i] = newVertexPos.x; 
-		model_mesh->vertex[i + 1] = newVertexPos.y;
-		model_mesh->vertex[i + 2] = newVertexPos.z;
-	}
+ResourceMesh* ComponentMesh::GetResourceMesh()
+{
+	return dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID));
 }

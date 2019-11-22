@@ -146,6 +146,7 @@
     <ClCompile Include="JSONParser.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="ResourceMesh.cpp" />
+    <ClCompile Include="ResourceTexture.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="SmileApp.cpp" />
     <ClCompile Include="Color.cpp" />

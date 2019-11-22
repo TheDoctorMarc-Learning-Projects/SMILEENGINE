@@ -18,6 +18,7 @@ public:
 
 	Resource_Type GetType() const { return type; };
 	SmileUUID GetUID() const { return uid; };
+	SmileUUID GetUID() { return uid; };
 	uint GetReferenceCount() const { return referenceCount; };
 	const char* GetPath() const { return filePath.c_str();};
 	const char* GetImportedPath() const { return imported_filePath.c_str();};

@@ -5,6 +5,7 @@
 #include "SmileUtilitiesModule.h"
 #include "Utility.h"
 #include "RNG.h"
+#include "ResourceMesh.h"
 
 SmileGameObjectManager::SmileGameObjectManager(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -37,6 +38,13 @@ void SmileGameObjectManager::FillMaps()
 // -----------------------------------------------------------------
 bool SmileGameObjectManager::Start()
 {
+
+	auto parshapes_cube = GeneratePrimitive("Cube");
+	Cube = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_cube);
+
+	auto parshapes_sphere = GeneratePrimitive("Sphere");
+	Sphere = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_sphere);
+
 	return true;
 }
 // -----------------------------------------------------------------
@@ -53,6 +61,11 @@ update_status SmileGameObjectManager::Update(float dt)
 // -----------------------------------------------------------------
 bool SmileGameObjectManager::CleanUp()
 {
+	Cube->FreeMemory();
+	RELEASE(Cube);
+
+	Sphere->FreeMemory();
+	RELEASE(Sphere);
 	return true;
 }
 

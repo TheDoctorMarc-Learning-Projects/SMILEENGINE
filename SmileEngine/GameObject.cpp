@@ -10,6 +10,7 @@
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
 #include "ComponentMaterial.h"
+#include "ResourceMesh.h"
 #include <map>
 
 GameObject::GameObject(GameObject* parent)
@@ -375,20 +376,20 @@ static float3 GetMidPoint(float* vertex, uint num_vertex)
 	return float3(c_X, c_Y, c_Z);
 }
 
-void GameObject::PositionTransformAtMeshCenter()
-{
-	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]);
-	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
-	// Setup transform local position to mesh center: do not update bounding box, previously calculated!!
-	if (mesh != nullptr && transform != nullptr)
-	{
-		float3 meshGlobalPos = /*parent->GetTransform()->GetGlobalPosition() + */GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex); 
-		transform->ChangePosition(meshGlobalPos, true, false);
-		// the mesh vertices need to be updated now!! (to be relative to the new transform)
-		//mesh->ReLocateMeshVertices();
-	}
-
-}
+//void GameObject::PositionTransformAtMeshCenter()
+//{
+//	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]);
+//	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
+//	// Setup transform local position to mesh center: do not update bounding box, previously calculated!!
+//	if (mesh != nullptr && transform != nullptr)
+//	{
+//		float3 meshGlobalPos = /*parent->GetTransform()->GetGlobalPosition() + */GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex); 
+//		transform->ChangePosition(meshGlobalPos, true, false);
+//		// the mesh vertices need to be updated now!! (to be relative to the new transform)
+//		//mesh->ReLocateMeshVertices();
+//	}
+//
+//}
 
 void GameObject::SetupBounding()  
 {
@@ -397,11 +398,11 @@ void GameObject::SetupBounding()
 	// No child objects = case A) 
 	if (childObjects.size() == 0)
 	{
-		ModelMeshData* data = (GetMesh()) ? GetMesh()->GetMeshData() : nullptr;
+		ModelMeshData* data = (GetMesh()) ? GetMesh()->GetResourceMesh()->model_mesh : nullptr;
 		if (data)
 		{
 			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
-			math::AABB temp; 
+			math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
 			temp.SetNegativeInfinity();
 			temp.Enclose((math::float3*)data->vertex, data->num_vertex);
 
