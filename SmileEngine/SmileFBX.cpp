@@ -521,7 +521,7 @@ ComponentMesh* SmileFBX::LoadMesh(const char* full_path) // should create a reso
 	
 	LOG("Loading mesh: %s", full_path);
 	
-	return DBG_NEW ComponentMesh(res->GetUID(), file[0]);
+	return DBG_NEW ComponentMesh(resmesh->GetUID(), file[0]);
 }
 
 // Shold save a resource mesh, or not, if id does already exist

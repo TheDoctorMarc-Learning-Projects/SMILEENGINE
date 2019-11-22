@@ -864,6 +864,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
 			textureData* data = mat->GetTextureData(); 
+
+			// TODO: show my linked resource's reference count
+
 			ImGui::Text(std::string("Path: " + mat->GetTextureData()->path).c_str());
 			ImGui::Text(std::string("Size: " + std::to_string(mat->GetTextureData()->width) + " x " + std::to_string(mat->GetTextureData()->height)).c_str());
 			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)
@@ -883,6 +886,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		case COMPONENT_TYPE::MESH:
 		{
 			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
+			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mesh->GetResourceMesh()->GetReferenceCount())).c_str());
 			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetResourceMesh()->model_mesh->num_vertex)).c_str());
 			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetParent()->GetBoundingSphereRadius())).c_str());
 			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");

@@ -19,9 +19,7 @@ public:
 
 	// The real stuff
 	SmileUUID Find(const char* file_in_assets) const;
-	SmileUUID ImportFile(const char* new_file_in_assets, Resource_Type type);
 	const Resource* Get(SmileUUID id) const;
-	Resource* GetResourceByAssetsPath(const char* assetPath);
 	Resource* GetResourceByPath(const char* Path);
 	Resource* Get(SmileUUID uid);
 	Resource* CreateNewResource(Resource_Type type, std::string assetPath);

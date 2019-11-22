@@ -12,11 +12,11 @@
 bool SmileResourceManager::Start()
 {
 	par_shapes_mesh* parshapes_cube = par_shapes_create_cube(); 
-	Cube = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_cube, "empty");
+	Cube = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_cube, "Default");
 	resources.insert(std::pair<SmileUUID, Resource*>(Cube->GetUID(), (Resource*)Cube));
 
 	par_shapes_mesh* parshapes_sphere = par_shapes_create_subdivided_sphere(2); 
-	Sphere = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_sphere, "empty");
+	Sphere = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_sphere, "Default");
 	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
 
 
@@ -63,46 +63,6 @@ Resource* SmileResourceManager::CreateNewResource(Resource_Type type, std::strin
 }
 
 
-SmileUUID SmileResourceManager::ImportFile(const char* new_file_in_assets, Resource_Type type)
-{
-	// TODO: call whatever imported needed according to extension and create a resource (?)
-	SmileUUID ret = 0;
-	bool import_ok = false;
-	std::string written_file;
-
-	switch (type)
-	{
-	case Resource_Type::RESOURCE_MESH:
-		//import_ok = App->fbx->
-		break;
-	case Resource_Type::RESOURCE_TEXTURE:
-
-		break;
-	default:
-		break;
-	}
-	if (import_ok)
-	{
-		/*Resource* res = CreateNewResource(type);
-		res->SetFile(new_file_in_assets);
-		res->SetImportedFile(written_file);
-		ret = res->GetUID();*/
-	}
-
-	return ret; 
-}
-
-Resource* SmileResourceManager::GetResourceByAssetsPath(const char* assetPath)
-{
-	for (auto& resource : resources)
-	{
-		if (resource.second->imported_filePath == assetPath)
-			return resource.second;
-	}
-
-
-	return nullptr;
-}
 
 Resource* SmileResourceManager::GetResourceByPath(const char* Path)
 {
