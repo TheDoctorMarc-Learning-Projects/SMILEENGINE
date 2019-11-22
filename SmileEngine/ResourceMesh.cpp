@@ -3,8 +3,6 @@
 #include "DevIL/include/IL/ilu.h"
 
 
-
-
 void ResourceMesh::LoadOnMemory()
 {
 	// Normals Buffer
@@ -76,7 +74,7 @@ AABB ResourceMesh::GetEnclosingAABB()
 {
 	math::AABB ret;
 	ret.SetNegativeInfinity();
-	ret.Enclose((math::float3*)model_mesh->vertex, model_mesh->num_vertex * 3);
+	ret.Enclose((math::float3*)model_mesh->vertex, model_mesh->num_vertex);
 	return ret; 
 }
 

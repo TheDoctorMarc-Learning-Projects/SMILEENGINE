@@ -60,7 +60,7 @@ bool SmileScene::Start()
 	gameCameraObj->AddComponent(gameCamera);
 	
 	// Octree
-	App->spatial_tree->CreateOctree(math::AABB(float3(-500, -500, -500), float3(500, 500, 500)));
+	App->spatial_tree->CreateOctree(math::AABB(float3(-50, -50, -50), float3(50, 50, 50)));
 
 
 	// Scene and octree

@@ -518,6 +518,7 @@ ComponentMesh* SmileFBX::LoadMesh(const char* full_path) // should create a reso
 
 	ResourceMesh* resmesh = dynamic_cast<ResourceMesh*>(App->resources->CreateNewResource(RESOURCE_MESH, full_path));
 	resmesh->model_mesh = mesh;
+	resmesh->LoadOnMemory(); 
 	
 	LOG("Loading mesh: %s", full_path);
 	
@@ -631,6 +632,9 @@ bool SmileFBX::LoadModel(const char* path)
 		auto pos = childTransfObj["Position"].GetArray();
 		auto rot = childTransfObj["Rotation"].GetArray();
 		auto scale = childTransfObj["Scale"].GetArray();
+
+		// testing 
+		scale[0] = 1; scale[1] = 1; scale[2] = 1; 
 
 		float3 realPos = float3(0, 0, 0), realScale = float3(0, 0, 0);
 		math::Quat realRot = Quat(); float captureRot[4];

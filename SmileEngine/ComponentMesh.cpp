@@ -49,7 +49,6 @@ void ComponentMesh::Draw()
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 		
-
 		// Material
 		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
 		if (mat != nullptr)
@@ -82,7 +81,7 @@ void ComponentMesh::Draw()
 
 		// index buffer 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
-		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, (meshType == MODEL) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT, NULL);
+		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, GL_UNSIGNED_INT, NULL); // short for primitives???
 
 
 		// Disanle Cient states && clear data

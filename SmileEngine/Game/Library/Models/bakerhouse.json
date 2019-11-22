@@ -1,1 +1,33 @@
-{"GameObject":[{"Name":"bakerhouse","Transform":{"Position":[0.0,0.0,0.0],"Rotation":[0.0,0.0,0.0,1.0],"Scale":[1.0,1.0,1.0]}}],"Meshes":[{"path":"/library/meshes/chimney_mesh1.smilemesh","materialPath":"Library/Textures/baker_house.dds","Transform":{"Position":[0.0,0.0,0.0],"Rotation":[-0.7071068286895752,0.0,0.0,0.7071067094802856],"Scale":[100.0,99.99999237060547,99.99999237060547]}},{"path":"/library/meshes/baker_house_mesh2.smilemesh","materialPath":"Library/Textures/baker_house.dds","Transform":{"Position":[0.0,0.0,0.0],"Rotation":[-0.7071068286895752,0.0,0.0,0.7071067094802856],"Scale":[100.0,99.99999237060547,99.99999237060547]}}]}
+{
+  
+  "GameObject": [
+    {
+      "Name": "bakerhouse",
+      "Transform": {
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
+        "Scale": [ 1.0, 1.0, 1.0 ]
+      }
+    }
+  ],
+  "Meshes": [
+    {
+      "path": "/library/meshes/chimney_mesh1.smilemesh",
+      "materialPath": "Library/Textures/baker_house.dds",
+      "Transform": {
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Rotation": [ -0.7071068286895752, 0.0, 0.0, 0.7071067094802856 ],
+        "Scale": [ 100.0, 99.99999237060547, 99.99999237060547 ]
+      }
+    },
+    {
+      "path": "/library/meshes/baker_house_mesh2.smilemesh",
+      "materialPath": "Library/Textures/baker_house.dds",
+      "Transform": {
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Rotation": [ -0.7071068286895752, 0.0, 0.0, 0.7071067094802856 ],
+        "Scale": [ 100.0, 99.99999237060547, 99.99999237060547 ]
+      }
+    }
+  ]
+}

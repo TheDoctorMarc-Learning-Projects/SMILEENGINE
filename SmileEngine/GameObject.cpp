@@ -408,9 +408,7 @@ void GameObject::SetupBounding()
 		{
 			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
 			math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
-			temp.SetNegativeInfinity();
-			temp.Enclose((math::float3*)data->vertex, data->num_vertex);
-
+			
 			// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
 			boundingData.OBB = temp; 
 			boundingData.OBB.Transform(transfGlobalMat);
