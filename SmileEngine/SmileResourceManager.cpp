@@ -14,11 +14,12 @@ bool SmileResourceManager::Start()
 	par_shapes_mesh* parshapes_cube = par_shapes_create_cube(); 
 	Cube = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_cube, "Default");
 	resources.insert(std::pair<SmileUUID, Resource*>(Cube->GetUID(), (Resource*)Cube));
+	Cube->SetPreset(true); 
 
 	par_shapes_mesh* parshapes_sphere = par_shapes_create_subdivided_sphere(2); 
 	Sphere = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_sphere, "Default");
 	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
-
+	Sphere->SetPreset(true);
 
 
 	return true; 
@@ -95,7 +96,7 @@ void SmileResourceManager::UpdateResourceReferenceCount(SmileUUID resource, int 
 
 	target->referenceCount += add; 
 
-	if (target->referenceCount == 0)
+	if (target->referenceCount == 0 && target->IsPreset() == false)
 	{
 		target->FreeMemory(); 
 		

@@ -30,8 +30,11 @@ public:
 
 	void SetFile(std::string file) { this->filePath = file; };
 	void SetImportedFile(std::string imported_filePath) { this->imported_filePath = imported_filePath; };
- 
+
+	void SetPreset(bool preset) { this->preset = preset; }; 
+	bool IsPreset() const { return preset; };
 protected: 
+	bool preset = false; // will be used eg by primitives, they should always be available (not delete when refs = 0)
 	SmileUUID uid = 0;
 	uint referenceCount = 0; 
 	std::string filePath; 
