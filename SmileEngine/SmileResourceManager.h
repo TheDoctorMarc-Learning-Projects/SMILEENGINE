@@ -5,7 +5,7 @@
 
 class Resource;
 enum Resource_Type;
-
+class ResourceMesh; 
 class SmileResourceManager : public SmileModule
 {
 public:
@@ -22,8 +22,13 @@ public:
 	const Resource* Get(SmileUUID id) const;
 	Resource* Get(SmileUUID uid);
 	Resource* CreateNewResource(Resource_Type type);
+	void UpdateResourceReferenceCount(SmileUUID resource, int add); // add is either 1 or -1
 
+public: 
+	ResourceMesh* Cube;
+	ResourceMesh* Sphere;
 private:
 	std::map<SmileUUID, Resource*> resources;
+
 
 }; 

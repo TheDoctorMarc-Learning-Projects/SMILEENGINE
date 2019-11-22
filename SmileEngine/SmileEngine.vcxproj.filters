@@ -192,6 +192,9 @@
     <ClInclude Include="ResourceTexture.h">
       <Filter>Source\Modules\Objects\Resources</Filter>
     </ClInclude>
+    <ClInclude Include="parshapes\par_shapes.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -301,6 +304,12 @@
     </ClCompile>
     <ClCompile Include="ResourceTexture.cpp">
       <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="parshapes\par_shapes.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

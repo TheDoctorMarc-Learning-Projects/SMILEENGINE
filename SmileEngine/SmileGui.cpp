@@ -114,7 +114,7 @@ bool SmileGui::Start()
 	ImGui_ImplOpenGL3_Init();
 
 	// Init play mode
-	TimeManager::PlayButton();
+//	TimeManager::PlayButton(); // TODO: this bugs camera(render not available! Start is afterwards)
 
 	return ret;
 }
@@ -269,7 +269,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		if (ImGui::MenuItem("Create Cube"))
 		{
 				// Create a mesh and an object
-				ComponentMesh* mesh = DBG_NEW ComponentMesh(App->object_manager->Cube->GetUID(), "CubeMesh");
+				ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Cube->GetUID(), "CubeMesh");
 				GameObject* obj = App->object_manager->CreateGameObject(mesh, "CUBE", App->scene_intro->rootObj);
 				obj->Start();
 
@@ -281,7 +281,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		if (ImGui::MenuItem("Create Sphere"))
 		{
 			// Create a mesh and an object
-			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->object_manager->Sphere->GetUID(), "SphereMesh");
+			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Sphere->GetUID(), "SphereMesh");
 			GameObject* obj = App->object_manager->CreateGameObject(mesh, "SPHERE", App->scene_intro->rootObj);
 			obj->Start();
 
@@ -874,7 +874,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		case COMPONENT_TYPE::MESH:
 		{
 			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
-			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetMeshData()->num_vertex)).c_str());
+			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetResourceMesh()->model_mesh->num_vertex)).c_str());
 			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetParent()->GetBoundingSphereRadius())).c_str());
 			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");
 			ImGui::Text(std::string("Type: " + type).c_str());

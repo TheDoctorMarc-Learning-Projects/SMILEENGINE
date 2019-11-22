@@ -13,3 +13,8 @@ ComponentMaterial::~ComponentMaterial()
 
 }
 
+void ComponentMaterial::CleanUp()
+{
+	// TODO: pass resource id, add 1 in constructor, and substract 1 here 
+}
+

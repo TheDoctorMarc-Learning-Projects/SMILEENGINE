@@ -3,7 +3,7 @@
 #include "SmileSetup.h"
 #include "ComponentMesh.h"
 #include "MathGeoLib/include/Geometry/AABB.h" 
-
+#include "parshapes/par_shapes.h"
 
 struct ModelMeshData
 {
@@ -39,7 +39,7 @@ public:
 
 	ResourceMesh(SmileUUID uuid) : Resource(uuid, Resource_Type::RESOURCE_MESH) {};
 	ResourceMesh(SmileUUID uuid, par_shapes_mesh* parshapes) : Resource(uuid, Resource_Type::RESOURCE_MESH) { GenerateModelMeshFromParShapes(parshapes); };
-
+	ResourceMesh(SmileUUID uuid, ModelMeshData* model_mesh) : Resource(uuid, Resource_Type::RESOURCE_MESH) { this->model_mesh = model_mesh; };
 	virtual ~ResourceMesh() {};
 
 	void LoadOnMemory();
@@ -48,7 +48,7 @@ public:
 	void GenerateModelMeshFromParShapes(par_shapes_mesh* mesh);
 
 public:
-	ModelMeshData* model_mesh;
+	ModelMeshData* model_mesh = nullptr;
 
 
 	

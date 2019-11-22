@@ -11,7 +11,6 @@ public:
 	ComponentMaterial();
 	~ComponentMaterial();
  
-	void CleanUpTextureData(); 
 	void CleanUp(); 
 
 	textureData* GetTextureData() const { return textureInfo; }; 

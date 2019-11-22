@@ -43,8 +43,6 @@ private:
 
 public: 
 	bool debug = false; // todo: change this with the ui to draw normals, etc 
-	ResourceMesh* Cube;
-	ResourceMesh* Sphere;
 
 private: 
 	std::map<std::string, par_shapes_mesh*(*)()> primitiveMap;

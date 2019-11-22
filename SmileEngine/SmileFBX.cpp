@@ -199,7 +199,8 @@ void SmileFBX::LoadFBXnode(aiNode* node, const aiScene* scene)
 
 		// Mesh
 		ModelMeshData* mesh_info = FillMeshBuffers(aiMesh, DBG_NEW ModelMeshData());
-		ComponentMesh* mesh = DBG_NEW ComponentMesh(mesh_info, "Mesh");
+		ResourceMesh* resMesh = DBG_NEW ResourceMesh(0, mesh_info); 
+		ComponentMesh* mesh = DBG_NEW ComponentMesh(resMesh->GetUID(), "Mesh");
 
 		// Materials
 		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
@@ -340,7 +341,7 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 	{
 		// create a component material
 		ComponentMaterial* targetMat = ((previousMat == nullptr) ? DBG_NEW ComponentMaterial() : previousMat);
-		targetMat->CleanUpTextureData();
+		//targetMat->CleanUpTextureData(); // TODO: Necessary? now in resources, check it
 
 		ILinfo img_info;
 		iluGetImageInfo(&img_info);
@@ -402,7 +403,7 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 	// create a component material
 	ComponentMaterial* targetMat = ((previousMat == nullptr) ? DBG_NEW ComponentMaterial() : previousMat);
-	targetMat->CleanUpTextureData();
+	//targetMat->CleanUpTextureData(); // TODO: Necessary? now in resources, check it
 
 	// Generate the checkered image
 	GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
@@ -462,9 +463,9 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 }
 
-ComponentMesh* SmileFBX::LoadMesh(const char* full_path)
+ComponentMesh* SmileFBX::LoadMesh(const char* full_path) // should create a resource mesh, or not, if it exists!
 {
-	ModelMeshData* mesh = DBG_NEW ModelMeshData;
+	/*ModelMeshData* mesh = DBG_NEW ModelMeshData;
 	char* buffer = nullptr;
 	App->fs->Load(full_path, &buffer);
 
@@ -509,15 +510,18 @@ ComponentMesh* SmileFBX::LoadMesh(const char* full_path)
 	ComponentMesh* component_mesh = DBG_NEW ComponentMesh(mesh,file[0]);
 	LOG("Loading mesh: %s", full_path);
 	
-	return component_mesh;
+	return component_mesh;*/
+
+	return nullptr; 
 }
 
+// Shold save a resource mesh, or not, if id does already exist
 std::string SmileFBX::SaveMesh(ResourceMesh* resource, GameObject* obj, uint index)
 {
-	
+	auto bufferData = resource->model_mesh; 
 	bool ret = false;
-	uint ranges[4] = { resource->index,resource->GetVertex(), resource->GetNormals(), resource->GetUVs() };
-	uint size = sizeof(ranges) + sizeof(uint) * mesh->num_index + sizeof(float) * mesh->num_vertex * 3 + sizeof(float) * mesh->num_normals * 3 + sizeof(float) * mesh->num_UVs * 2;
+	uint ranges[4] = { bufferData->num_index, bufferData->num_vertex, bufferData->num_normals, bufferData->num_UVs };
+	uint size = sizeof(ranges) + sizeof(uint) * bufferData->num_index + sizeof(float) * bufferData->num_vertex * 3 + sizeof(float) * bufferData->num_normals * 3 + sizeof(float) * bufferData->num_UVs * 2;
 	char* data = new char[size]; // Allocate
 	char* cursor = data;
 
@@ -526,23 +530,23 @@ std::string SmileFBX::SaveMesh(ResourceMesh* resource, GameObject* obj, uint ind
 
 	//index
 	cursor += bytes; // Store indices
-	bytes = sizeof(uint) * mesh->num_index;
-	memcpy(cursor, mesh->index, bytes);
+	bytes = sizeof(uint) * bufferData->num_index;
+	memcpy(cursor, bufferData->index, bytes);
 
 	//vertex
 	cursor += bytes;
-	bytes = sizeof(float) * mesh->num_vertex * 3;
-	memcpy(cursor, mesh->vertex, bytes);
+	bytes = sizeof(float) * bufferData->num_vertex * 3;
+	memcpy(cursor, bufferData->vertex, bytes);
 
 	//normals
 	cursor += bytes;
-	bytes = sizeof(float) * mesh->num_normals * 3;
-	memcpy(cursor, mesh->normals, bytes);
+	bytes = sizeof(float) * bufferData->num_normals * 3;
+	memcpy(cursor, bufferData->normals, bytes);
 
 	//uvs
 	cursor += bytes;
-	bytes = sizeof(float) * mesh->num_UVs * 2;
-	memcpy(cursor, mesh->UVs, bytes);
+	bytes = sizeof(float) * bufferData->num_UVs * 2;
+	memcpy(cursor, bufferData->UVs, bytes);
 
 	std::string name;
 	std::string output; 
@@ -747,7 +751,7 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 
 
 			writer.Key("path");
-			writer.String(SaveMesh(mesh->GetMeshData(), child, meshCount).c_str());
+			writer.String(SaveMesh(mesh->GetResourceMesh(), child, meshCount).c_str());
 
 			writer.Key("materialPath");
 

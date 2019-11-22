@@ -5,9 +5,18 @@
 #include "Utility.h"
 #include "RNG.h"
 #include "SmileApp.h"
+#include "SmileGameObjectManager.h"
+#include "parshapes/par_shapes.h"
 
 bool SmileResourceManager::Start()
 {
+	par_shapes_mesh* parshapes_cube = par_shapes_create_cube(); 
+	Cube = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_cube);
+	resources.insert(std::pair<SmileUUID, Resource*>(Cube->GetUID(), (Resource*)Cube));
+
+	par_shapes_mesh* parshapes_sphere = par_shapes_create_subdivided_sphere(2); 
+	Sphere = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_sphere);
+	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
 
 	return true; 
 }
@@ -19,6 +28,16 @@ update_status SmileResourceManager::Update(float dt)
 
 bool SmileResourceManager::CleanUp()
 {
+	for (auto item = resources.begin(); item != resources.end(); ++item)
+	{
+		(*item).second->FreeMemory(); 
+		RELEASE((*item).second); 
+	}
+	resources.clear(); 
+
+	Cube = nullptr; 
+	Sphere = nullptr; 
+
 	return true;
 }
 
@@ -73,4 +92,26 @@ Resource* SmileResourceManager::Get(SmileUUID uid)
 	return nullptr;
 }
 
+void SmileResourceManager::UpdateResourceReferenceCount(SmileUUID resource, int add)
+{
+	if (add != 1 && add != -1)
+		return; 
+
+	Resource* target = Get(resource); 
+	if (target == nullptr)
+		return; 
+
+	target->referenceCount += add; 
+
+	if (target->referenceCount == 0)
+	{
+		target->FreeMemory(); 
+		
+		// delete from resources
+		resources.erase(target->GetUID()); 
+
+		RELEASE(target);
+
+	}
  
+}

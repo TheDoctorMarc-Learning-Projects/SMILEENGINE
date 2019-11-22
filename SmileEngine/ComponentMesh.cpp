@@ -18,8 +18,10 @@ ComponentMesh::ComponentMesh(SmileUUID uid, std::string name)
 	SetName(name);
 	type = MESH;
 	meshType = Mesh_Type::MODEL;
-	uid = myresourceID;
+	myresourceID = uid;
 
+	// update reference counting in resource
+	App->resources->UpdateResourceReferenceCount(uid, 1); 
 
 }
 
@@ -135,6 +137,7 @@ void ComponentMesh::DebugDraw()
 					glBegin(GL_LINES);
 					glColor3f(0, 1, 0);
 
+
 					float vec1_x = model_mesh->vertex[model_mesh->index[i] * 3];
 					float vec1_y = model_mesh->vertex[(model_mesh->index[i] * 3) + 1];
 					float vec1_z = model_mesh->vertex[(model_mesh->index[i] * 3) + 2];
@@ -199,9 +202,9 @@ void ComponentMesh::DebugDraw()
 // -----------------------------------------------------------------
 void ComponentMesh::CleanUp()
 {
-	
 
-
+	// update reference counting in resource
+	App->resources->UpdateResourceReferenceCount(myresourceID, -1);
 
 }
 

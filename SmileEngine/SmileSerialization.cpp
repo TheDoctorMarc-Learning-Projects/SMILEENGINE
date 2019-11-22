@@ -131,7 +131,7 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 	
 		 
 		writer.Key("path");
-		writer.String(App->fbx->SaveMesh(mesh->GetMeshData(), obj).c_str());
+		writer.String(App->fbx->SaveMesh(mesh->GetResourceMesh(), obj).c_str());
 
 		writer.Key("materialPath");
 
