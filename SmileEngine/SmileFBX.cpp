@@ -658,13 +658,11 @@ bool SmileFBX::LoadModel(const char* path)
 		if (materialPath != "Empty")
 			AssignTextureToObj(materialPath.c_str(), child); 
 
-		// Add to octree!!!
-		App->spatial_tree->OnStaticChange(child, true); 
-		
+
 	}
 
 
-	// Add to octree!!!
+	// Add to octree!!! (adds recursive!!)
 	parentObj->Start();
 	App->spatial_tree->OnStaticChange(parentObj, true);
 
