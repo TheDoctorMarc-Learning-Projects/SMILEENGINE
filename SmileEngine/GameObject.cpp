@@ -212,6 +212,11 @@ void GameObject::DrawAxis()
 
 void GameObject::CleanUp()
 {
+	// 0) Remove from octree!!!!
+	if (isStatic)
+		App->spatial_tree->OnStaticChange(this, false); 
+
+
 	// 1) Components 
 	for (auto& comp : components)
 		if (comp)

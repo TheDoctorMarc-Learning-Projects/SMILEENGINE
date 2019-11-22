@@ -123,6 +123,9 @@ void SmileScene::DrawObjects()
 
 void SmileScene::HandleGizmo()
 {
+	if (selectedObj == nullptr)
+		return; 
+
 	static ImGuizmo::OPERATION op = ImGuizmo::OPERATION::TRANSLATE;
 	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_DOWN)
 		op = ImGuizmo::OPERATION::ROTATE;

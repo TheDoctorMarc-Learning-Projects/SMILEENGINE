@@ -824,9 +824,18 @@ void panelData::InspectorSpace::Execute(bool& ret)
 					ImGui::TreePop();
 				}
 
-
+			
 				ImGui::TreePop();
 			}
+
+			// Deletion
+			if (ImGui::Button("Delete"))
+			{
+				App->object_manager->DestroyObject(App->scene_intro->selectedObj);
+				App->scene_intro->selectedObj = nullptr; 
+			}
+		
+
 
 		}
 	

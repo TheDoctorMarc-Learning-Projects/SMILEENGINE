@@ -47,8 +47,8 @@ update_status SmileGameObjectManager::Update(float dt)
 {
 	
 	GameObject* selectedObj = App->scene_intro->selectedObj; 
-	if (selectedObj)
-		selectedObj->DrawAxis(); 
+	/*if (selectedObj)
+		selectedObj->DrawAxis(); */
 
 	return UPDATE_CONTINUE;
 }
@@ -104,7 +104,7 @@ void SmileGameObjectManager::DestroyObject(GameObject* obj)
 	if (obj)
 	{
 	 
-		// 1) clean up the object himself, then clean up and release children
+		// 1) Clean myself, remove from octree, clean children (remove from octree), release children
 		obj->CleanUp(); 
 		
 		// 2) erase from parent's list 
