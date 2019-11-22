@@ -6,6 +6,7 @@
 #include "Assimp/include/postprocess.h"
 #include "Assimp/include/cfileio.h"
 #include "ResourceMesh.h"
+#include "Resource.h"
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
 #include "DevIL/include/IL/ilu.h"
@@ -161,6 +162,7 @@ bool SmileFBX::DoesFBXHaveLinkedModel(const char* path)
 
 void SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scene, char* rawname)
 {
+	lastFbxPath = path;
 	lastFbxFolder = App->fs->GetDirectoryFromPath(path); 
 
 	// Parent Object
@@ -199,7 +201,8 @@ void SmileFBX::LoadFBXnode(aiNode* node, const aiScene* scene)
 
 		// Mesh
 		ModelMeshData* mesh_info = FillMeshBuffers(aiMesh, DBG_NEW ModelMeshData());
-		ResourceMesh* resMesh = DBG_NEW ResourceMesh(0, mesh_info); 
+		ResourceMesh* resMesh = dynamic_cast<ResourceMesh*>(App->resources->CreateNewResource(RESOURCE_MESH, "empty"));
+		resMesh->model_mesh = mesh_info;
 		ComponentMesh* mesh = DBG_NEW ComponentMesh(resMesh->GetUID(), "Mesh");
 
 		// Materials
@@ -465,7 +468,18 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 
 ComponentMesh* SmileFBX::LoadMesh(const char* full_path) // should create a resource mesh, or not, if it exists!
 {
-	/*ModelMeshData* mesh = DBG_NEW ModelMeshData;
+	std::string cleanPath[1];
+	std::string file[1];
+	std::string extension[1];
+
+	App->fs->SplitFilePath(full_path, cleanPath, file, extension);
+
+	Resource* res = App->resources->GetResourceByPath(full_path);
+
+	if (res) return DBG_NEW ComponentMesh(res->GetUID(), file[0]);
+
+
+	ModelMeshData* mesh = DBG_NEW ModelMeshData;
 	char* buffer = nullptr;
 	App->fs->Load(full_path, &buffer);
 
@@ -502,17 +516,12 @@ ComponentMesh* SmileFBX::LoadMesh(const char* full_path) // should create a reso
 	mesh->UVs = new float[mesh->num_UVs * 2];
 	memcpy(mesh->UVs, cursor, bytes);
 
-	std::string cleanPath[1];
-	std::string file[1];
-	std::string extension[1];
-
-	App->fs->SplitFilePath(full_path, cleanPath, file, extension);
-	ComponentMesh* component_mesh = DBG_NEW ComponentMesh(mesh,file[0]);
+	ResourceMesh* resmesh = dynamic_cast<ResourceMesh*>(App->resources->CreateNewResource(RESOURCE_MESH, full_path));
+	resmesh->model_mesh = mesh;
+	
 	LOG("Loading mesh: %s", full_path);
 	
-	return component_mesh;*/
-
-	return nullptr; 
+	return DBG_NEW ComponentMesh(res->GetUID(), file[0]);
 }
 
 // Shold save a resource mesh, or not, if id does already exist

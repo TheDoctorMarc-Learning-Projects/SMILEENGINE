@@ -305,9 +305,6 @@
     <ClCompile Include="ResourceTexture.cpp">
       <Filter>Source\Modules\Objects\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="Resource.cpp">
-      <Filter>Source\Modules\Objects\Resources</Filter>
-    </ClCompile>
     <ClCompile Include="parshapes\par_shapes.cpp">
       <Filter>Source\Tools</Filter>
     </ClCompile>

@@ -1,6 +1,7 @@
 #include "SmileResourceManager.h"
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
+#include "Resource.h"
 #include "SmileUtilitiesModule.h"
 #include "Utility.h"
 #include "RNG.h"
@@ -11,12 +12,14 @@
 bool SmileResourceManager::Start()
 {
 	par_shapes_mesh* parshapes_cube = par_shapes_create_cube(); 
-	Cube = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_cube);
+	Cube = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_cube, "empty");
 	resources.insert(std::pair<SmileUUID, Resource*>(Cube->GetUID(), (Resource*)Cube));
 
 	par_shapes_mesh* parshapes_sphere = par_shapes_create_subdivided_sphere(2); 
-	Sphere = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_sphere);
+	Sphere = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), parshapes_sphere, "empty");
 	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
+
+
 
 	return true; 
 }
@@ -41,19 +44,24 @@ bool SmileResourceManager::CleanUp()
 	return true;
 }
 
-Resource* SmileResourceManager::CreateNewResource(Resource_Type type)
-{
-	Resource* ret = nullptr;
-	SmileUUID id = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(); 
-	switch (type) {
-		case Resource_Type::RESOURCE_MESH : ret = (Resource*)DBG_NEW ResourceMesh(id);   break;
-		case Resource_Type::RESOURCE_TEXTURE : ret = (Resource*)DBG_NEW ResourceTexture(id);   break;
- 	}
-	
-	if (ret) resources[id] = ret;
 
-	return ret; 
+Resource* SmileResourceManager::CreateNewResource(Resource_Type type, std::string realPath)
+{
+	Resource* ret = GetResourceByPath(realPath.c_str());
+	if (ret)
+		return ret;
+
+	SmileUUID id = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID();
+	switch (type) {
+	case Resource_Type::RESOURCE_MESH: ret = (Resource*)DBG_NEW ResourceMesh(id, RESOURCE_MESH, realPath);   break;
+	case Resource_Type::RESOURCE_TEXTURE: ret = (Resource*)DBG_NEW ResourceTexture(id, RESOURCE_TEXTURE, realPath);   break;
+	}
+
+	if (ret) resources.insert(std::pair<SmileUUID, Resource*>(ret->GetUID(), (Resource*)ret));
+
+	return ret;
 }
+
 
 SmileUUID SmileResourceManager::ImportFile(const char* new_file_in_assets, Resource_Type type)
 {
@@ -75,13 +83,37 @@ SmileUUID SmileResourceManager::ImportFile(const char* new_file_in_assets, Resou
 	}
 	if (import_ok)
 	{
-		Resource* res = CreateNewResource(type);
+		/*Resource* res = CreateNewResource(type);
 		res->SetFile(new_file_in_assets);
 		res->SetImportedFile(written_file);
-		ret = res->GetUID();
+		ret = res->GetUID();*/
 	}
 
 	return ret; 
+}
+
+Resource* SmileResourceManager::GetResourceByAssetsPath(const char* assetPath)
+{
+	for (auto& resource : resources)
+	{
+		if (resource.second->imported_filePath == assetPath)
+			return resource.second;
+	}
+
+
+	return nullptr;
+}
+
+Resource* SmileResourceManager::GetResourceByPath(const char* Path)
+{
+	for (auto& resource : resources)
+	{
+		if (resource.second->filePath == Path)
+			return resource.second;
+	}
+
+
+	return nullptr;
 }
 
 Resource* SmileResourceManager::Get(SmileUUID uid)

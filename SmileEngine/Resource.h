@@ -14,7 +14,7 @@ class Resource
 {
 
 public: 
-	Resource(SmileUUID id, Resource_Type type); 
+	Resource(SmileUUID id, Resource_Type type, std::string filePath) { uid = id; this->filePath = filePath; };
 	virtual ~Resource() {};
 
 

@@ -6,6 +6,7 @@
 class Resource;
 enum Resource_Type;
 class ResourceMesh; 
+
 class SmileResourceManager : public SmileModule
 {
 public:
@@ -20,8 +21,10 @@ public:
 	SmileUUID Find(const char* file_in_assets) const;
 	SmileUUID ImportFile(const char* new_file_in_assets, Resource_Type type);
 	const Resource* Get(SmileUUID id) const;
+	Resource* GetResourceByAssetsPath(const char* assetPath);
+	Resource* GetResourceByPath(const char* Path);
 	Resource* Get(SmileUUID uid);
-	Resource* CreateNewResource(Resource_Type type);
+	Resource* CreateNewResource(Resource_Type type, std::string assetPath);
 	void UpdateResourceReferenceCount(SmileUUID resource, int add); // add is either 1 or -1
 
 public: 
@@ -32,3 +35,4 @@ private:
 
 
 }; 
+

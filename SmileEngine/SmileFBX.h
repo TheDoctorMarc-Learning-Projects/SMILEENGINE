@@ -68,6 +68,7 @@ private:
 	globalTextureData textInfo;
 	GameObject* fbxParent; 
 	std::string lastFbxFolder; 
+	std::string lastFbxPath; 
 
 public: 
 	bool debug = false;

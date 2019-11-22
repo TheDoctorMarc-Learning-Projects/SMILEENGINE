@@ -37,10 +37,11 @@ class ResourceMesh : public Resource
 {
 public:
 
-	ResourceMesh(SmileUUID uuid) : Resource(uuid, Resource_Type::RESOURCE_MESH) {};
-	ResourceMesh(SmileUUID uuid, par_shapes_mesh* parshapes) : Resource(uuid, Resource_Type::RESOURCE_MESH) { GenerateModelMeshFromParShapes(parshapes); };
-	ResourceMesh(SmileUUID uuid, ModelMeshData* model_mesh) : Resource(uuid, Resource_Type::RESOURCE_MESH) { this->model_mesh = model_mesh; };
+	ResourceMesh(SmileUUID uuid, Resource_Type type, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) {};
+	ResourceMesh(SmileUUID uuid, par_shapes_mesh* parshapes, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) { GenerateModelMeshFromParShapes(parshapes); };
+	ResourceMesh(SmileUUID uuid, ModelMeshData* model_mesh, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) { this->model_mesh = model_mesh; };
 	virtual ~ResourceMesh() {};
+
 
 	void LoadOnMemory();
 	void FreeMemory();

@@ -6,7 +6,7 @@
 class ResourceTexture : public Resource
 {
 public:
-	ResourceTexture(SmileUUID uuid) : Resource(uuid, Resource_Type::RESOURCE_TEXTURE) {};
+	ResourceTexture(SmileUUID uuid, Resource_Type type, std::string path) : Resource(uuid, Resource_Type::RESOURCE_TEXTURE, path) {};
 	virtual ~ResourceTexture() {};
 	void FreeMemory();
 
