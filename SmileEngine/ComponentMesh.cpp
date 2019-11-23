@@ -62,7 +62,7 @@ void ComponentMesh::Draw()
 				glTexCoordPointer(2, GL_FLOAT, 0, NULL);
 
 				// texture buffer
-				glBindTexture(GL_TEXTURE_2D, mat->textureInfo->id_texture);
+				glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
 			}
 
 		}

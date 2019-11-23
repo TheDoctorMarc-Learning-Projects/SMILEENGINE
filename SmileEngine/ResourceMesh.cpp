@@ -3,7 +3,7 @@
 #include "DevIL/include/IL/ilu.h"
 
 
-void ResourceMesh::LoadOnMemory()
+void ResourceMesh::LoadOnMemory(const char* path)
 {
 	// Normals Buffer
 	glGenBuffers(1, (GLuint*) & (model_mesh->id_normals));

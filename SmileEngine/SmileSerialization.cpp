@@ -341,10 +341,12 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 
 void SmileSerialization::LoadScene(const char* path, bool startup)
 {	
+	if (App->fs->Exists(path) == false)
+		return; 
+
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
 	
-
 	if (startup == false)
 	{
 		// 1) Clear Octree

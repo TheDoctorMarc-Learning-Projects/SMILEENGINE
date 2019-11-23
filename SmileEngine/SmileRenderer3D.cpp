@@ -139,10 +139,6 @@ update_status SmileRenderer3D::PostUpdate(float dt)
     App->gui->HandleRender(); 
 	SDL_GL_SwapWindow(App->window->window);
 
-	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
-		SwitchCamera(); 
-
-
 	return UPDATE_CONTINUE;
 }
 
@@ -165,7 +161,9 @@ bool SmileRenderer3D::CleanUp()
 
 void SmileRenderer3D::OnResize(int width, int height, ComponentCamera* targetCam)
 { 	
-	targetCamera = targetCam; 
+	if(targetCam != targetCamera)
+		targetCamera = targetCam;
+
 	renderingData data = targetCamera->GetRenderingData();
 
 	data.ratio = (float)width / (float)height;

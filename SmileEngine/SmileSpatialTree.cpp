@@ -32,7 +32,9 @@ void SmileSpatialTree::CreateRoot(math::AABB aabb)
 
 void SmileSpatialTree::ComputeObjectTree(GameObject* obj)
 {
-	root->InsertObject(obj);
+	if(obj->GetStatic() == true) // wohoa! 
+		root->InsertObject(obj);
+	
 	auto children = obj->GetImmidiateChildren();
 	for (auto& obj : children)
 		ComputeObjectTree(obj);
@@ -115,7 +117,7 @@ void OctreeNode::Split()
 		childNodes[i] = DBG_NEW OctreeNode(this, i);
 }
  
-// Push the object to children that can encompass it (check depth and object count) 
+// Push the object to children that can encompass it  
 bool OctreeNode::SendObjectToChildren(GameObject* obj) 
 {
 	uint success = 0; 

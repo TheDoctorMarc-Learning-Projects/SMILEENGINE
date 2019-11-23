@@ -52,6 +52,7 @@ Resource* SmileResourceManager::CreateNewResource(Resource_Type type, std::strin
 	if (ret)
 		return ret;
 
+
 	SmileUUID id = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID();
 	switch (type) {
 	case Resource_Type::RESOURCE_MESH: ret = (Resource*)DBG_NEW ResourceMesh(id, RESOURCE_MESH, realPath);   break;

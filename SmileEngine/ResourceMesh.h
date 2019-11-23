@@ -43,7 +43,7 @@ public:
 	virtual ~ResourceMesh() {};
 
 
-	void LoadOnMemory();
+	void LoadOnMemory(const char* path = { 0 });
 	void FreeMemory();
 	AABB GetEnclosingAABB(); 
 	void GenerateModelMeshFromParShapes(par_shapes_mesh* mesh);

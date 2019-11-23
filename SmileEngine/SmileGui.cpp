@@ -4,6 +4,7 @@
 #include "SmileApp.h"
 #include "SmileWindow.h"
 #include "ResourceMesh.h"
+#include "ResourceTexture.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -458,14 +459,6 @@ void panelData::configSpace::Execute(bool& ret)
 
 		}
 
-		if (ImGui::CollapsingHeader("Textures"))
-		{
-			globalTextureData data = App->fbx->GetGlobalTextureinfo(); 
-			ImGui::Text("Total active textures: %s", std::to_string(data.totalActiveTextures).c_str());
-			ImGui::Text("RGB: %s", std::to_string(data.rgb).c_str());
-			ImGui::Text("RGBA: %s", std::to_string(data.rgba).c_str());
-		}
-
 		if (ImGui::CollapsingHeader("Window")) {
 			static bool windowcheckbox = false;
 			static bool fullscreen_box = false;
@@ -715,6 +708,10 @@ void panelData::consoleSpace::Execute(bool& ret)
 // ----------------------------------------------------------------- [Hierarchy]
 static void ObjectRecursiveNode(GameObject* obj)
 {
+
+	if (App->scene_intro->debugCamera && obj && obj->GetCamera() && obj->GetCamera() == App->scene_intro->debugCamera)
+		return; 
+
 	if (obj)
 	{
 		if (ImGui::TreeNode(obj->GetName().c_str()))
@@ -866,7 +863,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			textureData* data = mat->GetTextureData(); 
 
 			// TODO: show my linked resource's reference count
-
+			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mat->GetResourceTexture()->GetReferenceCount())).c_str());
 			ImGui::Text(std::string("Path: " + mat->GetTextureData()->path).c_str());
 			ImGui::Text(std::string("Size: " + std::to_string(mat->GetTextureData()->width) + " x " + std::to_string(mat->GetTextureData()->height)).c_str());
 			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)

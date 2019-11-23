@@ -14,13 +14,6 @@
 
 #include "ComponentMesh.h"
 
-struct globalTextureData
-{
-	uint totalActiveTextures = 0;
-	uint rgb = 0; 
-	uint rgba = 0; 
-};
-
 class ResourceMesh;
 
 class SmileFBX : public SmileModule
@@ -34,7 +27,6 @@ public:
 	// Set & Get 
 	void AssignTextureToObj(const char* path, GameObject* obj); 
 	void AssignCheckersTextureToObj(GameObject* mesh); // TODO: generic
-	globalTextureData GetGlobalTextureinfo() const { return textInfo; };
 	//void FreeMeshTexture(ComponentMesh* mesh); 
 	
 	// FBX
@@ -65,7 +57,6 @@ private:
 
 
 private: 
-	globalTextureData textInfo;
 	GameObject* fbxParent; 
 	std::string lastFbxFolder; 
 	std::string lastFbxPath; 

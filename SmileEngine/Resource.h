@@ -3,7 +3,6 @@
 #include <string>
 #include "SmileSetup.h"
 
-
 enum Resource_Type { 
 	RESOURCE_MESH,
 	RESOURCE_TEXTURE,
@@ -14,9 +13,8 @@ class Resource
 {
 
 public: 
-	Resource(SmileUUID id, Resource_Type type, std::string filePath) { uid = id; this->filePath = filePath; };
+	Resource(SmileUUID id, Resource_Type type, std::string filePath) : uid(id), type(type), filePath(filePath) {};
 	virtual ~Resource() {};
-
 
 	Resource_Type GetType() const { return type; };
 	SmileUUID GetUID() const { return uid; };
@@ -25,7 +23,7 @@ public:
 	const char* GetPath() const { return filePath.c_str();};
 	const char* GetImportedPath() const { return imported_filePath.c_str();};
 	
-	virtual void LoadOnMemory() {};
+	virtual void LoadOnMemory(const char* path = { 0 }) {};
 	virtual void FreeMemory() {};
 
 	void SetFile(std::string file) { this->filePath = file; };

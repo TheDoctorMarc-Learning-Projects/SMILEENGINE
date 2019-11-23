@@ -5,8 +5,6 @@
 #include "Assimp/include/scene.h"
 #include "Assimp/include/postprocess.h"
 #include "Assimp/include/cfileio.h"
-#include "ResourceMesh.h"
-#include "Resource.h"
 #pragma comment (lib, "Assimp/libx86/assimp.lib")
 
 #include "DevIL/include/IL/ilu.h"
@@ -18,13 +16,16 @@
 
 #include "GameObject.h"
 #include "ComponentTransform.h"
-#include "ComponentMesh.h"
 #include "ComponentMaterial.h"
 #include <filesystem> // TODO: filesystem
 
 #include <fstream>
 #include "JSONParser.h"
 #include "SmileUtilitiesModule.h"
+
+#include "ResourceMesh.h"
+#include "Resource.h"
+#include "ResourceTexture.h"
 
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
 {
@@ -180,9 +181,6 @@ void SmileFBX::GenerateModelFromFBX(const char* path, const aiScene* scene, char
 	transf->SetupTransform(float4x4::FromTRS(float3(position.x, position.y, position.z),
 		Quat(rot.x, rot.y, rot.z, rot.w), float3(scale.x, scale.y, scale.z)));
 
-
-
-
 	// Save parent
 	SaveModel(fbxParent, path);
 
@@ -333,72 +331,26 @@ ModelMeshData* SmileFBX::FillMeshBuffers(aiMesh* new_mesh, ModelMeshData* mesh_i
 // ---------------------------------------------
 void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 {
-	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(obj->GetComponent(MATERIAL));
+	std::string full_path, cleanPath, file; 
+	App->fs->SplitFilePath(path, &full_path, &cleanPath, &file);
 
-	ILuint tempID;
-	ilGenImages(1, &tempID);
-	ilBindImage(tempID);
-	ILboolean success = ilLoadImage(path);
+	ResourceTexture* res = (ResourceTexture*)App->resources->GetResourceByPath(full_path.c_str());
 
-	if ((bool)success)
-	{
-		// create a component material
-		ComponentMaterial* targetMat = ((previousMat == nullptr) ? DBG_NEW ComponentMaterial() : previousMat);
-		//targetMat->CleanUpTextureData(); // TODO: Necessary? now in resources, check it
-
-		ILinfo img_info;
-		iluGetImageInfo(&img_info);
-
-		if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
-			iluFlipImage();
-
-		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-
-		glGenTextures(1, (GLuint*)&targetMat->textureInfo->id_texture);
-		glBindTexture(GL_TEXTURE_2D, (GLuint)targetMat->textureInfo->id_texture);
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)ilGetInteger(IL_IMAGE_WIDTH),
-			(GLuint)ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
-			ilGetData());
-
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		targetMat->textureInfo->width = (uint)ilGetInteger(IL_IMAGE_WIDTH);
-		targetMat->textureInfo->height = (uint)ilGetInteger(IL_IMAGE_HEIGHT);
-		targetMat->textureInfo->path = path;
-		targetMat->textureInfo->texture = ilGetData();
-
-		// Assign the material to the mesh
-		if (targetMat != previousMat)
-		{
-			obj->AddComponent((Component*)targetMat);
-			textInfo.totalActiveTextures++;
-		}
-
-		textInfo.rgb++;
-
-		if (targetMat->textureInfo->format == "RGBA")
-			textInfo.rgba--;
-
-		targetMat->textureInfo->format = "RGB";
-
-	}
+	if (res)
+		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), file.c_str()));
 	else
-		LOG("Error trying to load a texture image :( %s", iluErrorString(ilGetError()));
+	{
+		res = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, full_path.c_str());
+		res->LoadOnMemory(path);
+		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Material"));
+	}
 
 }
 
 
 void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic 
 {
-	ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(obj->GetComponent(MATERIAL));
+	/*ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(obj->GetComponent(MATERIAL));
 
 #ifndef CHECKERS_SIZE
 #define CHECKERS_SIZE 20
@@ -462,7 +414,7 @@ void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic
 	if (targetMat->textureInfo->format == "RGB")
 		textInfo.rgb--;
 
-	targetMat->textureInfo->format = "RGBA";
+	targetMat->textureInfo->format = "RGBA";*/
 
 }
 
@@ -632,9 +584,6 @@ bool SmileFBX::LoadModel(const char* path)
 		auto pos = childTransfObj["Position"].GetArray();
 		auto rot = childTransfObj["Rotation"].GetArray();
 		auto scale = childTransfObj["Scale"].GetArray();
-
-		// testing 
-		scale[0] = 1; scale[1] = 1; scale[2] = 1; 
 
 		float3 realPos = float3(0, 0, 0), realScale = float3(0, 0, 0);
 		math::Quat realRot = Quat(); float captureRot[4];

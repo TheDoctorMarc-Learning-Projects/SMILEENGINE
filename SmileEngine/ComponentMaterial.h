@@ -3,19 +3,21 @@
 #include "Component.h"
 #include "ComponentTypes.h"
 
+class ResourceTexture; 
 // ----------------------------------------------------------------- [Transform]
 class ComponentMaterial : public Component
 {
 
 public:
-	ComponentMaterial();
+	ComponentMaterial(SmileUUID uid, std::string name = "no name");
 	~ComponentMaterial();
  
 	void CleanUp(); 
 
-	textureData* GetTextureData() const { return textureInfo; }; 
-private: 
-	textureData* textureInfo = nullptr;
+	ResourceTexture* GetResourceTexture() const; 
+	textureData* GetTextureData() const; 
+private:  
+	SmileUUID myresourceID;
 
 	friend class GameObject;
 	friend class SmileFBX; 
