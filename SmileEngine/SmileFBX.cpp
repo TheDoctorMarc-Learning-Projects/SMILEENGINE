@@ -501,6 +501,12 @@ std::string SmileFBX::SaveMaterial(const char* path)
 
 bool SmileFBX::LoadModel(const char* path)
 {
+	std::string filePath, pathName; 
+	App->fs->SplitFilePath(path, &filePath, &pathName);
+
+	if (pathName == "scene.json")
+		return false; 
+	
 	rapidjson::Document doc;
 	dynamic_cast<JSONParser*>(App->utilities->GetUtility("JSONParser"))->ParseJSONFile(path, doc);
 	std::string name = rapidjson::GetValueByPointer(doc, "/GameObject/0/Name")->GetString();

@@ -165,11 +165,15 @@ void SmileRenderer3D::OnResize(int width, int height, ComponentCamera* targetCam
 	if(targetCam != targetCamera)
 		targetCamera = targetCam;
 
+
+	// compute spatial data
+	targetCamera->_renderingData.ratio = (float)width / (float)height;
+	targetCamera->ComputeSpatialData();
+	targetCamera->GetFrustrum()->CalculatePlanes();
+
 	renderingData data = targetCamera->GetRenderingData();
 
-	data.ratio = (float)width / (float)height;
 	glViewport(0, 4, width, height);
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	ProjectionMatrix = perspective(data.fovYangle, data.ratio,
@@ -178,9 +182,6 @@ void SmileRenderer3D::OnResize(int width, int height, ComponentCamera* targetCam
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
-
-	targetCamera->GetFrustrum()->CalculatePlanes(); 
 
 }
 

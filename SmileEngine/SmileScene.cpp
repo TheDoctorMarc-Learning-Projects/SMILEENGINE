@@ -47,24 +47,8 @@ bool SmileScene::Start()
 	// Root
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
-/*	// Debug Camera
-	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 30)), "Debug Camera", rootObj);
-	debugCamera = DBG_NEW ComponentCamera(debugCameraObj, vec3(0, 0, -1));
-	debugCameraObj->AddComponent(debugCamera);
-
-	// Game Camera
-	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 25)), "Game Camera", rootObj);
-	renderingData data;
-	data.pFarDist = 25.f;
-	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 5, 0), data);
-	gameCameraObj->AddComponent(gameCamera);
-	
-	// Octree
-	App->spatial_tree->CreateOctree(math::AABB(float3(-50, -50, -50), float3(50, 50, 50)));*/
-
-
 	// Scene -> must already have cameras and it also created octree
-     App->serialization->LoadScene("Library/Scenes/scene.json", true);
+    App->serialization->LoadScene("Library/Scenes/scene.json", true);
 	
 	return true;
 }
@@ -99,7 +83,7 @@ update_status SmileScene::Update(float dt)
 {
 	rootObj->Update(); 
 	DrawObjects();
-	HandleGizmo();
+	//HandleGizmo();
 
 	if (generalDbug == true)
 	{

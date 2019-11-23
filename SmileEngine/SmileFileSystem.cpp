@@ -36,7 +36,7 @@ SmileFileSystem::SmileFileSystem(SmileApp* app, bool start_enabled, const char* 
 
 	// Make sure standard paths exist
 	const char* dirs[] = {
-		 ASSETS_FOLDER, LIBRARY_FOLDER,
+		/* ASSETS_FOLDER,*/ LIBRARY_FOLDER,
 
 	};
 

@@ -95,11 +95,13 @@ public:
 	float* GetViewMatrixInverse();
 	float GetScrollSpeed(float dt, float zScroll);
 	renderingData GetRenderingData() const { return _renderingData; };
-	Frustrum* GetFrustrum() const { return frustrum; }; 
+	Frustrum* GetFrustrum() const { return frustrum; };
+
+	void ComputeSpatialData();
 private:
 	void CalculateViewMatrix(bool updateTransform = true);
 	void FocusObjectLogic();
-	void ComputeSpatialData(); 
+
 
 private:
 	mat4x4 ViewMatrix, ViewMatrixInverse;
@@ -110,4 +112,5 @@ public:
 	vec3 X, Y, Z, Reference;
 	math::Frustum calcFrustrum;
 
+	friend class SmileRenderer3D; 
 };

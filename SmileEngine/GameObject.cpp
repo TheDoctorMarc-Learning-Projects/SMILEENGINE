@@ -161,7 +161,9 @@ void GameObject::Update()
 			obj->Update();
 	
 	// Lastly debug stuff :) 
-	Debug(); 
+	if(App->scene_intro->generalDbug)
+		Debug();
+
 }
 
 void GameObject::DrawAxis()
