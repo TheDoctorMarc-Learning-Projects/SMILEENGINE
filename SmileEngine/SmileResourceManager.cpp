@@ -21,6 +21,10 @@ bool SmileResourceManager::Start()
 	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
 	Sphere->SetPreset(true);
 
+	checkersTexture = DBG_NEW ResourceTexture(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), RESOURCE_TEXTURE, "Checkers texture");
+	resources.insert(std::pair<SmileUUID, Resource*>(checkersTexture->GetUID(), (Resource*)checkersTexture));
+	checkersTexture->SetPreset(true);
+	checkersTexture->LoadCheckersOnMemory();
 
 	return true; 
 }
@@ -41,6 +45,7 @@ bool SmileResourceManager::CleanUp()
 
 	Cube = nullptr; 
 	Sphere = nullptr; 
+	checkersTexture = nullptr;
 
 	return true;
 }

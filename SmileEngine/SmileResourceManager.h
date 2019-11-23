@@ -6,6 +6,7 @@
 class Resource;
 enum Resource_Type;
 class ResourceMesh; 
+class ResourceTexture; 
 
 class SmileResourceManager : public SmileModule
 {
@@ -28,6 +29,7 @@ public:
 public: 
 	ResourceMesh* Cube;
 	ResourceMesh* Sphere;
+	ResourceTexture* checkersTexture;
 private:
 	std::map<SmileUUID, Resource*> resources;
 
