@@ -351,71 +351,8 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 
 void SmileFBX::AssignCheckersTextureToObj(GameObject* obj) // TODO: generic 
 {
-	/*ComponentMaterial* previousMat = dynamic_cast<ComponentMaterial*>(obj->GetComponent(MATERIAL));
-
-#ifndef CHECKERS_SIZE
-#define CHECKERS_SIZE 20
-#endif 
-
-	// create a component material
-	ComponentMaterial* targetMat = ((previousMat == nullptr) ? DBG_NEW ComponentMaterial() : previousMat);
-	//targetMat->CleanUpTextureData(); // TODO: Necessary? now in resources, check it
-
-	// Generate the checkered image
-	GLubyte checkImage[CHECKERS_SIZE][CHECKERS_SIZE][4];
-	for (uint i = 0; i < CHECKERS_SIZE; i++) 
-	{
-		for (uint j = 0; j < CHECKERS_SIZE; j++)
-		{
-			uint c = ((((i & 0x8) == 0) ^ (((j & 0x8)) == 0))) * 255;
-			checkImage[i][j][0] = (GLubyte)c;
-			checkImage[i][j][1] = (GLubyte)c;
-			checkImage[i][j][2] = (GLubyte)c;
-			checkImage[i][j][3] = (GLubyte)255;
-		}
-	}
-
-	ILinfo img_info;
-	iluGetImageInfo(&img_info);
-
-	if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
-		iluFlipImage();
-
-	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-
-	glGenTextures(1, (GLuint*)&targetMat->textureInfo->id_texture);
-	glBindTexture(GL_TEXTURE_2D, (GLuint)targetMat->textureInfo->id_texture);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLuint)CHECKERS_SIZE,
-		(GLuint)CHECKERS_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-		checkImage);
-
-	targetMat->textureInfo->texture = (ILubyte*)checkImage;
-	targetMat->textureInfo->path = "Generated in-game"; 
-
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Assign the material to the mesh
-	if (targetMat != previousMat)
-	{
-		obj->AddComponent((Component*)targetMat);
-		textInfo.totalActiveTextures++;
-	}
-		
-	textInfo.rgba++;
-
-	if (targetMat->textureInfo->format == "RGB")
-		textInfo.rgb--;
-
-	targetMat->textureInfo->format = "RGBA";*/
+	ResourceTexture* res = App->resources->checkersTexture;
+	obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Checkers"));
 
 }
 

@@ -10,6 +10,7 @@ public:
 	virtual ~ResourceTexture() {};
 	void FreeMemory();
 	void LoadOnMemory(const char* path = { 0 });
+	void LoadCheckersOnMemory();
 
 	textureData* GetTextureData() const { return textureInfo; };
 private:
