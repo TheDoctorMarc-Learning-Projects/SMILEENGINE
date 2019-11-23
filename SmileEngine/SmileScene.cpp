@@ -117,8 +117,14 @@ void SmileScene::DrawObjects()
 	static std::vector<GameObject*> drawObjects;
 	App->spatial_tree->CollectCandidatesA(drawObjects, App->renderer3D->targetCamera->calcFrustrum);
 
+	// debug
+	objectCandidatesBeforeFrustrumPrune = drawObjects.size();
+
 	// then test the own objects OBBs with the frustrum
 	App->renderer3D->targetCamera->PruneInsideFrustrum(drawObjects);
+
+	// debug
+	objectCandidatesAfterFrustrumPrune = drawObjects.size();
 
 	for (auto& obj : drawObjects)
 		obj->Draw();

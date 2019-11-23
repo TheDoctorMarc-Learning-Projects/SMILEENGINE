@@ -16,12 +16,14 @@ class OctreeNode
 public: 
 	OctreeNode(math::AABB aabb) { this->AABB = aabb; }; // for root 
 	OctreeNode(OctreeNode* parentNode, uint i); // for the rest of nodes
-	~OctreeNode() {};
+	~OctreeNode(); 
 
 public: 
 	void DeleteObject(GameObject*);
 	void InsertObject(GameObject*);
 	void Debug();
+	void GetInsideCount(uint& ret);
+	void GetIfMaxObjects(uint& ret);
 
 	// Checks a primitive intersects with a quadtree node, then checks the primitive intersects with the objects inside the node
 	template<typename PRIMITIVE>
@@ -84,9 +86,14 @@ public:
 	~SmileSpatialTree();
 
 	void CreateOctree(math::AABB aabb, uint depth = MAX_DEPTH, uint maxNodeObjects = MAX_NODE_OBJECTS);
-	update_status Update(float dt) { if(root) root->Debug(); return update_status::UPDATE_CONTINUE; }; // to debug only
+	update_status Update(float dt); 
 	bool CleanUp(); 
 	void OnStaticChange(GameObject* obj, bool isStatic); 
+	uint GetNodeCount() const { return nodeCount; };
+	uint GetInsideCount() const;
+	uint GetNodesWithMaxObjects() const;
+	uint GetMaxNodeObjects() const { return MAX_NODE_OBJECTS; };
+	uint GetMaxNodeDepth() const { return MAX_DEPTH; };
 
 	// ultimately checks an obb
 	template<typename PRIMITIVE>
@@ -108,6 +115,7 @@ private:
 	void ComputeObjectTree(GameObject* obj);
 
 private: 
+	uint nodeCount = 0; // debug
 	OctreeNode* root = nullptr; 
  
 	friend class OctreeNode; 

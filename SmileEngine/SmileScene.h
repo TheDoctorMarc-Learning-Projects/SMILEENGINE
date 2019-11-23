@@ -54,4 +54,7 @@ public:
 	int lineWidth = 1;
 	float linesLength = 0.5f;
 
+	uint objectCandidatesBeforeFrustrumPrune = 0; 
+	uint objectCandidatesAfterFrustrumPrune = 0;
+
 };

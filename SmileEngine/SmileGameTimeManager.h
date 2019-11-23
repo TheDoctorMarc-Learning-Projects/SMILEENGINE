@@ -34,7 +34,7 @@ namespace TimeManager
 			App->serialization->SaveScene();
 			App->SetDtMultiplier(_timeData.gameTimeScale);
 			App->renderer3D->SwitchCamera(); 
-		//	App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN_DESKTOP, (SDL_bool)true);
+			App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN, (SDL_bool)true);
 			App->scene_intro->generalDbug = !App->scene_intro->generalDbug; 
 		}
 		else
@@ -42,7 +42,7 @@ namespace TimeManager
 			gameClock.Stop();
 			App->serialization->LoadScene("Library/Scenes/scene.json");
 			App->SetDtMultiplier(1.F);
-	//		App->window->SetFullscreen(0, (SDL_bool)false);
+    		App->window->SetFullscreen(0, (SDL_bool)false);
 			App->scene_intro->generalDbug = !App->scene_intro->generalDbug;
 		}
 	

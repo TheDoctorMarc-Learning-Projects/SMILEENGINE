@@ -48,32 +48,7 @@ void ComponentMesh::Draw()
 		// Cient states
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
-		
-		// Material
-		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
-		if (mat != nullptr)
-		{
-			// UVs buffer
-			if (model_mesh->UVs != nullptr)
-			{
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-				glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
-				glTexCoordPointer(2, GL_FLOAT, 0, NULL);
-
-				// texture buffer
-				glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
-			}
-
-		}
-	
-
-		// normal buffer
-		if (model_mesh->normals != nullptr)
-		{
-			glBindBuffer(GL_NORMAL_ARRAY, model_mesh->id_normals);
-			glNormalPointer(GL_FLOAT, 0, NULL);
-		}
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		// vertex buffer
 		glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
@@ -81,10 +56,35 @@ void ComponentMesh::Draw()
 
 		// index buffer 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
-		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, GL_UNSIGNED_INT, NULL); // short for primitives???
 
+		// Material
+		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
+		if (mat != nullptr)
+		{
+			// UVs buffer
+			if (model_mesh->UVs != nullptr)
+			{
+				// texture buffer
+				glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
 
-		// Disanle Cient states && clear data
+				glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
+				glTexCoordPointer(2, GL_FLOAT,0, NULL);
+
+			}
+
+		}
+	
+		// normal buffer
+		if (model_mesh->normals != nullptr)
+		{
+			glBindBuffer(GL_NORMAL_ARRAY, model_mesh->id_normals);
+			glNormalPointer(GL_FLOAT, 0, NULL);
+		}
+
+		// Draw // unsigned short for primitives???
+		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, GL_UNSIGNED_INT, NULL); 
+
+		// Disable Cient states && clear data
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);

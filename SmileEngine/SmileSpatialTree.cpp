@@ -28,6 +28,7 @@ void SmileSpatialTree::CreateRoot(math::AABB aabb)
 	root = DBG_NEW OctreeNode(aabb);
 	ComputeObjectTree(App->scene_intro->rootObj);
 
+	nodeCount++; 
 }
 
 void SmileSpatialTree::ComputeObjectTree(GameObject* obj)
@@ -38,6 +39,13 @@ void SmileSpatialTree::ComputeObjectTree(GameObject* obj)
 	auto children = obj->GetImmidiateChildren();
 	for (auto& obj : children)
 		ComputeObjectTree(obj);
+}
+
+update_status SmileSpatialTree::Update(float dt)
+{
+	if (root && App->scene_intro->generalDbug)
+		root->Debug(); 
+	return update_status::UPDATE_CONTINUE;
 }
 
 bool SmileSpatialTree::CleanUp()
@@ -79,6 +87,8 @@ OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 	this->AABB = math::AABB(min, max); 
 }
 
+OctreeNode::~OctreeNode() { App->spatial_tree->nodeCount--; };
+
 void OctreeNode::InsertObject(GameObject* obj)
 {
 	// A) I have child nodes, then pass the object directly to them (conditions) 
@@ -115,6 +125,8 @@ void OctreeNode::Split()
 {
 	for (int i = 0; i < 8; ++i)
 		childNodes[i] = DBG_NEW OctreeNode(this, i);
+
+	App->spatial_tree->nodeCount += 8; 
 }
  
 // Push the object to children that can encompass it  
@@ -279,4 +291,49 @@ void OctreeNode::CleanUp()
 		childNode->CleanUp();
 		RELEASE(childNode);
 	}
+}
+
+// debug sutff
+uint SmileSpatialTree::GetInsideCount() const
+{
+	uint ret = root->insideObjs.size(); 
+
+	if (root->IsLeaf())
+		return ret;
+
+	for (auto& child : root->childNodes)
+		child->GetInsideCount(ret); 
+    
+	return ret; 
+}
+
+ 
+void OctreeNode::GetInsideCount(uint& ret) 
+{
+	ret += insideObjs.size(); 
+
+	if (IsLeaf())
+		return;
+
+	for (auto& child : childNodes)
+		child->GetInsideCount(ret);
+
+}
+
+uint SmileSpatialTree::GetNodesWithMaxObjects() const
+{
+	uint ret = root->insideObjs.size() >= MAX_NODE_OBJECTS;
+
+	if (root->IsLeaf())
+		return ret;
+
+	for (auto& child : root->childNodes)
+		child->GetIfMaxObjects(ret);
+
+	return ret;
+}
+
+void OctreeNode::GetIfMaxObjects(uint& ret)
+{
+	ret += (insideObjs.size() >= MAX_NODE_OBJECTS);
 }

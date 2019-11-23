@@ -208,6 +208,30 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Game Systems"))
+		{
+			if (ImGui::CollapsingHeader("Octree"))
+			{
+				ImGui::TextColored(ImVec4(0, 1, 0, 1), "Note that one object can intersect with more than one node");
+				ImGui::Text(std::string("Octree Node Count: " + std::to_string(App->spatial_tree->GetNodeCount())).c_str());
+				ImGui::Text(std::string("Total Objects Inside Nodes: " + std::to_string(App->spatial_tree->GetInsideCount())).c_str());
+				ImGui::Text(std::string("Maximum Node Depth: " + std::to_string(App->spatial_tree->GetMaxNodeDepth())).c_str());
+				ImGui::Text(std::string("Maximum Possible objects in a node: " + std::to_string(App->spatial_tree->GetMaxNodeObjects())).c_str());
+				ImGui::Text(std::string("Nodes with maximum objects: " + std::to_string(App->spatial_tree->GetNodesWithMaxObjects())).c_str());
+			}
+			if (ImGui::CollapsingHeader("Camera Culling"))
+			{
+				ImGui::Text("Number Of Objects Inside Current Camera View: ");
+				ImGui::Text(std::string("Objects In Octree Nodes Inside Frustrum: " + std::to_string(App->scene_intro->objectCandidatesBeforeFrustrumPrune)).c_str());
+				ImGui::Text(std::string("Objects Inside Frustrum: " + std::to_string(App->scene_intro->objectCandidatesAfterFrustrumPrune)).c_str());
+			}
+
+			ImGui::EndMenu();
+		}
+
+
+
 		if (ImGui::BeginMenu("Help"))
 		{
 			if (ImGui::MenuItem("Gui Demo")) {
