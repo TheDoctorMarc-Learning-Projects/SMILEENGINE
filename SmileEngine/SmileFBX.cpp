@@ -26,6 +26,7 @@
 #include "ResourceMesh.h"
 #include "Resource.h"
 #include "ResourceTexture.h"
+#include <filesystem>
 
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
 {
@@ -334,13 +335,13 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 	std::string full_path, cleanPath, file; 
 	App->fs->SplitFilePath(path, &full_path, &cleanPath, &file);
 
-	ResourceTexture* res = (ResourceTexture*)App->resources->GetResourceByPath(full_path.c_str());
+	ResourceTexture* res = (ResourceTexture*)App->resources->GetResourceByPath(path);
 
 	if (res)
 		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), file.c_str()));
 	else
 	{
-		res = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, full_path.c_str());
+		res = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, path);
 		res->LoadOnMemory(path);
 		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Material"));
 	}
@@ -526,17 +527,24 @@ std::string SmileFBX::SaveMesh(ResourceMesh* resource, GameObject* obj, uint ind
 
 std::string SmileFBX::SaveMaterial(const char* path)
 {
+	const std::filesystem::path p = std::filesystem::path(path);
+	std::filesystem::path rel = std::filesystem::relative(p);
+	std::string realPath(rel.string().c_str()); 
+	std::replace(realPath.begin(), realPath.end(), '\\', '/');
+ 
+	if (App->fs->Exists(realPath.c_str()) == false)
+		return "no material found"; 
+
 	ILuint size;
 	ILubyte* data;
-	std::string fullName(path); 
 	std::string output_file, cleanPath, extension, fileName; 
-	App->fs->SplitFilePath(path, &output_file, &fileName); 
+	App->fs->SplitFilePath(realPath.c_str(), &output_file, &fileName);
 	std::string rawname = fileName.substr(0, fileName.find_last_of("."));
 
+	char* buffer = nullptr; 
+	uint lenght = App->fs->ReadFile(realPath.c_str(), &buffer);
 
-	char* buffer = nullptr;
-	uint lenght = App->fs->ReadFile(path, &buffer); 
-
+	
 	if (ilLoadL(IL_TYPE_UNKNOWN, (const void*)buffer, lenght))
 	{
 		ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
@@ -551,9 +559,7 @@ std::string SmileFBX::SaveMaterial(const char* path)
 		}
 	}
 
-	std::string library(LIBRARY_TEXTURES_FOLDER);
-	App->fs->EraseChunckFromString(library, 0, 1); 
-	return output_file = library + rawname + std::string(".dds");
+	return LIBRARY_TEXTURES_FOLDER + rawname + ".dds"; 
 }
 
 bool SmileFBX::LoadModel(const char* path)

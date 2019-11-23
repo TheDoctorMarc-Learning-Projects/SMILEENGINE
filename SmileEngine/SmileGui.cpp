@@ -189,7 +189,7 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 				App->serialization->SaveScene(); 
 
 			if (ImGui::MenuItem("Load Scene"))
-				App->serialization->LoadScene("\Library\Scenes\scene.json");
+				App->serialization->LoadScene("Library/Scenes/scene.json");
 
 			ImGui::EndMenu();
 		}
