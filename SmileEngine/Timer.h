@@ -14,14 +14,11 @@ public:
 	void Start();
 	void Stop();
 	void Resume(); 
-	void PlayOne(); 
 	Uint32 Read();
 	Uint32 ReadSec();
 
 	bool IsRunning() const { return running; }; 
 private:
-	void CheckToPlayOne(); 
-	uint toPlayOne = 0; 
 	bool	running = false;
 	Uint32	started_at;
 	Uint32	stopped_at;

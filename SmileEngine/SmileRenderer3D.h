@@ -19,6 +19,7 @@ public:
 	bool CleanUp();
 	bool Reset(); 
 	void SwitchCamera(); 
+	void SetTargetCamera(ComponentCamera* cam); 
 
 	void OnResize(int width, int height, ComponentCamera* targetCam);
 	float* GetProjectionMatrix(); 

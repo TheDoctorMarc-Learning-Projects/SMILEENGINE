@@ -311,10 +311,11 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				if (debug)
 					App->scene_intro->debugCamera = cam;
 				else
-					App->scene_intro->gameCamera = cam;  // TODO: support multiple game cameras
+					App->scene_intro->gameCamera = cam;  
 
 				if (target)
-					App->renderer3D->targetCamera = cam; 
+					App->renderer3D->SetTargetCamera(cam); 
+					
 
 				break;
 			}

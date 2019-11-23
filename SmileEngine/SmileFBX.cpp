@@ -338,7 +338,7 @@ void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 	ResourceTexture* res = (ResourceTexture*)App->resources->GetResourceByPath(path);
 
 	if (res)
-		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), file.c_str()));
+		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Material"));
 	else
 	{
 		res = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, path);
@@ -412,7 +412,7 @@ ComponentMesh* SmileFBX::LoadMesh(const char* full_path) // should create a reso
 	
 	LOG("Loading mesh: %s", full_path);
 	
-	return DBG_NEW ComponentMesh(resmesh->GetUID(), file[0]);
+	return DBG_NEW ComponentMesh(resmesh->GetUID(), "Mesh");
 }
 
 // Shold save a resource mesh, or not, if id does already exist
@@ -485,10 +485,10 @@ std::string SmileFBX::SaveMaterial(const char* path)
 	if (ilLoadL(IL_TYPE_UNKNOWN, (const void*)buffer, lenght))
 	{
 		ilSetInteger(IL_DXTC_FORMAT, IL_DXT5);
-		iluFlipImage();
 		size = ilSaveL(IL_DDS, NULL, 0);
 		if (size > 0) {
 			data = DBG_NEW ILubyte[size];
+			iluFlipImage();
 			if (ilSaveL(IL_DDS, data, size) > 0)
 				App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, rawname.c_str(), "dds");
 
@@ -496,7 +496,7 @@ std::string SmileFBX::SaveMaterial(const char* path)
 		}
 	}
 
-	return LIBRARY_TEXTURES_FOLDER + rawname + ".dds"; 
+	return LIBRARY_TEXTURES_FOLDER_A + rawname + ".dds";
 }
 
 bool SmileFBX::LoadModel(const char* path)
