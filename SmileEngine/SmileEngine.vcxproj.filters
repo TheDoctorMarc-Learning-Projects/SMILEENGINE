@@ -22,9 +22,6 @@
     <Filter Include="Source\Modules\Utilities">
       <UniqueIdentifier>{82d48ee8-4d0e-467f-8cbc-48ed50dd392e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Basic">
-      <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\Objects">
       <UniqueIdentifier>{3525823e-24ba-42d6-a254-34ae1c308690}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,9 @@
     </Filter>
     <Filter Include="Source\Modules\Objects\Resources">
       <UniqueIdentifier>{b2d8de6c-f669-462d-bfee-93ba80f03981}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Basic">
+      <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

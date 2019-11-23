@@ -19,29 +19,32 @@ namespace TimeManager
 		timeData _timeData;
 		Timer realTimeClock = Timer();
 		Timer gameClock = Timer(false);
+		static bool isPlaying = false; 
 	}
 
-	static bool IsPlaying() { return gameClock.IsRunning(); };
+	static bool IsPlaying() { return isPlaying; };
 
 	static void PlayButton() 
 	{
-		if (IsPlaying() == false)
+		if (isPlaying == false)
 		{
 			gameClock.Start();
 			App->serialization->SaveScene();
 			App->SetDtMultiplier(_timeData.gameTimeScale);
 			App->renderer3D->SwitchCamera(); 
-			//App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN_DESKTOP, (SDL_bool)true);
+		//	App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN_DESKTOP, (SDL_bool)true);
+			App->scene_intro->generalDbug = !App->scene_intro->generalDbug; 
 		}
 		else
 		{
 			gameClock.Stop();
-			App->renderer3D->SwitchCamera();
-			App->SetDtMultiplier(1.F);
 			App->serialization->LoadScene("Library/Scenes/scene.json");
-		//	App->window->SetFullscreen(0, (SDL_bool)false);
+			App->SetDtMultiplier(1.F);
+	//		App->window->SetFullscreen(0, (SDL_bool)false);
+			App->scene_intro->generalDbug = !App->scene_intro->generalDbug;
 		}
 	
+		isPlaying = !isPlaying;
 	}; 
 
 	static void PauseButton()
@@ -60,14 +63,14 @@ namespace TimeManager
 		
 	}; 
 
-	static void PlayOne()
+	static void PlayOne() // mananage this in the gui v
 	{
 
-		if (IsPlaying() == false)
+		/*if (IsPlaying() == false)
 		{
 			PlayButton(); 
 			gameClock.PlayOne(); 
-		}
+		}*/
 
 	};
 

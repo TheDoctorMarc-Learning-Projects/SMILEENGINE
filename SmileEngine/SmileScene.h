@@ -50,6 +50,7 @@ public:
 	ComponentCamera* debugCamera = nullptr; 
 	ComponentCamera* gameCamera = nullptr;
 
+	bool generalDbug = true; 
 	int lineWidth = 1;
 	float linesLength = 0.5f;
 

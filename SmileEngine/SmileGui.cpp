@@ -114,8 +114,6 @@ bool SmileGui::Start()
 	ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer3D->context);
 	ImGui_ImplOpenGL3_Init();
 
-	// Init play mode
-//	TimeManager::PlayButton(); // TODO: this bugs camera(render not available! Start is afterwards)
 
 	return ret;
 }

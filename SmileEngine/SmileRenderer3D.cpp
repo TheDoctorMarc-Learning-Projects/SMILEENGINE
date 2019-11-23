@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 
+
 SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 { 
 }
@@ -217,4 +218,11 @@ void SmileRenderer3D::SwitchCamera()
 	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
 		targetCamera);
 
+}
+
+void SmileRenderer3D::SetTargetCamera(ComponentCamera* cam)
+{
+	targetCamera = cam; 
+	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+		targetCamera);
 }

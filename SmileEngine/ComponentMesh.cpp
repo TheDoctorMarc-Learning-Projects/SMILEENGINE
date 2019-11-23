@@ -92,8 +92,9 @@ void ComponentMesh::Draw()
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 	    // Debug on top
-		DebugDraw();
-
+		if(App->scene_intro->generalDbug)
+			DebugDraw();
+	
 		// Transformation
 		glPopMatrix(); 
 	}
