@@ -930,10 +930,18 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 // ----------------------------------------------------------------- [Play]
 void panelData::PlaySpace::Execute(bool& ret)
 {
+	static uint playOne = 0; 
  
 	std::string playStop = (TimeManager::IsPlaying()) ? "Stop" : "Play"; 
-	std::string pauseResume = (TimeManager::IsPlaying()) ? "Pause" : "Resume";
+	std::string pauseResume = (TimeManager::IsPaused()) ? "Resume" : "Pause";
 
+	// Play One
+	if (playOne == 2)
+	{
+		TimeManager::PauseButton();
+		playOne = 0;
+		goto NextWindow; // yes
+	}
 
 	ImGui::SetNextWindowSize(ImVec2(330, 22));
 	ImGui::SetNextWindowPos(ImVec2(500, 30));
@@ -948,9 +956,24 @@ void panelData::PlaySpace::Execute(bool& ret)
 		TimeManager::PauseButton();
 	ImGui::SameLine();
 	if (ImGui::Button("|> ||", ImVec2(100, 20)))
-		TimeManager::PlayOne();
+		playOne++;
 	ImGui::End();
 
+	// Play one
+	if (playOne == 1)
+	{
+		if (pauseResume == "Resume")
+		{
+			LOG("Played one frame!!"); 
+			TimeManager::PlayOneButton();
+			playOne++;
+		}
+		else
+			playOne = 0; 
+	}
+
+
+NextWindow:
 	ImGui::SetNextWindowSize(ImVec2(400, 150));
 	ImGui::SetNextWindowPos(ImVec2(870, 25));
 
@@ -959,7 +982,7 @@ void panelData::PlaySpace::Execute(bool& ret)
 	ImGui::Begin("Sesion", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
 		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 
-	if (playStop == "Stop")
+	if (playStop == "Stop" && pauseResume == "Pause")
 	{
 		ImGui::Text("Game Speed Multiplier: ");
 		ImGui::SameLine();

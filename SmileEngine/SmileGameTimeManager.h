@@ -20,9 +20,11 @@ namespace TimeManager
 		Timer realTimeClock = Timer();
 		Timer gameClock = Timer(false);
 		static bool isPlaying = false; 
+		static bool isPaused = false;
 	}
 
 	static bool IsPlaying() { return isPlaying; };
+	static bool IsPaused() { return isPaused; };
 
 	static void PlayButton() 
 	{
@@ -50,7 +52,7 @@ namespace TimeManager
 	static void PauseButton()
 	{
 
-		if (IsPlaying() == true)
+		if (IsPaused() == false)
 		{
 			App->SetDtMultiplier(0.F);
 			gameClock.Stop();
@@ -60,19 +62,17 @@ namespace TimeManager
 			App->SetDtMultiplier(1.F);
 			gameClock.Start();
 		}
-		
+
+		isPaused = !isPaused; 
 	}; 
-
-	static void PlayOne() // mananage this in the gui v
+ 
+	static void PlayOneButton()
 	{
-
-		/*if (IsPlaying() == false)
-		{
-			PlayButton(); 
-			gameClock.PlayOne(); 
-		}*/
-
-	};
+		App->SetDtMultiplier(_timeData.gameTimeScale);
+		gameClock.Start();
+		isPlaying = true;
+		isPaused = false; 
+	}
 
 }
 

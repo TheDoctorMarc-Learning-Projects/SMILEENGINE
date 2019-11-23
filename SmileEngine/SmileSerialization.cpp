@@ -361,5 +361,5 @@ void SmileSerialization::LoadScene(const char* path, bool startup)
 	// 4) Then Load
 	LoadSceneNode(nullptr, doc["GameObject"], doc)->Start();  // starts root 
 	// 5) Afterwards, create Octree again
-	App->spatial_tree->CreateOctree(math::AABB(float3(-500, -500, -500), float3(500, 500, 500)));
+	App->spatial_tree->CreateOctree(math::AABB(float3(-100, -100, -100), float3(100, 100, 100)));
 }
