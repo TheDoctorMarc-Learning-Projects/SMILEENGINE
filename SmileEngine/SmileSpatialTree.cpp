@@ -6,41 +6,52 @@
  
 
 SmileSpatialTree::SmileSpatialTree(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled){}
-SmileSpatialTree::~SmileSpatialTree() {}
+SmileSpatialTree::~SmileSpatialTree() 
+{
+	RELEASE(root);
+}
 
 void SmileSpatialTree::CreateOctree(math::AABB aabb, uint depth, uint maxNodeObjects)
 {
 	MAX_NODE_OBJECTS = maxNodeObjects; 
 	MAX_DEPTH = depth; 
 
-	CreateRoot(aabb);
+	if(root)
+		ComputeObjectTree(App->scene_intro->rootObj);
+	else
+		CreateRoot(aabb);
 }
 
 void SmileSpatialTree::CreateRoot(math::AABB aabb)
 {
 	// the root is to be created once
-	static bool once = [this, aabb]()
-	{
-		root = DBG_NEW OctreeNode(aabb);
-		ComputeObjectTree(App->scene_intro->rootObj); 
+	root = DBG_NEW OctreeNode(aabb);
+	ComputeObjectTree(App->scene_intro->rootObj);
 
-		return true; 
-	} ();
-
+	nodeCount++; 
 }
 
 void SmileSpatialTree::ComputeObjectTree(GameObject* obj)
 {
-	root->InsertObject(obj);
+	if(obj->GetStatic() == true) // wohoa! 
+		root->InsertObject(obj);
+	
 	auto children = obj->GetImmidiateChildren();
 	for (auto& obj : children)
 		ComputeObjectTree(obj);
 }
 
+update_status SmileSpatialTree::Update(float dt)
+{
+	if (root && App->scene_intro->generalDbug)
+		root->Debug(); 
+	return update_status::UPDATE_CONTINUE;
+}
+
 bool SmileSpatialTree::CleanUp()
 {
 	root->CleanUp(); 
-	RELEASE(root);
+	
 
 	return true; 
 }
@@ -75,6 +86,8 @@ OctreeNode::OctreeNode(OctreeNode* parentNode, uint i)
 	
 	this->AABB = math::AABB(min, max); 
 }
+
+OctreeNode::~OctreeNode() { App->spatial_tree->nodeCount--; };
 
 void OctreeNode::InsertObject(GameObject* obj)
 {
@@ -112,9 +125,11 @@ void OctreeNode::Split()
 {
 	for (int i = 0; i < 8; ++i)
 		childNodes[i] = DBG_NEW OctreeNode(this, i);
+
+	App->spatial_tree->nodeCount += 8; 
 }
  
-// Push the object to children that can encompass it (check depth and object count) 
+// Push the object to children that can encompass it  
 bool OctreeNode::SendObjectToChildren(GameObject* obj) 
 {
 	uint success = 0; 
@@ -276,4 +291,49 @@ void OctreeNode::CleanUp()
 		childNode->CleanUp();
 		RELEASE(childNode);
 	}
+}
+
+// debug sutff
+uint SmileSpatialTree::GetInsideCount() const
+{
+	uint ret = root->insideObjs.size(); 
+
+	if (root->IsLeaf())
+		return ret;
+
+	for (auto& child : root->childNodes)
+		child->GetInsideCount(ret); 
+    
+	return ret; 
+}
+
+ 
+void OctreeNode::GetInsideCount(uint& ret) 
+{
+	ret += insideObjs.size(); 
+
+	if (IsLeaf())
+		return;
+
+	for (auto& child : childNodes)
+		child->GetInsideCount(ret);
+
+}
+
+uint SmileSpatialTree::GetNodesWithMaxObjects() const
+{
+	uint ret = root->insideObjs.size() >= MAX_NODE_OBJECTS;
+
+	if (root->IsLeaf())
+		return ret;
+
+	for (auto& child : root->childNodes)
+		child->GetIfMaxObjects(ret);
+
+	return ret;
+}
+
+void OctreeNode::GetIfMaxObjects(uint& ret)
+{
+	ret += (insideObjs.size() >= MAX_NODE_OBJECTS);
 }

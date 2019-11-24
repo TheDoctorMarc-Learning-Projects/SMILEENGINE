@@ -22,9 +22,6 @@
     <Filter Include="Source\Modules\Utilities">
       <UniqueIdentifier>{82d48ee8-4d0e-467f-8cbc-48ed50dd392e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Basic">
-      <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\Objects">
       <UniqueIdentifier>{3525823e-24ba-42d6-a254-34ae1c308690}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,9 @@
     </Filter>
     <Filter Include="Source\Modules\Objects\Resources">
       <UniqueIdentifier>{b2d8de6c-f669-462d-bfee-93ba80f03981}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Basic">
+      <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +180,21 @@
     <ClInclude Include="SmileFileSystem.h">
       <Filter>Source\Modules\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="SmileSerialization.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileGameTimeManager.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceMesh.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceTexture.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="parshapes\par_shapes.h">
+      <Filter>Source\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -274,12 +289,24 @@
     </ClCompile>
     <ClCompile Include="SmileResourceManager.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
-    </ClCompile>  
+    </ClCompile>
     <ClCompile Include="SmileMaterialImporter.cpp">
       <Filter>Source\Modules\Objects</Filter>
     </ClCompile>
     <ClCompile Include="SmileFileSystem.cpp">
       <Filter>Source\Modules\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileSerialization.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceMesh.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceTexture.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="parshapes\par_shapes.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

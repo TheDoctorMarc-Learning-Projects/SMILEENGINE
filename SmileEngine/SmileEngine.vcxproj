@@ -14,7 +14,7 @@
     <ProjectGuid>{746CC4C3-787F-4B0E-AA66-E388FE3FF4F6}</ProjectGuid>
     <RootNamespace>SDLGame</RootNamespace>
     <ProjectName>SmileEngine</ProjectName>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -98,10 +98,13 @@
     <ClInclude Include="imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="JSONParser.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="parshapes\par_shapes.h" />
     <ClInclude Include="pcg\include\pcg_extras.hpp" />
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ResourceTexture.h" />
+    <ClInclude Include="ResourceMesh.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="SafetyHandler.h" />
     <ClInclude Include="SmileApp.h" />
@@ -109,8 +112,10 @@
     <ClInclude Include="SmileFBX.h" />
     <ClInclude Include="SmileFileSystem.h" />
     <ClInclude Include="SmileGameObjectManager.h" />
+    <ClInclude Include="SmileGameTimeManager.h" />
     <ClInclude Include="SmileResourceManager.h" />
     <ClInclude Include="SmileMaterialImporter.h" />
+    <ClInclude Include="SmileSerialization.h" />
     <ClInclude Include="SmileSetup.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -141,6 +146,9 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="JSONParser.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="parshapes\par_shapes.cpp" />
+    <ClCompile Include="ResourceMesh.cpp" />
+    <ClCompile Include="ResourceTexture.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="SmileApp.cpp" />
     <ClCompile Include="Color.cpp" />
@@ -158,6 +166,7 @@
     <ClCompile Include="SmileRenderer3D.cpp" />
     <ClCompile Include="SmileResourceManager.cpp" />
     <ClCompile Include="SmileScene.cpp" />
+    <ClCompile Include="SmileSerialization.cpp" />
     <ClCompile Include="SmileSetup.cpp" />
     <ClCompile Include="SmileSpatialTree.cpp" />
     <ClCompile Include="SmileUtilitiesModule.cpp" />

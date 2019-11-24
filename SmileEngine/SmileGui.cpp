@@ -3,7 +3,8 @@
 #include "SmileGui.h"
 #include "SmileApp.h"
 #include "SmileWindow.h"
-
+#include "ResourceMesh.h"
+#include "ResourceTexture.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -20,8 +21,9 @@
 #include "ComponentTransform.h"
 #include "ComponentMaterial.h"
 
-#include <filesystem> // TODO: filesystem (muahahaha)
- 
+#include <filesystem>  
+#include "SmileGameTimeManager.h"
+
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
 {
@@ -62,6 +64,11 @@ namespace panelData
 		void ComponentData(Component*);
 	}
 
+	namespace PlaySpace
+	{
+		void Execute(bool& ret);
+	}
+
 }
 
 // -----------------------------------------------------------------
@@ -78,6 +85,7 @@ void SmileGui::FillMenuFunctionsVector()
 	menuFunctions.push_back(&panelData::mainMenuSpace::Execute);
 	menuFunctions.push_back(&panelData::HierarchySpace::Execute);
 	menuFunctions.push_back(&panelData::InspectorSpace::Execute);
+	menuFunctions.push_back(&panelData::PlaySpace::Execute);
 }
 
 // -----------------------------------------------------------------
@@ -113,6 +121,7 @@ bool SmileGui::Start()
 // -----------------------------------------------------------------
 update_status SmileGui::PreUpdate(float dt)
 {
+
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(App->window->window);
@@ -161,6 +170,9 @@ void SmileGui::HandleRender()
 // ----------------------------------------------------------------- [Main Menu Bar]
 void panelData::mainMenuSpace::Execute(bool& ret)
 {
+	if (TimeManager::IsPlaying())
+		return;
+
 	static bool showdemowindow = false;
 	static bool showabout = false;
 
@@ -171,7 +183,11 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		{
 			if (ImGui::MenuItem("Quit"))
 				ret = false;
+			if (ImGui::MenuItem("Save Scene"))
+				App->serialization->SaveScene(); 
 
+			if (ImGui::MenuItem("Load Scene"))
+				App->serialization->LoadScene("Library/Scenes/scene.json");
 
 			ImGui::EndMenu();
 		}
@@ -192,6 +208,30 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Game Systems"))
+		{
+			if (ImGui::CollapsingHeader("Octree"))
+			{
+				ImGui::TextColored(ImVec4(0, 1, 0, 1), "Note that one object can intersect with more than one node");
+				ImGui::Text(std::string("Octree Node Count: " + std::to_string(App->spatial_tree->GetNodeCount())).c_str());
+				ImGui::Text(std::string("Total Objects Inside Nodes: " + std::to_string(App->spatial_tree->GetInsideCount())).c_str());
+				ImGui::Text(std::string("Maximum Node Depth: " + std::to_string(App->spatial_tree->GetMaxNodeDepth())).c_str());
+				ImGui::Text(std::string("Maximum Possible objects in a node: " + std::to_string(App->spatial_tree->GetMaxNodeObjects())).c_str());
+				ImGui::Text(std::string("Nodes with maximum objects: " + std::to_string(App->spatial_tree->GetNodesWithMaxObjects())).c_str());
+			}
+			if (ImGui::CollapsingHeader("Camera Culling"))
+			{
+				ImGui::Text("Number Of Objects Inside Current Camera View: ");
+				ImGui::Text(std::string("Objects In Octree Nodes Inside Frustrum: " + std::to_string(App->scene_intro->objectCandidatesBeforeFrustrumPrune)).c_str());
+				ImGui::Text(std::string("Objects Inside Frustrum: " + std::to_string(App->scene_intro->objectCandidatesAfterFrustrumPrune)).c_str());
+			}
+
+			ImGui::EndMenu();
+		}
+
+
+
 		if (ImGui::BeginMenu("Help"))
 		{
 			if (ImGui::MenuItem("Gui Demo")) {
@@ -248,30 +288,30 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 {
 	if (ImGui::BeginMenu("Geometry"))
 	{
-		// Primitives
-		static char objName[128] = "Insert name";
-		static ImVec4 col(0.f, 255.f, 1.f, 255.f);
-		static char text[128];
-		if(text[0] == '\0')
-			App->object_manager->GetAllPrimitiveTypesChar(text, true);
-		ImGui::InputText("Object Name", objName, IM_ARRAYSIZE(objName));
-		ImGui::TextColored(col, text);
-
-		if (ImGui::MenuItem("Create Object"))
+		// Primitive
+		if (ImGui::MenuItem("Create Cube"))
 		{
-			par_shapes_mesh* primitive = App->object_manager->GeneratePrimitive(std::string(objName));
-
-			if (primitive != nullptr)
-			{
 				// Create a mesh and an object
-				ComponentMesh* mesh = DBG_NEW ComponentMesh(primitive, std::string(objName) + " 1");
-				GameObject* obj = App->object_manager->CreateGameObject(mesh, objName, App->scene_intro->rootObj);
+				ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Cube->GetUID(), "CubeMesh");
+				GameObject* obj = App->object_manager->CreateGameObject(mesh, "CUBE", App->scene_intro->rootObj);
 				obj->Start();
 
 				// TODO: check this ok
 				App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
-			}
+			
 				
+		}
+		if (ImGui::MenuItem("Create Sphere"))
+		{
+			// Create a mesh and an object
+			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Sphere->GetUID(), "SphereMesh");
+			GameObject* obj = App->object_manager->CreateGameObject(mesh, "SPHERE", App->scene_intro->rootObj);
+			obj->Start();
+
+			// TODO: check this ok
+			App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
+
+
 		}
 		
 		ImGui::EndMenu(); 
@@ -441,14 +481,6 @@ void panelData::configSpace::Execute(bool& ret)
 
 		}
 
-		if (ImGui::CollapsingHeader("Textures"))
-		{
-			globalTextureData data = App->fbx->GetGlobalTextureinfo(); 
-			ImGui::Text("Total active textures: %s", std::to_string(data.totalActiveTextures).c_str());
-			ImGui::Text("RGB: %s", std::to_string(data.rgb).c_str());
-			ImGui::Text("RGBA: %s", std::to_string(data.rgba).c_str());
-		}
-
 		if (ImGui::CollapsingHeader("Window")) {
 			static bool windowcheckbox = false;
 			static bool fullscreen_box = false;
@@ -580,6 +612,9 @@ void panelData::configSpace::Execute(bool& ret)
 
 void panelData::configSpace::CapsInformation() {
 
+	if (TimeManager::IsPlaying())
+		return; 
+
 	bool rdtsc = SDL_HasRDTSC();
 	bool mmx = SDL_HasMMX();
 	bool sse = SDL_HasSSE();
@@ -657,6 +692,10 @@ void SmileGui::Log(const char* log)
 
 void panelData::consoleSpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
 	static ImGuiTextFilter     Filter; 
 	static bool consoleWindow; 
 	static bool scrollToBottom = true; 
@@ -691,6 +730,10 @@ void panelData::consoleSpace::Execute(bool& ret)
 // ----------------------------------------------------------------- [Hierarchy]
 static void ObjectRecursiveNode(GameObject* obj)
 {
+
+	if (App->scene_intro->debugCamera && obj && obj->GetCamera() && obj->GetCamera() == App->scene_intro->debugCamera)
+		return; 
+
 	if (obj)
 	{
 		if (ImGui::TreeNode(obj->GetName().c_str()))
@@ -714,6 +757,13 @@ static void ObjectRecursiveNode(GameObject* obj)
 
 void panelData::HierarchySpace::Execute(bool& ret)
 {
+
+	if (TimeManager::IsPlaying())
+		return;
+
+	ImGui::SetNextWindowSize(ImVec2(250, 500));
+	ImGui::SetNextWindowPos(ImVec2(20, 40));
+
 	static bool showHierarchy = true; 
 
 	ImGui::Begin("Hierarchy ", &showHierarchy); 
@@ -729,6 +779,14 @@ void panelData::HierarchySpace::Execute(bool& ret)
 void panelData::InspectorSpace::Execute(bool& ret)
 {
 
+	if (TimeManager::IsPlaying())
+		return;
+
+
+	ImGui::SetNextWindowSize(ImVec2(400, 500));
+	ImGui::SetNextWindowPos(ImVec2(870, 250));
+
+
 	static bool showInspector = true;
 	static const ImVec4 c(11, 100, 88, 255); 
 
@@ -739,7 +797,7 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		{
 			// General info
 			ImGui::TextColored(c, selected->GetName().c_str());
-			static bool isStatic = selected->GetStatic(); 
+			bool isStatic = selected->GetStatic(); 
 			if (ImGui::Checkbox("Static", &isStatic))
 				selected->SetStatic(isStatic); 
 
@@ -785,9 +843,18 @@ void panelData::InspectorSpace::Execute(bool& ret)
 					ImGui::TreePop();
 				}
 
-
+			
 				ImGui::TreePop();
 			}
+
+			// Deletion
+			if (ImGui::Button("Delete"))
+			{
+				App->object_manager->DestroyObject(App->scene_intro->selectedObj);
+				App->scene_intro->selectedObj = nullptr; 
+			}
+		
+
 
 		}
 	
@@ -816,6 +883,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
 			textureData* data = mat->GetTextureData(); 
+
+			// TODO: show my linked resource's reference count
+			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mat->GetResourceTexture()->GetReferenceCount())).c_str());
 			ImGui::Text(std::string("Path: " + mat->GetTextureData()->path).c_str());
 			ImGui::Text(std::string("Size: " + std::to_string(mat->GetTextureData()->width) + " x " + std::to_string(mat->GetTextureData()->height)).c_str());
 			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)
@@ -835,7 +905,8 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		case COMPONENT_TYPE::MESH:
 		{
 			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
-			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetMeshData()->num_vertex)).c_str());
+			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mesh->GetResourceMesh()->GetReferenceCount())).c_str());
+			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetResourceMesh()->model_mesh->num_vertex)).c_str());
 			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetParent()->GetBoundingSphereRadius())).c_str());
 			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");
 			ImGui::Text(std::string("Type: " + type).c_str());
@@ -877,6 +948,95 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		ImGui::TreePop();
 	}
 	
+}
+
+
+// ----------------------------------------------------------------- [Play]
+void panelData::PlaySpace::Execute(bool& ret)
+{
+	static uint playOne = 0; 
+ 
+	std::string playStop = (TimeManager::IsPlaying()) ? "Stop" : "Play"; 
+	std::string pauseResume = (TimeManager::IsPaused()) ? "Resume" : "Pause";
+
+	// Play One
+	if (playOne == 2)
+	{
+		TimeManager::PauseButton();
+		playOne = 0;
+		goto NextWindow; // yes
+	}
+
+	ImGui::SetNextWindowSize(ImVec2(330, 22));
+	ImGui::SetNextWindowPos(ImVec2(500, 30));
+
+	// Do stuff
+	ImGui::Begin("Game", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize 
+		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+	if (ImGui::Button(playStop.c_str(), ImVec2(100, 20)))
+		TimeManager::PlayButton();
+	ImGui::SameLine(); 
+	if (ImGui::Button(pauseResume.c_str(), ImVec2(100, 20)))
+		TimeManager::PauseButton();
+	ImGui::SameLine();
+	if (ImGui::Button("|> ||", ImVec2(100, 20)))
+		playOne++;
+	ImGui::End();
+
+	// Play one
+	if (playOne == 1)
+	{
+		if (pauseResume == "Resume")
+		{
+			LOG("Played one frame!!"); 
+			TimeManager::PlayOneButton();
+			playOne++;
+		}
+		else
+			playOne = 0; 
+	}
+
+
+NextWindow:
+	ImGui::SetNextWindowSize(ImVec2(400, 150));
+	ImGui::SetNextWindowPos(ImVec2(870, 25));
+
+
+	// Show stuff
+	ImGui::Begin("Sesion", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+
+	if (playStop == "Stop" && pauseResume == "Pause")
+	{
+		ImGui::Text("Game Speed Multiplier: ");
+		ImGui::SameLine();
+		float multi = TimeManager::_timeData.gameTimeScale;
+		if (ImGui::SliderFloat("Times", &multi, 1, 10))
+			App->SetDtMultiplier(TimeManager::_timeData.gameTimeScale = multi);
+	}
+
+
+	ImGui::Text("Total Seconds Since Startup: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(TimeManager::realTimeClock.ReadSec()).c_str());
+
+	ImGui::Text("Total Seconds Since Game Start: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(TimeManager::gameClock.ReadSec()).c_str());
+
+	ImGui::Text("App Delta Time: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(App->GetDtNoMulti()).c_str());
+
+	ImGui::Text("Game Delta Time: ");
+	ImGui::SameLine();
+	ImGui::Text((playStop == "Stop") ? std::to_string(App->GetDT() * App->GetDTMulti()).c_str() : "Not playing");
+
+	ImGui::Text("Frames since Startup: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(App->GetFrameCount()).c_str());
+
+	ImGui::End();
 }
 
 // ----------------------------------------------------------------- (Utilities)

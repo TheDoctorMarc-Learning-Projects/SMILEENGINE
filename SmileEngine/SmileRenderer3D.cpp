@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "ComponentTransform.h"
 
+
 SmileRenderer3D::SmileRenderer3D(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 { 
 }
@@ -139,23 +140,13 @@ update_status SmileRenderer3D::PostUpdate(float dt)
     App->gui->HandleRender(); 
 	SDL_GL_SwapWindow(App->window->window);
 
-	if (App->input->GetKey(SDL_SCANCODE_C) == KEY_DOWN)
-	{
-		ComponentCamera* gameCam = App->scene_intro->gameCamera;
-		ComponentCamera* debugCam = App->scene_intro->debugCamera;
-
-		if (targetCamera == gameCam)
-			targetCamera = debugCam;
-		else if (targetCamera == debugCam)
-			targetCamera = gameCam;
-
-		OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
-			targetCamera);
-
-	}
-
-
 	return UPDATE_CONTINUE;
+}
+
+bool SmileRenderer3D::Reset()
+{
+	targetCamera = nullptr; 
+	return true; 
 }
 
 // Called before quitting
@@ -171,12 +162,18 @@ bool SmileRenderer3D::CleanUp()
 
 void SmileRenderer3D::OnResize(int width, int height, ComponentCamera* targetCam)
 { 	
-	targetCamera = targetCam; 
+	if(targetCam != targetCamera)
+		targetCamera = targetCam;
+
+
+	// compute spatial data
+	targetCamera->_renderingData.ratio = (float)width / (float)height;
+	targetCamera->ComputeSpatialData();
+	targetCamera->GetFrustrum()->CalculatePlanes();
+
 	renderingData data = targetCamera->GetRenderingData();
 
-	data.ratio = (float)width / (float)height;
 	glViewport(0, 4, width, height);
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	ProjectionMatrix = perspective(data.fovYangle, data.ratio,
@@ -185,9 +182,6 @@ void SmileRenderer3D::OnResize(int width, int height, ComponentCamera* targetCam
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
-
-	targetCamera->GetFrustrum()->CalculatePlanes(); 
 
 }
 
@@ -202,4 +196,34 @@ float* SmileRenderer3D::GetProjectionMatrixTransposed()
 	mat4x4 ret = ProjectionMatrix;
 	ret.transpose();
 	return &ret;
+}
+
+mat4x4 SmileRenderer3D::GetProjectionMatrixTransposedA()
+{
+	mat4x4 ret = ProjectionMatrix;
+	ret.transpose();
+	return ret;
+}
+
+
+void SmileRenderer3D::SwitchCamera()
+{
+	ComponentCamera* gameCam = App->scene_intro->gameCamera;
+	ComponentCamera* debugCam = App->scene_intro->debugCamera;
+
+	if (targetCamera == gameCam)
+		targetCamera = debugCam;
+	else if (targetCamera == debugCam)
+		targetCamera = gameCam;
+
+	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+		targetCamera);
+
+}
+
+void SmileRenderer3D::SetTargetCamera(ComponentCamera* cam)
+{
+	targetCamera = cam; 
+	OnResize(std::get<int>(App->window->GetWindowParameter("Width")), std::get<int>(App->window->GetWindowParameter("Height")),
+		targetCamera);
 }

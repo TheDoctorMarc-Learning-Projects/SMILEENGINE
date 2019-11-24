@@ -7,7 +7,7 @@
 #include <vector>
 
 static uint MAX_NODE_OBJECTS = 10; 
-static uint MAX_DEPTH = 4; 
+static uint MAX_DEPTH = 8; 
 
 class Frustrum;
 // ----------------------------------------------------------------- [OctreeNode]
@@ -16,12 +16,14 @@ class OctreeNode
 public: 
 	OctreeNode(math::AABB aabb) { this->AABB = aabb; }; // for root 
 	OctreeNode(OctreeNode* parentNode, uint i); // for the rest of nodes
-	~OctreeNode() {};
+	~OctreeNode(); 
 
 public: 
 	void DeleteObject(GameObject*);
 	void InsertObject(GameObject*);
 	void Debug();
+	void GetInsideCount(uint& ret);
+	void GetIfMaxObjects(uint& ret);
 
 	// Checks a primitive intersects with a quadtree node, then checks the primitive intersects with the objects inside the node
 	template<typename PRIMITIVE>
@@ -42,13 +44,21 @@ public:
 		}
 	}
 
+	// used with frustrum in scene draw 
 	template<typename PRIMITIVE>
 	void CollectCandidatesA(std::vector<GameObject*>& gameObjects, const PRIMITIVE& primitive)
 	{
 		if (primitive.Intersects(AABB))
 		{
 			for (auto& obj : insideObjs)
-					gameObjects.push_back(obj);
+			{
+				if (obj->toDraw == false)  // must use a flag so the same obj is not pushed more than once (by other nodes)
+				{
+					gameObjects.push_back(obj); 
+					obj->toDraw = true;
+				}
+			}
+					
 
 			if (IsLeaf() == false)
 			{
@@ -84,9 +94,14 @@ public:
 	~SmileSpatialTree();
 
 	void CreateOctree(math::AABB aabb, uint depth = MAX_DEPTH, uint maxNodeObjects = MAX_NODE_OBJECTS);
-	update_status Update(float dt) { root->Debug(); return update_status::UPDATE_CONTINUE; }; // to debug only
+	update_status Update(float dt); 
 	bool CleanUp(); 
 	void OnStaticChange(GameObject* obj, bool isStatic); 
+	uint GetNodeCount() const { return nodeCount; };
+	uint GetInsideCount() const;
+	uint GetNodesWithMaxObjects() const;
+	uint GetMaxNodeObjects() const { return MAX_NODE_OBJECTS; };
+	uint GetMaxNodeDepth() const { return MAX_DEPTH; };
 
 	// ultimately checks an obb
 	template<typename PRIMITIVE>
@@ -108,6 +123,7 @@ private:
 	void ComputeObjectTree(GameObject* obj);
 
 private: 
+	uint nodeCount = 0; // debug
 	OctreeNode* root = nullptr; 
  
 	friend class OctreeNode; 

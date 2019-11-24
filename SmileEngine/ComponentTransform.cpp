@@ -82,6 +82,12 @@ void ComponentTransform::SetLocalMatrix(float4x4 mat)
 	CalculateGlobalMatrix(); 
 }
 
+void ComponentTransform::SetupTransform(float4x4 mat)
+{
+	localMatrix = mat;
+	localMatrix.Decompose(position, rotation, scale);
+}
+
 void ComponentTransform::ChangePosition(float3 pos, bool recalculateMatrixes, bool updateBounding)
 {
 	position = pos; 

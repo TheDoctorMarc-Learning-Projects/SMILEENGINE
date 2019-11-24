@@ -1,4 +1,5 @@
 #include "SmileApp.h"
+#include "SmileGameTimeManager.h"
 
 class SmileSetup;
 class SmileModule;
@@ -15,6 +16,7 @@ class SmileSpatialTree;
 class SmileResourceManager; 
 class SmileMaterialImporter;
 class SmileFileSystem;
+class SmileSerialization;
 
 SmileApp::SmileApp()
 {
@@ -26,10 +28,11 @@ SmileApp::SmileApp()
 	utilities = DBG_NEW SmileUtilitiesModule(this); 
 	fbx = DBG_NEW SmileFBX(this);
 	material_importer = DBG_NEW SmileMaterialImporter(this);
-	fs = DBG_NEW SmileFileSystem(this, ASSETS_FOLDER);
+	fs = DBG_NEW SmileFileSystem(this, '.');
 	object_manager = DBG_NEW SmileGameObjectManager(this);
 	spatial_tree = DBG_NEW SmileSpatialTree(this); 
 	resources = DBG_NEW SmileResourceManager(this); 
+	serialization = DBG_NEW SmileSerialization(this);
 
 	// Test 
 	AddModule(utilities);
@@ -85,6 +88,8 @@ bool SmileApp::Init()
 		++item;
 	}
 
+
+
 	ms_timer.Start();
 	return ret;
 }
@@ -92,7 +97,10 @@ bool SmileApp::Init()
 // ---------------------------------------------
 void SmileApp::PrepareUpdate()
 {
-	dt = (float)ms_timer.Read() / 1000.0f;
+	frameCount++; 
+
+	dtNoMulti = (float)ms_timer.Read() / 1000.0f;
+	dt = dtNoMulti * dtMulti;
 	ms_timer.Start();
 
 	////FPS_LOG

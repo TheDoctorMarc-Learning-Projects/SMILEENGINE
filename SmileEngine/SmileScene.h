@@ -21,7 +21,10 @@ public:
 
 	bool Start();
 	update_status Update(float dt);
+	update_status PostUpdate(float dt);
 	bool CleanUp();
+	bool Reset(); 
+
 
 	std::variant<ComponentMesh*, GameObject*> MouseOverMesh(int mouse_x, int mouse_y, bool assignClicked, bool GetMeshNotGameObject);
 private: 
@@ -48,7 +51,11 @@ public:
 	ComponentCamera* debugCamera = nullptr; 
 	ComponentCamera* gameCamera = nullptr;
 
+	bool generalDbug = true; 
 	int lineWidth = 1;
 	float linesLength = 0.5f;
+
+	uint objectCandidatesBeforeFrustrumPrune = 0; 
+	uint objectCandidatesAfterFrustrumPrune = 0;
 
 };

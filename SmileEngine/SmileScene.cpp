@@ -7,6 +7,7 @@
 #include "ComponentTransform.h"
 /*#include <gl/GL.h>
 //#include <gl/GLU.h>*/
+#include"SmileSerialization.h"
 
 #include "Glew/include/GL/glew.h"
 #include "ComponentCamera.h"
@@ -29,12 +30,16 @@
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
 
+#include "SmileGameTimeManager.h"
+
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 }
 
 SmileScene::~SmileScene()
-{}
+{
+	RELEASE(rootObj);
+}
 
 // Load assets
 bool SmileScene::Start()
@@ -42,46 +47,33 @@ bool SmileScene::Start()
 	// Root
 	rootObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(), "root");
 
-	// Just testing Spatial Tree
-	/*float size[10]; 
-	for (auto& i : size)
-	{
-		float3 pos(0, 0, 0); 
-		pos.x = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F)); 
-		pos.y = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0.F, 20.F));
-		pos.z = std::get<float>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(-10.F, 10.F));
-		GameObject* daHouse = App->fbx->LoadFBX("Assets/Models/BakerHouse.fbx"); 
-		daHouse->GetTransform()->ChangePosition(pos);
-
-	}*/
-		
-	// Debug Camera
-	GameObject* debugCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 0, 30)), "Debug Camera", rootObj);
-	debugCamera = DBG_NEW ComponentCamera(debugCameraObj, vec3(0, 0, -1)); 
-	debugCameraObj->AddComponent(debugCamera);
-
-	// Game Camera
-	GameObject* gameCameraObj = DBG_NEW GameObject(DBG_NEW ComponentTransform(float3(0, 5, 25)), "Game Camera", rootObj);
-	renderingData data; 
-	data.pFarDist = 25.f; 
-	gameCamera = DBG_NEW ComponentCamera(gameCameraObj, vec3(0, 5, 0), data); 
-	gameCameraObj->AddComponent(gameCamera);
+	// Scene -> must already have cameras and it also created octree
+    App->serialization->LoadScene("Library/Scenes/scene.json", true);
 	
-	// Octree
-	App->spatial_tree->CreateOctree(math::AABB(float3(-20, 0, -20), float3(20, 40, 20)));
-
 	return true;
 }
 
 bool SmileScene::CleanUp()
 {
-	rootObj->CleanUp(); // does recursion
-	RELEASE(rootObj); 
-
+	rootObj->CleanUp();  
+ 
 	selectedObj = nullptr; 
 	selected_mesh = nullptr; 
 	debugCamera = nullptr; 
 	gameCamera = nullptr; 
+
+	return true;
+}
+
+bool SmileScene::Reset() // similar, but root needs a transform after being cleaned, called by load scene
+{
+	rootObj->CleanUp();
+	rootObj->AddComponent(DBG_NEW ComponentTransform()); 
+
+	selectedObj = nullptr;
+	selected_mesh = nullptr;
+	debugCamera = nullptr;
+	gameCamera = nullptr;
 
 	return true;
 }
@@ -91,21 +83,46 @@ update_status SmileScene::Update(float dt)
 {
 	rootObj->Update(); 
 	DrawObjects();
-	HandleGizmo(); 
-	DrawGrid();
-	DebugLastRay(); 
-	
+	//HandleGizmo();
+
+	if (generalDbug == true)
+	{
+		DrawGrid();
+		DebugLastRay();
+	}
+
+ 
 	return UPDATE_CONTINUE;
+}
+
+
+static void GetNonStaticRecursive(std::vector<GameObject*>& drawObjects, GameObject* obj)
+{
+	if (obj->GetStatic() == false)
+		drawObjects.push_back(obj); 
+	 
+	for (auto& child : obj->childObjects)
+		GetNonStaticRecursive(drawObjects, child); 
+
 }
 
 void SmileScene::DrawObjects()
 {
-	// collect candidates to be drawn: search for octree nodes inside frustrum 
-	std::vector<GameObject*> drawObjects;
+	// 1) collect static candidates to be drawn: search for octree nodes inside frustrum 
+	static std::vector<GameObject*> drawObjects;
 	App->spatial_tree->CollectCandidatesA(drawObjects, App->renderer3D->targetCamera->calcFrustrum);
 
-	// then test the own objects OBBs with the frustrum
+	// 2) add non-static ones 
+	GetNonStaticRecursive(drawObjects, rootObj); 
+
+	// (debug)
+	objectCandidatesBeforeFrustrumPrune = drawObjects.size();
+
+	// 3) then test all of their OBBs with the frustrum
 	App->renderer3D->targetCamera->PruneInsideFrustrum(drawObjects);
+
+	// (debug)
+	objectCandidatesAfterFrustrumPrune = drawObjects.size();
 
 	for (auto& obj : drawObjects)
 		obj->Draw();
@@ -113,8 +130,16 @@ void SmileScene::DrawObjects()
 	drawObjects.clear(); 
 }
 
+update_status SmileScene::PostUpdate(float dt)
+{
+	rootObj->PostUpdate(); 
+	return UPDATE_CONTINUE;
+}
 void SmileScene::HandleGizmo()
 {
+	if (selectedObj == nullptr)
+		return; 
+
 	static ImGuizmo::OPERATION op = ImGuizmo::OPERATION::TRANSLATE;
 	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_DOWN)
 		op = ImGuizmo::OPERATION::ROTATE;
@@ -126,16 +151,20 @@ void SmileScene::HandleGizmo()
 	if (selectedObj != nullptr)
 	{
 		ImGuizmo::Enable(true);
-		ImGuizmo::SetDrawlist();
-
-		float view[16], projection[16], object[16]; 
-		std::memcpy(view, debugCamera->GetViewMatrixTransposed(), sizeof(float) * 16);
-		std::memcpy(projection, App->renderer3D->GetProjectionMatrixTransposed(), sizeof(float) * 16);
-		std::memcpy(object, selectedObj->GetTransform()->GetGlobalMatrix().Transposed().ptr(), sizeof(float) * 16);
+	    
+		float4x4 object = selectedObj->GetTransform()->GetGlobalMatrix().Transposed(); 
+		mat4x4 view = debugCamera->GetViewMatrixTransposedA();
+		mat4x4 proj = App->renderer3D->GetProjectionMatrixTransposedA(); 
+		float4x4 diff;
+		
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-		ImGuizmo::Manipulate(view, projection, op, mode, object);
+		ImGuizmo::SetDrawlist();
+		ImGuizmo::Manipulate(view.M, proj.M, op, mode, object.ptr(), diff.ptr());
+
+		if (ImGuizmo::IsUsing() && !diff.IsIdentity())
+			selectedObj->GetTransform()->SetLocalMatrix(object.Transposed());
 	}
 	else
 		ImGuizmo::Enable(false);
@@ -304,7 +333,7 @@ ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 	{
 		// Get the mesh  
 		ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH));
-		ModelMeshData* mesh_info = (mesh) ? mesh->GetMeshData() : nullptr;
+		ModelMeshData* mesh_info = (mesh) ? mesh->GetResourceMesh()->model_mesh : nullptr;
 		if (mesh_info == nullptr)
 			continue;
 		// Find intersection then with mesh triangles

@@ -1,8 +1,12 @@
 #pragma once
 
 #include "SmileModule.h"
-#include "Resource.h"
 #include <map>
+
+class Resource;
+enum Resource_Type;
+class ResourceMesh; 
+class ResourceTexture; 
 
 class SmileResourceManager : public SmileModule
 {
@@ -16,12 +20,19 @@ public:
 
 	// The real stuff
 	SmileUUID Find(const char* file_in_assets) const;
-	SmileUUID ImportFile(const char* new_file_in_assets);
 	const Resource* Get(SmileUUID id) const;
+	Resource* GetResourceByPath(const char* Path);
 	Resource* Get(SmileUUID uid);
-	Resource* CreateNewResource(Resource::Type type);
+	Resource* CreateNewResource(Resource_Type type, std::string assetPath);
+	void UpdateResourceReferenceCount(SmileUUID resource, int add); // add is either 1 or -1
 
+public: 
+	ResourceMesh* Cube;
+	ResourceMesh* Sphere;
+	ResourceTexture* checkersTexture;
 private:
 	std::map<SmileUUID, Resource*> resources;
 
+
 }; 
+

@@ -10,9 +10,7 @@
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
 #include "ComponentMaterial.h"
-#include "SmileUtilitiesModule.h"
-#include "Utility.h"
-#include "RNG.h"
+#include "ResourceMesh.h"
 #include <map>
 
 GameObject::GameObject(GameObject* parent)
@@ -35,9 +33,6 @@ GameObject::GameObject(std::string name, GameObject* parent)
 	// Name after assigning parent
 	SetName(name); 
 
-	//generating random number
-	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
-
 	// Components
 	FillComponentBuffers(); 
 	AddComponent((Component*) DBG_NEW ComponentTransform());
@@ -53,7 +48,7 @@ GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 	// Name after assigning parent
 	SetName(name);
 
-	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
+
 	// Components
 	FillComponentBuffers();
 	if (comp->type != TRANSFORM)
@@ -65,12 +60,14 @@ GameObject::GameObject(Component* comp, std::string name, GameObject* parent)
 
 GameObject::GameObject(std::vector<Component*> components, std::string name, GameObject* parent)
 {
+	// Parent-child
+	if (parent)
+		SetParent(parent);
+
 	SetName(name); 
 
 	// Components
 	FillComponentBuffers();
-
-	randomID = std::get<int>(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomValue(0, INT_MAX));
 
 	bool foundTransform = false; 
 	
@@ -164,7 +161,9 @@ void GameObject::Update()
 			obj->Update();
 	
 	// Lastly debug stuff :) 
-	Debug(); 
+	if(App->scene_intro->generalDbug)
+		Debug();
+
 }
 
 void GameObject::DrawAxis()
@@ -215,6 +214,11 @@ void GameObject::DrawAxis()
 
 void GameObject::CleanUp()
 {
+	// 0) Remove from octree!!!!
+	if (isStatic)
+		App->spatial_tree->OnStaticChange(this, false); 
+
+
 	// 1) Components 
 	for (auto& comp : components)
 		if (comp)
@@ -379,20 +383,20 @@ static float3 GetMidPoint(float* vertex, uint num_vertex)
 	return float3(c_X, c_Y, c_Z);
 }
 
-void GameObject::PositionTransformAtMeshCenter()
-{
-	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]);
-	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
-	// Setup transform local position to mesh center: do not update bounding box, previously calculated!!
-	if (mesh != nullptr && transform != nullptr)
-	{
-		float3 meshGlobalPos = /*parent->GetTransform()->GetGlobalPosition() + */GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex); 
-		transform->ChangePosition(meshGlobalPos, true, false);
-		// the mesh vertices need to be updated now!! (to be relative to the new transform)
-		//mesh->ReLocateMeshVertices();
-	}
-
-}
+//void GameObject::PositionTransformAtMeshCenter()
+//{
+//	auto mesh = dynamic_cast<ComponentMesh*>(components[MESH]);
+//	auto transform = dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
+//	// Setup transform local position to mesh center: do not update bounding box, previously calculated!!
+//	if (mesh != nullptr && transform != nullptr)
+//	{
+//		float3 meshGlobalPos = /*parent->GetTransform()->GetGlobalPosition() + */GetMidPoint(mesh->GetMeshData()->vertex, mesh->GetMeshData()->num_vertex); 
+//		transform->ChangePosition(meshGlobalPos, true, false);
+//		// the mesh vertices need to be updated now!! (to be relative to the new transform)
+//		//mesh->ReLocateMeshVertices();
+//	}
+//
+//}
 
 void GameObject::SetupBounding()  
 {
@@ -401,14 +405,12 @@ void GameObject::SetupBounding()
 	// No child objects = case A) 
 	if (childObjects.size() == 0)
 	{
-		ModelMeshData* data = GetMesh()->GetMeshData(); 
+		ModelMeshData* data = (GetMesh()) ? GetMesh()->GetResourceMesh()->model_mesh : nullptr;
 		if (data)
 		{
 			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
-			math::AABB temp; 
-			temp.SetNegativeInfinity();
-			temp.Enclose((math::float3*)data->vertex, data->num_vertex);
-
+			math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
+			
 			// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
 			boundingData.OBB = temp; 
 			boundingData.OBB.Transform(transfGlobalMat);
@@ -417,19 +419,19 @@ void GameObject::SetupBounding()
 			boundingData.AABB.SetNegativeInfinity();
 			boundingData.AABB.Enclose(boundingData.OBB); 
 	
+
+			return; 
 		}
 
 	}
-	else
-	{
-		transfGlobalMat = GetTransform()->GetGlobalMatrix();
+	
+	transfGlobalMat = GetTransform()->GetGlobalMatrix();
 
-		// what here haha -> for the mom an arbitrarily-sized box at the right location
-		boundingData.OBB.SetNegativeInfinity(); 
-		boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3))); 
-		boundingData.AABB.SetNegativeInfinity();
-		boundingData.AABB.Enclose(boundingData.OBB);
-	}
+	// what here haha -> for the mom an arbitrarily-sized box at the right location
+	boundingData.OBB.SetNegativeInfinity();
+	boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3)));
+	boundingData.AABB.SetNegativeInfinity();
+	boundingData.AABB.Enclose(boundingData.OBB);
 }
 
 void GameObject::UpdateBounding()

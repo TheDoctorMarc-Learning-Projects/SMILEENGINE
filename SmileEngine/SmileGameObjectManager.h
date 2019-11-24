@@ -7,6 +7,7 @@
 #include <string>
 #include "glmath.h"
 #include "ComponentCamera.h"
+#include "Resource.h"
 
 par_shapes_mesh* CreateSphere();
 par_shapes_mesh* CreateCube();
@@ -38,11 +39,11 @@ public:
 
 private: 
 	void FillMaps(); 
+	
 
 public: 
 	bool debug = false; // todo: change this with the ui to draw normals, etc 
 
 private: 
 	std::map<std::string, par_shapes_mesh*(*)()> primitiveMap;
-
 };

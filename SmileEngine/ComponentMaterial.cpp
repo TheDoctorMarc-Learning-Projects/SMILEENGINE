@@ -1,11 +1,18 @@
 #include "ComponentMaterial.h"
 #include "Glew/include/GL/glew.h"
+#include "SmileResourceManager.h"
+#include "ResourceTexture.h"
+#include "SmileApp.h"
 
-ComponentMaterial::ComponentMaterial()
+
+ComponentMaterial::ComponentMaterial(SmileUUID uid, std::string name)
 {
-	SetName("Material");
+	SetName(name);
 	type = MATERIAL;
-	textureInfo = DBG_NEW textureData; 
+	myresourceID = uid; 
+
+	// update reference counting in resource
+	App->resources->UpdateResourceReferenceCount(myresourceID, 1);
 }
 
 ComponentMaterial::~ComponentMaterial()
@@ -15,17 +22,14 @@ ComponentMaterial::~ComponentMaterial()
 
 void ComponentMaterial::CleanUp()
 {
-	CleanUpTextureData(); 
-	RELEASE(textureInfo); 
+	// update reference counting in resource
+	App->resources->UpdateResourceReferenceCount(myresourceID, -1);
 }
 
-void ComponentMaterial::CleanUpTextureData()
-{
-	if (textureInfo->texture != nullptr)
-	{
-		glDeleteTextures(1, (GLuint*)&textureInfo->texture);
-		//delete[] mesh->texture; 
-		textureInfo->id_texture = 0;
-	}
+textureData* ComponentMaterial::GetTextureData() const {
+	return dynamic_cast<ResourceTexture*>(App->resources->Get(myresourceID))->GetTextureData(); 
+}
 
+ResourceTexture* ComponentMaterial::GetResourceTexture() const {
+	return dynamic_cast<ResourceTexture*>(App->resources->Get(myresourceID)); 
 }

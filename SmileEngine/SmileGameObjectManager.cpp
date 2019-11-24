@@ -2,7 +2,10 @@
 #include "SmileSetup.h"
 #include "SmileApp.h"
 #include "Glew/include/GL/glew.h" 
-
+#include "SmileUtilitiesModule.h"
+#include "Utility.h"
+#include "RNG.h"
+#include "ResourceMesh.h"
 SmileGameObjectManager::SmileGameObjectManager(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
 	FillMaps(); 
@@ -10,6 +13,7 @@ SmileGameObjectManager::SmileGameObjectManager(SmileApp* app, bool start_enabled
 SmileGameObjectManager::~SmileGameObjectManager()
 {
 	primitiveMap.clear(); 
+	componentTypeMap.clear(); 
 }
 
 void SmileGameObjectManager::FillMaps()
@@ -33,15 +37,14 @@ void SmileGameObjectManager::FillMaps()
 // -----------------------------------------------------------------
 bool SmileGameObjectManager::Start()
 {
+
+
+
 	return true;
 }
 // -----------------------------------------------------------------
 update_status SmileGameObjectManager::Update(float dt)
 {
-	
-	GameObject* selectedObj = App->scene_intro->selectedObj; 
-	if (selectedObj)
-		selectedObj->DrawAxis(); 
 
 	return UPDATE_CONTINUE;
 }
@@ -65,20 +68,29 @@ par_shapes_mesh* SmileGameObjectManager::GeneratePrimitive(std::string type)
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(std::string name, GameObject* parent)
 {
-	return DBG_NEW GameObject(name, parent);
+	GameObject * ret;  
+	ret = DBG_NEW GameObject(name, parent);
+	ret->randomID = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(); 
+	return ret;
 }
 
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(Component* comp, std::string name, GameObject* parent)
 {
-	return DBG_NEW GameObject(comp, name, parent);
+	GameObject* ret;
+	ret = DBG_NEW GameObject(comp, name, parent);
+	ret->randomID = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID();
+	return ret; 
 }
 
 
 // -----------------------------------------------------------------
 GameObject* SmileGameObjectManager::CreateGameObject(std::vector<Component*> components, std::string name, GameObject* parent)
 {
-	return DBG_NEW GameObject(components, name, parent);
+	GameObject* ret;
+	ret = DBG_NEW GameObject(components, name, parent);
+	ret->randomID = dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID();
+	return ret;
 }
 
 
@@ -88,7 +100,7 @@ void SmileGameObjectManager::DestroyObject(GameObject* obj)
 	if (obj)
 	{
 	 
-		// 1) clean up the object himself, then clean up and release children
+		// 1) Clean myself, remove from octree, clean children (remove from octree), release children
 		obj->CleanUp(); 
 		
 		// 2) erase from parent's list 

@@ -8,6 +8,7 @@
 #include "ComponentTypes.h"
 #include "MathGeoLib/include/Geometry/AABB.h"
 #include  "MathGeoLib/include/Geometry/OBB.h"
+#include "SmileSetup.h"
 
 #define debugLineSize 1.8
 #define debugLineHead 0.3
@@ -67,11 +68,13 @@ public:
 	std::vector<GameObject*> GetImmidiateChildren() const;
 	float GetBoundingSphereRadius() const;
 	bool GetStatic() const { return isStatic; };
+ 
 	
 		// Main functions 
 	virtual void Start(); 
 	virtual void Enable(); 
 	virtual void Update();
+	void PostUpdate() { toDraw = false; for (auto& child : childObjects) child->PostUpdate(); };
 	void Draw(); 
 	virtual void Disable();
 	virtual void CleanUp(); 
@@ -84,7 +87,7 @@ public:
 
 		// Bounding and mesh stuff
 	void SetupWithMesh();  
-	void PositionTransformAtMeshCenter();
+	//void PositionTransformAtMeshCenter();
 	void SetupBounding();  
 	void UpdateBounding();
 
@@ -92,14 +95,13 @@ public:
 	void SetStatic(bool isStatic); 
 private: 
 	void Debug(); 
-
 public:
 	std::vector<GameObject*> childObjects;
 	DebugData debugData; 
-
-
-private: 
 	uint randomID;
+	bool toDraw = false;
+private: 
+
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 
 	bool active = true; 
 	bool isStatic = true; 

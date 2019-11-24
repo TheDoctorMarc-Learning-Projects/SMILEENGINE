@@ -6,9 +6,10 @@
 #include "Timer.h"
 
 // ---------------------------------------------
-Timer::Timer()
+Timer::Timer(bool start)
 {
-	Start();
+	if(start)
+		Start();
 }
 
 // ---------------------------------------------
@@ -25,9 +26,22 @@ void Timer::Stop()
 	stopped_at = SDL_GetTicks();
 }
 
+
+// ---------------------------------------------
+void Timer::Resume()
+{
+	if (running == false)
+	{
+		running = true;
+		started_at = SDL_GetTicks() - (stopped_at - started_at);
+	}
+}
+
+
 // ---------------------------------------------
 Uint32 Timer::Read()
 {
+
 	if(running == true)
 	{
 		return SDL_GetTicks() - started_at;
@@ -35,6 +49,20 @@ Uint32 Timer::Read()
 	else
 	{
 		return stopped_at - started_at;
+	}
+}
+
+
+// ---------------------------------------------
+Uint32 Timer::ReadSec()
+{
+	if (running == true)
+	{
+		return (SDL_GetTicks() - started_at) / 1000.0f;
+	}
+	else
+	{
+		return (stopped_at - started_at) / 1000.0f;
 	}
 }
 

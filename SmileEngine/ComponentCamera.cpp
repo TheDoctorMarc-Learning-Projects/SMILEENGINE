@@ -65,15 +65,20 @@ void ComponentCamera::ComputeSpatialData()
 // ----------------------------------------------------------------- 
 void ComponentCamera::Update()
 {
+
 	// If the current looking camera is not myself, fuck the logic!
 	if (App->renderer3D->targetCamera != this)
 	{
-        frustrum->DebugPlanes();
+		if (App->scene_intro->generalDbug)
+			frustrum->DebugPlanes();
+
 		return;
 	}
-	
-	float dt = App->GetDT(); 
-	ComponentTransform* transf = parent->GetTransform(); 
+	vec3 prevX = X, prevY = Y, prevZ = Z;
+	bool valid = true;
+
+	float dt = App->GetDT();
+	ComponentTransform* transf = parent->GetTransform();
 
 	// Check if the user clicks to select object 
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
@@ -114,6 +119,8 @@ void ComponentCamera::Update()
 		if (zScroll != 0)
 			newPos += Z * GetScrollSpeed(dt, zScroll);
 
+
+
 		if ((abs(newPos.x) > 0) || (abs(newPos.y) > 0) || (abs(newPos.z) > 0))
 		{
 			parent->GetTransform()->AccumulatePosition(newPos);
@@ -124,7 +131,7 @@ void ComponentCamera::Update()
 		// Rotation ----------------
 		if (App->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT && App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT)
 		{
-			float Sensitivity = 0.25f;
+			float Sensitivity = 15.f * dt;
 
 			transf->AccumulatePosition(-Reference);
 
@@ -132,35 +139,50 @@ void ComponentCamera::Update()
 			{
 				float DeltaX = (float)xWheel * Sensitivity;
 
-				X = rotate(X, DeltaX, vec3(0.0f, 1.0f, 0.0f));
-				Y = rotate(Y, DeltaX, vec3(0.0f, 1.0f, 0.0f));
-				Z = rotate(Z, DeltaX, vec3(0.0f, 1.0f, 0.0f));
+				prevX = rotate(X, DeltaX, vec3(0.0f, 1.0f, 0.0f));
+				prevY = rotate(Y, DeltaX, vec3(0.0f, 1.0f, 0.0f));
+				prevZ = rotate(Z, DeltaX, vec3(0.0f, 1.0f, 0.0f));
 			}
 
 			if (yWheel != 0)
 			{
 				float DeltaY = -(float)yWheel * Sensitivity;
 
-				Y = rotate(Y, DeltaY, X);
-				Z = rotate(Z, DeltaY, X);
+				prevY = rotate(prevY, DeltaY, prevX);
+				prevZ = rotate(prevZ, DeltaY, prevX);
 
-				if (Y.y < 0.0f)
+				if (prevY.y < 0.0f)
 				{
-					Z = vec3(0.0f, Z.y > 0.0f ? 1.0f : -1.0f, 0.0f);
-					Y = cross(Z, X);
+					prevZ = vec3(0.0f, prevZ.y > 0.0f ? 1.0f : -1.0f, 0.0f);
+					prevY = cross(prevZ, prevX);
 				}
 			}
 
-			vec3 transfPos = transf->GetPositionVec3(); 
-			vec3 target = Reference + Z * length(transfPos); 
-			transf->ChangePosition(math::float3(target.x, target.y, target.z));
+			if (!float3(prevX.x, prevX.y, prevX.z).IsFinite() || !float3(prevY.x, prevY.y, prevY.z).IsFinite()
+				|| !float3(prevZ.x, prevZ.y, prevZ.z).IsFinite())
+			{
+				valid = false;
+			}
+			else
+			{
+				X = prevX; Y = prevY; Z = prevZ;
+				vec3 transfPos = transf->GetPositionVec3();
+				vec3 target = Reference + Z * length(transfPos);
+
+				transf->ChangePosition(float3(target.x, target.y, target.z));
+			}
+
 		}
+
+		if (valid)
+		{
+			// Recalculate matrix -------------
+			frustrum->CalculatePlanes();
+			CalculateViewMatrix();
+
+		}
+
 	}
-
-	// Recalculate matrix -------------
-	frustrum->CalculatePlanes();
-	CalculateViewMatrix();
-
 }
 
 void ComponentCamera::FocusObjectLogic()
@@ -263,6 +285,13 @@ float* ComponentCamera::GetViewMatrixTransposed()
 	return &ret;
 }
 
+mat4x4 ComponentCamera::GetViewMatrixTransposedA()
+{
+	mat4x4 ret = ViewMatrix;
+	ret.transpose();
+	return ret;
+}
+
 // -----------------------------------------------------------------
 float* ComponentCamera::GetViewMatrixInverse()
 {
@@ -284,11 +313,16 @@ void ComponentCamera::CalculateViewMatrix(bool updateTransform)
 		for (int i = 0; i <= 15; ++i)
 			data[i] = ViewMatrix.M[i];
 		float4x4 mat = float4x4(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
+	
+		if (mat.IsFinite() == false)
+			return; 
+		
 		parent->GetTransform()->ChangeRotation(Quat(mat));
 	}
 
 }
 
+ 
 // -----------------------------------------------------------------
 void ComponentCamera::FitCameraToObject(GameObject* obj)
 {

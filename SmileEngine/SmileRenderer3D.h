@@ -17,10 +17,14 @@ public:
 	update_status PreUpdate(float dt);
 	update_status PostUpdate(float dt);
 	bool CleanUp();
+	bool Reset(); 
+	void SwitchCamera(); 
+	void SetTargetCamera(ComponentCamera* cam); 
 
 	void OnResize(int width, int height, ComponentCamera* targetCam);
 	float* GetProjectionMatrix(); 
 	float* GetProjectionMatrixTransposed(); 
+	mat4x4 GetProjectionMatrixTransposedA();
 public:
 	SDL_GLContext context;
 	Light lights[MAX_LIGHTS];
