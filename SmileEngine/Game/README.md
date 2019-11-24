@@ -1,22 +1,18 @@
+
 	(:D) OVERVIEW (:D)
 
+> SmileEngine is a 3D engine developed in C++, and the core orbits around SDL and OpenGL; it is targeted for Windows.
 
-SmileEngine is a 3D engine developed in C++, and the core orbits around
-SDL and OpenGL; it is targeted for Windows.
-
-
-     
 	(:D) AUTHORS (:D) 
 
 
-Marc Doctor Pedrosa: https://github.com/thedoctormarc Eric Navarro
-Santiago: https://github.com/lakaens
+> Marc Doctor Pedrosa: https://github.com/thedoctormarc 
+> Eric Navarro de Santiago: https://github.com/lakaens	
 
-     
+	(:D) INNOVATIONS (:D)
 
-	(:D) LINK TO REPO (:D) 
-
-https://github.com/thedoctormarc/SMILEENGINE
+> Octree 
+> Game Mode
 
 	(:D) INSTRUCTIONS (:D)
 Camera: 
@@ -27,23 +23,23 @@ Camera:
 UI: 
 > Top navigation bar to find all menus
 > The objects' "Hierarchy" menu will appear on the left
->The objects' "Inspector" menu will appear on the right when selected. 
+> The objects' "Inspector" menu will appear on the right when selected. 
 
 Selecting objects:
 > One click = select the GameObject
 > Another click = select the mesh inside
 
-Texture: 
-You can change the texture of an object's material by drag and dropping it
-when the mesh or object is selected.
+Transform:
+> Use keypad enter to confirm trasnformations
 
-	(:D) INNOVATIONS (:D)
-> Cool raycasts to click objects in the scene.  
+Known Bugs:
+> Gizmos
+> Textures are weird
+> Raycast offset resize
 
-> When the camera focuses objects with "F", the camera "fits" them in the screen. 
-> Camera scroll speed in the z axis is exponential according to the distance to the selected object.
-> Generic object creation instead of infinite buttons (will be expanded).
-> But can it run Crysis? 
+	(:D) LINK TO REPO (:D) 
+
+https://github.com/thedoctormarc/SMILEENGINE
 
 	(:D) LICENSE (:D) 
   
