@@ -28,6 +28,8 @@
 #include "ResourceTexture.h"
 #include <filesystem>
 
+#include "SmileGameTimeManager.h"
+
 SmileFBX::SmileFBX(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled) 
 {
 
@@ -65,6 +67,9 @@ bool SmileFBX::CleanUp()
 
 void SmileFBX::Load(const char* path, std::string extension)
 {
+	if (TimeManager::IsPlaying())
+		return; 
+
 	if (IsModelExtension(extension) == true)
 	{
 		if (IsOwnModelExtension(extension) == false) // 1) If FBX not in folder, push it to folder. 2) If .model does not exist, generate it

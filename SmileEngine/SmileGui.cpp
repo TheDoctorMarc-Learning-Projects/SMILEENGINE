@@ -797,7 +797,7 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		{
 			// General info
 			ImGui::TextColored(c, selected->GetName().c_str());
-			static bool isStatic = selected->GetStatic(); 
+			bool isStatic = selected->GetStatic(); 
 			if (ImGui::Checkbox("Static", &isStatic))
 				selected->SetStatic(isStatic); 
 

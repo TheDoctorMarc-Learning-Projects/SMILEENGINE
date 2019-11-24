@@ -45,10 +45,6 @@ bool SmileGameObjectManager::Start()
 // -----------------------------------------------------------------
 update_status SmileGameObjectManager::Update(float dt)
 {
-	
-	GameObject* selectedObj = App->scene_intro->selectedObj; 
-	/*if (selectedObj)
-		selectedObj->DrawAxis(); */
 
 	return UPDATE_CONTINUE;
 }

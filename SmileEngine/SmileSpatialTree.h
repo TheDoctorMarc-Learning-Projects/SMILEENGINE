@@ -44,13 +44,21 @@ public:
 		}
 	}
 
+	// used with frustrum in scene draw 
 	template<typename PRIMITIVE>
 	void CollectCandidatesA(std::vector<GameObject*>& gameObjects, const PRIMITIVE& primitive)
 	{
 		if (primitive.Intersects(AABB))
 		{
 			for (auto& obj : insideObjs)
-					gameObjects.push_back(obj);
+			{
+				if (obj->toDraw == false)  // must use a flag so the same obj is not pushed more than once (by other nodes)
+				{
+					gameObjects.push_back(obj); 
+					obj->toDraw = true;
+				}
+			}
+					
 
 			if (IsLeaf() == false)
 			{

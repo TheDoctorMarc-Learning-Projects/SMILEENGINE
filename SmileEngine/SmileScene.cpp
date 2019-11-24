@@ -95,19 +95,33 @@ update_status SmileScene::Update(float dt)
 	return UPDATE_CONTINUE;
 }
 
+
+static void GetNonStaticRecursive(std::vector<GameObject*>& drawObjects, GameObject* obj)
+{
+	if (obj->GetStatic() == false)
+		drawObjects.push_back(obj); 
+	 
+	for (auto& child : obj->childObjects)
+		GetNonStaticRecursive(drawObjects, child); 
+
+}
+
 void SmileScene::DrawObjects()
 {
-	// collect candidates to be drawn: search for octree nodes inside frustrum 
+	// 1) collect static candidates to be drawn: search for octree nodes inside frustrum 
 	static std::vector<GameObject*> drawObjects;
 	App->spatial_tree->CollectCandidatesA(drawObjects, App->renderer3D->targetCamera->calcFrustrum);
 
-	// debug
+	// 2) add non-static ones 
+	GetNonStaticRecursive(drawObjects, rootObj); 
+
+	// (debug)
 	objectCandidatesBeforeFrustrumPrune = drawObjects.size();
 
-	// then test the own objects OBBs with the frustrum
+	// 3) then test all of their OBBs with the frustrum
 	App->renderer3D->targetCamera->PruneInsideFrustrum(drawObjects);
 
-	// debug
+	// (debug)
 	objectCandidatesAfterFrustrumPrune = drawObjects.size();
 
 	for (auto& obj : drawObjects)
@@ -116,6 +130,11 @@ void SmileScene::DrawObjects()
 	drawObjects.clear(); 
 }
 
+update_status SmileScene::PostUpdate(float dt)
+{
+	rootObj->PostUpdate(); 
+	return UPDATE_CONTINUE;
+}
 void SmileScene::HandleGizmo()
 {
 	if (selectedObj == nullptr)

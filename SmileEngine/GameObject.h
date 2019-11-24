@@ -68,11 +68,13 @@ public:
 	std::vector<GameObject*> GetImmidiateChildren() const;
 	float GetBoundingSphereRadius() const;
 	bool GetStatic() const { return isStatic; };
+ 
 	
 		// Main functions 
 	virtual void Start(); 
 	virtual void Enable(); 
 	virtual void Update();
+	void PostUpdate() { toDraw = false; for (auto& child : childObjects) child->PostUpdate(); };
 	void Draw(); 
 	virtual void Disable();
 	virtual void CleanUp(); 
@@ -93,12 +95,11 @@ public:
 	void SetStatic(bool isStatic); 
 private: 
 	void Debug(); 
-
 public:
 	std::vector<GameObject*> childObjects;
 	DebugData debugData; 
 	uint randomID;
-
+	bool toDraw = false;
 private: 
 
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> components; // each component type has either one element or a vector 
