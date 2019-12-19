@@ -27,6 +27,10 @@ public:
 	void UpdateResourceReferenceCount(SmileUUID resource, int add); // add is either 1 or -1
 
 public: 
+	Resource* CreateMaterialFromPath(const char* path); 
+
+public: 
+	ResourceMesh* Plane; 
 	ResourceMesh* Cube;
 	ResourceMesh* Sphere;
 	ResourceTexture* checkersTexture;

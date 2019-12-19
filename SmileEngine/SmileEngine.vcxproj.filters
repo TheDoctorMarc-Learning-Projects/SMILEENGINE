@@ -28,9 +28,6 @@
     <Filter Include="Source\Modules\Objects\Components">
       <UniqueIdentifier>{b0f2f073-f558-468c-be37-2b482c0f11d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Objects\Components\Help">
-      <UniqueIdentifier>{390fd344-c8f1-4f58-84d3-191b3812c0fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\Objects\GameObjects">
       <UniqueIdentifier>{673905ac-cd3b-46b9-9d42-04b5db8fad3b}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,15 @@
     </Filter>
     <Filter Include="Source\Modules\Basic">
       <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\Resources\helper">
+      <UniqueIdentifier>{41158fea-cb3e-4eb0-ae50-3be4efed87d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\Components\helper">
+      <UniqueIdentifier>{390fd344-c8f1-4f58-84d3-191b3812c0fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\helper">
+      <UniqueIdentifier>{dea3f1b1-dbb8-4e36-8f49-edee8a5ca4e9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -139,7 +145,7 @@
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
     <ClInclude Include="ComponentTypes.h">
-      <Filter>Source\Modules\Objects\Components\Help</Filter>
+      <Filter>Source\Modules\Objects\Components\helper</Filter>
     </ClInclude>
     <ClInclude Include="SafetyHandler.h">
       <Filter>Source\Tools</Filter>
@@ -174,12 +180,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Source\Modules\Objects\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="SmileMaterialImporter.h">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileFileSystem.h">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="SmileSerialization.h">
       <Filter>Source\Modules\Objects\Managers</Filter>
     </ClInclude>
@@ -194,6 +194,21 @@
     </ClInclude>
     <ClInclude Include="parshapes\par_shapes.h">
       <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource_Include.h">
+      <Filter>Source\Modules\Objects\Resources\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Component_Include.h">
+      <Filter>Source\Modules\Objects\Components\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources_Components_Include.h">
+      <Filter>Source\Modules\Objects\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileFileSystem.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileMaterialImporter.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -290,12 +305,6 @@
     <ClCompile Include="SmileResourceManager.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
     </ClCompile>
-    <ClCompile Include="SmileMaterialImporter.cpp">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileFileSystem.cpp">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="SmileSerialization.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
     </ClCompile>
@@ -307,6 +316,12 @@
     </ClCompile>
     <ClCompile Include="parshapes\par_shapes.cpp">
       <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileFileSystem.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileMaterialImporter.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

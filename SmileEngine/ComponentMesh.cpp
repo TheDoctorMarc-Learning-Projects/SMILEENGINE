@@ -37,74 +37,126 @@ ComponentMesh::~ComponentMesh()
 
 void ComponentMesh::Draw()
 {
-	auto model_mesh = dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID))->model_mesh;
-	// Draw the OpenGL mesh 
-	if (model_mesh != nullptr)  
+	auto resource = dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID)); 
+	auto model_mesh = resource->model_mesh;
+	auto own_mesh = resource->own_mesh;
+
+	if (model_mesh == nullptr && own_mesh == nullptr)
+		return; 
+
+	DrawBegin();
+	(model_mesh) ? DefaultDraw(model_mesh) : OwnDraw(own_mesh);
+	DrawEnd(); 
+}
+
+void ComponentMesh::DrawBegin()
+{
+	// Transformation  
+	glPushMatrix();
+	glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr());
+
+	// Cient states
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnable(GL_ALPHA_TEST);
+}
+
+void ComponentMesh::DrawEnd()
+{
+	// Disable Cient states && clear data
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glAlphaFunc(GL_EQUAL, (GLclampf)1.f);
+	glDisable(GL_ALPHA_TEST);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	// Debug on top
+	/*if (App->scene_intro->generalDbug)
+		DebugDraw();*/
+
+	// Transformation
+	glPopMatrix();
+}
+
+void ComponentMesh::DefaultDraw(ModelMeshData* model_mesh)
+{
+	// vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
+	glVertexPointer(3, GL_FLOAT, 0, NULL);
+
+	// index buffer 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
+
+	// Material
+	ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
+	if (mat != nullptr)
 	{
-		// Transformation  
-		glPushMatrix(); 
-		glMultMatrixf(dynamic_cast<ComponentTransform*>(parent->GetComponent(TRANSFORM))->GetGlobalMatrix().Transposed().ptr()); 
-
-		// Cient states
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnable(GL_ALPHA_TEST);
-
-		// vertex buffer
-		glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
-		glVertexPointer(3, GL_FLOAT, 0, NULL);
-
-		// index buffer 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model_mesh->id_index);
-
-		// Material
-		ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
-		if (mat != nullptr)
+		// UVs buffer
+		if (model_mesh->UVs != nullptr)
 		{
-			// UVs buffer
-			if (model_mesh->UVs != nullptr)
-			{
-				// texture buffer
-				glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
+			// texture buffer
+			glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
 
-				// Alpha Testing
-				glAlphaFunc(GL_GREATER, (GLclampf)GetParent()->GetMaterial()->GetTextureData()->transparency);
+			// Alpha Testing
+			glAlphaFunc(GL_GREATER, (GLclampf)GetParent()->GetMaterial()->GetMaterialData()->transparency);
 
-				// Uvs
-				glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
-				glTexCoordPointer(2, GL_FLOAT,0, NULL);
-
-			}
+			// Uvs
+			glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
+			glTexCoordPointer(2, GL_FLOAT, 0, NULL);
 
 		}
-	
-		// normal buffer
-		if (model_mesh->normals != nullptr)
-		{
-			glBindBuffer(GL_NORMAL_ARRAY, model_mesh->id_normals);
-			glNormalPointer(GL_FLOAT, 0, NULL);
-		}
 
-		// Draw // unsigned short for primitives???
-		glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, GL_UNSIGNED_INT, NULL); 
-
-		// Disable Cient states && clear data
-		glColor3f(1.0f, 1.0f, 1.0f);
-		glAlphaFunc(GL_EQUAL, (GLclampf)1.f);
-		glDisable(GL_ALPHA_TEST); 
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
-
-	    // Debug on top
-		if(App->scene_intro->generalDbug)
-			DebugDraw();
-	
-		// Transformation
-		glPopMatrix(); 
 	}
+
+	// normal buffer
+	if (model_mesh->normals != nullptr)
+	{
+		glBindBuffer(GL_NORMAL_ARRAY, model_mesh->id_normals);
+		glNormalPointer(GL_FLOAT, 0, NULL);
+	}
+
+	// Draw // unsigned short for primitives???
+	glDrawElements(GL_TRIANGLES, model_mesh->num_index * 3, GL_UNSIGNED_INT, NULL);
+}
+
+void ComponentMesh::OwnDraw(ownMeshData* data)
+{
+	// Material
+	ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(parent->GetComponent(MATERIAL));
+
+	if (mat)
+	{
+		glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
+		// Alpha Testing
+		glAlphaFunc(GL_GREATER, (GLclampf)GetParent()->GetMaterial()->GetMaterialData()->transparency);
+	}
+		
+
+	switch (data->type)
+	{
+	case ownMeshType::plane:
+	{
+		glBegin(GL_QUADS); 
+		for (int i = 0; i < data->points.size(); i += 2)
+		{
+			if(mat && !data->uvCoords.empty())
+				glTexCoord2f(data->uvCoords.at(i), data->uvCoords.at(i + 1)); 
+		
+			glVertex2f(data->points.at(i), data->points.at(i + 1));
+		}
+		glEnd(); 
+		break; 
+	}
+	default:
+		break;
+	}
+
+	if (mat)
+		glBindTexture(GL_TEXTURE_2D,0);
+
 }
 
 void ComponentMesh::DebugDraw()

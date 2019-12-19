@@ -68,6 +68,10 @@ void ResourceMesh::FreeMemory()
 
 		RELEASE(model_mesh);
 	}
+
+
+	if (own_mesh != nullptr)
+		RELEASE(own_mesh); 
 }
 
 AABB ResourceMesh::GetEnclosingAABB()
@@ -116,4 +120,25 @@ void ResourceMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 	}
 
 	par_shapes_free_mesh(mesh);
+}
+
+void ResourceMesh::GenerateModelMeshFromOwnType(ownMeshType type)
+{
+	if (own_mesh != nullptr)
+		return;
+	own_mesh = DBG_NEW ownMeshData;
+	own_mesh->type = type; 
+
+	switch (type)
+	{
+	case plane:
+		own_mesh->size = 1.f; 
+		own_mesh->points = { 0, own_mesh->size, 0, 0, own_mesh->size, 0, own_mesh->size, own_mesh->size};
+		own_mesh->uvCoords = { 0,1,0,0,1,0,1,1 };
+		break;
+	case no_type:
+		break;
+	default:
+		break;
+	}
 }

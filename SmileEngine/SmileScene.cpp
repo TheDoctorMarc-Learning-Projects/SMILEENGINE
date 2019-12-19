@@ -30,7 +30,7 @@
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
 
-#include "SmileGameTimeManager.h"
+#include "Resources_Components_Include.h"
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {

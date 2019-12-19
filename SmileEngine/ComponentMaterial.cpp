@@ -13,17 +13,21 @@ ComponentMaterial::ComponentMaterial(SmileUUID uid, std::string name)
 
 	// update reference counting in resource
 	App->resources->UpdateResourceReferenceCount(myresourceID, 1);
+
+	materialData = DBG_NEW MaterialData; 
 }
 
 ComponentMaterial::~ComponentMaterial()
 {
-
+	RELEASE(materialData); 
 }
 
 void ComponentMaterial::CleanUp()
 {
 	// update reference counting in resource
 	App->resources->UpdateResourceReferenceCount(myresourceID, -1);
+
+	materialData->transparency = 0.f; 
 }
 
 textureData* ComponentMaterial::GetTextureData() const {

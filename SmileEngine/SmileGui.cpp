@@ -293,7 +293,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		{
 				// Create a mesh and an object
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Cube->GetUID(), "CubeMesh");
-				GameObject* obj = App->object_manager->CreateGameObject(mesh, "CUBE", App->scene_intro->rootObj);
+				GameObject* obj = App->object_manager->CreateGameObject(mesh, "Cube", App->scene_intro->rootObj);
 				obj->Start();
 
 				// TODO: check this ok
@@ -305,12 +305,28 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		{
 			// Create a mesh and an object
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Sphere->GetUID(), "SphereMesh");
-			GameObject* obj = App->object_manager->CreateGameObject(mesh, "SPHERE", App->scene_intro->rootObj);
+			GameObject* obj = App->object_manager->CreateGameObject(mesh, "Sphere", App->scene_intro->rootObj);
 			obj->Start();
 
 			// TODO: check this ok
 			App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
 
+
+		}
+
+		if (ImGui::MenuItem("Create Plane"))
+		{
+			// Create a mesh and an object
+			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "PlaneMesh");
+			GameObject* obj = App->object_manager->CreateGameObject(mesh, "Plane", App->scene_intro->rootObj);
+			obj->GetTransform()->ChangeScale(float3(10, 10, 10));
+			obj->Start();
+
+			// just testing
+			App->fbx->AssignTextureToObj(std::string(LIBRARY_TEXTURES_FOLDER_A + std::string("grass.dds")).c_str(), obj);
+
+			// TODO: check this ok -> if used by particles, no static !!!
+			App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
 
 		}
 		
@@ -783,8 +799,8 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		return;
 
 
-	ImGui::SetNextWindowSize(ImVec2(400, 500));
-	ImGui::SetNextWindowPos(ImVec2(870, 250));
+/*	ImGui::SetNextWindowSize(ImVec2(400, 500));
+	ImGui::SetNextWindowPos(ImVec2(870, 250));*/
 
 
 	static bool showInspector = true;
@@ -897,7 +913,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			if (ImGui::Button("Change Texture to checkers")) 
 				App->fbx->AssignCheckersTextureToObj(mat->GetParent());
 
-			ImGui::SliderFloat("Transparency", &data->transparency, 0.f, 1.f); 
+			ImGui::SliderFloat("Transparency", &mat->GetMaterialData()->transparency, 0.f, 1.f); 
 				
 	
 			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height)); 

@@ -12,6 +12,9 @@
 
 void ResourceTexture::LoadOnMemory(const char* path)
 {
+	if (!path)
+		path = filePath.c_str(); 
+
 	FreeMemory(); 
 
 	textureInfo = DBG_NEW textureData; 

@@ -80,7 +80,8 @@ void SmileFBX::Load(const char* path, std::string extension)
 	}
 	else if (IsTextureExtension(extension) == true)
 	{
-		auto hoverObj = std::get<GameObject*>(App->scene_intro->MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, false)); 
+		auto hoverObj = std::get<GameObject*>(App->scene_intro->MouseOverMesh(App->input->GetMouseX(), 
+				App->input->GetMouseY(), false, false)); 
 		if(hoverObj)
 			AssignTextureToObj(path, hoverObj);
 	}
@@ -746,6 +747,3 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	std::string dirPath;
 	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, obj->GetName().c_str(), "json");
 }
-
-
-

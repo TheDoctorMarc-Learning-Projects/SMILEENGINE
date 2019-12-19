@@ -91,6 +91,7 @@
     <ClInclude Include="ComponentMesh.h" />
     <ClInclude Include="ComponentTransform.h" />
     <ClInclude Include="ComponentTypes.h" />
+    <ClInclude Include="Component_Include.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="ComponentCamera.h" />
     <ClInclude Include="glmath.h" />
@@ -103,8 +104,10 @@
     <ClInclude Include="pcg\include\pcg_random.hpp" />
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Resources_Components_Include.h" />
     <ClInclude Include="ResourceTexture.h" />
     <ClInclude Include="ResourceMesh.h" />
+    <ClInclude Include="Resource_Include.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="SafetyHandler.h" />
     <ClInclude Include="SmileApp.h" />
