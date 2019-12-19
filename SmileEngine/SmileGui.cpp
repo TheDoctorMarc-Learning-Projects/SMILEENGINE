@@ -896,6 +896,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			}
 			if (ImGui::Button("Change Texture to checkers")) 
 				App->fbx->AssignCheckersTextureToObj(mat->GetParent());
+
+			ImGui::SliderFloat("Transparency", &data->transparency, 0.f, 1.f); 
+				
 	
 			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height)); 
 

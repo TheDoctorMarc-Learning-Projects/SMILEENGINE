@@ -22,6 +22,7 @@ struct textureData
 	std::string path = "empty";
 	ILubyte* texture = nullptr;
 	std::string format = "empty"; 
+	float transparency = 1.f; 
 };
 
 // AABBs

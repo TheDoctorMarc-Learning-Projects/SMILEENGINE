@@ -75,9 +75,16 @@ void SmileFBX::Load(const char* path, std::string extension)
 		if (IsOwnModelExtension(extension) == false) // 1) If FBX not in folder, push it to folder. 2) If .model does not exist, generate it
 			LoadFBX(path);
 		else
-			LoadModel(path); 
+			LoadModel(path);
 
-    }
+	}
+	else if (IsTextureExtension(extension) == true)
+	{
+		auto hoverObj = std::get<GameObject*>(App->scene_intro->MouseOverMesh(App->input->GetMouseX(), App->input->GetMouseY(), false, false)); 
+		if(hoverObj)
+			AssignTextureToObj(path, hoverObj);
+	}
+
 }
 
 // ---------------------------------------------
@@ -337,20 +344,28 @@ ModelMeshData* SmileFBX::FillMeshBuffers(aiMesh* new_mesh, ModelMeshData* mesh_i
 // ---------------------------------------------
 void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 {
-	std::string full_path, cleanPath, file; 
+	std::string full_path = "", cleanPath = "", file = ""; 
 	App->fs->SplitFilePath(path, &full_path, &cleanPath, &file);
 
+	// Gather or create the resource
 	ResourceTexture* res = (ResourceTexture*)App->resources->GetResourceByPath(path);
-
-	if (res)
-		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Material"));
-	else
+	if (res == nullptr)
 	{
 		res = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, path);
 		res->LoadOnMemory(path);
-		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Material"));
 	}
 
+	// If the object had no material, create it. Otherwise, make it point to the new texture 
+	auto objMat = obj->GetMaterial();
+	auto targetMat = (objMat) ? objMat : DBG_NEW ComponentMaterial(res->GetUID(), "Material");
+	if (targetMat != objMat)
+		obj->AddComponent((Component*)targetMat); 
+	else
+	{
+		targetMat->CleanUp(); // substract 1 to the previous texture resource count
+		App->resources->UpdateResourceReferenceCount(targetMat->myresourceID = res->GetUID(), 1); // now the material has a new resource texture id
+	}
+		
 }
 
 
@@ -493,7 +508,7 @@ std::string SmileFBX::SaveMaterial(const char* path)
 		size = ilSaveL(IL_DDS, NULL, 0);
 		if (size > 0) {
 			data = DBG_NEW ILubyte[size];
-			iluFlipImage();
+		//	iluFlipImage();
 			if (ilSaveL(IL_DDS, data, size) > 0)
 				App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, rawname.c_str(), "dds");
 
@@ -562,8 +577,13 @@ bool SmileFBX::LoadModel(const char* path)
 			AssignTextureToObj(materialPath.c_str(), child); 
 
 
+		// JUST TESTING 
+		transf->ChangeScale(float3(1, 1, 1)); 
+
 	}
 
+	// JUST TESTING 
+	parentObj->GetTransform()->ChangeRotation(Quat(float3(1,0,0), 90 * DEGTORAD)); 
 
 	// Add to octree!!! (adds recursive!!)
 	parentObj->Start();

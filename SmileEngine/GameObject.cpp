@@ -261,6 +261,7 @@ bool GameObject::AddComponent(Component* comp)
 	return false;
 } 
 
+
 void GameObject::SetParent(GameObject* parent)
 {
 	if (parent) 

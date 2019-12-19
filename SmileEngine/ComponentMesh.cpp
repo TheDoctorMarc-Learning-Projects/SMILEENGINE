@@ -49,6 +49,7 @@ void ComponentMesh::Draw()
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnable(GL_ALPHA_TEST);
 
 		// vertex buffer
 		glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);
@@ -67,6 +68,10 @@ void ComponentMesh::Draw()
 				// texture buffer
 				glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
 
+				// Alpha Testing
+				glAlphaFunc(GL_EQUAL, (GLclampf)GetParent()->GetMaterial()->GetTextureData()->transparency);
+
+				// Uvs
 				glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);
 				glTexCoordPointer(2, GL_FLOAT,0, NULL);
 
@@ -86,6 +91,8 @@ void ComponentMesh::Draw()
 
 		// Disable Cient states && clear data
 		glColor3f(1.0f, 1.0f, 1.0f);
+		glAlphaFunc(GL_EQUAL, (GLclampf)1.f);
+		glDisable(GL_ALPHA_TEST); 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);

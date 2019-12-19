@@ -79,6 +79,13 @@ static bool IsOwnModelExtension(std::string extension) {
 	return false; 
 }
 
+static bool IsTextureExtension(std::string extension)
+{
+	if (extension == "dds" || extension == "png" || extension == "DDS" || extension == "PNG")
+		return true;
+	return false;
+}
+
 // Buffers -----------
 // Deletes a buffer
 #define RELEASE( x ) \
