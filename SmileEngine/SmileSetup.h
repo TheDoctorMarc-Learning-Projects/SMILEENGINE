@@ -81,7 +81,7 @@ static bool IsOwnModelExtension(std::string extension) {
 
 static bool IsTextureExtension(std::string extension)
 {
-	if (extension == "dds" || extension == "png" || extension == "DDS" || extension == "PNG")
+	if (extension == "dds" || extension == "png" || extension == "jpg" || extension == "JPG" || extension == "DDS" || extension == "PNG")
 		return true;
 	return false;
 }

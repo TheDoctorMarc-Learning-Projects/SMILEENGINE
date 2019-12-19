@@ -29,7 +29,7 @@ void ResourceTexture::LoadOnMemory(const char* path)
 		if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)*/
 			iluFlipImage();
 
-		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+		ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
 
 		glGenTextures(1, (GLuint*)&textureInfo->id_texture);
@@ -81,10 +81,10 @@ void ResourceTexture::LoadCheckersOnMemory()
 		}
 	}
 
-	ILinfo img_info;
+	/*ILinfo img_info;
 	iluGetImageInfo(&img_info);
 
-	if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
+	if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)*/
 		iluFlipImage();
 
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);

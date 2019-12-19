@@ -69,7 +69,7 @@ void ComponentMesh::Draw()
 				glBindTexture(GL_TEXTURE_2D, mat->GetTextureData()->id_texture);
 
 				// Alpha Testing
-				glAlphaFunc(GL_EQUAL, (GLclampf)GetParent()->GetMaterial()->GetTextureData()->transparency);
+				glAlphaFunc(GL_GREATER, (GLclampf)GetParent()->GetMaterial()->GetTextureData()->transparency);
 
 				// Uvs
 				glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_UVs);

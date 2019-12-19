@@ -104,7 +104,6 @@ static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene)
 
 void SmileFBX::LoadFBX(const char* path)
 {
-	GameObject* ret; 
 	char rawname[100];
 	const aiScene* scene = OnFBXImport(path, rawname);
 	bool success = scene && scene->HasMeshes(); 
@@ -576,14 +575,7 @@ bool SmileFBX::LoadModel(const char* path)
 		if (materialPath != "Empty")
 			AssignTextureToObj(materialPath.c_str(), child); 
 
-
-		// JUST TESTING 
-		transf->ChangeScale(float3(1, 1, 1)); 
-
 	}
-
-	// JUST TESTING 
-	parentObj->GetTransform()->ChangeRotation(Quat(float3(1,0,0), 90 * DEGTORAD)); 
 
 	// Add to octree!!! (adds recursive!!)
 	parentObj->Start();
