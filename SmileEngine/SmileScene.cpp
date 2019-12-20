@@ -333,9 +333,11 @@ ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 	{
 		// Get the mesh  
 		ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH));
-		ModelMeshData* mesh_info = (mesh) ? mesh->GetResourceMesh()->model_mesh : nullptr;
-		if (mesh_info == nullptr)
+		auto mesh_inf = mesh->GetResourceMesh()->GetMeshData(); 
+		if (mesh_inf.index() == 1 || std::get<ModelMeshData*>(mesh_inf) == nullptr) // TODO: this skips own meshes (Plane etc) so either consider them or do not have them clickable (particle planes)
 			continue;
+
+		auto mesh_info = std::get<ModelMeshData*>(mesh_inf);
 		// Find intersection then with mesh triangles
 		for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 		{

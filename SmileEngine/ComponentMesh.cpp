@@ -38,14 +38,9 @@ ComponentMesh::~ComponentMesh()
 void ComponentMesh::Draw()
 {
 	auto resource = dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID)); 
-	auto model_mesh = resource->model_mesh;
-	auto own_mesh = resource->own_mesh;
-
-	if (model_mesh == nullptr && own_mesh == nullptr)
-		return; 
-
+	auto mesh_data = resource->GetMeshData(); 
 	DrawBegin();
-	(model_mesh) ? DefaultDraw(model_mesh) : OwnDraw(own_mesh);
+	(mesh_data.index() == 0) ? DefaultDraw(std::get<ModelMeshData*>(mesh_data)) : OwnDraw(std::get<ownMeshData*>(mesh_data));
 	DrawEnd(); 
 }
 
@@ -159,9 +154,9 @@ void ComponentMesh::OwnDraw(ownMeshData* data)
 
 }
 
-void ComponentMesh::DebugDraw()
+void ComponentMesh::DebugDraw() // should consider the new mesh type
 {
-	auto model_mesh = dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID))->model_mesh;
+/*	auto model_mesh = dynamic_cast<ResourceMesh*>(App->resources->Get(myresourceID))->model_mesh;
 		if (model_mesh->normals != nullptr)
 		{
 			// draw vertex normals
@@ -255,7 +250,7 @@ void ComponentMesh::DebugDraw()
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}*/
 		
-
+	
 }
 
 // -----------------------------------------------------------------

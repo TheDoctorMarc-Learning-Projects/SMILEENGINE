@@ -1,5 +1,6 @@
 #include "SmileResourceManager.h"
 #include "ResourceMesh.h"
+#include "ResourceMeshPlane.h"
 #include "ResourceTexture.h"
 #include "Resource.h"
 #include "SmileUtilitiesModule.h"
@@ -21,7 +22,7 @@ bool SmileResourceManager::Start()
 	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
 	Sphere->SetPreset(true);
 
-	Plane = DBG_NEW ResourceMesh(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default");
+	Plane = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default");
 	resources.insert(std::pair<SmileUUID, Resource*>(Plane->GetUID(), (Resource*)Plane));
 	Plane->SetPreset(true); 
 

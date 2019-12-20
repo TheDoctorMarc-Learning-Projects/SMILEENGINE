@@ -76,9 +76,15 @@ void ResourceMesh::FreeMemory()
 
 AABB ResourceMesh::GetEnclosingAABB()
 {
-	math::AABB ret;
+	math::AABB ret = math::AABB();
 	ret.SetNegativeInfinity();
-	ret.Enclose((math::float3*)model_mesh->vertex, model_mesh->num_vertex);
+	if (model_mesh)
+		ret.Enclose((math::float3*)model_mesh->vertex, model_mesh->num_vertex);
+	else
+	{
+		// TODO ??
+	}
+
 	return ret; 
 }
 
@@ -120,25 +126,4 @@ void ResourceMesh::GenerateModelMeshFromParShapes(par_shapes_mesh* mesh)
 	}
 
 	par_shapes_free_mesh(mesh);
-}
-
-void ResourceMesh::GenerateModelMeshFromOwnType(ownMeshType type)
-{
-	if (own_mesh != nullptr)
-		return;
-	own_mesh = DBG_NEW ownMeshData;
-	own_mesh->type = type; 
-
-	switch (type)
-	{
-	case plane:
-		own_mesh->size = 1.f; 
-		own_mesh->points = { 0, own_mesh->size, 0, 0, own_mesh->size, 0, own_mesh->size, own_mesh->size};
-		own_mesh->uvCoords = { 0,1,0,0,1,0,1,1 };
-		break;
-	case no_type:
-		break;
-	default:
-		break;
-	}
 }

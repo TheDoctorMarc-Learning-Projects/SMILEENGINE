@@ -211,9 +211,8 @@ void SmileFBX::LoadFBXnode(aiNode* node, const aiScene* scene)
 		aiMesh* aiMesh = scene->mMeshes[node->mMeshes[i]]; 
 
 		// Mesh
-		ModelMeshData* mesh_info = FillMeshBuffers(aiMesh, DBG_NEW ModelMeshData());
 		ResourceMesh* resMesh = dynamic_cast<ResourceMesh*>(App->resources->CreateNewResource(RESOURCE_MESH, "empty"));
-		resMesh->model_mesh = mesh_info;
+		resMesh->model_mesh = FillMeshBuffers(aiMesh, DBG_NEW ModelMeshData());
 		ComponentMesh* mesh = DBG_NEW ComponentMesh(resMesh->GetUID(), "Mesh");
 
 		// Materials

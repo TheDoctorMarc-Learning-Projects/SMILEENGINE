@@ -406,24 +406,25 @@ void GameObject::SetupBounding()
 	// No child objects = case A) 
 	if (childObjects.size() == 0)
 	{
-		ModelMeshData* data = (GetMesh()) ? GetMesh()->GetResourceMesh()->model_mesh : nullptr;
-		if (data)
-		{
-			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
-			math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
-			
-			// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
-			boundingData.OBB = temp; 
-			boundingData.OBB.Transform(transfGlobalMat);
-
-			// Now calculate the real AABB: it must "contain" or "encompass" the OBB
-			boundingData.AABB.SetNegativeInfinity();
-			boundingData.AABB.Enclose(boundingData.OBB); 
-	
-
+		if (GetMesh() == nullptr)
 			return; 
-		}
+		
+		// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
+		math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
 
+		if (temp.IsFinite() == false || temp.IsDegenerate() == true)
+			return; 
+
+		// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
+		boundingData.OBB = temp;
+		boundingData.OBB.Transform(transfGlobalMat);
+
+		// Now calculate the real AABB: it must "contain" or "encompass" the OBB
+		boundingData.AABB.SetNegativeInfinity();
+		boundingData.AABB.Enclose(boundingData.OBB);
+
+		return;
+	
 	}
 	
 	transfGlobalMat = GetTransform()->GetGlobalMatrix();

@@ -210,6 +210,9 @@
     <ClInclude Include="SmileMaterialImporter.h">
       <Filter>Source\Modules\Objects\Managers</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceMeshPlane.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -322,6 +325,9 @@
     </ClCompile>
     <ClCompile Include="SmileMaterialImporter.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceMeshPlane.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

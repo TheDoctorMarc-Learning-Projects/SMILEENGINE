@@ -319,10 +319,9 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			// Create a mesh and an object
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "PlaneMesh");
 			GameObject* obj = App->object_manager->CreateGameObject(mesh, "Plane", App->scene_intro->rootObj);
-			obj->GetTransform()->ChangeScale(float3(10, 10, 10));
 			obj->Start();
 
-			// just testing
+			// TODO: TEST, REMOVE THIS 
 			App->fbx->AssignTextureToObj(std::string(LIBRARY_TEXTURES_FOLDER_A + std::string("grass.dds")).c_str(), obj);
 
 			// TODO: check this ok -> if used by particles, no static !!!
@@ -925,7 +924,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
 			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mesh->GetResourceMesh()->GetReferenceCount())).c_str());
-			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetResourceMesh()->model_mesh->num_vertex)).c_str());
+			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetResourceMesh()->GetNumVertex())).c_str());
 			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetParent()->GetBoundingSphereRadius())).c_str());
 			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");
 			ImGui::Text(std::string("Type: " + type).c_str());

@@ -4,6 +4,7 @@
 #include "ComponentMesh.h"
 #include "MathGeoLib/include/Geometry/AABB.h" 
 #include "parshapes/par_shapes.h"
+#include "variant"
 
 enum ownMeshType { plane, no_type };
 
@@ -38,13 +39,14 @@ public:
 	friend class ComponentMesh;
 };
 
-struct ownMeshData // todo, this is actually only worth for a plane
+// This should handle more than just the plane type
+struct ownMeshData
 {
-public: 
+public:
 	float size = 0.f;
-	std::array<float,8> uvCoords; 
-	std::array<float, 8> points; // x,y
-	ownMeshType type; 
+	std::array<float, 8> uvCoords;
+	std::array<float, 8> points;
+	ownMeshType type;
 };
 
 class ResourceMesh : public Resource
@@ -53,19 +55,32 @@ public:
 
 	ResourceMesh(SmileUUID uuid, Resource_Type type, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) {};
 	ResourceMesh(SmileUUID uuid, par_shapes_mesh* parshapes, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) { GenerateModelMeshFromParShapes(parshapes); };
-	ResourceMesh(SmileUUID uuid, ownMeshType type, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) { GenerateModelMeshFromOwnType(type); };
+	ResourceMesh(SmileUUID uuid, ownMeshType type, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) {};
 	ResourceMesh(SmileUUID uuid, ModelMeshData* model_mesh, std::string path) : Resource(uuid, Resource_Type::RESOURCE_MESH, path) { this->model_mesh = model_mesh; };
 	virtual ~ResourceMesh() {};
 
-
+	// Create stuff
 	void LoadOnMemory(const char* path = { 0 });
 	void FreeMemory();
 	AABB GetEnclosingAABB(); 
 	void GenerateModelMeshFromParShapes(par_shapes_mesh* mesh);
-	void GenerateModelMeshFromOwnType(ownMeshType type);
+	virtual void GenerateOwnMeshData() {};
 
-public:
-	ModelMeshData* model_mesh = nullptr;
-	ownMeshData* own_mesh = nullptr; 
-	
+	// getters
+	std::variant<ModelMeshData*, ownMeshData*> GetMeshData()
+	{
+		if (model_mesh)
+			return model_mesh;
+		else if (own_mesh)
+			return own_mesh; 
+		return (ModelMeshData*)nullptr;
+	};
+
+	uint GetNumVertex() { return (GetMeshData().index() == 0) ? model_mesh->num_vertex : own_mesh->points.size(); };
+
+protected:
+	ModelMeshData* model_mesh = nullptr;  
+	ownMeshData* own_mesh = nullptr;
+
+	friend class SmileFBX; 
 };
