@@ -37,23 +37,23 @@
     <Filter Include="Source\Modules\Objects\GameObjects\Template">
       <UniqueIdentifier>{8c4ec64b-97fd-4050-9792-261a9a2ca2df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Advanced">
-      <UniqueIdentifier>{fa2139e7-a954-4905-9c3d-506e470deaf2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\Objects\Resources">
       <UniqueIdentifier>{b2d8de6c-f669-462d-bfee-93ba80f03981}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Modules\Basic">
       <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Objects\Resources\helper">
-      <UniqueIdentifier>{41158fea-cb3e-4eb0-ae50-3be4efed87d6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\Objects\Components\helper">
       <UniqueIdentifier>{390fd344-c8f1-4f58-84d3-191b3812c0fd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Modules\Objects\helper">
       <UniqueIdentifier>{dea3f1b1-dbb8-4e36-8f49-edee8a5ca4e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\Resources\Helper">
+      <UniqueIdentifier>{41158fea-cb3e-4eb0-ae50-3be4efed87d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Particles">
+      <UniqueIdentifier>{fa2139e7-a954-4905-9c3d-506e470deaf2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -120,9 +120,6 @@
     <ClInclude Include="glmath.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="SmileGui.h">
       <Filter>Source\Modules\Basic</Filter>
     </ClInclude>
@@ -168,9 +165,6 @@
     <ClInclude Include="ComponentCamera.h">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
-    <ClInclude Include="SmileSpatialTree.h">
-      <Filter>Source\Modules\Advanced</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\ImGuizmo.h">
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
@@ -196,7 +190,7 @@
       <Filter>Source\Tools</Filter>
     </ClInclude>
     <ClInclude Include="Resource_Include.h">
-      <Filter>Source\Modules\Objects\Resources\helper</Filter>
+      <Filter>Source\Modules\Objects\Resources\Helper</Filter>
     </ClInclude>
     <ClInclude Include="Component_Include.h">
       <Filter>Source\Modules\Objects\Components\helper</Filter>
@@ -210,8 +204,20 @@
     <ClInclude Include="SmileMaterialImporter.h">
       <Filter>Source\Modules\Objects\Managers</Filter>
     </ClInclude>
+    <ClInclude Include="SmileSpatialTree.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
     <ClInclude Include="ResourceMeshPlane.h">
-      <Filter>Source\Modules\Objects\Resources</Filter>
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeTransform.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeBillBoard.h">
+      <Filter>Source\Modules\Particles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -260,9 +266,6 @@
     <ClCompile Include="SmileSetup.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Source\Tools</Filter>
-    </ClCompile>
     <ClCompile Include="SmileGui.cpp">
       <Filter>Source\Modules\Basic</Filter>
     </ClCompile>
@@ -299,9 +302,6 @@
     <ClCompile Include="ComponentCamera.cpp">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClCompile>
-    <ClCompile Include="SmileSpatialTree.cpp">
-      <Filter>Source\Modules\Advanced</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\ImGuizmo.cpp">
       <Filter>Source\Tools\GUI</Filter>
     </ClCompile>
@@ -326,8 +326,14 @@
     <ClCompile Include="SmileMaterialImporter.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="SmileSpatialTree.cpp">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClCompile>
     <ClCompile Include="ResourceMeshPlane.cpp">
-      <Filter>Source\Modules\Objects\Resources</Filter>
+      <Filter>Source\Modules\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source\Modules\Particles</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

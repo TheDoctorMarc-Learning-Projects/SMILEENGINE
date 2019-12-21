@@ -8,7 +8,6 @@
 #include "ComponentTypes.h"
 #include "MathGeoLib/include/Geometry/AABB.h"
 #include  "MathGeoLib/include/Geometry/OBB.h"
-#include "SmileSetup.h"
 
 #define debugLineSize 1.8
 #define debugLineHead 0.3
@@ -27,9 +26,11 @@ struct BoundingData
 
 struct DebugData
 {
-	bool AABB = true; 
-	bool OBB = true; 
+	bool AABB = false; 
+	bool OBB = false; 
 };
+
+class FreeBillBoard; 
 
 // ----------------------------------------------------------------- [GameObject]
 class GameObject
@@ -39,7 +40,7 @@ public:
 	GameObject(std::string name = "no name", GameObject* parent = nullptr);  
 	GameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
 	GameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
-	~GameObject() {}; 
+	~GameObject(); 
 
 private:
 	void FillComponentBuffers();
@@ -108,6 +109,9 @@ private:
 	std::string name; 
 	GameObject* parent = nullptr; 
 	BoundingData boundingData; 
+
+	// may have one of these
+	FreeBillBoard* billboard = nullptr; 
 
 	friend class SmileGameObjectManager; 
 	friend class ComponentCamera; 

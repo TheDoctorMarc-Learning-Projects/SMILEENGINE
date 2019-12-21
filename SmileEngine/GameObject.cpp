@@ -12,6 +12,13 @@
 #include "ComponentMaterial.h"
 #include "ResourceMesh.h"
 #include <map>
+#include "FreeBillBoard.h"
+
+GameObject::~GameObject()
+{
+	if (billboard)
+		RELEASE(billboard);
+}
 
 GameObject::GameObject(GameObject* parent)
 {
@@ -509,8 +516,17 @@ void GameObject::ShowTransformInspector()
 	ImGui::InputFloat3("Scale", s); // , 0, 500);
 
 	// (info)
-	ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
+	ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
+	ImGui::Text(std::string("Global Rotation: " + GetStringFrom3Values(transf->GetGlobalMatrix().RotatePart().ToEulerXYZ(), true)).c_str());
+	ImGui::Text(std::string("Global Scale: " + GetStringFrom3Values(transf->GetGlobalMatrix().GetScale(), true)).c_str());
 
+
+	// Billboard
+	if (ImGui::Button("Add Billboard", ImVec2(100, 20)))
+		if (billboard == nullptr)
+			billboard = DBG_NEW FreeBillBoard(FreeBillBoard::Alignment::world, App->scene_intro->gameCamera->GetViewMatrixF(), transf);
+	
+	
 	if (keyState != KEY_DOWN)
 		return;
 

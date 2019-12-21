@@ -1,5 +1,4 @@
 #include "ComponentMaterial.h"
-#include "Glew/include/GL/glew.h"
 #include "SmileResourceManager.h"
 #include "ResourceTexture.h"
 #include "SmileApp.h"

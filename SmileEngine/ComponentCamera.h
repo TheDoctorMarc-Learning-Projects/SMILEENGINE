@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MathGeoLib/include/Math/float3.h"
+#include "MathGeoLib/include/Math/float4x4.h"
 #include "MathGeoLib/include/Math/float2.h"
 #include "MathGeoLib/include/Geometry/Frustum.h"
 
@@ -90,6 +91,7 @@ public:
 
 	// Getters
 	float* GetViewMatrix();
+	math::float4x4 GetViewMatrixF() const { return ViewMatrixF; };
 	float* GetViewMatrixTransposed();
 	mat4x4 GetViewMatrixTransposedA();
 	float* GetViewMatrixInverse();
@@ -105,6 +107,7 @@ private:
 
 private:
 	mat4x4 ViewMatrix, ViewMatrixInverse;
+	math::float4x4 ViewMatrixF; 
 	Frustrum* frustrum = nullptr;
 	renderingData _renderingData;
 

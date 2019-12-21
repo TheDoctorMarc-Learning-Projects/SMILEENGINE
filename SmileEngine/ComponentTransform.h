@@ -1,12 +1,6 @@
 #pragma once
 
 #include "Component.h"
-
-#include "Assimp/include/quaternion.h"
-#include "Assimp/include/vector3.h"
-
-#pragma comment (lib, "Assimp/libx86/assimp.lib")
-
 #include "glmath.h"
 #include "MathGeoLib/include/MathGeoLib.h"
 
@@ -31,7 +25,6 @@ public:
 	void SetGlobalMatrix(float4x4 mat); 
 	void ChangeRotation(Quat q); 
 	void ChangePosition(float3 pos, bool recalculateMatrixes = true, bool updateBounding = true);
-	void SetGlobalPosition(float3 pos);
 	void AccumulatePosition(vec3 delta);
 	void ChangeScale(float3 scale); 
 	void SetupTransform(float4x4 localMat);
