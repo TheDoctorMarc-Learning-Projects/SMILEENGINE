@@ -2,7 +2,7 @@
 
 #include "MathGeoLib/include/Math/float4x4.h"
 
-class FreeTransform
+class FreeTransform  
 {
 public:
 	FreeTransform(float4x4 parentMatrix) : parentMatrix(parentMatrix) {};
@@ -12,7 +12,7 @@ private:
 
 	float4x4 globalMatrix;
 	float4x4 localMatrix;
-	float4x4 parentMatrix; 
+	float4x4 parentMatrix = float4x4::identity; 
 
 public: 
 	float4x4 GetGlobalMatrix() const { return globalMatrix; };
