@@ -57,9 +57,7 @@ public:
 private:
 	float4x4 GetMatrix()const { return (transf.index() == 0) ? std::get<FreeTransform*>(transf)->GetGlobalMatrix() : std::get<ComponentTransform*>(transf)->GetGlobalMatrix(); };
 
-public:
+private:
 	Alignment alignment = Alignment::noAlignment;
-
-private: 
 	std::variant<FreeTransform*, ComponentTransform*> transf;
 };

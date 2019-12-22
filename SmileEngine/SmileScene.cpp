@@ -176,20 +176,14 @@ void SmileScene::DrawGrid()
 	glLineWidth(lineWidth);
 	glColor3f(1, 1, 1);
 	glBegin(GL_LINES);
-	for (float i = 0; i < MAXLINES; i++)
+	for (float i = 0; i <= MAXLINES; i++)
 	{
-		if(i == 15)
-			glColor3f(0.2f, 1.0f, 0.2f);
-		else
-			glColor3f(1, 1, 1);
-
 		glVertex3f(i - MAXLINES * linesLength, 0, -MAXLINES * linesLength);
 		glVertex3f(i - MAXLINES * linesLength, 0, MAXLINES * linesLength);
 		glVertex3f(-MAXLINES * linesLength, 0, i - MAXLINES * linesLength);
 		glVertex3f(MAXLINES * linesLength, 0, i - MAXLINES * linesLength);
 	}
 	glEnd();
-	glColor3f(1, 1, 1);
 	glLineWidth(lineWidth);
 
 }

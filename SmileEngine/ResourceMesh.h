@@ -46,7 +46,6 @@ public:
 	float size = 0.f;
 	std::array<float, 8> uvCoords;
 	std::array<float, 8> points;
-	std::array<float, 12> points3D;
 	ownMeshType type;
 };
 
@@ -76,8 +75,6 @@ public:
 			return own_mesh; 
 		return (ModelMeshData*)nullptr;
 	};
-
-	float* GetVertexBuffer() { return (GetMeshData().index() == 0) ? model_mesh->vertex : own_mesh->points3D.data(); };
 
 	uint GetNumVertex() { return (GetMeshData().index() == 0) ? model_mesh->num_vertex : own_mesh->points.size(); };
 
