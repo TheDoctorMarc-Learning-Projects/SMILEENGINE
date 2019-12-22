@@ -89,6 +89,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentMaterial.h" />
     <ClInclude Include="ComponentMesh.h" />
+    <ClInclude Include="ComponentParticleEmitter.h" />
     <ClInclude Include="ComponentTransform.h" />
     <ClInclude Include="ComponentTypes.h" />
     <ClInclude Include="Component_Include.h" />
@@ -144,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="ComponentMaterial.cpp" />
     <ClCompile Include="ComponentMesh.cpp" />
+    <ClCompile Include="ComponentParticleEmitter.cpp" />
     <ClCompile Include="ComponentTransform.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="ComponentCamera.cpp" />
