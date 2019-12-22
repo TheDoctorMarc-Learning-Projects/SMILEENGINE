@@ -319,8 +319,9 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			// Create a mesh and an object
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "PlaneMesh");
 			GameObject* obj = App->object_manager->CreateGameObject(mesh, "Plane", App->scene_intro->rootObj);
+			obj->GetTransform()->ChangeScale(float3(10.f, 10.f, 10.f)); 
 			obj->Start();
-
+			
 			// TODO: TEST, REMOVE THIS 
 			App->fbx->AssignTextureToObj(std::string(LIBRARY_TEXTURES_FOLDER_A + std::string("grass.dds")).c_str(), obj);
 

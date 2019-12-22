@@ -31,18 +31,22 @@ public:
 			break; 
 		case FreeBillBoard::Alignment::screen:
 		{
-			fwd = cam.WorldZ().Neg();
+			fwd = cam.WorldZ().Normalized().Neg();
 			up = cam.WorldY().Normalized();
 			right = up.Cross(fwd).Normalized(); 
-		}
+
 			break;
+		}
+		
 		case FreeBillBoard::Alignment::world:
 		{
 			fwd = float3(cam.TranslatePart() - myMatrix.TranslatePart()).Normalized();
 			right = cam.WorldY().Normalized().Cross(fwd).Normalized();
 			up = fwd.Cross(right).Normalized();
-		}
+
 			break;
+		}
+		
 		default:
 			break;
 		}

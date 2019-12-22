@@ -92,6 +92,7 @@ public:
 	// Getters
 	float* GetViewMatrix();
 	math::float4x4 GetViewMatrixF() const { return ViewMatrixF; };
+	math::float4x4 GetViewMatrixFinverse() const { return ViewMatrixFInverse; };
 	float* GetViewMatrixTransposed();
 	mat4x4 GetViewMatrixTransposedA();
 	float* GetViewMatrixInverse();
@@ -107,7 +108,7 @@ private:
 
 private:
 	mat4x4 ViewMatrix, ViewMatrixInverse;
-	math::float4x4 ViewMatrixF; 
+	math::float4x4 ViewMatrixF, ViewMatrixFInverse; 
 	Frustrum* frustrum = nullptr;
 	renderingData _renderingData;
 

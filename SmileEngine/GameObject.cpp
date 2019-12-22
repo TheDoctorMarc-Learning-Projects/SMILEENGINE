@@ -498,6 +498,7 @@ void GameObject::ShowTransformInspector()
 {
 	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
 
+	
 	auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
 	{
 		return std::string(
@@ -508,6 +509,19 @@ void GameObject::ShowTransformInspector()
 	};
 
 	ComponentTransform* transf = GetTransform();
+
+	// reset
+	if (ImGui::Button("Reset"))
+	{
+		transf->ChangePosition(float3::zero); 
+		transf->ChangeScale(float3::one); 
+		transf->ChangeRotation(Quat::identity); 
+
+			if (billboard)
+				RELEASE(billboard);
+	}
+
+
 	math::float3 pos = transf->GetPosition();
 	math::float3 rot = transf->GetRotation().ToEulerXYZ();
 	math::float3 degRot = RadToDeg(rot);
@@ -515,9 +529,9 @@ void GameObject::ShowTransformInspector()
 	float p[3] = { pos.x, pos.y, pos.z };
 	float r[3] = { degRot.x, degRot.y, degRot.z };
 	float s[3] = { sc.x, sc.y, sc.z };
-	ImGui::SliderFloat3("Position", p, -500, 500);
+	ImGui::InputFloat3("Position", p);
 	ImGui::SliderFloat3("Rotation", r , -359.999, 359.999);
-	ImGui::SliderFloat3("Scale", s, 0, 500);
+	ImGui::InputFloat3("Scale", s);
 
 	// (info)
 	ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());

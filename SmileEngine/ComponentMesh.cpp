@@ -152,6 +152,17 @@ void ComponentMesh::OwnDraw(ownMeshData* data)
 	if (mat)
 		glBindTexture(GL_TEXTURE_2D,0);
 
+
+	// test debug
+	glBegin(GL_POINTS); 
+	glPointSize(20); 
+	glColor3f(1, 0, 0); 
+	for (int i = 0; i < data->points.size(); i += 2)
+		glVertex3f(data->points[i], data->points[i + 1], GetParent()->GetTransform()->GetGlobalPosition().z); 
+	glEnd(); 
+	glColor3f(1, 1, 1);
+	glPointSize(1);
+
 }
 
 void ComponentMesh::DebugDraw() // should consider the new mesh type
