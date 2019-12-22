@@ -33,15 +33,9 @@ public:
 			break;
 		case FreeBillBoard::Alignment::world:
 		{
-			/*fwd = (cam.TranslatePart() - myMatrix.TranslatePart()).Normalized();
-			float3 camUp = cam.WorldY().Normalized();
-			right = Cross(camUp, fwd).Normalized();
-			up = Cross(fwd, right).Normalized();*/
-
 			fwd = float3(cam.TranslatePart() - myMatrix.TranslatePart()).Normalized();
 			right = cam.WorldY().Normalized().Cross(fwd).Normalized();
 			up = fwd.Cross(right).Normalized();
-
 		}
 			break;
 		default:

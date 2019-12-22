@@ -166,6 +166,10 @@ void GameObject::Update()
 	for (auto& obj : childObjects)
 		if(obj->IsActive())
 			obj->Update();
+
+	// Testing billboard
+	if (billboard)
+		billboard->Update(App->scene_intro->gameCamera->GetViewMatrixF()); 
 	
 	// Lastly debug stuff :) 
 	if(App->scene_intro->generalDbug)
@@ -511,9 +515,9 @@ void GameObject::ShowTransformInspector()
 	float p[3] = { pos.x, pos.y, pos.z };
 	float r[3] = { degRot.x, degRot.y, degRot.z };
 	float s[3] = { sc.x, sc.y, sc.z };
-	ImGui::InputFloat3("Position", p); // , -500, 500);
-	ImGui::InputFloat3("Rotation", r); // , -359.999, 359.999);
-	ImGui::InputFloat3("Scale", s); // , 0, 500);
+	ImGui::SliderFloat3("Position", p, -500, 500);
+	ImGui::SliderFloat3("Rotation", r , -359.999, 359.999);
+	ImGui::SliderFloat3("Scale", s, 0, 500);
 
 	// (info)
 	ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
@@ -527,8 +531,8 @@ void GameObject::ShowTransformInspector()
 			billboard = DBG_NEW FreeBillBoard(FreeBillBoard::Alignment::world, App->scene_intro->gameCamera->GetViewMatrixF(), transf);
 	
 	
-	if (keyState != KEY_DOWN)
-		return;
+/*	if (keyState != KEY_DOWN)
+		return;*/
 
 	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
 	float radR[3] = { radRot.x, radRot.y, radRot.z };
