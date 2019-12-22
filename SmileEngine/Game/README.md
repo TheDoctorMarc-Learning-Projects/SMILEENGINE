@@ -42,8 +42,6 @@ Known Bugs:
 https://github.com/thedoctormarc/SMILEENGINE
 
 	(:D) LICENSE (:D) 
-  
-	(warning: long!)
 
 
          GNU GENERAL PUBLIC LICENSE

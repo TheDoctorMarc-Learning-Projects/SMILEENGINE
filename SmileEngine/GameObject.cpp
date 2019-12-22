@@ -526,9 +526,42 @@ void GameObject::ShowTransformInspector()
 
 
 	// Billboard
-	if (ImGui::Button("Add Billboard", ImVec2(100, 20)))
-		if (billboard == nullptr)
-			billboard = DBG_NEW FreeBillBoard(FreeBillBoard::Alignment::world, App->scene_intro->gameCamera->GetViewMatrixF(), transf);
+	if (billboard == nullptr)
+	{
+		if (ImGui::CollapsingHeader("Add Billboard"))
+		{
+			auto alignment = FreeBillBoard::Alignment::noAlignment; 
+			if (ImGui::Button("Axis", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::axis; 
+			if (ImGui::Button("Screen", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::screen;
+			if (ImGui::Button("World", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::world;
+
+			if(alignment != FreeBillBoard::Alignment::noAlignment)
+				billboard = DBG_NEW FreeBillBoard(alignment, App->scene_intro->gameCamera->GetViewMatrixF(), transf);
+		}
+
+	}
+	else
+	{
+		if (ImGui::CollapsingHeader("Edit Billboard"))
+		{
+			auto alignment = FreeBillBoard::Alignment::noAlignment;
+			if (ImGui::Button("Axis", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::axis;
+			if (ImGui::Button("Screen", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::screen;
+			if (ImGui::Button("World", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::world;
+			if (ImGui::Button("Delete", ImVec2(100, 20)))
+				RELEASE(billboard);
+
+			if (alignment != FreeBillBoard::Alignment::noAlignment)
+				billboard->alignment = alignment; 
+		}
+	}
+
 	
 	
 /*	if (keyState != KEY_DOWN)

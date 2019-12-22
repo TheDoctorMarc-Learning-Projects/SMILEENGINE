@@ -219,6 +219,9 @@
     <ClInclude Include="FreeBillBoard.h">
       <Filter>Source\Modules\Particles</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentParticleEmitter.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -333,6 +336,9 @@
       <Filter>Source\Modules\Particles</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentParticleEmitter.cpp">
       <Filter>Source\Modules\Particles</Filter>
     </ClCompile>
   </ItemGroup>
