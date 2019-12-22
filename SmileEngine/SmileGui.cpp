@@ -323,7 +323,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			obj->Start();
 			
 			// TODO: TEST, REMOVE THIS 
-			App->fbx->AssignTextureToObj(std::string(LIBRARY_TEXTURES_FOLDER_A + std::string("grass.dds")).c_str(), obj);
+			App->fbx->AssignTextureToObj(std::string(LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds")).c_str(), obj);
 
 			// TODO: check this ok -> if used by particles, no static !!!
 			App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
