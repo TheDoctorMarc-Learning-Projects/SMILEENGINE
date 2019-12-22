@@ -30,11 +30,6 @@ public:
 		case FreeBillBoard::Alignment::axis:
 			break; 
 		case FreeBillBoard::Alignment::screen:
-		{
-			fwd = cam.WorldZ().Neg();
-			up = cam.WorldY().Normalized();
-			right = up.Cross(fwd).Normalized(); 
-		}
 			break;
 		case FreeBillBoard::Alignment::world:
 		{
