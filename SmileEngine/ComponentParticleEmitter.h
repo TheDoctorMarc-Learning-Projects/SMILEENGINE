@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 class FreeTransform; 
 class FreeBillBoard; 
@@ -23,4 +23,4 @@ public:
 private: 
 	Particle particles[150]; 
 
-};
+};*/
