@@ -52,7 +52,10 @@ bool SmileScene::Start()
 
 	// Test emitter here: 
 	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", rootObj);
-	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter));
+	EmissionData data; 
+	data.time = 0.1f; 
+	data.randomSpeed = std::pair(true, std::pair(float3(-0.2f, 0.2f, -0.2f), float3(0.5f, 0.5f, 0.5f)));
+	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));
 	
 	return true;
 }

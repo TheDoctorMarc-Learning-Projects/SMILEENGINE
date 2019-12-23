@@ -13,6 +13,10 @@
 #include "FreeBillBoard.h"
 #include "FreeTransform.h"
 
+struct randomData
+{
+	float3 speed = float3::inf; 
+};
 struct CurrentState
 {
 	bool active;
@@ -23,6 +27,9 @@ struct CurrentState
 	float4 color;
 	// anim frame ? 
 	float tex;
+
+	// Stuff that is random (per-particle= can be stored here for updation:
+	randomData randomData;
 };
 
 struct Particle
@@ -38,8 +45,8 @@ struct Particle
 struct InitialState
 {
 	// This Variables will be updated each frame if they have value over time (Current order: 0->5)
-	std::pair<float, float> life = std::pair(100.f, 1.f);
-	std::pair<float3,float3> speed = std::pair(float3::one, float3::one);
+	std::pair<float, float> life = std::pair(1.f, 1.f);
+	std::pair<float3, float3> speed = std::pair(float3::zero, float3::zero); 
 	std::pair<float, float> size = std::pair(1.f, 0.f);
 	std::pair<float, float> alpha = std::pair(1.f, 0.f);
 	std::pair<float4, float4> color = std::pair(float4::zero, float4::zero);
@@ -54,14 +61,19 @@ enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
 // This struct has it all: 
 struct EmissionData
 {
+	// Generation
 	uint_fast8_t maxParticles = 100;
 	bool loop = true;
+	std::pair<bool, std::variant<float3, std::pair<float3, float3>>> randomSpeed; 
 	float time = 0.5f, currenTime = 0.f, angle = 0.f, radius = 1.f;
+	emmissionShape shape = emmissionShape::CONE;
 
+	// Initial State
+	InitialState initialState;
+
+	// Modes
 	blendMode blendmode = blendMode::ADDITIVE; 
 	lightMode lightmode = lightMode::NONE; // TODO: how to handle this? light settings should be supported in a struct
-	emmissionShape shape = emmissionShape::CONE;
-	InitialState initialState; 
 };
 
 
@@ -74,8 +86,8 @@ class GameObject;
 class ComponentParticleEmitter: public Component
 {
 public: 
-	ComponentParticleEmitter(GameObject* parent, EmissionData emissionData);
-	ComponentParticleEmitter(GameObject* parent); 
+	ComponentParticleEmitter(GameObject* parent); // Default emitter
+	ComponentParticleEmitter(GameObject* parent, EmissionData emissionData); // User defined 
 	~ComponentParticleEmitter();
 
 public: 
@@ -86,6 +98,7 @@ private:
 	void Draw(); 
 	void SpawnParticle(); 
 	float3 GetSpawnPos(); 
+	float3 GetRandomRange(float3& toModify, std::variant<float3, std::pair<float3, float3>> ranges);
 	inline void SpeedUpdate(Particle& p, float dt);
 	inline void LifeUpdate(Particle& p, float dt);
 
