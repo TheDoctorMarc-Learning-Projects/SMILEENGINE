@@ -2,6 +2,9 @@
 #include <random>
 #include "SmileSetup.h"
 
+
+pcg32 RNG::rng;  // <---- define static here
+
 bool RNG::Initialize()
 {
 	LOG("Initializing PCG");

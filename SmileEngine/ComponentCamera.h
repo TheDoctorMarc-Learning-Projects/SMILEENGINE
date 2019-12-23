@@ -76,7 +76,7 @@ public:
 	~ComponentCamera();
 
 
-	void Update(); 
+	void Update(float dt = 0); 
 	
 	// Do stuff 
 	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference = false);

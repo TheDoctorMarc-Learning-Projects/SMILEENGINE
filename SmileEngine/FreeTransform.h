@@ -2,12 +2,8 @@
 
 #include "MathGeoLib/include/Math/float4x4.h"
 
-class FreeTransform  
+struct FreeTransform  
 {
-public:
-	FreeTransform(float4x4 parentMatrix) : parentMatrix(parentMatrix) {};
-	FreeTransform() {}; 
-	~FreeTransform() {}; 
 private: 
 
 	float4x4 globalMatrix;
@@ -28,4 +24,5 @@ public:
 		localMatrix = parentMatrix.Inverted() * (globalMatrix = matrix);
 	}
   
+	friend class ComponentParticleEmitter; 
 };

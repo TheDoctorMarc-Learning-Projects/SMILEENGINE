@@ -7,9 +7,11 @@
 
 #include "MathGeoLib/include/Math/float4.h"
 
+#include "Component.h"
 
-class FreeTransform;
-class FreeBillBoard;
+
+#include "FreeBillBoard.h"
+#include "FreeTransform.h"
 
 struct CurrentState
 {
@@ -25,8 +27,8 @@ struct CurrentState
 
 struct Particle
 {
-	/*FreeTransform transf;
-	FreeBillBoard billboard;*/
+	FreeTransform transf;
+	FreeBillBoard billboard;
 	CurrentState currentState;
 };
 
@@ -35,54 +37,66 @@ struct Particle
 
 struct InitialState
 {
-	// Particle Variables
-	bool active = false;
-
 	// This Variables will be updated each frame if they have value over time (Current order: 0->5)
-	std::pair<float, std::variant<float, bool>> life = std::pair(100.f, 1.f);
-	std::pair<float3, std::variant<float3, bool>> speed = std::pair(float3::one, float3::one);
-	std::pair<float, std::variant<float, bool>> size = std::pair(1.f, 0.f);
-	std::pair<float, std::variant<float, bool>> alpha = std::pair(1.f, 0.f);
-	std::pair<float4, std::variant<float4, bool>> color = std::pair(float4::zero, float4::zero);
-	std::pair<float, std::variant<float, bool>> tex = std::pair(0.f, 0.f);
+	std::pair<float, float> life = std::pair(100.f, 1.f);
+	std::pair<float3,float3> speed = std::pair(float3::one, float3::one);
+	std::pair<float, float> size = std::pair(1.f, 0.f);
+	std::pair<float, float> alpha = std::pair(1.f, 0.f);
+	std::pair<float4, float4> color = std::pair(float4::zero, float4::zero);
+	std::pair<float, float> tex = std::pair(0.f, 0.f);
 
 };
 
-struct emissionData
+enum class emmissionShape { CIRCLE, CUBE, CONE }; // ... 
+enum class blendMode { ADDITIVE, ALPHA_BLEND };
+enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
+
+// This struct has it all: 
+struct EmissionData
 {
 	uint_fast8_t maxParticles = 100;
 	bool loop = true;
-	float rate = 1.f; 
+	float time = 0.5f, currenTime = 0.f, angle = 0.f, radius = 1.f;
+
+	blendMode blendmode = blendMode::ADDITIVE; 
+	lightMode lightmode = lightMode::NONE; // TODO: how to handle this? light settings should be supported in a struct
+	emmissionShape shape = emmissionShape::CONE;
+	InitialState initialState; 
 };
 
-enum emmissionShape { CIRCLE, CUBE, CONE };
-struct emmssionMode { emmissionShape shape; float angle, radius; };
 
 class ComponentParticleEmitter; 
 typedef void (ComponentParticleEmitter::*function)(Particle& p, float dt);
 
-class ComponentParticleEmitter
+class ResourceMesh; 
+class ResourceMaterial; 
+class GameObject; 
+class ComponentParticleEmitter: public Component
 {
 public: 
-	ComponentParticleEmitter(InitialState initialState);
+	ComponentParticleEmitter(GameObject* parent, EmissionData emissionData);
+	ComponentParticleEmitter(GameObject* parent); 
 	~ComponentParticleEmitter();
-public: 
-	enum blendMode{ ADDITIVE, ALPHA_BLEND };
-	enum lightMode { PER_EMITTER, PER_PARTICLE, NONE}; // TODO: how to handle this?
-	emmssionMode emmissionMode;
-	emissionData emissionData; 
 
 public: 
-	void Update(float dt); 
+	void Update(float dt = 0); 
+	void CleanUp(); 
 
 private: 
 	void Draw(); 
+	void SpawnParticle(); 
+	float3 GetSpawnPos(); 
 	inline void SpeedUpdate(Particle& p, float dt);
 	inline void LifeUpdate(Particle& p, float dt);
 
 private: 
-	std::vector<Particle> particles; 
-	InitialState initialState;
+	uint_fast8_t lastUsedParticle = 0;
+	std::vector<Particle> particles; // how to fill this? what about the size?
+	EmissionData emissionData;
 	std::map<uint_fast8_t, function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
-
+	ResourceMesh* mesh = nullptr; 
+	ResourceMaterial* mat = nullptr;  
 };
+
+
+

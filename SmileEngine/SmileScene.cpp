@@ -49,6 +49,10 @@ bool SmileScene::Start()
 
 	// Scene -> must already have cameras and it also created octree
     App->serialization->LoadScene("Library/Scenes/scene.json", true);
+
+	// Test emitter here: 
+	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", rootObj);
+	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter));
 	
 	return true;
 }
@@ -81,7 +85,7 @@ bool SmileScene::Reset() // similar, but root needs a transform after being clea
 // Update
 update_status SmileScene::Update(float dt)
 {
-	rootObj->Update(); 
+	rootObj->Update(dt); 
 	DrawObjects();
 	//HandleGizmo();
 

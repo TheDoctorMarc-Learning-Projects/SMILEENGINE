@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
+#include "ComponentParticleEmitter.h"
 #include "ComponentCamera.h"
 #include "Glew/include/GL/glew.h" 
 #include "SmileSpatialTree.h"
@@ -151,7 +152,7 @@ void GameObject::Disable()
 			obj->Disable();
 }
 
-void GameObject::Update()
+void GameObject::Update(float dt)
 {
 	if (active == false)
 		return; 
@@ -160,16 +161,16 @@ void GameObject::Update()
 	for (auto& comp : components)
 		if (comp)
 			if (comp->active == true)
-				comp->Update();
+				comp->Update(dt);
 
 	// 2) Children (gameObjects)
 	for (auto& obj : childObjects)
 		if(obj->IsActive())
-			obj->Update();
+			obj->Update(dt);
 
 	// Testing billboard
 	if (billboard)
-		billboard->Update(App->scene_intro->gameCamera->GetViewMatrixF()); 
+		billboard->Update(App->scene_intro->gameCamera->GetViewMatrixF(), FreeBillBoard::Alignment::world, GetTransform()); 
 	
 	// Lastly debug stuff :) 
 	if(App->scene_intro->generalDbug)
@@ -553,7 +554,7 @@ void GameObject::ShowTransformInspector()
 				alignment = FreeBillBoard::Alignment::world;
 
 			if(alignment != FreeBillBoard::Alignment::noAlignment)
-				billboard = DBG_NEW FreeBillBoard(alignment, App->scene_intro->gameCamera->GetViewMatrixF(), transf);
+				billboard = DBG_NEW FreeBillBoard();
 		}
 
 	}

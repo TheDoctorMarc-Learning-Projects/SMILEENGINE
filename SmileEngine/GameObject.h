@@ -74,7 +74,7 @@ public:
 		// Main functions 
 	virtual void Start(); 
 	virtual void Enable(); 
-	virtual void Update();
+	virtual void Update(float dt);
 	void PostUpdate() { toDraw = false; for (auto& child : childObjects) child->PostUpdate(); };
 	void Draw(); 
 	virtual void Disable();

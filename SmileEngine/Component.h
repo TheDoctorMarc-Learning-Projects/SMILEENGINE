@@ -16,7 +16,7 @@ public:
 public:
 	virtual void Start() { active = true;  };
 	virtual void Enable() { active = true; };
-	virtual void Update() {};
+	virtual void Update(float dt = 0) {};
 	virtual void Disable() { active = false; };
 	virtual void CleanUp() {};
 
@@ -43,5 +43,6 @@ public:
 	friend class ComponentMesh;
 	friend class ComponentTransform; 
 	friend class ComponentCamera; 
+	friend class ComponentParticleEmitter; 
 };
 

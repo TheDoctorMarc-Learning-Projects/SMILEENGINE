@@ -2,6 +2,11 @@
 
 #include "ResourceMesh.h"
 
+#include "MathGeoLib/include/Math/float4x4.h"
+
+#include "ComponentParticleEmitter.h" // had to this for an enum
+
+class ResourceTexture;
 class ResourceMeshPlane : public ResourceMesh
 {
 public:
@@ -11,4 +16,5 @@ public:
 	void FreeMemory() {}; // may have a color buffer 
 
 	void GenerateOwnMeshData(); 
+	void BlitMeshHere(float4x4& global_transform, ResourceTexture* tex = nullptr, blendMode blendMode = blendMode::ALPHA_BLEND, float alpha = 1.f);
 }; 

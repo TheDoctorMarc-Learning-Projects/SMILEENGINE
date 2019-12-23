@@ -23,6 +23,7 @@
 
 #include <filesystem>  
 #include "SmileGameTimeManager.h"
+#include "ResourceMeshPlane.h"
 
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
@@ -952,6 +953,13 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				cam->OnInspector(fovY, pNearDist, pFarDist);
 
 				
+			break; 
+		}
+
+		// TODO -> emitter!
+		case COMPONENT_TYPE::EMITTER:
+		{
+			ImGui::TextColored(ImVec4(0, 0, 1, 1), "HELLO, UPDATE THIS"); 
 			break; 
 		}
 

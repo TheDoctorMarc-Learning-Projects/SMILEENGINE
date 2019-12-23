@@ -63,7 +63,7 @@ void ComponentCamera::ComputeSpatialData()
 }
 
 // ----------------------------------------------------------------- 
-void ComponentCamera::Update()
+void ComponentCamera::Update(float dt)
 {
 
 	// If the current looking camera is not myself, fuck the logic!
@@ -78,7 +78,6 @@ void ComponentCamera::Update()
 	vec3 prevX = X, prevY = Y, prevZ = Z;
 	bool valid = true;
 
-	float dt = App->GetDT();
 	ComponentTransform* transf = parent->GetTransform();
 
 	// Check if the user clicks to select object 

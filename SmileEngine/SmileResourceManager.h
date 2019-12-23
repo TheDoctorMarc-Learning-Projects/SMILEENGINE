@@ -7,7 +7,7 @@ class Resource;
 enum Resource_Type;
 class ResourceMesh; 
 class ResourceTexture; 
-
+class ResourceMeshPlane; 
 class SmileResourceManager : public SmileModule
 {
 public:
@@ -30,7 +30,7 @@ public:
 	Resource* CreateMaterialFromPath(const char* path); 
 
 public: 
-	ResourceMesh* Plane; 
+	ResourceMeshPlane* Plane;
 	ResourceMesh* Cube;
 	ResourceMesh* Sphere;
 	ResourceTexture* checkersTexture;

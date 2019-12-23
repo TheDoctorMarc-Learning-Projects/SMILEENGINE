@@ -9,22 +9,20 @@
 #include "ComponentTransform.h"
 #include "FreeTransform.h"
 
-class FreeBillBoard
+struct FreeBillBoard
 {
 
 public:
 	enum Alignment { axis, screen, world, noAlignment };
 
 public:
-	FreeBillBoard(Alignment alignment, float4x4& cam, std::variant<FreeTransform*, ComponentTransform*> transf) : alignment(alignment), transf(transf) { Update(cam); };
-	FreeBillBoard() {};
-	~FreeBillBoard() {};
-
-public:
-	void Update(float4x4& cam)
+	void Update(float4x4& cam, Alignment alignment, std::variant<FreeTransform*, ComponentTransform*> transf)
 	{
+		this->alignment = alignment; 
+
 		float3 fwd, right, up;
-		float4x4 myMatrix = GetMatrix(); 
+		float4x4 myMatrix = GetMatrix(transf);
+
 		switch (alignment)
 		{
 		case FreeBillBoard::Alignment::axis:
@@ -51,7 +49,7 @@ public:
 			break;
 		}
 
-		float4x4 res(right.ToDir4(), up.ToDir4(), fwd.ToDir4(), GetMatrix().TranslatePart().ToPos4());
+		float4x4 res(right.ToDir4(), up.ToDir4(), fwd.ToDir4(), GetMatrix(transf).TranslatePart().ToPos4());
 		if (transf.index() == 1)
 			std::get<ComponentTransform*>(transf)->SetGlobalMatrix(res);
 		else
@@ -59,11 +57,8 @@ public:
 	}; 
 
 private:
-	float4x4 GetMatrix()const { return (transf.index() == 0) ? std::get<FreeTransform*>(transf)->GetGlobalMatrix() : std::get<ComponentTransform*>(transf)->GetGlobalMatrix(); };
+	Alignment alignment;
+	float4x4 GetMatrix(std::variant<FreeTransform*, ComponentTransform*> transf) const { return (transf.index() == 0) ? std::get<FreeTransform*>(transf)->GetGlobalMatrix() : std::get<ComponentTransform*>(transf)->GetGlobalMatrix(); };
 
-public:
-	Alignment alignment = Alignment::noAlignment;
-
-private: 
-	std::variant<FreeTransform*, ComponentTransform*> transf;
+	friend class GameObject; 
 };

@@ -7,8 +7,9 @@ enum COMPONENT_TYPE : uint
 	TRANSFORM,
 	MESH,
 	MATERIAL,
-	LIGHT,
 	CAMERA,
+	EMITTER,
+	LIGHT,
 	MAX_COMPONENT_TYPES,
 	NO_TYPE
 };
@@ -43,4 +44,5 @@ static std::map<std::string, COMPONENT_TYPE> componentTypeMap =
 	{ "Mesh", MESH},
 	{ "Material", MATERIAL},
 	{ "Camera", CAMERA},
+	{ "Emitter", EMITTER},
 }; 
