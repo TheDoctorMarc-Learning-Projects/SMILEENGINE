@@ -226,7 +226,14 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
 {
-	
+	if (p.currentState.life > 0.5) 
+	{
+		p.currentState.color = data.initialState.color.first;
+	}
+	else 
+	{
+		p.currentState.color = data.initialState.color.second;
+	}
 }
 
 

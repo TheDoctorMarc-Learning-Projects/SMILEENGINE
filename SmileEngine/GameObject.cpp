@@ -577,6 +577,14 @@ void GameObject::ShowTransformInspector()
 		}
 	}
 
+	if (ImGui::CollapsingHeader("Particle Color"))
+
+	{
+		ImGui::Text("Particle Color");
+		ImGui::ColorPicker4("", &nextColor.x, ImGuiColorEditFlags_AlphaBar);
+			
+		
+	}
 	
 	
 	if (keyState != KEY_DOWN)

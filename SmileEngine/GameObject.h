@@ -8,6 +8,13 @@
 #include "ComponentTypes.h"
 #include "MathGeoLib/include/Geometry/AABB.h"
 #include  "MathGeoLib/include/Geometry/OBB.h"
+#include "MathGeoLib/include/MathGeoLib.h"
+
+#ifdef NDEBUG //no debug
+#pragma comment (lib, "MathGeoLib/libx86/ReleaseLib/MathGeoLib.lib") 
+#else
+#pragma comment (lib, "MathGeoLib/libx86/DebugLib/MathGeoLib.lib") 
+#endif
 
 #define debugLineSize 1.8
 #define debugLineHead 0.3
@@ -109,6 +116,9 @@ private:
 	std::string name; 
 	GameObject* parent = nullptr; 
 	BoundingData boundingData; 
+
+
+	math::float4 nextColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// may have one of these
 	FreeBillBoard* billboard = nullptr; 
