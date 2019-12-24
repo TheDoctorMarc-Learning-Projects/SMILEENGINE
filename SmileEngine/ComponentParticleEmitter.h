@@ -87,7 +87,7 @@ struct AllData
 	InitialState initialState;
 
 	// Modes
-	blendMode blendmode = blendMode::ADDITIVE; 
+	blendMode blendmode = blendMode::ALPHA_BLEND;
 	lightMode lightmode = lightMode::NONE; // TODO: how to handle this? light settings should be supported in a struct
 };
 
@@ -122,10 +122,9 @@ private:
 
 private: 
 	uint_fast8_t lastUsedParticle = 0;
-	std::vector<Particle> particles; // how to fill this? what about the size?
+	std::vector<Particle> particles, drawParticles; 
 	AllData data;
 	std::map<uint_fast8_t, function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
-	
 	ResourceMeshPlane* mesh = nullptr; 
 	ResourceTexture* texture = nullptr; 
 

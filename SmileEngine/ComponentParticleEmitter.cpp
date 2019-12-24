@@ -109,15 +109,17 @@ void ComponentParticleEmitter::Update(float dt)
 void ComponentParticleEmitter::Draw()
 {
 	// TODO -> sort alive particles from far to near (not active ones last)
-	static std::vector<Particle> sorted = particles; 
-	std::sort(sorted.begin(), sorted.end());
+	drawParticles = particles; 
+	std::sort(drawParticles.begin(), drawParticles.end());
 
 	// Blit them 
-	for (auto& p : particles)
+	for (auto& p : drawParticles)
 		if (p.currentState.life > 0.f)
 			mesh->BlitMeshHere(p.transf.GetGlobalMatrix(),
 			(data.initialState.tex.first) ? texture : nullptr,
 				data.blendmode, p.currentState.transparency);
+
+	drawParticles.clear();
 }
 
 
