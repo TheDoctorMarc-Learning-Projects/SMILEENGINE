@@ -72,7 +72,7 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 void ComponentParticleEmitter::SetupMesh()
 {
 	 
-	mesh = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default", float4(1, 0, 0, 1));
+	mesh = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default", float4(1, 0, 0, 0.3f));
 	App->resources->resources.insert(std::pair<SmileUUID, Resource*>(mesh->GetUID(), (Resource*)mesh));
 }
 

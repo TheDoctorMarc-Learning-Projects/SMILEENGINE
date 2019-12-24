@@ -49,7 +49,7 @@ void ResourceMeshPlane::GenerateOwnMeshData()
 }
 
 // TODO: blend mode
-void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency, float4 color)
+void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency)
 {
 	glPushMatrix();
 	glMultMatrixf(global_transform.Transposed().ptr());
@@ -58,19 +58,18 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_ALPHA_TEST);
+
 
 	// Texture
+	if(tex)
+		glEnable(GL_ALPHA_TEST);
+
 	if (tex)
 	{
 		glBindTexture(GL_TEXTURE_2D, tex->GetTextureData()->id_texture);
 		// Alpha Testing
 		glAlphaFunc(GL_GREATER, (GLclampf)tex->GetTextureData()->transparency = transparency);
 	}
-
-	// Color
-	if (this->color.IsFinite())
-		glColor4f(this->color.x, this->color.y, this->color.z, this->color.w);
 	
 	// Blending
 	glEnable(GL_BLEND);
@@ -78,6 +77,10 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	else if (blendMode == blendMode::ALPHA_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Color
+	if (this->color.IsFinite())
+		glColor4f(this->color.x, this->color.y, this->color.z, this->color.w);
 
 
 	// Geometry
