@@ -13,10 +13,11 @@
 #include "FreeBillBoard.h"
 #include "FreeTransform.h"
 
-struct randomData
+struct InitialRandomState
 {
 	float3 speed = float3::inf; 
 };
+
 struct CurrentState
 {
 	bool active;
@@ -29,7 +30,7 @@ struct CurrentState
 	float tex;
 
 	// Stuff that is random (per-particle= can be stored here for updation:
-	randomData randomData;
+	InitialRandomState randomData;
 };
 
 struct Particle
@@ -37,6 +38,12 @@ struct Particle
 	FreeTransform transf;
 	FreeBillBoard billboard;
 	CurrentState currentState;
+
+	float camDist = -floatMax; 
+	bool operator<(Particle& other) {
+		// Sort in reverse order : far particles drawn first.
+		return this->camDist > other.camDist;
+	}
 };
 
 // Once the particle system is created, this initialState is set to the recieved values 
@@ -83,6 +90,7 @@ typedef void (ComponentParticleEmitter::*function)(Particle& p, float dt);
 class ResourceMesh; 
 class ResourceMaterial; 
 class GameObject; 
+class ComponentTransform; 
 class ComponentParticleEmitter: public Component
 {
 public: 
@@ -95,7 +103,8 @@ public:
 	void CleanUp(); 
 
 private: 
-	void Draw(); 
+	void Draw();  
+	static bool BlitOrderDecider(const Particle& p1, const Particle& p2); 
 	void SpawnParticle(); 
 	float3 GetSpawnPos(); 
 	float3 GetRandomRange(float3& toModify, std::variant<float3, std::pair<float3, float3>> ranges);
@@ -108,7 +117,10 @@ private:
 	EmissionData emissionData;
 	std::map<uint_fast8_t, function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
 	ResourceMesh* mesh = nullptr; 
-	ResourceMaterial* mat = nullptr;  
+	ResourceMaterial* mat = nullptr; 
+
+	// a pointer for easier access: 
+	float4x4 camMatrix; 
 };
 
 

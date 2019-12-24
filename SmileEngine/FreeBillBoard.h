@@ -16,7 +16,7 @@ public:
 	enum Alignment { axis, screen, world, noAlignment };
 
 public:
-	void Update(float4x4& cam, Alignment alignment, std::variant<FreeTransform*, ComponentTransform*> transf)
+	void Update(float4x4& cam, Alignment alignment, std::variant<FreeTransform, ComponentTransform*> transf)
 	{
 		this->alignment = alignment; 
 
@@ -39,7 +39,7 @@ public:
 		case FreeBillBoard::Alignment::world:
 		{
 			fwd = float3(cam.TranslatePart() - myMatrix.TranslatePart()).Normalized();
-			right = cam.WorldY().Normalized().Cross(fwd).Normalized();
+			right = fwd.Normalized().Cross(cam.WorldY()).Normalized(); // cam.WorldY().Normalized().Cross(fwd).Normalized();
 			up = fwd.Cross(right).Normalized();
 
 			break;
@@ -49,16 +49,17 @@ public:
 			break;
 		}
 
-		float4x4 res(right.ToDir4(), up.ToDir4(), fwd.ToDir4(), GetMatrix(transf).TranslatePart().ToPos4());
+		Quat rot = Quat(float3x3(right, up, fwd)); 
 		if (transf.index() == 1)
-			std::get<ComponentTransform*>(transf)->SetGlobalMatrix(res);
+			std::get<ComponentTransform*>(transf)->ChangeRotation(rot.Inverted());
+			
 		else
-			std::get<FreeTransform*>(transf)->UpdateGlobalMatrix(res);
+			std::get<FreeTransform>(transf).UpdateGlobalMatrix(myMatrix);
 	}; 
 
 private:
 	Alignment alignment;
-	float4x4 GetMatrix(std::variant<FreeTransform*, ComponentTransform*> transf) const { return (transf.index() == 0) ? std::get<FreeTransform*>(transf)->GetGlobalMatrix() : std::get<ComponentTransform*>(transf)->GetGlobalMatrix(); };
+	float4x4 GetMatrix(std::variant<FreeTransform, ComponentTransform*> transf) const { return (transf.index() == 0) ? std::get<FreeTransform>(transf).GetGlobalMatrix() : std::get<ComponentTransform*>(transf)->GetGlobalMatrix(); };
 
 	friend class GameObject; 
 };

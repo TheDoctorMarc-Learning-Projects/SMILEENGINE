@@ -9,6 +9,7 @@
 #include "FreeTransform.h"
 #include "GameObject.h"
 #include "RNG.h"
+#include "ComponentTransform.h"
 
 // TODO: copy the initial values! Maybe have an instance of "initialValues" predefined too for the default ctor 
 
@@ -20,8 +21,6 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent)
 
 	pVariableFunctions.insert(std::pair((uint_fast8_t)0, &ComponentParticleEmitter::LifeUpdate));
 	pVariableFunctions.insert(std::pair((uint_fast8_t)1, &ComponentParticleEmitter::SpeedUpdate));
-
-	// Store Initial Variables Only if not random (eg speed) 
 }
 
 ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, EmissionData emissionData) : emissionData(emissionData)
@@ -65,6 +64,8 @@ void ComponentParticleEmitter::CleanUp()
 // -----------------------------------------------------------------
 void ComponentParticleEmitter::Update(float dt)
 {
+	camMatrix = App->scene_intro->gameCamera->GetViewMatrixF(); 
+
 	// Loop particles. Quickly discard inactive ones. Execute only needed functions 
 	for (int i = 0; i < particles.size(); ++i)
 		if(particles.at(i).currentState.life > 0.f)
@@ -83,6 +84,8 @@ void ComponentParticleEmitter::Update(float dt)
 void ComponentParticleEmitter::Draw()
 {
 	// TODO -> sort alive particles from far to near (not active ones last)
+	static std::vector<Particle> sorted = particles; 
+	std::sort(sorted.begin(), sorted.end());
 
 	// Blit them 
 	for (auto& p : particles)
@@ -91,6 +94,7 @@ void ComponentParticleEmitter::Draw()
 			(emissionData.initialState.tex.first > 0.f) ? GetParent()->GetMaterial()->GetResourceTexture(): nullptr,
 				emissionData.blendmode, p.currentState.alpha); 
 }
+
 
 // -----------------------------------------------------------------
 inline static int FindAvailableParticleIndex(std::vector<Particle>& particles, uint_fast8_t& lastUsedParticle)
@@ -185,7 +189,11 @@ inline void ComponentParticleEmitter::LifeUpdate(Particle& p, float dt)
 	// This is placeholder 
 
 	if ((p.currentState.life -= emissionData.initialState.life.second * dt) <= 0.f)
-		p.currentState.life = 0.f; 
+	{
+		p.currentState.life = 0.f;
+		p.camDist = -floatMax; 
+	}
+		
 }
 
 // -----------------------------------------------------------------
@@ -194,5 +202,11 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	// Add the speed to the particle transform pos. Update the billboard too. Gravity? Yet another variable in the emitter xd
 	auto pos = p.transf.globalMatrix.TranslatePart();
 	p.transf.globalMatrix.SetTranslatePart(pos += (p.currentState.randomData.speed.IsFinite()) ? p.currentState.randomData.speed : emissionData.initialState.speed.second * dt);
+
+	// Update camera distance
+	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();
+
+	// Update Billboard
+	//p.billboard.Update(camMatrix, FreeBillBoard::Alignment::world, p.transf);
 }
 

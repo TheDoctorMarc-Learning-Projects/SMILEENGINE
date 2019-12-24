@@ -170,7 +170,7 @@ void GameObject::Update(float dt)
 
 	// Testing billboard
 	if (billboard)
-		billboard->Update(App->scene_intro->gameCamera->GetViewMatrixF(), FreeBillBoard::Alignment::world, GetTransform()); 
+		billboard->Update(-App->scene_intro->gameCamera->GetViewMatrixF().Transposed(), FreeBillBoard::Alignment::world, GetTransform()); 
 	
 	// Lastly debug stuff :) 
 	if(App->scene_intro->generalDbug)
@@ -531,7 +531,7 @@ void GameObject::ShowTransformInspector()
 	float r[3] = { degRot.x, degRot.y, degRot.z };
 	float s[3] = { sc.x, sc.y, sc.z };
 	ImGui::InputFloat3("Position", p);
-	ImGui::SliderFloat3("Rotation", r , -359.999, 359.999);
+	ImGui::InputFloat3("Rotation", r);
 	ImGui::InputFloat3("Scale", s);
 
 	// (info)
@@ -579,8 +579,8 @@ void GameObject::ShowTransformInspector()
 
 	
 	
-/*	if (keyState != KEY_DOWN)
-		return;*/
+	if (keyState != KEY_DOWN)
+		return;
 
 	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
 	float radR[3] = { radRot.x, radRot.y, radRot.z };
