@@ -20,7 +20,7 @@ void ResourceMeshPlane::GenerateOwnMeshData()
 }
 
 // TODO: blend mode
-void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float alpha)
+void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency)
 {
 	glPushMatrix();
 	glMultMatrixf(global_transform.Transposed().ptr());
@@ -35,7 +35,7 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 	{
 		glBindTexture(GL_TEXTURE_2D, tex->GetTextureData()->id_texture);
 		// Alpha Testing
-		glAlphaFunc(GL_GREATER, (GLclampf)tex->GetTextureData()->transparency = alpha);
+		glAlphaFunc(GL_GREATER, (GLclampf)tex->GetTextureData()->transparency = transparency);
 	}
 
 	glEnable(GL_BLEND);

@@ -16,5 +16,5 @@ public:
 	void FreeMemory() {}; // may have a color buffer 
 
 	void GenerateOwnMeshData(); 
-	void BlitMeshHere(float4x4& global_transform, ResourceTexture* tex = nullptr, blendMode blendMode = blendMode::ALPHA_BLEND, float alpha = 1.f);
+	void BlitMeshHere(float4x4& global_transform, ResourceTexture* tex = nullptr, blendMode blendMode = blendMode::ALPHA_BLEND, float transparency = 0.f);
 }; 

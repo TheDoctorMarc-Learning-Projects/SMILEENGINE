@@ -10,6 +10,7 @@
 #include "GameObject.h"
 #include "RNG.h"
 #include "ComponentTransform.h"
+#include "ResourceTexture.h"
 
 // TODO: copy the initial values! Maybe have an instance of "initialValues" predefined too for the default ctor 
 
@@ -17,28 +18,47 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent)
 {
 	type = COMPONENT_TYPE::EMITTER;
 	SetName("Emitter"); 
-	particles.resize(emissionData.maxParticles);
+	particles.resize(data.emissionData.maxParticles);
 
 	pVariableFunctions.insert(std::pair((uint_fast8_t)0, &ComponentParticleEmitter::LifeUpdate));
 	pVariableFunctions.insert(std::pair((uint_fast8_t)1, &ComponentParticleEmitter::SpeedUpdate));
 }
 
-ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, EmissionData emissionData) : emissionData(emissionData)
+ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData data) : data(data)
 {
 	type = COMPONENT_TYPE::EMITTER;
 	SetName("Emitter");
 
-	// Only push a function if the variable changes on time
-	auto initialState = emissionData.initialState; 
+	// 1) Push functions --> Only if the variable changes on time
+	auto initialState = this->data.initialState;
 
 	if (initialState.life.second > 0.f)
 		pVariableFunctions.insert(std::pair((uint_fast8_t)0, &ComponentParticleEmitter::LifeUpdate)); 
-	if (initialState.speed.second.Length() > 0.f || emissionData.randomSpeed.first)
+	if (initialState.speed.second.Length() > 0.f || this->data.emissionData.randomSpeed.first)
 		pVariableFunctions.insert(std::pair((uint_fast8_t)1, &ComponentParticleEmitter::SpeedUpdate));
+	if (initialState.color.second.Length4() > 0.f || this->data.emissionData.randomColor.first)
+		pVariableFunctions.insert(std::pair((uint_fast8_t)2, &ComponentParticleEmitter::ColorUpdate));
 
+	// 2) A) Get resources  // TODO: texture animation :) what about the file format??
+	mesh = App->resources->Plane; 
+	if (this->data.emissionData.texPath != "empty")
+	{
+		texture = (ResourceTexture*)App->resources->GetResourceByPath(this->data.emissionData.texPath.c_str());
+		if (texture == nullptr)
+		{
+			texture = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, this->data.emissionData.texPath.c_str());
+			texture->LoadOnMemory(this->data.emissionData.texPath.c_str());
+		}
 
-	// Fill the particles buffer  
-	particles.resize(emissionData.maxParticles);
+		this->data.initialState.tex.first = true; 
+	}
+
+	// 3) Resize the particles buffer   
+	particles.resize(this->data.emissionData.maxParticles);
+
+	// 2) B) 
+	App->resources->UpdateResourceReferenceCount(mesh->GetUID(), particles.size());
+	App->resources->UpdateResourceReferenceCount(texture->GetUID(), particles.size());
 
 }
 
@@ -57,8 +77,13 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
 
 void ComponentParticleEmitter::CleanUp()  
 {
+	App->resources->UpdateResourceReferenceCount(mesh->GetUID(), -particles.size());
+	App->resources->UpdateResourceReferenceCount(texture->GetUID(), -particles.size());
+
 	pVariableFunctions.clear();
 	particles.clear();
+	mesh = nullptr; 
+	texture = nullptr; 
 }
 
 // -----------------------------------------------------------------
@@ -73,7 +98,7 @@ void ComponentParticleEmitter::Update(float dt)
 				(this->*(func->second))(particles.at(i), dt);
 		
 	// Spawn new particles
-	if ((emissionData.currenTime += dt) > emissionData.time)
+	if ((data.emissionData.currenTime += dt) > data.emissionData.time)
 		SpawnParticle(); 
 	
 	// Finally Draw
@@ -90,9 +115,9 @@ void ComponentParticleEmitter::Draw()
 	// Blit them 
 	for (auto& p : particles)
 		if (p.currentState.life > 0.f)
-			App->resources->Plane->BlitMeshHere(p.transf.GetGlobalMatrix(),
-			(emissionData.initialState.tex.first > 0.f) ? GetParent()->GetMaterial()->GetResourceTexture(): nullptr,
-				emissionData.blendmode, p.currentState.alpha); 
+			mesh->BlitMeshHere(p.transf.GetGlobalMatrix(),
+			(data.initialState.tex.first) ? texture : nullptr,
+				data.blendmode, p.currentState.transparency);
 }
 
 
@@ -124,63 +149,32 @@ inline static int FindAvailableParticleIndex(std::vector<Particle>& particles, u
 void ComponentParticleEmitter::SpawnParticle()
 {
 	// 1) Reset Emission Time
-	emissionData.currenTime = 0.f; 
+	data.emissionData.currenTime = 0.f;
 
 	// 2) Find Available Particle
 	Particle& p = particles[FindAvailableParticleIndex(particles, lastUsedParticle)]; 
 
 	// 3) Set Particle State
-	p.currentState.alpha = emissionData.initialState.alpha.first; 
-	p.currentState.color = emissionData.initialState.color.first;
-	p.currentState.life = emissionData.initialState.life.first; 
-	p.currentState.size = emissionData.initialState.size.first; 
-	p.currentState.tex = emissionData.initialState.tex.first; 
+	p.currentState.transparency = data.initialState.transparency.first;
+	p.currentState.life = data.initialState.life.first;
+	p.currentState.size = data.initialState.size.first;
+	p.currentState.tex = data.initialState.tex.first;
 
-	// speed is kinda interesting:
-	bool random = emissionData.randomSpeed.first; 
-	p.currentState.speed = (random) ? (GetRandomRange(p.currentState.randomData.speed, emissionData.randomSpeed.second)) : emissionData.initialState.speed.second;
+	
+	// Initial speed and color can be random:
+	bool randomC = data.emissionData.randomColor.first;
+	p.currentState.color = (randomC) ? (p.currentState.randomData.color = GetRandomRange4(data.emissionData.randomColor.second)) : data.initialState.color.second;
+	bool randomS = data.emissionData.randomSpeed.first; 
+	p.currentState.speed = (randomS) ? (p.currentState.randomData.speed = GetRandomRange(data.emissionData.randomSpeed.second)) : data.initialState.speed.second;
 		 
 
 	// 4) Set particle Transform
-	p.transf.parentMatrix = GetParent()->GetTransform()->GetLocalMatrix(); 
-	p.transf.UpdateGlobalMatrix(math::float4x4::FromTRS(GetSpawnPos(), float4x4::identity, float3::one)); 
+	p.transf.parentMatrix = GetParent()->GetTransform()->GetGlobalMatrix(); 
+	auto initial_pos = p.transf.parentMatrix.TranslatePart(); 
+	initial_pos += GetRandomRange(float3::FromScalar(data.emissionData.radius)); 
+	p.transf.UpdateGlobalMatrix(math::float4x4::FromTRS(initial_pos, float4x4::identity, float3::one));
 
 	// Particle billboard will be updated in Update (XD)
-}
-
-// -----------------------------------------------------------------
-float3 ComponentParticleEmitter::GetRandomRange(float3& toModify, std::variant<float3, std::pair<float3, float3>> ranges)
-{
-	 
-	if (ranges.index() == 0)
-	{
-		auto range = std::get<float3>(ranges); 
-		toModify.x = std::get<float>(RNG::GetRandomValue(-range.x / 2, range.x / 2));
-		toModify.y = std::get<float>(RNG::GetRandomValue(-range.y / 2, range.y / 2));
-		toModify.z = std::get<float>(RNG::GetRandomValue(-range.z / 2, range.z / 2));
-	}
-	else
-	{
-		auto range = std::get<std::pair<float3, float3>>(ranges);
-		toModify.x = std::get<float>(RNG::GetRandomValue(range.first.x, range.second.x));
-		toModify.y = std::get<float>(RNG::GetRandomValue(range.first.y, range.second.y));
-		toModify.z = std::get<float>(RNG::GetRandomValue(range.first.z, range.second.z));
-	}
-
-	return toModify;
-}
-
-
-// -----------------------------------------------------------------
-float3 ComponentParticleEmitter::GetSpawnPos()
-{
-	// TODO --> define an area for each spawn shape (except cone)
-	float3 ofs = float3(); 
-	ofs.x = std::get<float>(RNG::GetRandomValue(-emissionData.radius / 2, emissionData.radius / 2));
-	ofs.y = std::get<float>(RNG::GetRandomValue(-emissionData.radius / 2, emissionData.radius / 2));
-	ofs.z = std::get<float>(RNG::GetRandomValue(-emissionData.radius / 2, emissionData.radius / 2));
-
-	return float3(GetParent()->GetTransform()->GetGlobalMatrix().TranslatePart() + ofs);
 }
 
 // ----------------------------------------------------------------- Update Values
@@ -188,7 +182,7 @@ inline void ComponentParticleEmitter::LifeUpdate(Particle& p, float dt)
 {
 	// This is placeholder 
 
-	if ((p.currentState.life -= emissionData.initialState.life.second * dt) <= 0.f)
+	if ((p.currentState.life -= data.initialState.life.second * dt) <= 0.f)
 	{
 		p.currentState.life = 0.f;
 		p.camDist = -floatMax; 
@@ -201,7 +195,7 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 {
 	// Add the speed to the particle transform pos. Update the billboard too. Gravity? Yet another variable in the emitter xd
 	auto pos = p.transf.globalMatrix.TranslatePart();
-	p.transf.globalMatrix.SetTranslatePart(pos += (p.currentState.randomData.speed.IsFinite()) ? p.currentState.randomData.speed : emissionData.initialState.speed.second * dt);
+	p.transf.globalMatrix.SetTranslatePart(pos += (p.currentState.randomData.speed.IsFinite()) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed.second * dt));
 
 	// Update camera distance
 	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();
@@ -210,3 +204,56 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	//p.billboard.Update(camMatrix, FreeBillBoard::Alignment::world, p.transf);
 }
 
+// -----------------------------------------------------------------
+inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
+{
+	
+}
+
+
+// ----------------------------------------------------------------- [Utilities]
+float3 ComponentParticleEmitter::GetRandomRange(std::variant<float3, std::pair<float3, float3>> ranges)
+{
+	float3 ret = float3::zero;
+
+	if (ranges.index() == 0)
+	{
+		auto range = std::get<float3>(ranges);
+		ret.x = std::get<float>(RNG::GetRandomValue(-range.x / 2, range.x / 2));
+		ret.y = std::get<float>(RNG::GetRandomValue(-range.y / 2, range.y / 2));
+		ret.z = std::get<float>(RNG::GetRandomValue(-range.z / 2, range.z / 2));
+	}
+	else
+	{
+		auto range = std::get<std::pair<float3, float3>>(ranges);
+		ret.x = std::get<float>(RNG::GetRandomValue(range.first.x, range.second.x));
+		ret.y = std::get<float>(RNG::GetRandomValue(range.first.y, range.second.y));
+		ret.z = std::get<float>(RNG::GetRandomValue(range.first.z, range.second.z));
+	}
+
+	return ret;
+}
+
+float4 ComponentParticleEmitter::GetRandomRange4(std::variant<float4, std::pair<float4, float4>> ranges)
+{
+	float4 ret = float4::zero;
+
+	if (ranges.index() == 0)
+	{
+		auto range = std::get<float4>(ranges);
+		ret.x = std::get<float>(RNG::GetRandomValue(-range.x / 2, range.x / 2));
+		ret.y = std::get<float>(RNG::GetRandomValue(-range.y / 2, range.y / 2));
+		ret.z = std::get<float>(RNG::GetRandomValue(-range.z / 2, range.z / 2));
+		ret.w = std::get<float>(RNG::GetRandomValue(-range.w / 2, range.w / 2));
+	}
+	else
+	{
+		auto range = std::get<std::pair<float4, float4>>(ranges);
+		ret.x = std::get<float>(RNG::GetRandomValue(range.first.x, range.second.x));
+		ret.y = std::get<float>(RNG::GetRandomValue(range.first.y, range.second.y));
+		ret.z = std::get<float>(RNG::GetRandomValue(range.first.z, range.second.z));
+		ret.w = std::get<float>(RNG::GetRandomValue(range.first.w, range.second.w));
+	}
+
+	return ret;
+}

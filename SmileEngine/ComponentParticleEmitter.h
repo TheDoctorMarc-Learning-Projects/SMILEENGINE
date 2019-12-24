@@ -16,6 +16,7 @@
 struct InitialRandomState
 {
 	float3 speed = float3::inf; 
+	float4 color = float4::inf; 
 };
 
 struct CurrentState
@@ -24,7 +25,7 @@ struct CurrentState
 	float life;
 	float3 speed;
 	float size;
-	float alpha;
+	float transparency;
 	float4 color;
 	// anim frame ? 
 	float tex;
@@ -53,11 +54,11 @@ struct InitialState
 {
 	// This Variables will be updated each frame if they have value over time (Current order: 0->5)
 	std::pair<float, float> life = std::pair(1.f, 1.f);
-	std::pair<float3, float3> speed = std::pair(float3::zero, float3::zero); 
-	std::pair<float, float> size = std::pair(1.f, 0.f);
-	std::pair<float, float> alpha = std::pair(1.f, 0.f);
-	std::pair<float4, float4> color = std::pair(float4::zero, float4::zero);
-	std::pair<float, float> tex = std::pair(0.f, 0.f);
+	std::pair<float3, float3> speed = std::pair(float3::zero, float3::zero); // initial & over time
+	std::pair<float, float> size = std::pair(1.f, 0.f); // initial & final
+	std::pair<float, float> transparency = std::pair(0.f, 0.f);
+	std::pair<float4, float4> color = std::pair(float4::zero, float4::zero); // initial & final
+	std::pair<bool, float> tex = std::pair(false, 0.f); // has & anim speed 
 
 };
 
@@ -65,15 +66,22 @@ enum class emmissionShape { CIRCLE, CUBE, CONE }; // ...
 enum class blendMode { ADDITIVE, ALPHA_BLEND };
 enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
 
-// This struct has it all: 
 struct EmissionData
 {
-	// Generation
 	uint_fast8_t maxParticles = 100;
 	bool loop = true;
-	std::pair<bool, std::variant<float3, std::pair<float3, float3>>> randomSpeed; 
+	std::string texPath = "empty"; 
+	std::pair<bool, std::variant<float3, std::pair<float3, float3>>> randomSpeed;
+	std::pair<bool, std::variant<float4, std::pair<float4, float4>>> randomColor; 
 	float time = 0.5f, currenTime = 0.f, angle = 0.f, radius = 1.f;
 	emmissionShape shape = emmissionShape::CONE;
+};
+
+// This struct has it all: 
+struct AllData
+{
+	// Generation
+	EmissionData emissionData; 
 
 	// Initial State
 	InitialState initialState;
@@ -87,15 +95,15 @@ struct EmissionData
 class ComponentParticleEmitter; 
 typedef void (ComponentParticleEmitter::*function)(Particle& p, float dt);
 
-class ResourceMesh; 
-class ResourceMaterial; 
+class ResourceMeshPlane;
+class ResourceTexture;
 class GameObject; 
 class ComponentTransform; 
 class ComponentParticleEmitter: public Component
 {
 public: 
 	ComponentParticleEmitter(GameObject* parent); // Default emitter
-	ComponentParticleEmitter(GameObject* parent, EmissionData emissionData); // User defined 
+	ComponentParticleEmitter(GameObject* parent, AllData data); // User defined 
 	~ComponentParticleEmitter();
 
 public: 
@@ -104,20 +112,22 @@ public:
 
 private: 
 	void Draw();  
-	static bool BlitOrderDecider(const Particle& p1, const Particle& p2); 
 	void SpawnParticle(); 
-	float3 GetSpawnPos(); 
-	float3 GetRandomRange(float3& toModify, std::variant<float3, std::pair<float3, float3>> ranges);
+	float3 GetRandomRange(std::variant<float3, std::pair<float3, float3>> ranges);
+	float4 GetRandomRange4(std::variant<float4, std::pair<float4, float4>> ranges);
 	inline void SpeedUpdate(Particle& p, float dt);
 	inline void LifeUpdate(Particle& p, float dt);
+	inline void ColorUpdate(Particle& p, float dt);
+
 
 private: 
 	uint_fast8_t lastUsedParticle = 0;
 	std::vector<Particle> particles; // how to fill this? what about the size?
-	EmissionData emissionData;
+	AllData data;
 	std::map<uint_fast8_t, function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
-	ResourceMesh* mesh = nullptr; 
-	ResourceMaterial* mat = nullptr; 
+	
+	ResourceMeshPlane* mesh = nullptr; 
+	ResourceTexture* texture = nullptr; 
 
 	// a pointer for easier access: 
 	float4x4 camMatrix; 
