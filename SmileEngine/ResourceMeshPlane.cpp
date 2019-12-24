@@ -2,9 +2,38 @@
 #include "Glew/include/GL/glew.h" 
 #include "ResourceTexture.h"
 
-ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path) : ResourceMesh(uuid, type, path)
+ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color) : ResourceMesh(uuid, type, path), color(color)
 {
 	GenerateOwnMeshData();
+	if(color.IsFinite())
+		LoadOnMemory(color);
+}
+
+void ResourceMeshPlane::LoadOnMemory(float4 color)
+{
+
+	bufferData.num_color = 4;
+	bufferData.color = new float[bufferData.num_color * 4];
+	uint j = 0;
+	for (uint i = 0; i < 4; ++i)
+	{
+		memcpy(&bufferData.color[j], &color.x, sizeof(float));
+		memcpy(&bufferData.color[j + 1], &color.y, sizeof(float));
+		memcpy(&bufferData.color[j + 2], &color.z, sizeof(float));
+		memcpy(&bufferData.color[j + 3], &color.w, sizeof(float));
+		j += 4;
+	}
+
+	// Color Buffer
+	glGenBuffers(1, (GLuint*) & (bufferData.id_color));
+	glBindBuffer(GL_ARRAY_BUFFER, bufferData.id_color);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * bufferData.num_color * 4, bufferData.color, GL_STATIC_DRAW);
+}
+
+void ResourceMeshPlane::FreeMemory()
+{
+	glDeleteBuffers(1, (GLuint*)&bufferData.color);
+	RELEASE_ARRAY(bufferData.color);
 }
 
 void ResourceMeshPlane::GenerateOwnMeshData()
@@ -20,7 +49,7 @@ void ResourceMeshPlane::GenerateOwnMeshData()
 }
 
 // TODO: blend mode
-void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency)
+void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency, float4 color)
 {
 	glPushMatrix();
 	glMultMatrixf(global_transform.Transposed().ptr());
@@ -31,6 +60,7 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnable(GL_ALPHA_TEST);
 
+	// Texture
 	if (tex)
 	{
 		glBindTexture(GL_TEXTURE_2D, tex->GetTextureData()->id_texture);
@@ -38,6 +68,11 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 		glAlphaFunc(GL_GREATER, (GLclampf)tex->GetTextureData()->transparency = transparency);
 	}
 
+	// Color
+	if (this->color.IsFinite())
+		glColor4f(this->color.x, this->color.y, this->color.z, this->color.w);
+	
+	// Blending
 	glEnable(GL_BLEND);
 	if (blendMode == blendMode::ADDITIVE)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -45,6 +80,7 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
+	// Geometry
 	glBegin(GL_QUADS);
 	for (int i = 0; i < own_mesh->points.size(); i += 2)
 	{
@@ -60,7 +96,7 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 
 
 	// Disable Cient states && clear data
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glAlphaFunc(GL_EQUAL, (GLclampf)1.f);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND); 

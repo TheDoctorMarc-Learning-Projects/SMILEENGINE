@@ -111,6 +111,7 @@ public:
 	void CleanUp(); 
 
 private: 
+	void SetupMesh(); 
 	void Draw();  
 	void SpawnParticle(); 
 	float3 GetRandomRange(std::variant<float3, std::pair<float3, float3>> ranges);

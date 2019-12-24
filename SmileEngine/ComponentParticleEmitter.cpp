@@ -18,6 +18,9 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent)
 {
 	type = COMPONENT_TYPE::EMITTER;
 	SetName("Emitter"); 
+
+	SetupMesh();
+
 	particles.resize(data.emissionData.maxParticles);
 
 	pVariableFunctions.insert(std::pair((uint_fast8_t)0, &ComponentParticleEmitter::LifeUpdate));
@@ -28,6 +31,8 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 {
 	type = COMPONENT_TYPE::EMITTER;
 	SetName("Emitter");
+
+	// 0) Base Mesh
 
 	// 1) Push functions --> Only if the variable changes on time
 	auto initialState = this->data.initialState;
@@ -40,7 +45,8 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 		pVariableFunctions.insert(std::pair((uint_fast8_t)2, &ComponentParticleEmitter::ColorUpdate));
 
 	// 2) A) Get resources  // TODO: texture animation :) what about the file format??
-	mesh = App->resources->Plane; 
+	SetupMesh();
+
 	if (this->data.emissionData.texPath != "empty")
 	{
 		texture = (ResourceTexture*)App->resources->GetResourceByPath(this->data.emissionData.texPath.c_str());
@@ -58,8 +64,16 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 
 	// 2) B) 
 	App->resources->UpdateResourceReferenceCount(mesh->GetUID(), particles.size());
-	App->resources->UpdateResourceReferenceCount(texture->GetUID(), particles.size());
+	if(texture)
+		App->resources->UpdateResourceReferenceCount(texture->GetUID(), particles.size());
 
+}
+
+void ComponentParticleEmitter::SetupMesh()
+{
+	 
+	mesh = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default", float4(1, 0, 0, 1));
+	App->resources->resources.insert(std::pair<SmileUUID, Resource*>(mesh->GetUID(), (Resource*)mesh));
 }
 
 // -----------------------------------------------------------------
@@ -78,12 +92,15 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
 void ComponentParticleEmitter::CleanUp()  
 {
 	App->resources->UpdateResourceReferenceCount(mesh->GetUID(), -particles.size());
-	App->resources->UpdateResourceReferenceCount(texture->GetUID(), -particles.size());
+	mesh = nullptr;
+	if (texture)
+	{
+		App->resources->UpdateResourceReferenceCount(texture->GetUID(), -particles.size());
+		texture = nullptr;
+	}
 
 	pVariableFunctions.clear();
 	particles.clear();
-	mesh = nullptr; 
-	texture = nullptr; 
 }
 
 // -----------------------------------------------------------------
@@ -108,16 +125,16 @@ void ComponentParticleEmitter::Update(float dt)
 // -----------------------------------------------------------------
 void ComponentParticleEmitter::Draw()
 {
-	// TODO -> sort alive particles from far to near (not active ones last)
+	// Sort
 	drawParticles = particles; 
 	std::sort(drawParticles.begin(), drawParticles.end());
 
-	// Blit them 
+	// Blit  
 	for (auto& p : drawParticles)
 		if (p.currentState.life > 0.f)
 			mesh->BlitMeshHere(p.transf.GetGlobalMatrix(),
 			(data.initialState.tex.first) ? texture : nullptr,
-				data.blendmode, p.currentState.transparency);
+				data.blendmode, p.currentState.transparency); // TODO: color updates plane resource buffer -> so create new plane resource for each system! otherwise all systems will change the same plane and chaning one color will affect other systems
 
 	drawParticles.clear();
 }

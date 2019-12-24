@@ -34,7 +34,6 @@ public:
 	ResourceMesh* Cube;
 	ResourceMesh* Sphere;
 	ResourceTexture* checkersTexture;
-private:
 	std::map<SmileUUID, Resource*> resources;
 
 

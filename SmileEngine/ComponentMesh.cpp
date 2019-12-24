@@ -76,7 +76,7 @@ void ComponentMesh::DrawEnd()
 	glPopMatrix();
 }
 
-void ComponentMesh::DefaultDraw(ModelMeshData* model_mesh)
+void ComponentMesh::DefaultDraw(ModelMeshData* model_mesh) // The color draw missing like in plane
 {
 	// vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, model_mesh->id_vertex);

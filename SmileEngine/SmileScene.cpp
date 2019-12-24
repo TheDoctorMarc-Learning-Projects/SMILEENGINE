@@ -55,7 +55,7 @@ bool SmileScene::Start()
 	AllData data; 
 	data.initialState.life = std::pair(1.f, 0.2f);
 	data.emissionData.time = 0.1f;
-	data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"); 
+	//data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"); 
 	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
 	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));
 	

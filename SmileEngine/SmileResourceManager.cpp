@@ -22,7 +22,7 @@ bool SmileResourceManager::Start()
 	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
 	Sphere->SetPreset(true);
 
-	Plane = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default");
+	Plane = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default", float4(1, 0, 0, 1));
 	resources.insert(std::pair<SmileUUID, Resource*>(Plane->GetUID(), (Resource*)Plane));
 	Plane->SetPreset(true); 
 
