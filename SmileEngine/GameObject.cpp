@@ -498,7 +498,7 @@ void GameObject::Draw()
 
 void GameObject::ShowTransformInspector()
 {
-	if (dynamic_cast<ComponentParticleEmitter*>(App->scene_intro->selectedObj->GetComponent(EMITTER))) {
+	
 		KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
 
 
@@ -541,7 +541,7 @@ void GameObject::ShowTransformInspector()
 		ImGui::Text(std::string("Global Rotation: " + GetStringFrom3Values(transf->GetGlobalMatrix().RotatePart().ToEulerXYZ(), true)).c_str());
 		ImGui::Text(std::string("Global Scale: " + GetStringFrom3Values(transf->GetGlobalMatrix().GetScale(), true)).c_str());
 
-
+		if (dynamic_cast<ComponentParticleEmitter*>(App->scene_intro->selectedObj->GetComponent(EMITTER))) {
 		// Billboard
 		if (billboard == nullptr)
 		{
