@@ -184,8 +184,11 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		{
 			if (ImGui::MenuItem("Quit"))
 				ret = false;
-			if (ImGui::MenuItem("Save Scene"))
-				App->serialization->SaveScene(); 
+			if (ImGui::MenuItem("Save Scene")) {
+				App->serialization->SaveScene();
+				
+			}
+
 
 			if (ImGui::MenuItem("Load Scene"))
 				App->serialization->LoadScene("Library/Scenes/scene.json");

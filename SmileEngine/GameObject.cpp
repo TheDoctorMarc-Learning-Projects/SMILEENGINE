@@ -498,104 +498,106 @@ void GameObject::Draw()
 
 void GameObject::ShowTransformInspector()
 {
-	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
+	if (dynamic_cast<ComponentParticleEmitter*>(App->scene_intro->selectedObj->GetComponent(EMITTER))) {
+		KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
 
-	
-	auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
-	{
-		return std::string(
-			std::string((append) ? "(" : "") + std::to_string(xyz.x)
-			+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
-			+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
-			+ std::string((append) ? ")" : "");
-	};
 
-	ComponentTransform* transf = GetTransform();
+		auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+		{
+			return std::string(
+				std::string((append) ? "(" : "") + std::to_string(xyz.x)
+				+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+				+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+				+ std::string((append) ? ")" : "");
+		};
 
-	// reset
-	if (ImGui::Button("Reset"))
-	{
-		transf->ChangePosition(float3::zero); 
-		transf->ChangeScale(float3::one); 
-		transf->ChangeRotation(Quat::identity); 
+		ComponentTransform* transf = GetTransform();
+
+		// reset
+		if (ImGui::Button("Reset"))
+		{
+			transf->ChangePosition(float3::zero);
+			transf->ChangeScale(float3::one);
+			transf->ChangeRotation(Quat::identity);
 
 			if (billboard)
 				RELEASE(billboard);
-	}
-
-
-	math::float3 pos = transf->GetPosition();
-	math::float3 rot = transf->GetRotation().ToEulerXYZ();
-	math::float3 degRot = RadToDeg(rot);
-	math::float3 sc = transf->GetScale();
-	float p[3] = { pos.x, pos.y, pos.z };
-	float r[3] = { degRot.x, degRot.y, degRot.z };
-	float s[3] = { sc.x, sc.y, sc.z };
-	ImGui::InputFloat3("Position", p);
-	ImGui::InputFloat3("Rotation", r);
-	ImGui::InputFloat3("Scale", s);
-
-	// (info)
-	ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
-	ImGui::Text(std::string("Global Rotation: " + GetStringFrom3Values(transf->GetGlobalMatrix().RotatePart().ToEulerXYZ(), true)).c_str());
-	ImGui::Text(std::string("Global Scale: " + GetStringFrom3Values(transf->GetGlobalMatrix().GetScale(), true)).c_str());
-
-
-	// Billboard
-	if (billboard == nullptr)
-	{
-		if (ImGui::CollapsingHeader("Add Billboard"))
-		{
-			auto alignment = FreeBillBoard::Alignment::noAlignment; 
-			if (ImGui::Button("Axis", ImVec2(100, 20)))
-				alignment = FreeBillBoard::Alignment::axis; 
-			if (ImGui::Button("Screen", ImVec2(100, 20)))
-				alignment = FreeBillBoard::Alignment::screen;
-			if (ImGui::Button("World", ImVec2(100, 20)))
-				alignment = FreeBillBoard::Alignment::world;
-
-			if(alignment != FreeBillBoard::Alignment::noAlignment)
-				billboard = DBG_NEW FreeBillBoard();
 		}
 
-	}
-	else
-	{
-		if (ImGui::CollapsingHeader("Edit Billboard"))
+
+		math::float3 pos = transf->GetPosition();
+		math::float3 rot = transf->GetRotation().ToEulerXYZ();
+		math::float3 degRot = RadToDeg(rot);
+		math::float3 sc = transf->GetScale();
+		float p[3] = { pos.x, pos.y, pos.z };
+		float r[3] = { degRot.x, degRot.y, degRot.z };
+		float s[3] = { sc.x, sc.y, sc.z };
+		ImGui::InputFloat3("Position", p);
+		ImGui::InputFloat3("Rotation", r);
+		ImGui::InputFloat3("Scale", s);
+
+		// (info)
+		ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
+		ImGui::Text(std::string("Global Rotation: " + GetStringFrom3Values(transf->GetGlobalMatrix().RotatePart().ToEulerXYZ(), true)).c_str());
+		ImGui::Text(std::string("Global Scale: " + GetStringFrom3Values(transf->GetGlobalMatrix().GetScale(), true)).c_str());
+
+
+		// Billboard
+		if (billboard == nullptr)
 		{
-			auto alignment = FreeBillBoard::Alignment::noAlignment;
-			if (ImGui::Button("Axis", ImVec2(100, 20)))
-				alignment = FreeBillBoard::Alignment::axis;
-			if (ImGui::Button("Screen", ImVec2(100, 20)))
-				alignment = FreeBillBoard::Alignment::screen;
-			if (ImGui::Button("World", ImVec2(100, 20)))
-				alignment = FreeBillBoard::Alignment::world;
-			if (ImGui::Button("Delete", ImVec2(100, 20)))
-				RELEASE(billboard);
+			if (ImGui::CollapsingHeader("Add Billboard"))
+			{
+				auto alignment = FreeBillBoard::Alignment::noAlignment;
+				if (ImGui::Button("Axis", ImVec2(100, 20)))
+					alignment = FreeBillBoard::Alignment::axis;
+				if (ImGui::Button("Screen", ImVec2(100, 20)))
+					alignment = FreeBillBoard::Alignment::screen;
+				if (ImGui::Button("World", ImVec2(100, 20)))
+					alignment = FreeBillBoard::Alignment::world;
 
-			if (alignment != FreeBillBoard::Alignment::noAlignment)
-				billboard->alignment = alignment; 
+				if (alignment != FreeBillBoard::Alignment::noAlignment)
+					billboard = DBG_NEW FreeBillBoard();
+			}
+
 		}
+		else
+		{
+			if (ImGui::CollapsingHeader("Edit Billboard"))
+			{
+				auto alignment = FreeBillBoard::Alignment::noAlignment;
+				if (ImGui::Button("Axis", ImVec2(100, 20)))
+					alignment = FreeBillBoard::Alignment::axis;
+				if (ImGui::Button("Screen", ImVec2(100, 20)))
+					alignment = FreeBillBoard::Alignment::screen;
+				if (ImGui::Button("World", ImVec2(100, 20)))
+					alignment = FreeBillBoard::Alignment::world;
+				if (ImGui::Button("Delete", ImVec2(100, 20)))
+					RELEASE(billboard);
+
+				if (alignment != FreeBillBoard::Alignment::noAlignment)
+					billboard->alignment = alignment;
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Particle Color"))
+
+		{
+			ImGui::Text("Particle Color");
+			ImGui::ColorPicker4("", &nextColor.x, ImGuiColorEditFlags_AlphaBar);
+
+
+		}
+
+
+		if (keyState != KEY_DOWN)
+			return;
+
+		math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
+		float radR[3] = { radRot.x, radRot.y, radRot.z };
+
+		float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
+		transf->UpdateTransform(values);
 	}
-
-	if (ImGui::CollapsingHeader("Particle Color"))
-
-	{
-		ImGui::Text("Particle Color");
-		ImGui::ColorPicker4("", &nextColor.x, ImGuiColorEditFlags_AlphaBar);
-			
-		
-	}
-	
-	
-	if (keyState != KEY_DOWN)
-		return;
-
-	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
-	float radR[3] = { radRot.x, radRot.y, radRot.z };
-
-	float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
-	transf->UpdateTransform(values);
 }
 
 ComponentTransform* GameObject::GetTransform() const

@@ -106,6 +106,7 @@ public:
 public: 
 	void Update(float dt = 0); 
 	void CleanUp(); 
+	void OnSave();
 
 private: 
 	void SetupMesh(); 
