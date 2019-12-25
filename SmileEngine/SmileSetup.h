@@ -60,6 +60,7 @@ enum update_status
 #define LIBRARY_MODELS_FOLDER "/Library/Models/"
 #define ASSETS_MODELS_FOLDER "/Assets/Models/"
 #define SCENE_FOLDER "/Library/Scenes/"
+#define PARTICLES_FOLDER "/Library/Particles/"
 #define MESH_EXTENSION "smilemesh"
 #define TEXTURES_EXTENSION "smiletexture"
 #define MODELS_EXTENSION "smilemodel"

@@ -110,6 +110,19 @@ void ComponentParticleEmitter::CleanUp()
 	particles.clear();
 }
 
+void ComponentParticleEmitter::OnSave()
+{
+	rapidjson::StringBuffer buffer;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+	writer.StartObject();
+	writer.Key("Particles");
+
+	const char* output = buffer.GetString();
+	std::string dirPath;
+	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), PARTICLES_FOLDER, "particle", "json");
+}
+
 // -----------------------------------------------------------------
 void ComponentParticleEmitter::Update(float dt)
 {
