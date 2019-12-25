@@ -65,22 +65,24 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 
 
 	// Texture
-	if(tex)
-		glEnable(GL_ALPHA_TEST);
-
 	if (tex)
 	{
+		glEnable(GL_ALPHA_TEST);
+
 		glBindTexture(GL_TEXTURE_2D, tex->GetTextureData()->id_texture);
 		// Alpha Testing
 		glAlphaFunc(GL_GREATER, (GLclampf)tex->GetTextureData()->transparency = transparency);
 	}
-	
-	// Blending
-	glEnable(GL_BLEND);
-	if (blendMode == blendMode::ADDITIVE)
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	else if (blendMode == blendMode::ALPHA_BLEND)
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	else
+	{
+		// Color Blending
+		glEnable(GL_BLEND);
+		if (blendMode == blendMode::ADDITIVE)
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		else if (blendMode == blendMode::ALPHA_BLEND)
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	}
 
 	// Color
 	if (color.IsFinite())
