@@ -51,12 +51,7 @@ bool SmileScene::Start()
     App->serialization->LoadScene("Library/Scenes/scene.json", true);
 
 	// Test emitter here: 
-	std::vector<Component*> comps; 
-	comps.push_back((Component*)DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "RocketoMesh"));
-	comps.push_back((Component*)DBG_NEW ComponentVolatile(0.5f, &CreateFireWork, float3(1, 30, 0))); 
-	rocketo = DBG_NEW GameObject(comps, "rocketo", rootObj);
-	rocketo->Start();
-	App->spatial_tree->OnStaticChange(rocketo, rocketo->GetStatic());
+	
  
 /*	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", rootObj);
 	AllData data; 
@@ -95,6 +90,17 @@ bool SmileScene::Reset() // similar, but root needs a transform after being clea
 	return true;
 }
 
+void CreateRocketo()
+{
+	std::vector<Component*> comps;
+	comps.push_back((Component*)DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "RocketoMesh"));
+	comps.push_back((Component*)DBG_NEW ComponentVolatile(0.5f, &CreateFireWork, float3(1, 30, 0)));
+	GameObject* rocketo = DBG_NEW GameObject(comps, "rocketo", App->scene_intro->rootObj);
+	rocketo->Start();
+	App->spatial_tree->OnStaticChange(rocketo, rocketo->GetStatic());
+}
+
+
 // Update
 update_status SmileScene::Update(float dt)
 {
@@ -103,6 +109,9 @@ update_status SmileScene::Update(float dt)
 	//HandleGizmo();
 
 	// TODO: firework with input 
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+		CreateRocketo(); 
+
 
 	if (generalDbug == true)
 	{
@@ -427,5 +436,5 @@ void CreateFireWork()
 	data.initialState.color.first = float4(1, 0, 0, 1);
 	data.initialState.color.second = float4(0, 0, 1, 1);
 	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));
-	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rocketo->GetTransform()->GetGlobalMatrix()); 
+	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix()); 
 }

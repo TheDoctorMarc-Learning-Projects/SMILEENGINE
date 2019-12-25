@@ -617,3 +617,21 @@ ComponentMaterial* GameObject::GetMaterial() const
 {
 	return dynamic_cast<ComponentMaterial*>(components[MATERIAL]);
 }
+
+GameObject* GameObject::Find(std::string name) const
+{
+	for (auto& c : childObjects)
+	{
+		if (c->name == name)
+			return c;
+		else
+		{
+			auto ret = c->Find(name); 
+			if (ret)
+				return ret; 
+		}
+	}
+
+	return nullptr;
+}
+

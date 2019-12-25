@@ -76,8 +76,10 @@ public:
 	std::vector<GameObject*> GetImmidiateChildren() const;
 	float GetBoundingSphereRadius() const;
 	bool GetStatic() const { return isStatic; };
- 
-	
+
+	// search
+	GameObject* Find(std::string name) const; 
+
 		// Main functions 
 	virtual void Start(); 
 	virtual void Enable(); 

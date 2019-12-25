@@ -59,7 +59,4 @@ public:
 
 	uint objectCandidatesBeforeFrustrumPrune = 0; 
 	uint objectCandidatesAfterFrustrumPrune = 0;
-
-	GameObject* rocketo = nullptr; 
-
 };
