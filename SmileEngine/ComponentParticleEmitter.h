@@ -30,7 +30,7 @@ struct CurrentState
 	// anim frame ? 
 	float tex;
 
-	// Stuff that is random (per-particle= can be stored here for updation:
+	// Stuff that is random, per-particle, can be stored here for updation:
 	InitialRandomState randomData;
 };
 
@@ -57,7 +57,7 @@ struct InitialState
 	std::pair<float3, float3> speed = std::pair(float3::zero, float3::zero); // initial & over time
 	std::pair<float, float> size = std::pair(1.f, 0.f); // initial & final
 	std::pair<float, float> transparency = std::pair(0.f, 0.f);
-	std::pair<float4, float4> color = std::pair(float4::zero, float4::zero); // initial & final
+	std::pair<float4, float4> color = std::pair(float4::inf, float4::inf); // initial & final
 	std::pair<bool, float> tex = std::pair(false, 0.f); // has & anim speed 
 
 };

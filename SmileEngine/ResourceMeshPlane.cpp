@@ -5,8 +5,8 @@
 ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color) : ResourceMesh(uuid, type, path), color(color)
 {
 	GenerateOwnMeshData();
-	if(color.IsFinite())
-		LoadOnMemory(color);
+	/*if(color.IsFinite())
+		LoadOnMemory(color);*/
 }
 
 void ResourceMeshPlane::LoadOnMemory(float4 color)
@@ -32,8 +32,8 @@ void ResourceMeshPlane::LoadOnMemory(float4 color)
 
 void ResourceMeshPlane::FreeMemory()
 {
-	glDeleteBuffers(1, (GLuint*)&bufferData.color);
-	RELEASE_ARRAY(bufferData.color);
+	/*glDeleteBuffers(1, (GLuint*)&bufferData.color);
+	RELEASE_ARRAY(bufferData.color);*/
 }
 
 void ResourceMeshPlane::GenerateOwnMeshData()
@@ -49,7 +49,7 @@ void ResourceMeshPlane::GenerateOwnMeshData()
 }
 
 // TODO: blend mode
-void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency)
+void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency, float4 color)
 {
 	glPushMatrix();
 	glMultMatrixf(global_transform.Transposed().ptr());
@@ -79,9 +79,12 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Color
-	if (this->color.IsFinite())
+	if (color.IsFinite())
+	{
+		this->color = color; 
 		glColor4f(this->color.x, this->color.y, this->color.z, this->color.w);
-
+	}
+	
 
 	// Geometry
 	glBegin(GL_QUADS);

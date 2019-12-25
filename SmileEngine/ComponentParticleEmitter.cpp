@@ -134,7 +134,7 @@ void ComponentParticleEmitter::Draw()
 		if (p.currentState.life > 0.f)
 			mesh->BlitMeshHere(p.transf.GetGlobalMatrix(),
 			(data.initialState.tex.first) ? texture : nullptr,
-				data.blendmode, p.currentState.transparency); // TODO: color updates plane resource buffer -> so create new plane resource for each system! otherwise all systems will change the same plane and chaning one color will affect other systems
+				data.blendmode, p.currentState.transparency, p.currentState.color); // TODO: color updates plane resource buffer -> so create new plane resource for each system! otherwise all systems will change the same plane and chaning one color will affect other systems
 
 	drawParticles.clear();
 }
@@ -182,7 +182,7 @@ void ComponentParticleEmitter::SpawnParticle()
 	
 	// Initial speed and color can be random:
 	bool randomC = data.emissionData.randomColor.first;
-	p.currentState.color = (randomC) ? (p.currentState.randomData.color = GetRandomRange4(data.emissionData.randomColor.second)) : data.initialState.color.second;
+	p.currentState.color = (randomC) ? (p.currentState.randomData.color = GetRandomRange4(data.emissionData.randomColor.second)) : data.initialState.color.first;
 	bool randomS = data.emissionData.randomSpeed.first; 
 	p.currentState.speed = (randomS) ? (p.currentState.randomData.speed = GetRandomRange(data.emissionData.randomSpeed.second)) : data.initialState.speed.second;
 		 
@@ -226,14 +226,18 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
 {
-	if (p.currentState.life > 0.5) 
-	{
-		p.currentState.color = data.initialState.color.first;
-	}
-	else 
-	{
-		p.currentState.color = data.initialState.color.second;
-	}
+
+	float4 initVal = (data.emissionData.randomColor.first) ? p.currentState.randomData.color : data.initialState.color.first; 
+	float4 endVal = data.initialState.color.second; 
+
+	if (endVal.IsFinite() == false)
+		return; 
+
+	float lifePercentatge = 1 - (p.currentState.life / data.initialState.life.first); 
+	for (int i = 0; i < 4; ++i)
+		p.currentState.color[i] = initVal[i] + lifePercentatge * (endVal[i] - initVal[i]); 
+
+    // c = init + inverse percentage * range 
 }
 
 
