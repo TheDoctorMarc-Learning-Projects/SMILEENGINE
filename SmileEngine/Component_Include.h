@@ -6,3 +6,5 @@
 #include "ComponentTransform.h"
 #include "ComponentParticleEmitter.h"
 #include "ComponentTypes.h" 
+#include "ComponentVolatile.h" 
+

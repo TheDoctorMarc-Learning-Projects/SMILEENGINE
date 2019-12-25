@@ -55,6 +55,9 @@
     <Filter Include="Source\Modules\Particles">
       <UniqueIdentifier>{fa2139e7-a954-4905-9c3d-506e470deaf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Modules\Particles\Helper">
+      <UniqueIdentifier>{07c2b344-88bb-4d30-ba75-bc0920a21cf8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -222,6 +225,9 @@
     <ClInclude Include="SmileResourceManager.h">
       <Filter>Source\Modules\Objects\Resources</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentVolatile.h">
+      <Filter>Source\Modules\Particles\Helper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -340,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="SmileResourceManager.cpp">
       <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentVolatile.cpp">
+      <Filter>Source\Modules\Particles\Helper</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

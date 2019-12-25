@@ -4,6 +4,7 @@
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
 #include "ComponentParticleEmitter.h"
+#include "ComponentVolatile.h"
 #include "ComponentCamera.h"
 #include "Glew/include/GL/glew.h" 
 #include "SmileSpatialTree.h"

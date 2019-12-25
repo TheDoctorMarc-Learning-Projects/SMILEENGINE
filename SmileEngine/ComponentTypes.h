@@ -9,6 +9,7 @@ enum COMPONENT_TYPE : uint
 	MATERIAL,
 	CAMERA,
 	EMITTER,
+	VOLATILE,
 	LIGHT,
 	MAX_COMPONENT_TYPES,
 	NO_TYPE
@@ -45,4 +46,6 @@ static std::map<std::string, COMPONENT_TYPE> componentTypeMap =
 	{ "Material", MATERIAL},
 	{ "Camera", CAMERA},
 	{ "Emitter", EMITTER},
+	{ "Volatile", VOLATILE}, // TODO: SAVE LOAD 
+	{ "Light", LIGHT}, // TODO: SAVE LOAD 
 }; 

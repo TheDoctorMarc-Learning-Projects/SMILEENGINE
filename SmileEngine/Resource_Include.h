@@ -3,3 +3,4 @@
 #include "SmileResourceManager.h"
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
+#include "ResourceMeshPlane.h"

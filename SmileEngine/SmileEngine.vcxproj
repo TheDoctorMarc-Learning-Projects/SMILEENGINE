@@ -92,6 +92,7 @@
     <ClInclude Include="ComponentParticleEmitter.h" />
     <ClInclude Include="ComponentTransform.h" />
     <ClInclude Include="ComponentTypes.h" />
+    <ClInclude Include="ComponentVolatile.h" />
     <ClInclude Include="Component_Include.h" />
     <ClInclude Include="FreeBillBoard.h" />
     <ClInclude Include="FreeTransform.h" />
@@ -147,6 +148,7 @@
     <ClCompile Include="ComponentMesh.cpp" />
     <ClCompile Include="ComponentParticleEmitter.cpp" />
     <ClCompile Include="ComponentTransform.cpp" />
+    <ClCompile Include="ComponentVolatile.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="ComponentCamera.cpp" />
     <ClCompile Include="glmath.cpp" />

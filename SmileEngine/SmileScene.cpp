@@ -51,7 +51,14 @@ bool SmileScene::Start()
     App->serialization->LoadScene("Library/Scenes/scene.json", true);
 
 	// Test emitter here: 
-	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", rootObj);
+	std::vector<Component*> comps; 
+	comps.push_back((Component*)DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "RocketoMesh"));
+	comps.push_back((Component*)DBG_NEW ComponentVolatile(0.5f, &CreateFireWork, float3(1, 30, 0))); 
+	rocketo = DBG_NEW GameObject(comps, "rocketo", rootObj);
+	rocketo->Start();
+	App->spatial_tree->OnStaticChange(rocketo, rocketo->GetStatic());
+ 
+/*	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", rootObj);
 	AllData data; 
 	data.initialState.life = std::pair(1.f, 0.2f);
 	data.emissionData.time = 0.1f;
@@ -59,8 +66,7 @@ bool SmileScene::Start()
 	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
 	data.initialState.color.first = float4(1, 0, 0, 1); 
 	data.initialState.color.second = float4(0, 0, 1, 1); 
-	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));
-	
+	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));*/
 	return true;
 }
 
@@ -95,6 +101,8 @@ update_status SmileScene::Update(float dt)
 	rootObj->Update(dt); 
 	DrawObjects();
 	//HandleGizmo();
+
+	// TODO: firework with input 
 
 	if (generalDbug == true)
 	{
@@ -406,4 +414,18 @@ float2 SmileScene::GetNormalizedMousePos(int mouse_x, int mouse_y)
 math::LineSegment SmileScene::TraceRay(float2 normMousePos)
 {
 	return App->renderer3D->targetCamera->calcFrustrum.UnProjectLineSegment(normMousePos.x, normMousePos.y);
+}
+
+void CreateFireWork()
+{
+	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
+	AllData data;
+	data.initialState.life = std::pair(1.f, 0.2f);
+	data.emissionData.time = 0.1f;
+	//data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"); 
+	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
+	data.initialState.color.first = float4(1, 0, 0, 1);
+	data.initialState.color.second = float4(0, 0, 1, 1);
+	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));
+	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rocketo->GetTransform()->GetGlobalMatrix()); 
 }

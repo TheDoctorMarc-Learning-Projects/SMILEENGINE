@@ -44,5 +44,6 @@ public:
 	friend class ComponentTransform; 
 	friend class ComponentCamera; 
 	friend class ComponentParticleEmitter; 
+	friend class ComponentVolatile; 
 };
 

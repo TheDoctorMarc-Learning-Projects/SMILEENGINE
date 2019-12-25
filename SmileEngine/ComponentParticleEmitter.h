@@ -41,10 +41,7 @@ struct Particle
 	CurrentState currentState;
 
 	float camDist = -floatMax; 
-	bool operator<(Particle& other) {
-		// Sort in reverse order : far particles drawn first.
-		return this->camDist > other.camDist;
-	}
+	bool operator<(Particle& other) { return this->camDist > other.camDist; }
 };
 
 // Once the particle system is created, this initialState is set to the recieved values 

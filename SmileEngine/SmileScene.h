@@ -13,6 +13,8 @@
 
 #define MAXLINES 30
 
+void CreateFireWork(); 
+
 class SmileScene : public SmileModule
 {
 public:
@@ -57,5 +59,7 @@ public:
 
 	uint objectCandidatesBeforeFrustrumPrune = 0; 
 	uint objectCandidatesAfterFrustrumPrune = 0;
+
+	GameObject* rocketo = nullptr; 
 
 };
