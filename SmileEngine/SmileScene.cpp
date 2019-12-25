@@ -97,6 +97,7 @@ void CreateRocketo()
 	comps.push_back((Component*)DBG_NEW ComponentVolatile(0.5f, &CreateFireWork, float3(1, 30, 0)));
 	GameObject* rocketo = DBG_NEW GameObject(comps, "rocketo", App->scene_intro->rootObj);
 	rocketo->Start();
+	rocketo->SetStatic(false); 
 	App->spatial_tree->OnStaticChange(rocketo, rocketo->GetStatic());
 }
 
@@ -430,11 +431,24 @@ void CreateFireWork()
 	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
 	AllData data;
 	data.initialState.life = std::pair(1.f, 0.2f);
-	data.emissionData.time = 0.1f;
-	//data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"); 
+	data.emissionData.time = 0.03f;
+	data.emissionData.maxParticles = 1000; 
 	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
-	data.initialState.color.first = float4(1, 0, 0, 1);
-	data.initialState.color.second = float4(0, 0, 1, 1);
-	emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));
+	
+	// To test animated sheet (do with smoke): 
+	data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("smokesheet.dds");
+	data.initialState.tex = std::pair(true, 0.1f);
+
+	// Color for fire (do not set alpha to 1, better show alpha blending)
+	/*data.initialState.color.first = float4(1, 0, 0, 1);
+	data.initialState.color.second = float4(0, 0, 1, 1);*/
+	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+	emitter->AddComponent((Component*)emmiterComp);
+
 	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix()); 
+
+	
+	emmiterComp->mesh->tileData = DBG_NEW TileData;
+	emmiterComp->mesh->tileData->nCols = emmiterComp->mesh->tileData->nRows = 7;
+	emmiterComp->mesh->tileData->maxTiles = 46;
 }

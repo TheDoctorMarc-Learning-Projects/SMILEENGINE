@@ -19,6 +19,7 @@ void ResourceTexture::LoadOnMemory(const char* path)
 
 	textureInfo = DBG_NEW textureData; 
 
+	
 	ILuint tempID;
 	ilGenImages(1, &tempID);
 	ilBindImage(tempID);
@@ -34,7 +35,6 @@ void ResourceTexture::LoadOnMemory(const char* path)
 
 		ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
-
 		glGenTextures(1, (GLuint*)&textureInfo->id_texture);
 		glBindTexture(GL_TEXTURE_2D, (GLuint)textureInfo->id_texture);
 
@@ -48,7 +48,7 @@ void ResourceTexture::LoadOnMemory(const char* path)
 		glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)ilGetInteger(IL_IMAGE_WIDTH),
 			(GLuint)ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
 			ilGetData());
-
+ 
 
 		this->textureInfo->texture = ilGetData();
 		this->textureInfo->width = (uint)ilGetInteger(IL_IMAGE_WIDTH);

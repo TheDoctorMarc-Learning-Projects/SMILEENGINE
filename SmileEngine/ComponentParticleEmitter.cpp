@@ -44,7 +44,7 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 	if (initialState.color.second.Length4() > 0.f || this->data.emissionData.randomColor.first)
 		pVariableFunctions.insert(std::pair((uint_fast8_t)2, &ComponentParticleEmitter::ColorUpdate));
 
-	// 2) A) Get resources  // TODO: texture animation :) what about the file format??
+	// 2) A) Get resources   
 	SetupMesh();
 
 	if (this->data.emissionData.texPath != "empty")
@@ -57,6 +57,13 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 		}
 
 		this->data.initialState.tex.first = true; 
+
+		// Animation 
+		if (this->data.initialState.tex.second > 0.f) // Check anim speed 
+		{
+			pVariableFunctions.insert(std::pair((uint_fast8_t)3, &ComponentParticleEmitter::AnimUpdate));
+
+		}
 	}
 
 	// 3) Resize the particles buffer   
@@ -134,7 +141,8 @@ void ComponentParticleEmitter::Draw()
 		if (p.currentState.life > 0.f)
 			mesh->BlitMeshHere(p.transf.GetGlobalMatrix(),
 			(data.initialState.tex.first) ? texture : nullptr,
-				data.blendmode, p.currentState.transparency, p.currentState.color); // TODO: color updates plane resource buffer -> so create new plane resource for each system! otherwise all systems will change the same plane and chaning one color will affect other systems
+				data.blendmode, p.currentState.transparency, p.currentState.color,
+				((data.initialState.tex.second > 0.f) ? p.currentState.tileIndex : INFINITE));  
 
 	drawParticles.clear();
 }
@@ -177,8 +185,6 @@ void ComponentParticleEmitter::SpawnParticle()
 	p.currentState.transparency = data.initialState.transparency.first;
 	p.currentState.life = data.initialState.life.first;
 	p.currentState.size = data.initialState.size.first;
-	p.currentState.tex = data.initialState.tex.first;
-
 	
 	// Initial speed and color can be random:
 	bool randomC = data.emissionData.randomColor.first;
@@ -219,7 +225,7 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	// Update camera distance
 	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();
 
-	// Update Billboard
+	// TODO -> Update Billboard
 	//p.billboard.Update(camMatrix, FreeBillBoard::Alignment::world, p.transf);
 }
 
@@ -238,6 +244,18 @@ inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
 		p.currentState.color[i] = initVal[i] + lifePercentatge * (endVal[i] - initVal[i]); 
 
     // c = init + inverse percentage * range 
+}
+
+inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
+{
+	
+	if ((p.currentState.lastTileframe += dt) >= data.initialState.tex.second)
+	{
+		p.currentState.tileIndex = ((p.currentState.tileIndex + 1) < mesh->tileData->maxTiles) ?
+			(p.currentState.tileIndex + 1) : 0; 
+		p.currentState.lastTileframe = 0.f; 
+	};
+
 }
 
 

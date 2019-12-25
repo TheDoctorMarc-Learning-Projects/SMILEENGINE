@@ -27,9 +27,8 @@ struct CurrentState
 	float size;
 	float transparency;
 	float4 color;
-	// anim frame ? 
-	float tex;
-
+	uint tileIndex = 0;  
+	float lastTileframe = 0.f; 
 	// Stuff that is random, per-particle, can be stored here for updation:
 	InitialRandomState randomData;
 };
@@ -62,6 +61,7 @@ struct InitialState
 enum class emmissionShape { CIRCLE, CUBE, CONE }; // ... 
 enum class blendMode { ADDITIVE, ALPHA_BLEND };
 enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
+
 
 struct EmissionData
 {
@@ -116,13 +116,15 @@ private:
 	inline void SpeedUpdate(Particle& p, float dt);
 	inline void LifeUpdate(Particle& p, float dt);
 	inline void ColorUpdate(Particle& p, float dt);
-
-
+	inline void AnimUpdate(Particle& p, float dt); 
+	
 private: 
 	uint_fast8_t lastUsedParticle = 0;
 	std::vector<Particle> particles, drawParticles; 
 	AllData data;
 	std::map<uint_fast8_t, function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
+	
+public: 
 	ResourceMeshPlane* mesh = nullptr; 
 	ResourceTexture* texture = nullptr; 
 

@@ -2,7 +2,7 @@
 #include "Glew/include/GL/glew.h" 
 #include "ResourceTexture.h"
 
-ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color) : ResourceMesh(uuid, type, path), color(color)
+ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color, TileData* tileData) : ResourceMesh(uuid, type, path), color(color), tileData(tileData)
 {
 	GenerateOwnMeshData();
 	/*if(color.IsFinite())
@@ -11,6 +11,7 @@ ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::stri
 
 void ResourceMeshPlane::LoadOnMemory(float4 color)
 {
+	
 
 	bufferData.num_color = 4;
 	bufferData.color = new float[bufferData.num_color * 4];
@@ -32,6 +33,9 @@ void ResourceMeshPlane::LoadOnMemory(float4 color)
 
 void ResourceMeshPlane::FreeMemory()
 {
+	if(tileData)
+		RELEASE(tileData);
+
 	/*glDeleteBuffers(1, (GLuint*)&bufferData.color);
 	RELEASE_ARRAY(bufferData.color);*/
 }
@@ -49,7 +53,7 @@ void ResourceMeshPlane::GenerateOwnMeshData()
 }
 
 // TODO: blend mode
-void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency, float4 color)
+void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency, float4 color, uint tileIndex)
 {
 	glPushMatrix();
 	glMultMatrixf(global_transform.Transposed().ptr());
@@ -91,7 +95,13 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 	for (int i = 0; i < own_mesh->points.size(); i += 2)
 	{
 		if (tex && !own_mesh->uvCoords.empty())
+		{
+			if (tileIndex != INFINITE)
+				UpdateTileUvs(tileIndex);
+
 			glTexCoord2f(own_mesh->uvCoords.at(i), own_mesh->uvCoords.at(i + 1));
+		}
+			
 
 		glVertex2f(own_mesh->points.at(i), own_mesh->points.at(i + 1));
 	}
@@ -114,4 +124,17 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 
 		// Transformation
 	glPopMatrix();
+}
+
+void ResourceMeshPlane::UpdateTileUvs(uint tileIndex)
+{
+	// todo: know current row and column from index
+	uint row = tileIndex / tileData->nCols; 
+	uint col = tileIndex % tileData->nCols; 
+
+	float sizeX = 1 / (float)(int)tileData->nCols; 
+	float sizeY = 1 / (float)(int)tileData->nRows;
+
+	own_mesh->uvCoords = { col * sizeX, row * sizeY, col * sizeX, (row + 1) * sizeY,
+		(col + 1) * sizeX, (row + 1) * sizeY, (col + 1) * sizeX, row * sizeY};
 }

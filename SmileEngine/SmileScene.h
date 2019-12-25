@@ -15,6 +15,7 @@
 
 void CreateFireWork(); 
 
+class ResourceMeshPlane; 
 class SmileScene : public SmileModule
 {
 public:
