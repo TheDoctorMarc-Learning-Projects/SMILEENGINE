@@ -29,10 +29,10 @@ public:
 	void FreeMemory(); // may have a color buffer 
 
 	void GenerateOwnMeshData(); 
-	void BlitMeshHere(float4x4& global_transform, ResourceTexture* tex = nullptr, blendMode blendMode = blendMode::ALPHA_BLEND, float transparency = 0.f, float4 color = float4::inf, uint tileIndex = INFINITE);
+	void BlitMeshHere(float4x4& global_transform, bool& needTileUpdate, ResourceTexture* tex = nullptr, blendMode blendMode = blendMode::ALPHA_BLEND, float transparency = 0.f, float4 color = float4::inf, uint tileIndex = INFINITE);
 
 private: 
-	void UpdateTileUvs(uint tileIndex);
+	void UpdateTileUvs(bool& needTileUpdate, uint tileIndex);
 
 public: 
 	TileData* tileData = nullptr;

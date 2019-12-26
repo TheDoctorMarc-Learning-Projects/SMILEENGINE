@@ -23,30 +23,51 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent)
 
 	particles.resize(data.emissionData.maxParticles);
 
-	pVariableFunctions.insert(std::pair((uint_fast8_t)0, &ComponentParticleEmitter::LifeUpdate));
-	pVariableFunctions.insert(std::pair((uint_fast8_t)1, &ComponentParticleEmitter::SpeedUpdate));
+	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::SpeedUpdate);
 }
 
 ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData data) : data(data)
 {
 	type = COMPONENT_TYPE::EMITTER;
 	SetName("Emitter");
-
-	// 0) Base Mesh
-
+	
 	// 1) Push functions --> Only if the variable changes on time
+	PushFunctions();
+
+	// 2) Get resources   
+	SetupMesh();
+	SetupTexture(); 
+	
+	// 3) Resize the particles buffer   
+	particles.resize(this->data.emissionData.maxParticles);
+}
+
+void ComponentParticleEmitter::PushFunctions()
+{
 	auto initialState = this->data.initialState;
 
-	if (initialState.life.second > 0.f)
-		pVariableFunctions.insert(std::pair((uint_fast8_t)0, &ComponentParticleEmitter::LifeUpdate)); 
-	if (initialState.speed.second.Length() > 0.f || this->data.emissionData.randomSpeed.first)
-		pVariableFunctions.insert(std::pair((uint_fast8_t)1, &ComponentParticleEmitter::SpeedUpdate));
-	if (initialState.color.second.Length4() > 0.f || this->data.emissionData.randomColor.first)
-		pVariableFunctions.insert(std::pair((uint_fast8_t)2, &ComponentParticleEmitter::ColorUpdate));
+	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);
+	if ((initialState.speed.second.IsZero() == false) || this->data.emissionData.randomSpeed.first)
+		pVariableFunctions.push_back(&ComponentParticleEmitter::SpeedUpdate);
+	if (initialState.size.second != initialState.size.first)
+		pVariableFunctions.push_back(&ComponentParticleEmitter::SizeUpdate);
+	if ((initialState.color.second.Equals(initialState.color.first) == false) || this->data.emissionData.randomColor.first)
+		pVariableFunctions.push_back(&ComponentParticleEmitter::ColorUpdate);
 
-	// 2) A) Get resources   
-	SetupMesh();
+}
 
+void ComponentParticleEmitter::SetupMesh()
+{
+
+	mesh = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default", float4(1, 0, 0, 0.3f));
+	App->resources->resources.insert(std::pair<SmileUUID, Resource*>(mesh->GetUID(), (Resource*)mesh));
+
+	App->resources->UpdateResourceReferenceCount(mesh->GetUID(), particles.size());
+}
+
+void ComponentParticleEmitter::SetupTexture()
+{
 	if (this->data.emissionData.texPath != "empty")
 	{
 		texture = (ResourceTexture*)App->resources->GetResourceByPath(this->data.emissionData.texPath.c_str());
@@ -56,31 +77,18 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 			texture->LoadOnMemory(this->data.emissionData.texPath.c_str());
 		}
 
-		this->data.initialState.tex.first = true; 
+		this->data.initialState.tex.first = true;
 
 		// Animation 
 		if (this->data.initialState.tex.second > 0.f) // Check anim speed 
 		{
-			pVariableFunctions.insert(std::pair((uint_fast8_t)3, &ComponentParticleEmitter::AnimUpdate));
+			pVariableFunctions.push_back(&ComponentParticleEmitter::AnimUpdate);
 
 		}
+
+		App->resources->UpdateResourceReferenceCount(texture->GetUID(), particles.size());
 	}
 
-	// 3) Resize the particles buffer   
-	particles.resize(this->data.emissionData.maxParticles);
-
-	// 2) B) 
-	App->resources->UpdateResourceReferenceCount(mesh->GetUID(), particles.size());
-	if(texture)
-		App->resources->UpdateResourceReferenceCount(texture->GetUID(), particles.size());
-
-}
-
-void ComponentParticleEmitter::SetupMesh()
-{
-	 
-	mesh = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default", float4(1, 0, 0, 0.3f));
-	App->resources->resources.insert(std::pair<SmileUUID, Resource*>(mesh->GetUID(), (Resource*)mesh));
 }
 
 // -----------------------------------------------------------------
@@ -132,7 +140,7 @@ void ComponentParticleEmitter::Update(float dt)
 	for (int i = 0; i < particles.size(); ++i)
 		if(particles.at(i).currentState.life > 0.f)
 			for (auto func = pVariableFunctions.begin(); func != pVariableFunctions.end(); ++func)
-				(this->*(func->second))(particles.at(i), dt);
+				(this->*(*func))(particles.at(i), dt);
 		
 	// Spawn new particles
 	if ((data.emissionData.currenTime += dt) > data.emissionData.time)
@@ -153,9 +161,10 @@ void ComponentParticleEmitter::Draw()
 	for (auto& p : drawParticles)
 		if (p.currentState.life > 0.f)
 			mesh->BlitMeshHere(p.transf.GetGlobalMatrix(),
+				p.currentState.needTileUpdate,
 			(data.initialState.tex.first) ? texture : nullptr,
 				data.blendmode, p.currentState.transparency, p.currentState.color,
-				((data.initialState.tex.second > 0.f) ? p.currentState.tileIndex : INFINITE));  
+				((data.initialState.tex.second > 0.f) ? p.currentState.tileIndex : INFINITE));
 
 	drawParticles.clear();
 }
@@ -239,7 +248,8 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();
 
 	// TODO -> Update Billboard
-	//p.billboard.Update(camMatrix, FreeBillBoard::Alignment::world, p.transf);
+	/*FreeTransform* point = &p.transf; 
+	p.billboard.Update(FreeBillBoard::Alignment::world, point);*/
 }
 
 // -----------------------------------------------------------------
@@ -259,6 +269,8 @@ inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
     // c = init + inverse percentage * range 
 }
 
+
+// -----------------------------------------------------------------
 inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
 {
 	
@@ -267,10 +279,25 @@ inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
 		p.currentState.tileIndex = ((p.currentState.tileIndex + 1) < mesh->tileData->maxTiles) ?
 			(p.currentState.tileIndex + 1) : 0; 
 		p.currentState.lastTileframe = 0.f; 
+		p.currentState.needTileUpdate = true;
 	};
 
 }
 
+
+// -----------------------------------------------------------------
+inline void ComponentParticleEmitter::SizeUpdate(Particle& p, float dt)
+{
+	auto t = p.transf.GetGlobalMatrix();
+	float initVal = data.initialState.size.first;
+	float endVal = data.initialState.size.second;
+	float lifePercentatge = 1 - (p.currentState.life / data.initialState.life.first);
+	p.currentState.size = initVal + lifePercentatge * (endVal - initVal);
+	auto sc = float3::FromScalar(p.currentState.size); 
+	t.RemoveScale(); 
+	t.Scale(sc);
+	p.transf.UpdateGlobalMatrix(t); 
+}
 
 // ----------------------------------------------------------------- [Utilities]
 float3 ComponentParticleEmitter::GetRandomRange(std::variant<float3, std::pair<float3, float3>> ranges)

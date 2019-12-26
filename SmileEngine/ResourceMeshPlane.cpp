@@ -53,7 +53,7 @@ void ResourceMeshPlane::GenerateOwnMeshData()
 }
 
 // TODO: blend mode
-void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture* tex, blendMode blendMode, float transparency, float4 color, uint tileIndex)
+void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, bool& needTileUpdate, ResourceTexture* tex, blendMode blendMode, float transparency, float4 color, uint tileIndex)
 {
 	glPushMatrix();
 	glMultMatrixf(global_transform.Transposed().ptr());
@@ -98,8 +98,8 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 	{
 		if (tex && !own_mesh->uvCoords.empty())
 		{
-			if (tileIndex != INFINITE)
-				UpdateTileUvs(tileIndex);
+			if (tileIndex != INFINITE && needTileUpdate == true)
+				UpdateTileUvs(needTileUpdate, tileIndex);
 
 			glTexCoord2f(own_mesh->uvCoords.at(i), own_mesh->uvCoords.at(i + 1));
 		}
@@ -128,7 +128,7 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, ResourceTexture
 	glPopMatrix();
 }
 
-void ResourceMeshPlane::UpdateTileUvs(uint tileIndex)
+void ResourceMeshPlane::UpdateTileUvs(bool& needTileUpdate, uint tileIndex)
 {
 	// todo: know current row and column from index
 	uint row = tileIndex / tileData->nCols; 
@@ -139,4 +139,6 @@ void ResourceMeshPlane::UpdateTileUvs(uint tileIndex)
 
 	own_mesh->uvCoords = { col * sizeX, row * sizeY, col * sizeX, (row + 1) * sizeY,
 		(col + 1) * sizeX, (row + 1) * sizeY, (col + 1) * sizeX, row * sizeY};
+
+	needTileUpdate = false; 
 }

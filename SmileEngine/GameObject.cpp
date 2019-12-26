@@ -171,7 +171,7 @@ void GameObject::Update(float dt)
 
 	// Testing billboard
 	if (billboard)
-		billboard->Update(-App->scene_intro->gameCamera->GetViewMatrixF().Transposed(), FreeBillBoard::Alignment::world, GetTransform()); 
+		billboard->Update(-App->scene_intro->gameCamera->GetViewMatrixF().Transposed(), FreeBillBoard::Alignment::world, GetTransform());
 	
 	// Lastly debug stuff :) 
 	if(App->scene_intro->generalDbug)
@@ -498,87 +498,89 @@ void GameObject::Draw()
 
 void GameObject::ShowTransformInspector()
 {
-	
-		KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
+
+	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
 
 
-		auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+	auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
+	{
+		return std::string(
+			std::string((append) ? "(" : "") + std::to_string(xyz.x)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
+			+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
+			+ std::string((append) ? ")" : "");
+	};
+
+	ComponentTransform* transf = GetTransform();
+
+	// reset
+	if (ImGui::Button("Reset"))
+	{
+		transf->ChangePosition(float3::zero);
+		transf->ChangeScale(float3::one);
+		transf->ChangeRotation(Quat::identity);
+
+		if (billboard)
+			RELEASE(billboard);
+	}
+
+
+	math::float3 pos = transf->GetPosition();
+	math::float3 rot = transf->GetRotation().ToEulerXYZ();
+	math::float3 degRot = RadToDeg(rot);
+	math::float3 sc = transf->GetScale();
+	float p[3] = { pos.x, pos.y, pos.z };
+	float r[3] = { degRot.x, degRot.y, degRot.z };
+	float s[3] = { sc.x, sc.y, sc.z };
+	ImGui::InputFloat3("Position", p);
+	ImGui::InputFloat3("Rotation", r);
+	ImGui::InputFloat3("Scale", s);
+
+	// (info)
+	ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
+	ImGui::Text(std::string("Global Rotation: " + GetStringFrom3Values(transf->GetGlobalMatrix().RotatePart().ToEulerXYZ(), true)).c_str());
+	ImGui::Text(std::string("Global Scale: " + GetStringFrom3Values(transf->GetGlobalMatrix().GetScale(), true)).c_str());
+
+
+	// Billboard
+	if (billboard == nullptr)
+	{
+		if (ImGui::CollapsingHeader("Add Billboard"))
 		{
-			return std::string(
-				std::string((append) ? "(" : "") + std::to_string(xyz.x)
-				+ std::string((append) ? ", " : "") + std::to_string(xyz.y)
-				+ std::string((append) ? ", " : "") + std::to_string(xyz.z))
-				+ std::string((append) ? ")" : "");
-		};
+			auto alignment = FreeBillBoard::Alignment::noAlignment;
+			if (ImGui::Button("Axis", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::axis;
+			if (ImGui::Button("Screen", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::screen;
+			if (ImGui::Button("World", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::world;
 
-		ComponentTransform* transf = GetTransform();
+			if (alignment != FreeBillBoard::Alignment::noAlignment)
+				billboard = DBG_NEW FreeBillBoard();
+		}
 
-		// reset
-		if (ImGui::Button("Reset"))
+	}
+	else
+	{
+		if (ImGui::CollapsingHeader("Edit Billboard"))
 		{
-			transf->ChangePosition(float3::zero);
-			transf->ChangeScale(float3::one);
-			transf->ChangeRotation(Quat::identity);
-
-			if (billboard)
+			auto alignment = FreeBillBoard::Alignment::noAlignment;
+			if (ImGui::Button("Axis", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::axis;
+			if (ImGui::Button("Screen", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::screen;
+			if (ImGui::Button("World", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::world;
+			if (ImGui::Button("Delete", ImVec2(100, 20)))
 				RELEASE(billboard);
+
+			if (alignment != FreeBillBoard::Alignment::noAlignment)
+				billboard->alignment = alignment;
 		}
+	}
 
-
-		math::float3 pos = transf->GetPosition();
-		math::float3 rot = transf->GetRotation().ToEulerXYZ();
-		math::float3 degRot = RadToDeg(rot);
-		math::float3 sc = transf->GetScale();
-		float p[3] = { pos.x, pos.y, pos.z };
-		float r[3] = { degRot.x, degRot.y, degRot.z };
-		float s[3] = { sc.x, sc.y, sc.z };
-		ImGui::InputFloat3("Position", p);
-		ImGui::InputFloat3("Rotation", r);
-		ImGui::InputFloat3("Scale", s);
-
-		// (info)
-		ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
-		ImGui::Text(std::string("Global Rotation: " + GetStringFrom3Values(transf->GetGlobalMatrix().RotatePart().ToEulerXYZ(), true)).c_str());
-		ImGui::Text(std::string("Global Scale: " + GetStringFrom3Values(transf->GetGlobalMatrix().GetScale(), true)).c_str());
-
-		if (dynamic_cast<ComponentParticleEmitter*>(App->scene_intro->selectedObj->GetComponent(EMITTER))) {
-		// Billboard
-		if (billboard == nullptr)
-		{
-			if (ImGui::CollapsingHeader("Add Billboard"))
-			{
-				auto alignment = FreeBillBoard::Alignment::noAlignment;
-				if (ImGui::Button("Axis", ImVec2(100, 20)))
-					alignment = FreeBillBoard::Alignment::axis;
-				if (ImGui::Button("Screen", ImVec2(100, 20)))
-					alignment = FreeBillBoard::Alignment::screen;
-				if (ImGui::Button("World", ImVec2(100, 20)))
-					alignment = FreeBillBoard::Alignment::world;
-
-				if (alignment != FreeBillBoard::Alignment::noAlignment)
-					billboard = DBG_NEW FreeBillBoard();
-			}
-
-		}
-		else
-		{
-			if (ImGui::CollapsingHeader("Edit Billboard"))
-			{
-				auto alignment = FreeBillBoard::Alignment::noAlignment;
-				if (ImGui::Button("Axis", ImVec2(100, 20)))
-					alignment = FreeBillBoard::Alignment::axis;
-				if (ImGui::Button("Screen", ImVec2(100, 20)))
-					alignment = FreeBillBoard::Alignment::screen;
-				if (ImGui::Button("World", ImVec2(100, 20)))
-					alignment = FreeBillBoard::Alignment::world;
-				if (ImGui::Button("Delete", ImVec2(100, 20)))
-					RELEASE(billboard);
-
-				if (alignment != FreeBillBoard::Alignment::noAlignment)
-					billboard->alignment = alignment;
-			}
-		}
-
+	if (dynamic_cast<ComponentParticleEmitter*>(App->scene_intro->selectedObj->GetComponent(EMITTER)))
+	{
 		if (ImGui::CollapsingHeader("Particle Color"))
 
 		{
@@ -587,7 +589,7 @@ void GameObject::ShowTransformInspector()
 
 
 		}
-
+	}
 
 		if (keyState != KEY_DOWN)
 			return;
@@ -597,9 +599,8 @@ void GameObject::ShowTransformInspector()
 
 		float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
 		transf->UpdateTransform(values);
-	}
+	
 }
-
 ComponentTransform* GameObject::GetTransform() const
 {
 	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);

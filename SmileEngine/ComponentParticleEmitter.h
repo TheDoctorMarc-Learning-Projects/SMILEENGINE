@@ -29,6 +29,7 @@ struct CurrentState
 	float4 color;
 	uint tileIndex = 0;  
 	float lastTileframe = 0.f; 
+	bool needTileUpdate = false; 
 	// Stuff that is random, per-particle, can be stored here for updation:
 	InitialRandomState randomData;
 };
@@ -51,7 +52,7 @@ struct InitialState
 	// This Variables will be updated each frame if they have value over time (Current order: 0->5)
 	std::pair<float, float> life = std::pair(1.f, 1.f);
 	std::pair<float3, float3> speed = std::pair(float3::zero, float3::zero); // initial & over time
-	std::pair<float, float> size = std::pair(1.f, 0.f); // initial & final
+	std::pair<float, float> size = std::pair(1.f, 1.f); // initial & final
 	std::pair<float, float> transparency = std::pair(0.f, 0.f);
 	std::pair<float4, float4> color = std::pair(float4::inf, float4::inf); // initial & final
 	std::pair<bool, float> tex = std::pair(false, 0.f); // has & anim speed 
@@ -109,21 +110,28 @@ public:
 	void OnSave();
 
 private: 
+	// start
 	void SetupMesh(); 
+	void SetupTexture(); 
+	void PushFunctions(); 
+	
+	// update
 	void Draw();  
 	void SpawnParticle(); 
 	float3 GetRandomRange(std::variant<float3, std::pair<float3, float3>> ranges);
 	float4 GetRandomRange4(std::variant<float4, std::pair<float4, float4>> ranges);
-	inline void SpeedUpdate(Particle& p, float dt);
 	inline void LifeUpdate(Particle& p, float dt);
+	inline void SpeedUpdate(Particle& p, float dt);
+	inline void SizeUpdate(Particle& p, float dt);
 	inline void ColorUpdate(Particle& p, float dt);
 	inline void AnimUpdate(Particle& p, float dt); 
+
 	
 private: 
 	uint_fast8_t lastUsedParticle = 0;
 	std::vector<Particle> particles, drawParticles; 
 	AllData data;
-	std::map<uint_fast8_t, function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
+	std::vector<function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
 	
 public: 
 	ResourceMeshPlane* mesh = nullptr; 
@@ -131,6 +139,7 @@ public:
 
 	// a pointer for easier access: 
 	float4x4 camMatrix; 
+	
 };
 
 

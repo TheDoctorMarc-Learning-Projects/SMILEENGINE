@@ -99,6 +99,7 @@ public:
 	float GetScrollSpeed(float dt, float zScroll);
 	renderingData GetRenderingData() const { return _renderingData; };
 	Frustrum* GetFrustrum() const { return frustrum; };
+	math::Frustum GetCalcFrustrum() const { return calcFrustrum; };
 
 	void ComputeSpatialData();
 private:
