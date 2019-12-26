@@ -431,7 +431,6 @@ void CreateFireWork()
 	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
 	AllData data;
 	data.initialState.life = std::pair(1.f, 0.2f);
-	data.initialState.size.second = 10.f;
 	data.emissionData.time = 0.03f;
 	data.emissionData.maxParticles = 1000; 
 	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
@@ -439,6 +438,13 @@ void CreateFireWork()
 	// To test animated sheet (do with smoke): 
 	data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("smokesheet.dds");
 	data.initialState.tex = std::pair(true, 0.1f);
+
+	// Burst
+	data.emissionData.burstTime = 1.f; 
+
+	// Shape
+	/*data.emissionData.shape = emmissionShape::CIRCLE; 
+	data.emissionData.spawnRadius = float3(10, 10, 10); */
 
 	// Color for fire (do not set alpha to 1, better show alpha blending)
 	/*data.initialState.color.first = float4(1, 0, 0, 1);
