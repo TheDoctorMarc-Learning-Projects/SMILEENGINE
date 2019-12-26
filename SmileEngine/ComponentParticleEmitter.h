@@ -71,7 +71,8 @@ struct EmissionData
 	std::string texPath = "empty"; 
 	std::pair<bool, std::variant<float3, std::pair<float3, float3>>> randomSpeed;
 	std::pair<bool, std::variant<float4, std::pair<float4, float4>>> randomColor; 
-	float time = 0.5f, currenTime = 0.f, angle = 0.f, radius = 1.f;
+	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
+		currentBustTime = 0.f, angle = 0.f, radius = 1.f;
 	emmissionShape shape = emmissionShape::CONE;
 };
 

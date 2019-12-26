@@ -143,9 +143,25 @@ void ComponentParticleEmitter::Update(float dt)
 				(this->*(*func))(particles.at(i), dt);
 		
 	// Spawn new particles
-	if ((data.emissionData.currenTime += dt) > data.emissionData.time)
-		SpawnParticle(); 
-	
+	if (data.emissionData.burstTime > 0.f)
+	{
+		static bool burst = false; 
+
+		if ((data.emissionData.currentBustTime += dt) >= data.emissionData.burstTime)
+		{
+			data.emissionData.currentBustTime = 0;
+			burst = !burst; 
+		}
+
+		if(burst == false)
+			if ((data.emissionData.currenTime += dt) > data.emissionData.time)
+				SpawnParticle();	
+	}
+	else
+		if ((data.emissionData.currenTime += dt) > data.emissionData.time)
+			SpawnParticle();
+	 	 
+ 
 	// Finally Draw
 	Draw(); 
 }
@@ -288,7 +304,7 @@ inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::SizeUpdate(Particle& p, float dt)
 {
-	auto t = p.transf.GetGlobalMatrix();
+	/*auto t = p.transf.GetGlobalMatrix();
 	float initVal = data.initialState.size.first;
 	float endVal = data.initialState.size.second;
 	float lifePercentatge = 1 - (p.currentState.life / data.initialState.life.first);
@@ -296,7 +312,7 @@ inline void ComponentParticleEmitter::SizeUpdate(Particle& p, float dt)
 	auto sc = float3::FromScalar(p.currentState.size); 
 	t.RemoveScale(); 
 	t.Scale(sc);
-	p.transf.UpdateGlobalMatrix(t); 
+	p.transf.UpdateGlobalMatrix(t); */
 }
 
 // ----------------------------------------------------------------- [Utilities]
