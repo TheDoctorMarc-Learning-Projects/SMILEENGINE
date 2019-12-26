@@ -150,11 +150,37 @@ void ComponentParticleEmitter::Update(float dt)
 				(this->*(*func))(particles.at(i), dt);
 		
 	// Spawn new particles
-	if ((data.emissionData.currenTime += dt) > data.emissionData.time)
-		SpawnParticle(); 
-	
+	if (data.emissionData.burstTime > 0.f)
+		BurstAction(dt);
+	else
+		DefaultSpawnAction(dt); 
+		
+	 	 
+ 
 	// Finally Draw
 	Draw(); 
+}
+
+// -----------------------------------------------------------------
+void ComponentParticleEmitter::BurstAction(float dt)
+{
+	static bool burst = false;
+
+	if ((data.emissionData.currentBustTime += dt) >= data.emissionData.burstTime)
+	{
+		data.emissionData.currentBustTime = 0;
+		burst = !burst;
+	}
+
+	if (burst == false)
+		DefaultSpawnAction(dt); 
+}
+
+// -----------------------------------------------------------------
+void ComponentParticleEmitter::DefaultSpawnAction(float dt)
+{
+	if ((data.emissionData.currenTime += dt) > data.emissionData.time)
+		SpawnParticle();
 }
 
 // -----------------------------------------------------------------
@@ -224,11 +250,41 @@ void ComponentParticleEmitter::SpawnParticle()
 
 	// 4) Set particle Transform
 	p.transf.parentMatrix = GetParent()->GetTransform()->GetGlobalMatrix(); 
-	auto initial_pos = p.transf.parentMatrix.TranslatePart(); 
-	initial_pos += GetRandomRange(float3::FromScalar(data.emissionData.radius)); 
-	p.transf.UpdateGlobalMatrix(math::float4x4::FromTRS(initial_pos, float4x4::identity, float3::one));
+	p.transf.UpdateGlobalMatrix(math::float4x4::FromTRS(GetSpawnPos(), float4x4::identity, float3::one));
 
 	// Particle billboard will be updated in Update (XD)
+}
+
+float3 ComponentParticleEmitter::GetSpawnPos()
+{
+	auto pos = GetParent()->GetTransform()->GetGlobalPosition(); 
+	auto copy = pos; 
+	switch (data.emissionData.shape)
+	{
+	case emmissionShape::CIRCLE:
+	{
+		pos += GetRandomRange(std::get<float3>(data.emissionData.spawnRadius));
+		pos.y = copy.y; 
+		break; 
+	}
+	case emmissionShape::SPHERE:
+	{
+		pos += GetRandomRange(std::get<float3>(data.emissionData.spawnRadius));
+		break;
+	}
+	case emmissionShape::CONE:
+	{
+		break;
+	}
+	case emmissionShape::DOUGHNUT:
+	{
+		break;
+	}
+	default:
+		break;
+	}
+
+	return pos;
 }
 
 // ----------------------------------------------------------------- Update Values
@@ -295,7 +351,7 @@ inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::SizeUpdate(Particle& p, float dt)
 {
-	auto t = p.transf.GetGlobalMatrix();
+	/*auto t = p.transf.GetGlobalMatrix();
 	float initVal = data.initialState.size.first;
 	float endVal = data.initialState.size.second;
 	float lifePercentatge = 1 - (p.currentState.life / data.initialState.life.first);
@@ -303,7 +359,7 @@ inline void ComponentParticleEmitter::SizeUpdate(Particle& p, float dt)
 	auto sc = float3::FromScalar(p.currentState.size); 
 	t.RemoveScale(); 
 	t.Scale(sc);
-	p.transf.UpdateGlobalMatrix(t); 
+	p.transf.UpdateGlobalMatrix(t); */
 }
 
 // ----------------------------------------------------------------- [Utilities]
