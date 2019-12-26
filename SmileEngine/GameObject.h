@@ -24,6 +24,7 @@ class ComponentMesh;
 class ComponentTransform; 
 class ComponentCamera; 
 class ComponentMaterial;
+class ComponentParticleEmitter;
 
 struct BoundingData
 {
@@ -66,6 +67,7 @@ public:
 	ComponentMesh* GetMesh() const;
 	ComponentCamera* GetCamera() const;
 	ComponentMaterial* GetMaterial() const;
+	ComponentParticleEmitter* GetEmitter() const;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; };
 	uint GetID() const { return randomID; };
 
@@ -120,7 +122,7 @@ private:
 	BoundingData boundingData; 
 
 
-	math::float4 nextColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+	
 
 	// may have one of these
 	FreeBillBoard* billboard = nullptr; 

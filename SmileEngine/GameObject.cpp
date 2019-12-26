@@ -532,9 +532,9 @@ void GameObject::ShowTransformInspector()
 	float p[3] = { pos.x, pos.y, pos.z };
 	float r[3] = { degRot.x, degRot.y, degRot.z };
 	float s[3] = { sc.x, sc.y, sc.z };
-	ImGui::InputFloat3("Position", p);
-	ImGui::InputFloat3("Rotation", r);
-	ImGui::InputFloat3("Scale", s);
+	ImGui::DragFloat3("Position", p);
+	ImGui::DragFloat3("Rotation", r);
+	ImGui::DragFloat3("Scale", s);
 
 	// (info)
 	ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
@@ -579,26 +579,18 @@ void GameObject::ShowTransformInspector()
 		}
 	}
 
-	if (dynamic_cast<ComponentParticleEmitter*>(App->scene_intro->selectedObj->GetComponent(EMITTER)))
-	{
-		if (ImGui::CollapsingHeader("Particle Color"))
-
-		{
-			ImGui::Text("Particle Color");
-			ImGui::ColorPicker4("", &nextColor.x, ImGuiColorEditFlags_AlphaBar);
-
-
-		}
-	}
 
 		if (keyState != KEY_DOWN)
 			return;
+
+		
 
 		math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
 		float radR[3] = { radRot.x, radRot.y, radRot.z };
 
 		float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
 		transf->UpdateTransform(values);
+
 	
 }
 ComponentTransform* GameObject::GetTransform() const
@@ -619,6 +611,11 @@ ComponentCamera* GameObject::GetCamera() const
 ComponentMaterial* GameObject::GetMaterial() const
 {
 	return dynamic_cast<ComponentMaterial*>(components[MATERIAL]);
+}
+
+ComponentParticleEmitter * GameObject::GetEmitter() const
+{
+	return dynamic_cast<ComponentParticleEmitter*>(components[EMITTER]);
 }
 
 GameObject* GameObject::Find(std::string name) const
