@@ -59,7 +59,7 @@ struct InitialState
 
 };
 
-enum class emmissionShape { CIRCLE, CUBE, CONE }; // ... 
+enum class emmissionShape { CIRCLE, SPHERE, CONE, DOUGHNUT }; // ... 
 enum class blendMode { ADDITIVE, ALPHA_BLEND };
 enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
 
@@ -72,7 +72,8 @@ struct EmissionData
 	std::pair<bool, std::variant<float3, std::pair<float3, float3>>> randomSpeed;
 	std::pair<bool, std::variant<float4, std::pair<float4, float4>>> randomColor; 
 	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
-		currentBustTime = 0.f, angle = 0.f, radius = 1.f;
+		currentBustTime = 0.f, angle = 0.f; 
+	std::variant<float3, std::pair<float3, float3>> spawnRadius; // the radius or inner + outer
 	emmissionShape shape = emmissionShape::CONE;
 };
 
@@ -87,7 +88,7 @@ struct AllData
 
 	// Modes
 	blendMode blendmode = blendMode::ALPHA_BLEND;
-	lightMode lightmode = lightMode::NONE; // TODO: how to handle this? light settings should be supported in a struct
+	lightMode lightmode = lightMode::NONE; // TODO: maybe not :( 
 };
 
 
@@ -116,14 +117,23 @@ private:
 	void SetupTexture(); 
 	void PushFunctions(); 
 	
-	// update
+	// draw
 	void Draw();  
+
+	// spawn
 	void SpawnParticle(); 
+	void BurstAction(float dt); 
+	void DefaultSpawnAction(float dt); 
+	float3 GetSpawnPos(); 
+
+	// utilities
 	float3 GetRandomRange(std::variant<float3, std::pair<float3, float3>> ranges);
 	float4 GetRandomRange4(std::variant<float4, std::pair<float4, float4>> ranges);
+
+	// cool
 	inline void LifeUpdate(Particle& p, float dt);
 	inline void SpeedUpdate(Particle& p, float dt);
-	inline void SizeUpdate(Particle& p, float dt);
+	inline void SizeUpdate(Particle& p, float dt); // TODO 
 	inline void ColorUpdate(Particle& p, float dt);
 	inline void AnimUpdate(Particle& p, float dt); 
 
