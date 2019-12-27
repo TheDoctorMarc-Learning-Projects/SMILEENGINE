@@ -23,12 +23,12 @@ struct TileData
 class ResourceMeshPlane : public ResourceMesh
 {
 public:
-	ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color = float4::inf, TileData* tileData = nullptr);
+	ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color = float4::inf, TileData* tileData = nullptr, float size = 0);
 	ResourceMeshPlane::~ResourceMeshPlane() {};
 	void LoadOnMemory(float4 color = float4::inf);  
 	void FreeMemory(); // may have a color buffer 
 
-	void GenerateOwnMeshData(); 
+	void GenerateOwnMeshData(float size = 0);
 	void BlitMeshHere(float4x4& global_transform, bool& needTileUpdate, ResourceTexture* tex = nullptr, blendMode blendMode = blendMode::ALPHA_BLEND, float transparency = 0.f, float4 color = float4::inf, uint tileIndex = INFINITE);
 
 private: 
@@ -38,6 +38,7 @@ public:
 	TileData* tileData = nullptr;
 private: 
 	bufferData bufferData; 
-	float4 color; 
+	float4 color;
+	float size; 
 
 }; 

@@ -4,3 +4,4 @@
 #include "ResourceMesh.h"
 #include "ResourceTexture.h"
 #include "ResourceMeshPlane.h"
+#include "ResourceSkybox.h"
