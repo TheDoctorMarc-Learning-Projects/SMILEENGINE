@@ -966,28 +966,40 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float speed[3];
 			static float randomSpeedFirst[3];
 			static float randomSpeedSecond[3];
+			static float spawnRadius[3];
+			static float time;
+			static float burstTime;
+			static float currenTime;
+			static float currenBurstTime;
+			static float angle;
+			static float initialLife;
+			static float finalLife;
+			static float initialSize;
+			static float finalSize;
+			static float initialTransp;
+			static float finalTransp;
 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
 
 			if (ImGui::CollapsingHeader("Particle Values"))
 			{
-				bool random = emitter->data.emissionData.randomSpeed.first; 
+				bool random = emitter->data.emissionData.randomSpeed.first;
 				ImGui::Checkbox("RandomSpeed", &emitter->data.emissionData.randomSpeed.first);
 
 				if (random && !emitter->data.emissionData.randomSpeed.first)
-					emitter->data.emissionData.randomSpeed.second.second = float3::inf; 
+					emitter->data.emissionData.randomSpeed.second.second = float3::inf;
 
 				if (emitter->data.emissionData.randomSpeed.first == true)
 				{
 					for (int i = 0; i < 3; ++i)
-						randomSpeedFirst[i] = emitter->data.emissionData.randomSpeed.second.first[i]; 
+						randomSpeedFirst[i] = emitter->data.emissionData.randomSpeed.second.first[i];
 
 
 					ImGui::Checkbox("One Range", &oneRange);
 					if (oneRange == true) {
 
 
-					
+
 						if (ImGui::DragFloat3("Range", randomSpeedFirst, 0.5f, 0.0f, 100.f))
 						{
 							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
@@ -999,7 +1011,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 						if (ImGui::DragFloat("Min Value x", &randomSpeedFirst[0], 0.5f, -100, 100))
 						{
-							emitter->data.emissionData.randomSpeed.second.first.x = randomSpeedFirst[0]; 
+							emitter->data.emissionData.randomSpeed.second.first.x = randomSpeedFirst[0];
 						}
 						if (ImGui::DragFloat("Min Value y", &randomSpeedFirst[1], 0.5f, -100, 100))
 						{
@@ -1011,14 +1023,14 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 						}
 
 						// Max value depends on Min value (it can be infinite previously)
-						bool infinite = emitter->data.emissionData.randomSpeed.second.second.IsFinite() == false; 
+						bool infinite = emitter->data.emissionData.randomSpeed.second.second.IsFinite() == false;
 						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.x > emitter->data.emissionData.randomSpeed.second.second.x))
-							emitter->data.emissionData.randomSpeed.second.second.x = emitter->data.emissionData.randomSpeed.second.first.x; 
+							emitter->data.emissionData.randomSpeed.second.second.x = emitter->data.emissionData.randomSpeed.second.first.x;
 						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.y > emitter->data.emissionData.randomSpeed.second.second.y))
 							emitter->data.emissionData.randomSpeed.second.second.y = emitter->data.emissionData.randomSpeed.second.first.y;
 						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.z > emitter->data.emissionData.randomSpeed.second.second.z))
 							emitter->data.emissionData.randomSpeed.second.second.z = emitter->data.emissionData.randomSpeed.second.first.z;
-					
+
 						for (int i = 0; i < 3; ++i)
 							randomSpeedSecond[i] = emitter->data.emissionData.randomSpeed.second.second[i];
 
@@ -1049,10 +1061,63 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				else {
 					for (int i = 0; i < 3; ++i)
 						speed[i] = emitter->data.initialState.speed[i];
-					
+
 					if (ImGui::DragFloat3("Speed", speed, 5.f, 0.0f, 100.f))
 						emitter->data.initialState.speed = math::float3(speed);
 				}
+
+				if (ImGui::DragFloat("Radius", spawnRadius, 0.1f,0.1f,10.f))
+				{
+					emitter->data.emissionData.spawnRadius = math::float3(spawnRadius);
+				}
+
+				if (ImGui::DragFloat("Time", &time, 0.1f, 0.1f, 1.f))
+				{
+					emitter->data.emissionData.time = time;
+				}
+				if (ImGui::DragFloat("Burst Time", &burstTime, 0.f, 0.1f, 1.f))
+				{
+					emitter->data.emissionData.burstTime = burstTime;
+				}
+				if (ImGui::DragFloat("Current Time", &currenTime, 0.f, 0.1f, 1.f))
+				{
+					emitter->data.emissionData.currenTime = currenTime;
+				}
+				if (ImGui::DragFloat("Current Burst Time", &currenBurstTime, 0.f, 0.1f, 1.f))
+				{
+					emitter->data.emissionData.currenTime = currenBurstTime;
+				}
+				if (ImGui::DragFloat("Angle", &angle, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.emissionData.currenTime = angle;
+				}
+				if (ImGui::DragFloat("Initial Life", &initialLife, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.life.first = initialLife;
+				}
+				if (ImGui::DragFloat("Final Life", &finalLife, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.life.second = finalLife;
+				}
+				if (ImGui::DragFloat("Initial Size", &initialSize, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.size.first = initialSize;
+				}
+				if (ImGui::DragFloat("Final Size", &finalSize, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.size.second = finalSize;
+				}
+				if (ImGui::DragFloat("Initial Transparency", &initialTransp, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.size.first = initialTransp;
+				}
+				if (ImGui::DragFloat("Final Transparency", &finalTransp, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.size.second = finalTransp;
+				}
+
+
+			}
 
 				if (ImGui::CollapsingHeader("Particle Color"))
 				{
@@ -1108,7 +1173,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				}
 
 				
-			}
+			
 
 			break;
 		}
