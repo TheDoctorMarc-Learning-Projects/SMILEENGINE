@@ -1091,6 +1091,18 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				}
 				if (ImGui::CollapsingHeader("Particle Texture")) {
 
+					ImGui::Text("Texture Path: %s", emitter->data.emissionData.texPath.c_str());
+					//TODO put image of the texture
+					//ImGui::Image((ImTextureID)emitter->data.emissionData.texPath, ImVec2());
+					ImGui::Checkbox("Texture", &emitter->data.initialState.tex.first);
+					if (emitter->data.initialState.tex.first == true) {
+						ImGui::DragFloat("Animation Speed", &emitter->data.initialState.tex.second, 0.1f, 0.f, 5.f);
+						if (ImGui::Button("Change Texture: "))
+						{
+							//TODO: be able to change texture
+						}
+
+					}
 				}
 
 				break;
