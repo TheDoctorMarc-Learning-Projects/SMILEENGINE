@@ -109,6 +109,7 @@
     <ClInclude Include="pcg\include\pcg_uint128.hpp" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceMeshPlane.h" />
+    <ClInclude Include="ResourceSkybox.h" />
     <ClInclude Include="Resources_Components_Include.h" />
     <ClInclude Include="ResourceTexture.h" />
     <ClInclude Include="ResourceMesh.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="parshapes\par_shapes.cpp" />
     <ClCompile Include="ResourceMesh.cpp" />
     <ClCompile Include="ResourceMeshPlane.cpp" />
+    <ClCompile Include="ResourceSkybox.cpp" />
     <ClCompile Include="ResourceTexture.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="SmileApp.cpp" />

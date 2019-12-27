@@ -2,9 +2,9 @@
 #include "Glew/include/GL/glew.h" 
 #include "ResourceTexture.h"
 
-ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color, TileData* tileData) : ResourceMesh(uuid, type, path), color(color), tileData(tileData)
+ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color, TileData* tileData, float size) : ResourceMesh(uuid, type, path), color(color), tileData(tileData), size(size)
 {
-	GenerateOwnMeshData();
+	GenerateOwnMeshData(size);
 	/*if(color.IsFinite())
 		LoadOnMemory(color);*/
 }
@@ -40,11 +40,11 @@ void ResourceMeshPlane::FreeMemory()
 	RELEASE_ARRAY(bufferData.color);*/
 }
 
-void ResourceMeshPlane::GenerateOwnMeshData()
+void ResourceMeshPlane::GenerateOwnMeshData(float size)
 {
 	own_mesh = DBG_NEW ownMeshData;
 	own_mesh->type = ownMeshType::plane;
-	own_mesh->size = 0.5f;
+	own_mesh->size = (size > 0.f) ? size : 0.5f;
 	own_mesh->points = { -own_mesh->size / 2, own_mesh->size/2, -own_mesh->size / 2, -own_mesh->size / 2, own_mesh->size / 2, -own_mesh->size / 2, own_mesh->size / 2, own_mesh->size / 2 };
 	own_mesh->points3D = { -own_mesh->size / 2, own_mesh->size / 2, 0, -own_mesh->size / 2, -own_mesh->size / 2, 0, own_mesh->size / 2, -own_mesh->size / 2, 0, own_mesh->size / 2, own_mesh->size / 2, 0 };
     own_mesh->uvCoords = { 0,1,0,0,1,0,1,1 };

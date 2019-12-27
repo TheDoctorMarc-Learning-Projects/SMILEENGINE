@@ -2,6 +2,7 @@
 #include "ResourceMesh.h"
 #include "ResourceMeshPlane.h"
 #include "ResourceTexture.h"
+#include "ResourceSkybox.h"
 #include "Resource.h"
 #include "SmileUtilitiesModule.h"
 #include "Utility.h"
@@ -31,11 +32,26 @@ bool SmileResourceManager::Start()
 	checkersTexture->SetPreset(true);
 	checkersTexture->LoadCheckersOnMemory();
 
+	std::string paths[6] =
+	{
+		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds")
+	}; 
+
+	skybox = DBG_NEW ResourceSkybox(RNG::GetRandomUUID(), Resource_Type::RESOURCE_SKYBOX, paths, 5.f);
+	resources.insert(std::pair<SmileUUID, Resource*>(skybox->GetUID(), (Resource*)skybox));
+	skybox->SetPreset(true);
+
 	return true; 
 }
 
 update_status SmileResourceManager::Update(float dt)
 {
+	skybox->Draw(); 
 	return update_status::UPDATE_CONTINUE; 
 }
 

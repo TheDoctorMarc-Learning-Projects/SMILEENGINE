@@ -13,7 +13,7 @@ public:
 public:
 	 static std::variant<int, float> GetRandomValue(std::variant<int, float> start = 0,
 		std::variant<int, float> end = INT_MAX);
-	 SmileUUID GetRandomUUID();
+	 static SmileUUID GetRandomUUID();
 private: 
 	static pcg32 rng;
 }; 
