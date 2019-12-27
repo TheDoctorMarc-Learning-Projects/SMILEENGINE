@@ -895,6 +895,26 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 	if (ImGui::TreeNode(c->GetName().c_str()))
 	{
+
+		bool active = c->active, lastActive = c->active;
+		ImGui::Checkbox("Active", &active);
+		if (active != lastActive)
+		{
+			if (active)
+				c->Enable();
+			else
+				c->Disable();
+			lastActive = active; 
+		}
+
+
+		if (c->active == false)
+		{
+			ImGui::TreePop();
+			return;
+		}
+
+
 		switch (c->GetComponentType())
 		{
 		case COMPONENT_TYPE::MATERIAL:
@@ -1203,7 +1223,12 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				}
 
 				
-			
+				if (ImGui::CollapsingHeader("Expiration"))
+				{
+					ImGui::TextColored(ImVec4(1, 0, 0, 1), "Caution, espiration time will disable the emitter"); 
+					ImGui::DragFloat("Expiration Time", &emitter->data.emissionData.expireTime, 0.1f, 1.f, 10.f); 
+
+				}
 
 			break;
 		}

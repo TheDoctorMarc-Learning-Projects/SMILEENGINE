@@ -68,12 +68,11 @@ enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
 struct EmissionData
 {
 	uint_fast8_t maxParticles = 100;
-	bool loop = true;
 	std::string texPath = "empty"; 
 	std::pair<bool, std::pair<float3, float3>> randomSpeed;
 	std::pair<bool, std::variant<float4, std::pair<float4, float4>>> randomColor; 
 	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
-		currentBustTime = 0.f, angle = 0.f; 
+		currentBustTime = 0.f, expireTime = 0.f, totalTime = 0.f;
 	float3 spawnRadius = float3(5.f); // the radius or inner + outer
 	emmissionShape shape = emmissionShape::CONE;
 };
@@ -111,6 +110,7 @@ public:
 	void Update(float dt = 0); 
 	void CleanUp(); 
 	void OnSave();
+	void Enable() { active = true; data.emissionData.expireTime = 0.f; };
 	void SetNewTexture(const char* path); 
 	AllData GetData() { return data; };
 

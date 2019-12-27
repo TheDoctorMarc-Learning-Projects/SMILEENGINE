@@ -139,6 +139,16 @@ void ComponentParticleEmitter::OnSave()
 // -----------------------------------------------------------------
 void ComponentParticleEmitter::Update(float dt)
 {
+	// Check expire time
+	if(data.emissionData.expireTime > 0.f)
+		if ((data.emissionData.totalTime += dt) >= data.emissionData.expireTime)
+		{
+			Disable(); 
+			data.emissionData.totalTime = 0.f; 
+			data.emissionData.expireTime = 0.f; 
+			return; 
+		}
+		
 	camMatrix = App->scene_intro->gameCamera->GetViewMatrixF(); 
 
 	// Loop particles. Quickly discard inactive ones. Execute only needed functions 

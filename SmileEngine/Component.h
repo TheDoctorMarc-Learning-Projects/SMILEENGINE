@@ -30,11 +30,10 @@ public:
 
 private:
 	COMPONENT_TYPE type = COMPONENT_TYPE::NO_TYPE;
-	bool active = false;
 	GameObject* parent = nullptr;
  
-
 public:
+	bool active = false;
 	const COMPONENT_TYPE GetComponentType() const { return type; };
 	std::string name;
 
