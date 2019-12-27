@@ -54,7 +54,7 @@ struct InitialState
 	std::pair<float, float> life = std::pair(1.f, 1.f);
 	float3 speed = float3(0, 1, 0); // default
 	std::pair<float, float> size = std::pair(1.f, 1.f); // initial & final
-	std::pair<float, float> transparency = std::pair(0.f, 0.f);
+	float transparency = 0.f; 
 	std::pair<float4, float4> color = std::pair(float4::inf, float4::inf); // initial & final
 	std::pair<bool, float> tex = std::pair(false, 0.f); // has & anim speed 
 
@@ -111,7 +111,7 @@ public:
 	void Update(float dt = 0); 
 	void CleanUp(); 
 	void OnSave();
-	void MoveAllParticles(float4x4 m);
+	void SetNewTexture(const char* path); 
 	AllData GetData() { return data; };
 
 private: 

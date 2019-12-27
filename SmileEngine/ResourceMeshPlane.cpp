@@ -47,7 +47,7 @@ void ResourceMeshPlane::GenerateOwnMeshData(float size)
 	own_mesh->size = (size > 0.f) ? size : 0.5f;
 	own_mesh->points = { -own_mesh->size / 2, own_mesh->size/2, -own_mesh->size / 2, -own_mesh->size / 2, own_mesh->size / 2, -own_mesh->size / 2, own_mesh->size / 2, own_mesh->size / 2 };
 	own_mesh->points3D = { -own_mesh->size / 2, own_mesh->size / 2, 0, -own_mesh->size / 2, -own_mesh->size / 2, 0, own_mesh->size / 2, -own_mesh->size / 2, 0, own_mesh->size / 2, own_mesh->size / 2, 0 };
-    own_mesh->uvCoords = { 0,1,0,0,1,0,1,1 };
+    own_mesh->initialUvCoords = own_mesh->uvCoords = { 0,1,0,0,1,0,1,1 };
 
 	// Any buffer? Color? Normals? 
 }
@@ -130,6 +130,9 @@ void ResourceMeshPlane::BlitMeshHere(float4x4& global_transform, bool& needTileU
 
 void ResourceMeshPlane::UpdateTileUvs(bool& needTileUpdate, uint tileIndex)
 {
+	if (tileData->isValid() == false)
+		return; 
+
 	// todo: know current row and column from index
 	uint row = tileIndex / tileData->nCols; 
 	uint col = tileIndex % tileData->nCols; 

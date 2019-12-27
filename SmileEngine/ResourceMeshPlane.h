@@ -18,6 +18,16 @@ struct bufferData
 struct TileData
 {
 	uint nRows = 0, nCols = 0, maxTiles = 0; 
+
+public: 
+	inline void Reset()
+	{
+		nRows = nCols = maxTiles = 0; 
+	}
+	inline bool isValid()
+	{
+		return ((nRows > 0) && (nCols > 0) && (maxTiles > 0)); 
+	}
 };
 
 class ResourceMeshPlane : public ResourceMesh
@@ -30,7 +40,7 @@ public:
 
 	void GenerateOwnMeshData(float size = 0);
 	void BlitMeshHere(float4x4& global_transform, bool& needTileUpdate, ResourceTexture* tex = nullptr, blendMode blendMode = blendMode::ALPHA_BLEND, float transparency = 0.f, float4 color = float4::inf, uint tileIndex = INFINITE);
-
+	
 private: 
 	void UpdateTileUvs(bool& needTileUpdate, uint tileIndex);
 

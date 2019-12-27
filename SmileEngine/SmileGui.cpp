@@ -966,24 +966,19 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float speed[3];
 			static float randomSpeedFirst[3];
 			static float randomSpeedSecond[3];
-			static float spawnRadius[3];
 			static float time;
 			static float burstTime;
-			static float currenTime;
-			static float currenBurstTime;
-			static float angle;
 			static float initialLife;
-			static float finalLife;
-			static float initialSize;
-			static float finalSize;
-			static float initialTransp;
-			static float finalTransp;
-
+			static float LifeOverTime;
+			static float transp;
+			static float spawnRadius[3]; 
+			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
 
-			if (ImGui::CollapsingHeader("Particle Values"))
+			if (ImGui::CollapsingHeader("Particle Speed"))
 			{
 				bool random = emitter->data.emissionData.randomSpeed.first;
+
 				ImGui::Checkbox("RandomSpeed", &emitter->data.emissionData.randomSpeed.first);
 
 				if (random && !emitter->data.emissionData.randomSpeed.first)
@@ -1066,56 +1061,24 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 						emitter->data.initialState.speed = math::float3(speed);
 				}
 
-				if (ImGui::DragFloat("Radius", spawnRadius, 0.1f,0.1f,10.f))
-				{
-					emitter->data.emissionData.spawnRadius = math::float3(spawnRadius);
-				}
 
-				if (ImGui::DragFloat("Time", &time, 0.1f, 0.1f, 1.f))
-				{
-					emitter->data.emissionData.time = time;
-				}
-				if (ImGui::DragFloat("Burst Time", &burstTime, 0.f, 0.1f, 1.f))
-				{
-					emitter->data.emissionData.burstTime = burstTime;
-				}
-				if (ImGui::DragFloat("Current Time", &currenTime, 0.f, 0.1f, 1.f))
-				{
-					emitter->data.emissionData.currenTime = currenTime;
-				}
-				if (ImGui::DragFloat("Current Burst Time", &currenBurstTime, 0.f, 0.1f, 1.f))
-				{
-					emitter->data.emissionData.currenTime = currenBurstTime;
-				}
-				if (ImGui::DragFloat("Angle", &angle, 0.1f, 0.1f, 5.f))
-				{
-					emitter->data.emissionData.currenTime = angle;
-				}
+				
+
+			}
+
+			if (ImGui::CollapsingHeader("Particle Life"))
+			{
+
+
+
 				if (ImGui::DragFloat("Initial Life", &initialLife, 0.1f, 0.1f, 5.f))
 				{
 					emitter->data.initialState.life.first = initialLife;
 				}
-				if (ImGui::DragFloat("Final Life", &finalLife, 0.1f, 0.1f, 5.f))
+				if (ImGui::DragFloat("Life Decrease", &LifeOverTime, 0.1f, 0.1f, 5.f))
 				{
-					emitter->data.initialState.life.second = finalLife;
+					emitter->data.initialState.life.second = LifeOverTime;
 				}
-				if (ImGui::DragFloat("Initial Size", &initialSize, 0.1f, 0.1f, 5.f))
-				{
-					emitter->data.initialState.size.first = initialSize;
-				}
-				if (ImGui::DragFloat("Final Size", &finalSize, 0.1f, 0.1f, 5.f))
-				{
-					emitter->data.initialState.size.second = finalSize;
-				}
-				if (ImGui::DragFloat("Initial Transparency", &initialTransp, 0.1f, 0.1f, 5.f))
-				{
-					emitter->data.initialState.size.first = initialTransp;
-				}
-				if (ImGui::DragFloat("Final Transparency", &finalTransp, 0.1f, 0.1f, 5.f))
-				{
-					emitter->data.initialState.size.second = finalTransp;
-				}
-
 
 			}
 
@@ -1134,7 +1097,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 						emitter->data.initialState.color.second = math::float4(Pcol);
 					}
 				}
-				if (ImGui::CollapsingHeader("Particle Shape"))
+				if (ImGui::CollapsingHeader("Particle Spawn"))
 				{
 					if (ImGui::BeginMenu("Change Shape"))
 					{
@@ -1155,21 +1118,88 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 						ImGui::End();
 					}
-				}
-				if (ImGui::CollapsingHeader("Particle Texture")) {
 
-					ImGui::Text("Texture Path: %s", emitter->data.emissionData.texPath.c_str());
-					//TODO put image of the texture
-					//ImGui::Image((ImTextureID)emitter->data.emissionData.texPath, ImVec2());
-					ImGui::Checkbox("Texture", &emitter->data.initialState.tex.first);
-					if (emitter->data.initialState.tex.first == true) {
-						ImGui::DragFloat("Animation Speed", &emitter->data.initialState.tex.second, 0.1f, 0.f, 5.f);
-						if (ImGui::Button("Change Texture: "))
+					if (ImGui::DragFloat("Time", &time, 0.1f, 0.1f, 1.f))
+					{
+						emitter->data.emissionData.time = time;
+					}
+
+					ImGui::Checkbox("Burst", &burst);
+					
+					if (burst)
+					{
+
+						if (ImGui::DragFloat("Burst Time", &burstTime, 0.f, 0.1f, 1.f))
 						{
-							//TODO: be able to change texture
+							emitter->data.emissionData.burstTime = burstTime;
 						}
 
 					}
+					else
+						emitter->data.emissionData.burstTime = 0.f; 
+
+					if (ImGui::DragFloat("Spawn Radius x", &spawnRadius[0], 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.emissionData.spawnRadius.x = spawnRadius[0];
+					}
+					if (ImGui::DragFloat("Spawn Radius y", &spawnRadius[1], 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.emissionData.spawnRadius.y = spawnRadius[1];
+					}
+					if (ImGui::DragFloat("Spawn Radius z", &spawnRadius[2], 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.emissionData.spawnRadius.z = spawnRadius[2];
+					}
+				}
+				if (ImGui::CollapsingHeader("Particle Texture")) {
+
+					
+					ImGui::Checkbox("Texture", &emitter->data.initialState.tex.first);
+					if (emitter->data.initialState.tex.first == true) {
+						static char texturePath[512];
+						ImGui::Text("Texture Path: %s", emitter->data.emissionData.texPath.c_str());
+						ImGui::Image((ImTextureID)emitter->texture->GetTextureData()->id_texture, ImVec2(100, 100));
+						if (ImGui::InputText("Texture Path", texturePath, 512))
+						{
+							std::string path(texturePath);
+							if (path.find(".dds") != std::string::npos && !path.empty())
+								emitter->SetNewTexture(texturePath);
+
+						}
+
+						if (ImGui::DragFloat("Transparency threshold", &transp, 0.1f, 0.f, 1.f))
+						{
+							emitter->data.initialState.transparency = transp;
+						}
+
+						static bool tiling = emitter->data.initialState.tex.second > 0.f;
+						ImGui::Checkbox("Tiling", &tiling);
+						auto tileData = emitter->mesh->tileData;
+						if (tiling)
+						{
+							ImGui::DragFloat("Animation Speed", &emitter->data.initialState.tex.second, 0.05f, 0.f, 1.f); // bug with 0 speed
+							if (tileData == nullptr)
+								tileData = DBG_NEW TileData;
+							static int maxTiles = 0, nRows = 0, nCols = 0;
+							ImGui::InputInt("Number of Tiles", (int*)&tileData->maxTiles);
+							ImGui::InputInt("Number of Rows", (int*)&tileData->nCols);
+							ImGui::InputInt("Number of Columns", (int*)&tileData->nRows);
+
+						}
+						else
+						{
+							if (tileData != nullptr)
+							{
+								tileData->Reset();
+								emitter->mesh->own_mesh->ResetUvs(); 
+								emitter->data.initialState.tex.second = 0.f;
+							}
+
+						}
+
+					}
+
+
 				}
 
 				

@@ -10,6 +10,7 @@
 #include "GameObject.h"
 #include "RNG.h"
 #include "ComponentTransform.h"
+#include "SmileFileSystem.h"
 #include "ResourceTexture.h"
 
 // TODO: copy the initial values! Maybe have an instance of "initialValues" predefined too for the default ctor 
@@ -50,12 +51,14 @@ void ComponentParticleEmitter::PushFunctions()
 	auto initialState = this->data.initialState;
 
 	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);
-	if ((initialState.speed.IsZero() == false) || this->data.emissionData.randomSpeed.first)
+	//if ((initialState.speed.IsZero() == false) || this->data.emissionData.randomSpeed.first)
 		pVariableFunctions.push_back(&ComponentParticleEmitter::SpeedUpdate);
-	if (initialState.size.second != initialState.size.first)
+//	if (initialState.size.second != initialState.size.first)
 		pVariableFunctions.push_back(&ComponentParticleEmitter::SizeUpdate);
-	if ((initialState.color.second.Equals(initialState.color.first) == false) || this->data.emissionData.randomColor.first)
+	//if ((initialState.color.second.Equals(initialState.color.first) == false) || this->data.emissionData.randomColor.first)
 		pVariableFunctions.push_back(&ComponentParticleEmitter::ColorUpdate);
+
+		pVariableFunctions.push_back(&ComponentParticleEmitter::AnimUpdate);
 
 }
 
@@ -131,13 +134,6 @@ void ComponentParticleEmitter::OnSave()
 	const char* output = buffer.GetString();
 	std::string dirPath;
 	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), PARTICLES_FOLDER, "particle", "json");
-}
-
-void ComponentParticleEmitter::MoveAllParticles(float4x4 m)
-{
-	for (auto& particle : particles)
-		if(particle.currentState.active)
-			particle.transf.UpdateGlobalMatrix(m);
 }
 
 // -----------------------------------------------------------------
@@ -239,7 +235,7 @@ void ComponentParticleEmitter::SpawnParticle()
 	Particle& p = particles[FindAvailableParticleIndex(particles, lastUsedParticle)]; 
 
 	// 3) Set Particle State
-	p.currentState.transparency = data.initialState.transparency.first;
+	p.currentState.transparency = data.initialState.transparency;
 	p.currentState.life = data.initialState.life.first;
 	p.currentState.size = data.initialState.size.first;
 	
@@ -351,6 +347,8 @@ inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
 {
+	if (data.initialState.tex.second == 0.f)
+		return; 
 	
 	if ((p.currentState.lastTileframe += dt) >= data.initialState.tex.second)
 	{
@@ -422,4 +420,30 @@ float4 ComponentParticleEmitter::GetRandomRange4(std::variant<float4, std::pair<
 	}
 
 	return ret;
+}
+
+// -----------------------------------------------------------------
+void ComponentParticleEmitter::SetNewTexture(const char* path)
+{
+	if (App->fs->Exists(path) == false)
+		return; 
+
+	auto newTexture = (ResourceTexture*)App->resources->GetResourceByPath(path);
+	if (newTexture == nullptr)
+		newTexture = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, path);
+	
+	if (newTexture == nullptr)
+		return;
+
+	if (newTexture)
+	{
+		texture = newTexture; 
+		App->resources->UpdateResourceReferenceCount(texture->GetUID(), -particles.size());
+	}
+
+	this->data.emissionData.texPath = path;
+	texture->LoadOnMemory(this->data.emissionData.texPath.c_str());
+		
+	this->data.initialState.tex.first = true;
+	App->resources->UpdateResourceReferenceCount(texture->GetUID(), particles.size());
 }

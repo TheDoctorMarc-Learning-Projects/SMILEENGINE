@@ -44,10 +44,13 @@ struct ownMeshData
 {
 public:
 	float size = 0.f;
+	std::array<float, 8> initialUvCoords;
 	std::array<float, 8> uvCoords;
 	std::array<float, 8> points;
 	std::array<float, 12> points3D;
 	ownMeshType type;
+
+	void ResetUvs() { uvCoords = initialUvCoords; };
 };
 
 class ResourceMesh : public Resource
@@ -81,9 +84,11 @@ public:
 
 	uint GetNumVertex() { return (GetMeshData().index() == 0) ? model_mesh->num_vertex : own_mesh->points.size(); };
 
+public: 
+	ownMeshData* own_mesh = nullptr;
 protected:
 	ModelMeshData* model_mesh = nullptr;  
-	ownMeshData* own_mesh = nullptr;
+
 
 	friend class SmileFBX; 
 };
