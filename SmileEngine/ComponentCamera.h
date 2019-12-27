@@ -51,7 +51,7 @@ struct renderingData
 public: 
 	// Fov
 	float fovYangle = 60.f;
-	float pNearDist = 1.f, pFarDist = 512.f;
+	float pNearDist = 1.f, pFarDist = 5000.f;
 	float ratio = InitRatio();
 
 	// Use this to compute the radio!

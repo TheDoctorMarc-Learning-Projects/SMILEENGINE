@@ -34,15 +34,16 @@ bool SmileResourceManager::Start()
 
 	std::string paths[6] =
 	{
-		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
-		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
-		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
-		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
-		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"),
-		LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds")
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("black.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("black.dds")
 	}; 
+	 
 
-	skybox = DBG_NEW ResourceSkybox(RNG::GetRandomUUID(), Resource_Type::RESOURCE_SKYBOX, paths, 5.f);
+	skybox = DBG_NEW ResourceSkybox(RNG::GetRandomUUID(), Resource_Type::RESOURCE_SKYBOX, paths, 4000.f);
 	resources.insert(std::pair<SmileUUID, Resource*>(skybox->GetUID(), (Resource*)skybox));
 	skybox->SetPreset(true);
 

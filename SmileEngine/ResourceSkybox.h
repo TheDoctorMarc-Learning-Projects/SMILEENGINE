@@ -17,6 +17,6 @@ public:
 
 private: 
 	float radius = 0.f; 
-	 ResourceMeshPlane* planes[6]; 
-	 ResourceTexture* textures[6];
+	ResourceMeshPlane* planes[6]; 
+	ResourceTexture* textures[6];
 };

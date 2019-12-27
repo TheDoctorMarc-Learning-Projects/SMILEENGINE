@@ -52,7 +52,7 @@ struct InitialState
 {
 	// This Variables will be updated each frame if they have value over time (Current order: 0->5)
 	std::pair<float, float> life = std::pair(1.f, 1.f);
-	float3 speed = float3::one; // initial & over time
+	float3 speed = float3(0, 1, 0); // default
 	std::pair<float, float> size = std::pair(1.f, 1.f); // initial & final
 	std::pair<float, float> transparency = std::pair(0.f, 0.f);
 	std::pair<float4, float4> color = std::pair(float4::inf, float4::inf); // initial & final

@@ -34,14 +34,15 @@ ResourceSkybox::ResourceSkybox(SmileUUID uuid, Resource_Type type, std::string t
 
 void ResourceSkybox::Draw()
 {
+	static bool tile = false; 
 	for (int i = 0; i < 6; ++i)
-	{
-		bool tile = false; 
-		planes[i]->BlitMeshHere(GetPlaneTransform(i), tile, textures[i]); 
-	}
+		planes[i]->BlitMeshHere(GetPlaneTransform(i), tile, textures[i]);
 }
+			
 
-float4x4 ResourceSkybox::GetPlaneTransform(uint index) // left top right front back down
+
+
+float4x4 ResourceSkybox::GetPlaneTransform(uint index) // left back right front top down
 {
 	float4x4 ret = float4x4::identity; 
 	
@@ -55,8 +56,7 @@ float4x4 ResourceSkybox::GetPlaneTransform(uint index) // left top right front b
 	}
 	case 1:
 	{
-		ret.SetRotatePart(float3(1, 0, 0), 90 * DEGTORAD);
-		ret.SetTranslatePart(float3(0, radius / 2.f, 0));
+		ret.SetTranslatePart(float3(0, 0, -radius / 2.f));
 		break;
 	}
 	case 2:
@@ -68,12 +68,13 @@ float4x4 ResourceSkybox::GetPlaneTransform(uint index) // left top right front b
 	case 3:
 	{
 		ret.SetRotatePart(float3(0, 1, 0), 180 * DEGTORAD);
-	    ret.SetTranslatePart(float3(0, 0, radius / 2.f));
+		ret.SetTranslatePart(float3(0, 0, radius / 2.f));
 		break;
 	}
 	case 4:
 	{
-		ret.SetTranslatePart(float3(0, 0, -radius / 2.f));
+		ret.SetRotatePart(float3(1, 0, 0), 90 * DEGTORAD);
+		ret.SetTranslatePart(float3(0, radius / 2.f, 0));
 		break;
 	}
 	case 5:

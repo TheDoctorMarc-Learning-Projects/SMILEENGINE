@@ -1,1 +1,80 @@
-{"GameObject":{"UID":-842150451,"Name":"root","Selected":false,"Static":true,"Components":[{"Transform":{"Position":[0.0,0.0,0.0],"Rotation":[0.0,0.0,0.0,1.0],"Scale":[1.0,1.0,1.0]}}],"Children":[{"GameObject":{"UID":-842150451,"Parent ID":-842150451,"Name":"Debug Camera","Selected":false,"Static":true,"Components":[{"Transform":{"Position":[2.7983217239379885,14.558066368103028,18.059682846069337],"Rotation":[-0.16687273979187013,-0.0610741451382637,-0.010357002727687359,0.9840306639671326],"Scale":[0.9999999403953552,0.9999996423721314,1.0]}},{"Camera":{"FovY":60.0,"Near Plane Distance":1.0,"Far Plane Distance":512.0,"Ratio":1.7777777910232545,"Reference":[8.65700912475586,-1.9870754480361939,-28.9562931060791],"Is Debug":true,"Is Target":true}}],"Children":[]}},{"GameObject":{"UID":-842150451,"Parent ID":-842150451,"Name":"Game Camera","Selected":false,"Static":true,"Components":[{"Transform":{"Position":[0.0,-70.0,25.0],"Rotation":[0.5847102999687195,0.0,0.0,0.8112422227859497],"Scale":[1.0,1.0,1.0]}},{"Camera":{"FovY":60.0,"Near Plane Distance":1.0,"Far Plane Distance":45.0,"Ratio":1.7777777910232545,"Reference":[0.0,5.0,0.0],"Is Debug":false,"Is Target":false}}],"Children":[]}}]}}
+{
+  
+  "GameObject": {
+    "UID": -842150451,
+    "Name": "root",
+    "Selected": false,
+    "Static": true,
+    "Components": [
+      {
+        "Transform": {
+          "Position": [ 0.0, 0.0, 0.0 ],
+          "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
+          "Scale": [ 1.0, 1.0, 1.0 ]
+        }
+      }
+    ],
+    "Children": [
+      {
+        "GameObject": {
+          "UID": -842150451,
+          "Parent ID": -842150451,
+          "Name": "Debug Camera",
+          "Selected": false,
+          "Static": true,
+          "Components": [
+            {
+              "Transform": {
+                "Position": [ 2.7983217239379885, 14.558066368103028, 18.059682846069337 ],
+                "Rotation": [ -0.16687273979187013, -0.0610741451382637, -0.010357002727687359, 0.9840306639671326 ],
+                "Scale": [ 0.9999999403953552, 0.9999996423721314, 1.0 ]
+              }
+            },
+            {
+              "Camera": {
+                "FovY": 60.0,
+                "Near Plane Distance": 1.0,
+                "Far Plane Distance": 5000.0,
+                "Ratio": 1.7777777910232545,
+                "Reference": [ 8.65700912475586, -1.9870754480361939, -28.9562931060791 ],
+                "Is Debug": true,
+                "Is Target": true
+              }
+            }
+          ],
+          "Children": []
+        }
+      },
+      {
+        "GameObject": {
+          "UID": -842150451,
+          "Parent ID": -842150451,
+          "Name": "Game Camera",
+          "Selected": false,
+          "Static": true,
+          "Components": [
+            {
+              "Transform": {
+                "Position": [ 0.0, -70.0, 25.0 ],
+                "Rotation": [ 0.5847102999687195, 0.0, 0.0, 0.8112422227859497 ],
+                "Scale": [ 1.0, 1.0, 1.0 ]
+              }
+            },
+            {
+              "Camera": {
+                "FovY": 60.0,
+                "Near Plane Distance": 1.0,
+                "Far Plane Distance": 5000.0,
+                "Ratio": 1.7777777910232545,
+                "Reference": [ 0.0, 5.0, 0.0 ],
+                "Is Debug": false,
+                "Is Target": false
+              }
+            }
+          ],
+          "Children": []
+        }
+      }
+    ]
+  }
+}

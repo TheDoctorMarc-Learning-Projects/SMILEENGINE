@@ -906,7 +906,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		case COMPONENT_TYPE::MATERIAL:
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
-			textureData* data = mat->GetTextureData(); 
+			textureData* data = mat->GetTextureData();
 
 			// TODO: show my linked resource's reference count
 			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mat->GetResourceTexture()->GetReferenceCount())).c_str());
@@ -918,13 +918,13 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
 				ShellExecute(NULL, "open", absolutePath.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 			}
-			if (ImGui::Button("Change Texture to checkers")) 
+			if (ImGui::Button("Change Texture to checkers"))
 				App->fbx->AssignCheckersTextureToObj(mat->GetParent());
 
-			ImGui::SliderFloat("Transparency", &mat->GetMaterialData()->transparency, 0.f, 1.f); 
-				
-	
-			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height)); 
+			ImGui::SliderFloat("Transparency", &mat->GetMaterialData()->transparency, 0.f, 1.f);
+
+
+			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height));
 
 			break;
 		}
@@ -939,7 +939,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			ImGui::Text(std::string("Type: " + type).c_str());
 
 			// debug
-			ImGui::Checkbox("Show vertex normals", &mesh->debugData.vertexNormals); 
+			ImGui::Checkbox("Show vertex normals", &mesh->debugData.vertexNormals);
 			ImGui::Checkbox("Show face normals", &mesh->debugData.faceNormals);
 			break;
 		}
@@ -947,20 +947,20 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		case COMPONENT_TYPE::CAMERA:
 		{
 			ComponentCamera* cam = dynamic_cast<ComponentCamera*>(c);
-			renderingData camData = cam->GetRenderingData(); 
-			float fovY[1], pNearDist[1], pFarDist[1]; 
+			renderingData camData = cam->GetRenderingData();
+			float fovY[1], pNearDist[1], pFarDist[1];
 			fovY[0] = camData.fovYangle;
 			pNearDist[0] = camData.pNearDist;
 			pFarDist[0] = camData.pFarDist;
-			ImGui::InputFloat("Field Of View Y", fovY);  
-			ImGui::InputFloat("Distance to near plane", pNearDist); 
-			ImGui::InputFloat("Distance to far plane", pFarDist); 
+			ImGui::InputFloat("Field Of View Y", fovY);
+			ImGui::InputFloat("Distance to near plane", pNearDist);
+			ImGui::InputFloat("Distance to far plane", pFarDist);
 
 			if (keyState == KEY_DOWN)
 				cam->OnInspector(fovY, pNearDist, pFarDist);
 
-				
-			break; 
+
+			break;
 		}
 
 		// TODO -> emitter!
@@ -972,93 +972,137 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float speed[3];
 			static float randomSpeedFirst[3];
 			static float randomSpeedSecond[3];
-			
-			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false: true;
-			
+
+			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
+
 			if (ImGui::CollapsingHeader("Particle Values"))
 			{
-				
+				bool random = emitter->data.emissionData.randomSpeed.first; 
 				ImGui::Checkbox("RandomSpeed", &emitter->data.emissionData.randomSpeed.first);
+
+				if (random && !emitter->data.emissionData.randomSpeed.first)
+					emitter->data.emissionData.randomSpeed.second.second = float3::inf; 
+
 				if (emitter->data.emissionData.randomSpeed.first == true)
 				{
+					for (int i = 0; i < 3; ++i)
+						randomSpeedFirst[i] = emitter->data.emissionData.randomSpeed.second.first[i]; 
+
+
 					ImGui::Checkbox("One Range", &oneRange);
 					if (oneRange == true) {
-						if (ImGui::DragFloat3("Range", randomSpeedFirst, 5.f, 0.0f, 100.f))
+
+
+					
+						if (ImGui::DragFloat3("Range", randomSpeedFirst, 0.5f, 0.0f, 100.f))
 						{
 							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
 							emitter->data.emissionData.randomSpeed.second.second = math::float3::inf;
 						}
-					}
-					else{
-					
-						if (ImGui::DragFloat3("Min Value", randomSpeedFirst, 5.f, -50.0f, 0.f))
-						{
-							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
-						}
-						if (ImGui::DragFloat3("Max Value", randomSpeedSecond, 5.f, 0.0f, 50.f))
-						{
-							emitter->data.emissionData.randomSpeed.second.second = math::float3(randomSpeedSecond);
-						}
-					}
 
+					}
+					else {
+
+						if (ImGui::DragFloat("Min Value x", &randomSpeedFirst[0], 0.5f, -100, 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.first.x = randomSpeedFirst[0]; 
+						}
+						if (ImGui::DragFloat("Min Value y", &randomSpeedFirst[1], 0.5f, -100, 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.first.y = randomSpeedFirst[1];
+						}
+						if (ImGui::DragFloat("Min Value z", &randomSpeedFirst[2], 0.5f, -100, 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.first.z = randomSpeedFirst[2];
+						}
+
+						// Max value depends on Min value (it can be infinite previously)
+						bool infinite = emitter->data.emissionData.randomSpeed.second.second.IsFinite() == false; 
+						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.x > emitter->data.emissionData.randomSpeed.second.second.x))
+							emitter->data.emissionData.randomSpeed.second.second.x = emitter->data.emissionData.randomSpeed.second.first.x; 
+						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.y > emitter->data.emissionData.randomSpeed.second.second.y))
+							emitter->data.emissionData.randomSpeed.second.second.y = emitter->data.emissionData.randomSpeed.second.first.y;
+						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.z > emitter->data.emissionData.randomSpeed.second.second.z))
+							emitter->data.emissionData.randomSpeed.second.second.z = emitter->data.emissionData.randomSpeed.second.first.z;
+					
+						for (int i = 0; i < 3; ++i)
+							randomSpeedSecond[i] = emitter->data.emissionData.randomSpeed.second.second[i];
+
+						// Range from min values to a hypotetical maximum
+						if (ImGui::DragFloat("Max Value x", &randomSpeedSecond[0], 0.5f, randomSpeedFirst[0], 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.second.x = randomSpeedSecond[0];
+						}
+						if (ImGui::DragFloat("Max Value y", &randomSpeedSecond[1], 0.5f, randomSpeedFirst[1], 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.second.y = randomSpeedSecond[1];
+						}
+						if (ImGui::DragFloat("Max Value z", &randomSpeedSecond[2], 0.5f, randomSpeedFirst[2], 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.second.z = randomSpeedSecond[2];
+						}
+
+					}
 				}
 				else {
+					for (int i = 0; i < 3; ++i)
+						speed[i] = emitter->data.initialState.speed[i];
+					
 					if (ImGui::DragFloat3("Speed", speed, 5.f, 0.0f, 100.f))
 						emitter->data.initialState.speed = math::float3(speed);
 				}
-			}
-			if (ImGui::CollapsingHeader("Particle Color"))
-			{
-				ImGui::Text("Principal Color");
-				ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
 
-				if(ImGui::Button("Set Principal Color"))
+				if (ImGui::CollapsingHeader("Particle Color"))
 				{
-					emitter->data.initialState.color.first = math::float4(Pcol);
+					ImGui::Text("Principal Color");
+					ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
+
+					if (ImGui::Button("Set Initial Color"))
+					{
+						emitter->data.initialState.color.first = math::float4(Pcol);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Set Final Color"))
+					{
+						emitter->data.initialState.color.second = math::float4(Pcol);
+					}
 				}
-				ImGui::SameLine();
-				if (ImGui::Button("Set Secundary Color"))
+				if (ImGui::CollapsingHeader("Particle Shape"))
 				{
-					emitter->data.initialState.color.second = math::float4(Pcol);
+					if (ImGui::BeginMenu("Change Shape"))
+					{
+						if (ImGui::MenuItem("Circle"))
+						{
+							emitter->data.emissionData.shape = emmissionShape::CIRCLE;
+
+						}
+						else if (ImGui::MenuItem("Sphere"))
+						{
+							emitter->data.emissionData.shape = emmissionShape::SPHERE;
+						}
+						else if (ImGui::MenuItem("Cone"))
+						{
+							emitter->data.emissionData.shape = emmissionShape::CONE;
+
+						}
+
+						ImGui::End();
+					}
 				}
-			}
-			if (ImGui::CollapsingHeader("Particle Shape"))
-			{
-				if (ImGui::BeginMenu("Change Shape"))
-				{
-					if (ImGui::MenuItem("Circle"))
-					{
-						emitter->data.emissionData.shape = emmissionShape::CIRCLE;
+				if (ImGui::CollapsingHeader("Particle Texture")) {
 
-					}
-					else if (ImGui::MenuItem("Sphere"))
-					{
-						emitter->data.emissionData.shape = emmissionShape::SPHERE;
-					}
-					else if (ImGui::MenuItem("Cone"))
-					{
-						emitter->data.emissionData.shape = emmissionShape::CONE;
-						
-					}
-					
-					ImGui::End();
 				}
-			}
-			if (ImGui::CollapsingHeader("Particle Texture")) {
 
+				break;
 			}
 
-			break; 
 		}
 
 		default:
 		{
 			break;
 		}
-
-			
 		}
-
 
 		ImGui::TreePop();
 	}
