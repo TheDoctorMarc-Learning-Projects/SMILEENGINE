@@ -14,13 +14,14 @@
 
 // TODO: copy the initial values! Maybe have an instance of "initialValues" predefined too for the default ctor 
 
+
 ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent)
 {
 	type = COMPONENT_TYPE::EMITTER;
 	SetName("Emitter"); 
 
 	SetupMesh();
-
+	data.emissionData.spawnRadius = float3(1.f);
 	particles.resize(data.emissionData.maxParticles);
 
 	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);
@@ -31,6 +32,7 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData d
 {
 	type = COMPONENT_TYPE::EMITTER;
 	SetName("Emitter");
+
 	
 	// 1) Push functions --> Only if the variable changes on time
 	PushFunctions();
@@ -263,23 +265,21 @@ float3 ComponentParticleEmitter::GetSpawnPos()
 	{
 	case emmissionShape::CIRCLE:
 	{
-		pos += GetRandomRange(std::get<float3>(data.emissionData.spawnRadius));
+		pos += GetRandomRange(data.emissionData.spawnRadius);
 		pos.y = copy.y; 
 		break; 
 	}
 	case emmissionShape::SPHERE:
 	{
-		pos += GetRandomRange(std::get<float3>(data.emissionData.spawnRadius));
+		pos += GetRandomRange(data.emissionData.spawnRadius);
 		break;
 	}
 	case emmissionShape::CONE:
 	{
+		
 		break;
 	}
-	case emmissionShape::DOUGHNUT:
-	{
-		break;
-	}
+	
 	default:
 		break;
 	}

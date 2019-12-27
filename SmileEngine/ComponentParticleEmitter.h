@@ -60,7 +60,7 @@ struct InitialState
 
 };
 
-enum class emmissionShape { CIRCLE, SPHERE, CONE, DOUGHNUT }; // ... 
+enum class emmissionShape { CIRCLE, SPHERE, CONE }; // ... 
 enum class blendMode { ADDITIVE, ALPHA_BLEND };
 enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
 
@@ -74,7 +74,7 @@ struct EmissionData
 	std::pair<bool, std::variant<float4, std::pair<float4, float4>>> randomColor; 
 	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
 		currentBustTime = 0.f, angle = 0.f; 
-	std::variant<float3, std::pair<float3, float3>> spawnRadius; // the radius or inner + outer
+	float3 spawnRadius = float3(5.f); // the radius or inner + outer
 	emmissionShape shape = emmissionShape::CONE;
 };
 

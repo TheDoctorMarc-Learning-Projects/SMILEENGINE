@@ -31,8 +31,9 @@ namespace panelData
 {
 	bool configuration_view = false;
 	bool console_view = false;
-	math::float4 principalColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
-	math::float4 secundaryColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	float Pcol[4];
+	float Scol[4];
 
 	namespace consoleSpace
 	{
@@ -972,44 +973,37 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 			{
 				ImGui::Text("Principal Color");
-				ImGui::ColorPicker4(" ", &principalColor.x, ImGuiColorEditFlags_AlphaBar);
+				ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
+
 				if(ImGui::Button("Set Principal Color"))
 				{
-					emitter->data.initialState.color.first = principalColor;
+					emitter->data.initialState.color.first = math::float4(Pcol);
 				}
-
-					
-				
-				ImGui::Text("Secundary Color");
-				ImGui::ColorPicker4(" ", &secundaryColor.x, ImGuiColorEditFlags_AlphaBar);
-				if (ImGui::Button("Set Principal Color"))
+				ImGui::SameLine();
+				if (ImGui::Button("Set Secundary Color"))
 				{
-					emitter->data.initialState.color.second = secundaryColor;
-					LOG("%f %f %f %f", secundaryColor.x, secundaryColor.y, secundaryColor.z, secundaryColor.w);
+					emitter->data.initialState.color.second = math::float4(Pcol);
 				}
-
-
-
-				
 			}
 			if (ImGui::CollapsingHeader("Particle Shape"))
 			{
 				if (ImGui::BeginMenu("Change Shape"))
 				{
-					if (ImGui::MenuItem("Box"))
+					if (ImGui::MenuItem("Circle"))
 					{
-						emitter->data.emissionData.shape = emmissionShape::CUBE;
+						emitter->data.emissionData.shape = emmissionShape::CIRCLE;
 
 					}
 					else if (ImGui::MenuItem("Sphere"))
 					{
-						emitter->data.emissionData.shape = emmissionShape::CIRCLE;
+						emitter->data.emissionData.shape = emmissionShape::SPHERE;
 					}
 					else if (ImGui::MenuItem("Cone"))
 					{
 						emitter->data.emissionData.shape = emmissionShape::CONE;
 						
 					}
+					
 					ImGui::End();
 				}
 				
