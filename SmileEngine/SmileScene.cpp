@@ -92,6 +92,8 @@ bool SmileScene::Reset() // similar, but root needs a transform after being clea
 
 void CreateRocketo()
 {
+	App->scene_intro->rocketoAction = true; 
+
 	std::vector<Component*> comps;
 	comps.push_back((Component*)DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "RocketoMesh"));
 	comps.push_back((Component*)DBG_NEW ComponentVolatile(0.5f, &CreateFireWork, float3(1, 30, 0)));
@@ -110,7 +112,7 @@ update_status SmileScene::Update(float dt)
 	//HandleGizmo();
 
 	// TODO: firework with input 
-	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN && rocketoAction == false)
 		CreateRocketo(); 
 
 
@@ -428,6 +430,8 @@ math::LineSegment SmileScene::TraceRay(float2 normMousePos)
 
 void CreateFireWork()
 {
+	App->scene_intro->rocketoAction = false; 
+
 	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
 	AllData data;
 	data.initialState.life = std::pair(1.f, 0.2f);

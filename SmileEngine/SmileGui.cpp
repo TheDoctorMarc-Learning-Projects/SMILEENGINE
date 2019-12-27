@@ -32,9 +32,6 @@ namespace panelData
 	bool configuration_view = false;
 	bool console_view = false;
 
-	
-
-
 	namespace consoleSpace
 	{
 		ImGuiTextBuffer startupLogBuffer;
@@ -201,7 +198,7 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		}
 
 	
-		GeometryGeneratorGui::Execute(); // CAUTION: this is a menu
+		GeometryGeneratorGui::Execute(); 
 
 		
 		if (ImGui::BeginMenu("View"))
@@ -329,9 +326,6 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 			GameObject* obj = App->object_manager->CreateGameObject(mesh, "Plane", App->scene_intro->rootObj);
 			obj->GetTransform()->ChangeScale(float3(10.f, 10.f, 10.f)); 
 			obj->Start();
-			
-			// TODO: TEST, REMOVE THIS 
-			App->fbx->AssignTextureToObj(std::string(LIBRARY_TEXTURES_FOLDER_A + std::string("smokesheet.dds")).c_str(), obj);
 
 			// TODO: check this ok -> if used by particles, no static !!!
 			App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
@@ -1042,6 +1036,14 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 							emitter->data.emissionData.randomSpeed.second.second.z = randomSpeedSecond[2];
 						}
 
+						// Check again that the user did not introduce a smaller second value than the first one
+						if (emitter->data.emissionData.randomSpeed.second.first.x > emitter->data.emissionData.randomSpeed.second.second.x)
+							emitter->data.emissionData.randomSpeed.second.second.x = emitter->data.emissionData.randomSpeed.second.first.x;
+						if (emitter->data.emissionData.randomSpeed.second.first.y > emitter->data.emissionData.randomSpeed.second.second.y)
+							emitter->data.emissionData.randomSpeed.second.second.y = emitter->data.emissionData.randomSpeed.second.first.y;
+						if (emitter->data.emissionData.randomSpeed.second.first.z > emitter->data.emissionData.randomSpeed.second.second.z)
+							emitter->data.emissionData.randomSpeed.second.second.z = emitter->data.emissionData.randomSpeed.second.first.z;
+
 					}
 				}
 				else {
@@ -1105,9 +1107,10 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					}
 				}
 
-				break;
+				
 			}
 
+			break;
 		}
 
 		default:
