@@ -20,6 +20,7 @@
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
 #include "ComponentMaterial.h"
+#include "ComponentParticleEmitter.h"
 
 #include <filesystem>  
 #include "SmileGameTimeManager.h"
@@ -30,6 +31,8 @@ namespace panelData
 {
 	bool configuration_view = false;
 	bool console_view = false;
+	math::float4 principalColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+	math::float4 secundaryColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	namespace consoleSpace
 	{
@@ -962,7 +965,60 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		// TODO -> emitter!
 		case COMPONENT_TYPE::EMITTER:
 		{
-			ImGui::TextColored(ImVec4(0, 0, 1, 1), "HELLO, UPDATE THIS"); 
+			
+			ComponentParticleEmitter* emitter = dynamic_cast<ComponentParticleEmitter*>(c);
+
+			if (ImGui::CollapsingHeader("Particle Color"))
+
+			{
+				ImGui::Text("Principal Color");
+				ImGui::ColorPicker4(" ", &principalColor.x, ImGuiColorEditFlags_AlphaBar);
+				if(ImGui::Button("Set Principal Color"))
+				{
+					emitter->data.initialState.color.first = principalColor;
+				}
+
+					
+				
+				ImGui::Text("Secundary Color");
+				ImGui::ColorPicker4(" ", &secundaryColor.x, ImGuiColorEditFlags_AlphaBar);
+				if (ImGui::Button("Set Principal Color"))
+				{
+					emitter->data.initialState.color.second = secundaryColor;
+					LOG("%f %f %f %f", secundaryColor.x, secundaryColor.y, secundaryColor.z, secundaryColor.w);
+				}
+
+
+
+				
+			}
+			if (ImGui::CollapsingHeader("Particle Shape"))
+			{
+				if (ImGui::BeginMenu("Change Shape"))
+				{
+					if (ImGui::MenuItem("Box"))
+					{
+						emitter->data.emissionData.shape = emmissionShape::CUBE;
+
+					}
+					else if (ImGui::MenuItem("Sphere"))
+					{
+						emitter->data.emissionData.shape = emmissionShape::CIRCLE;
+					}
+					else if (ImGui::MenuItem("Cone"))
+					{
+						emitter->data.emissionData.shape = emmissionShape::CONE;
+						
+					}
+					ImGui::End();
+				}
+				
+				
+
+
+
+			}
+
 			break; 
 		}
 

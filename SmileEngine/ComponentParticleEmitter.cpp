@@ -131,6 +131,13 @@ void ComponentParticleEmitter::OnSave()
 	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), PARTICLES_FOLDER, "particle", "json");
 }
 
+void ComponentParticleEmitter::MoveAllParticles(float4x4 m)
+{
+	for (auto& particle : particles)
+		if(particle.currentState.active)
+			particle.transf.UpdateGlobalMatrix(m);
+}
+
 // -----------------------------------------------------------------
 void ComponentParticleEmitter::Update(float dt)
 {

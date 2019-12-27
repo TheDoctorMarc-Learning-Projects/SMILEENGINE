@@ -6,6 +6,7 @@
 #include <any>
 
 #include "MathGeoLib/include/Math/float4.h"
+#include "MathGeoLib/include/Math/float4x4.h"
 
 #include "Component.h"
 
@@ -110,6 +111,8 @@ public:
 	void Update(float dt = 0); 
 	void CleanUp(); 
 	void OnSave();
+	void MoveAllParticles(float4x4 m);
+	AllData GetData() { return data; };
 
 private: 
 	// start
@@ -141,13 +144,14 @@ private:
 private: 
 	uint_fast8_t lastUsedParticle = 0;
 	std::vector<Particle> particles, drawParticles; 
-	AllData data;
+	
 	std::vector<function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
+
 	
 public: 
 	ResourceMeshPlane* mesh = nullptr; 
 	ResourceTexture* texture = nullptr; 
-
+	AllData data;
 	// a pointer for easier access: 
 	float4x4 camMatrix; 
 	

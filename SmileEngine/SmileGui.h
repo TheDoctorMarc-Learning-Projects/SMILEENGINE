@@ -23,6 +23,7 @@ public:
 private: 
 	void FillMenuFunctionsVector(); 
 	bool GenerateGUI(); 
+	
 
 private: 
 	std::vector<void(*)(bool&)> menuFunctions;
