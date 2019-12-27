@@ -50,7 +50,7 @@ void ComponentParticleEmitter::PushFunctions()
 	auto initialState = this->data.initialState;
 
 	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);
-	if ((initialState.speed.second.IsZero() == false) || this->data.emissionData.randomSpeed.first)
+	if ((initialState.speed.IsZero() == false) || this->data.emissionData.randomSpeed.first)
 		pVariableFunctions.push_back(&ComponentParticleEmitter::SpeedUpdate);
 	if (initialState.size.second != initialState.size.first)
 		pVariableFunctions.push_back(&ComponentParticleEmitter::SizeUpdate);
@@ -247,7 +247,21 @@ void ComponentParticleEmitter::SpawnParticle()
 	bool randomC = data.emissionData.randomColor.first;
 	p.currentState.color = (randomC) ? (p.currentState.randomData.color = GetRandomRange4(data.emissionData.randomColor.second)) : data.initialState.color.first;
 	bool randomS = data.emissionData.randomSpeed.first; 
-	p.currentState.speed = (randomS) ? (p.currentState.randomData.speed = GetRandomRange(data.emissionData.randomSpeed.second)) : data.initialState.speed.second;
+	
+	if (randomS == false) {
+		p.currentState.speed = data.initialState.speed;
+	}
+	else 
+	{
+		if ((data.emissionData.randomSpeed.second.second.IsFinite())) {
+			p.currentState.randomData.speed = GetRandomRange(data.emissionData.randomSpeed.second);
+		}
+		else
+		{
+			p.currentState.randomData.speed = GetRandomRange(data.emissionData.randomSpeed.second.first);
+		}
+	}
+	
 		 
 
 	// 4) Set particle Transform
@@ -305,7 +319,7 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 {
 	// Add the speed to the particle transform pos. Update the billboard too. Gravity? Yet another variable in the emitter xd
 	auto pos = p.transf.globalMatrix.TranslatePart();
-	p.transf.globalMatrix.SetTranslatePart(pos += (p.currentState.randomData.speed.IsFinite()) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed.second * dt));
+	p.transf.globalMatrix.SetTranslatePart(pos += (p.currentState.randomData.speed.IsFinite()) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed * dt));
 
 	// Update camera distance
 	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();

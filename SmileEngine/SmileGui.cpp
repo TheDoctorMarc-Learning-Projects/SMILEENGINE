@@ -32,8 +32,8 @@ namespace panelData
 	bool configuration_view = false;
 	bool console_view = false;
 
-	float Pcol[4];
-	float Scol[4];
+	
+
 
 	namespace consoleSpace
 	{
@@ -966,11 +966,48 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		// TODO -> emitter!
 		case COMPONENT_TYPE::EMITTER:
 		{
-			
 			ComponentParticleEmitter* emitter = dynamic_cast<ComponentParticleEmitter*>(c);
+			static float Pcol[4];
+			static float Scol[4];
+			static float speed[3];
+			static float randomSpeedFirst[3];
+			static float randomSpeedSecond[3];
+			
+			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false: true;
+			
+			if (ImGui::CollapsingHeader("Particle Values"))
+			{
+				
+				ImGui::Checkbox("RandomSpeed", &emitter->data.emissionData.randomSpeed.first);
+				if (emitter->data.emissionData.randomSpeed.first == true)
+				{
+					ImGui::Checkbox("One Range", &oneRange);
+					if (oneRange == true) {
+						if (ImGui::DragFloat3("Range", randomSpeedFirst, 5.f, 0.0f, 100.f))
+						{
+							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
+							emitter->data.emissionData.randomSpeed.second.second = math::float3::inf;
+						}
+					}
+					else{
+					
+						if (ImGui::DragFloat3("Min Value", randomSpeedFirst, 5.f, -50.0f, 0.f))
+						{
+							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
+						}
+						if (ImGui::DragFloat3("Max Value", randomSpeedSecond, 5.f, 0.0f, 50.f))
+						{
+							emitter->data.emissionData.randomSpeed.second.second = math::float3(randomSpeedSecond);
+						}
+					}
 
+				}
+				else {
+					if (ImGui::DragFloat3("Speed", speed, 5.f, 0.0f, 100.f))
+						emitter->data.initialState.speed = math::float3(speed);
+				}
+			}
 			if (ImGui::CollapsingHeader("Particle Color"))
-
 			{
 				ImGui::Text("Principal Color");
 				ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
@@ -1006,10 +1043,8 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					
 					ImGui::End();
 				}
-				
-				
-
-
+			}
+			if (ImGui::CollapsingHeader("Particle Texture")) {
 
 			}
 

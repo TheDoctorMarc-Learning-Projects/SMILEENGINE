@@ -52,7 +52,7 @@ struct InitialState
 {
 	// This Variables will be updated each frame if they have value over time (Current order: 0->5)
 	std::pair<float, float> life = std::pair(1.f, 1.f);
-	std::pair<float3, float3> speed = std::pair(float3::zero, float3::zero); // initial & over time
+	float3 speed = float3::one; // initial & over time
 	std::pair<float, float> size = std::pair(1.f, 1.f); // initial & final
 	std::pair<float, float> transparency = std::pair(0.f, 0.f);
 	std::pair<float4, float4> color = std::pair(float4::inf, float4::inf); // initial & final
@@ -70,7 +70,7 @@ struct EmissionData
 	uint_fast8_t maxParticles = 100;
 	bool loop = true;
 	std::string texPath = "empty"; 
-	std::pair<bool, std::variant<float3, std::pair<float3, float3>>> randomSpeed;
+	std::pair<bool, std::pair<float3, float3>> randomSpeed;
 	std::pair<bool, std::variant<float4, std::pair<float4, float4>>> randomColor; 
 	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
 		currentBustTime = 0.f, angle = 0.f; 
