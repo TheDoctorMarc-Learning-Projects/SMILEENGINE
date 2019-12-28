@@ -21,7 +21,7 @@
 #include "ComponentTransform.h"
 #include "ComponentMaterial.h"
 #include "ComponentParticleEmitter.h"
-
+#include "RNG.h"
 #include <filesystem>  
 #include "SmileGameTimeManager.h"
 #include "ResourceMeshPlane.h"
@@ -994,6 +994,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float spawnRadius[3]; 
 			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
+			static bool randomColor = emitter->data.emissionData.randomColor.first;
 
 			if (ImGui::CollapsingHeader("Particle Speed"))
 			{
@@ -1104,18 +1105,31 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 				if (ImGui::CollapsingHeader("Particle Color"))
 				{
-					ImGui::Text("Principal Color");
-					ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
+					ImGui::Checkbox("Random Color", &randomColor);
+					if (randomColor == true)
+					{
+						if (ImGui::Button("Generate Random Color"))
+						{
+							emitter->data.emissionData.randomColor.first = randomColor;
+							emitter->data.emissionData.randomColor.second = std::pair(float4::zero,float4::one);
+						}
+					}
+					else
+					{
+						ImGui::Text("Principal Color");
+						ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
 
-					if (ImGui::Button("Set Initial Color"))
-					{
-						emitter->data.initialState.color.first = math::float4(Pcol);
+						if (ImGui::Button("Set Initial Color"))
+						{
+							emitter->data.initialState.color.first = math::float4(Pcol);
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Set Final Color"))
+						{
+							emitter->data.initialState.color.second = math::float4(Pcol);
+						}
 					}
-					ImGui::SameLine();
-					if (ImGui::Button("Set Final Color"))
-					{
-						emitter->data.initialState.color.second = math::float4(Pcol);
-					}
+					
 				}
 				if (ImGui::CollapsingHeader("Particle Spawn"))
 				{
