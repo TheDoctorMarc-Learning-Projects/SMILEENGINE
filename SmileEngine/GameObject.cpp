@@ -171,7 +171,7 @@ void GameObject::Update(float dt)
 
 	// Testing billboard
 	if (billboard)
-		billboard->Update(-App->scene_intro->gameCamera->GetViewMatrixF().Transposed(), FreeBillBoard::Alignment::world, GetTransform());
+		billboard->Update(App->scene_intro->gameCamera->GetViewMatrixF(), billboard->alignment, GetTransform());
 	
 	// Lastly debug stuff :) 
 	if(App->scene_intro->generalDbug)
@@ -556,7 +556,11 @@ void GameObject::ShowTransformInspector()
 				alignment = FreeBillBoard::Alignment::world;
 
 			if (alignment != FreeBillBoard::Alignment::noAlignment)
-				billboard = DBG_NEW FreeBillBoard();
+			{
+				billboard = DBG_NEW FreeBillBoard;
+				billboard->alignment = alignment;
+			}
+				
 		}
 
 	}

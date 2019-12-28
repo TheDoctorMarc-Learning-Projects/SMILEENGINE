@@ -6,14 +6,15 @@ struct FreeTransform
 {
 private: 
 
-	float4x4 globalMatrix;
-	float4x4 localMatrix;
+	float4x4 globalMatrix = float4x4::identity;
+	float4x4 localMatrix = float4x4::identity;
 	float4x4 parentMatrix = float4x4::identity; 
 
 public: 
 	float4x4 GetGlobalMatrix() const { return globalMatrix; };
 
 public: 
+
 	inline void UpdateLocalMatrix(float4x4& matrix)
 	{
 		globalMatrix = parentMatrix * (localMatrix = matrix);
@@ -24,5 +25,14 @@ public:
 		localMatrix = parentMatrix.Inverted() * (globalMatrix = matrix);
 	}
   
+	inline void ChangeRotation(Quat rot)
+	{
+		globalMatrix.SetRotatePart(rot); 
+		UpdateGlobalMatrix(globalMatrix); 
+	}
+
 	friend class ComponentParticleEmitter; 
 };
+
+
+static FreeTransform null; 

@@ -331,9 +331,8 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	// Update camera distance
 	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();
 
-	// TODO -> Update Billboard
-	/*FreeTransform* point = &p.transf; 
-	p.billboard.Update(FreeBillBoard::Alignment::world, point);*/
+	// Update Billboard
+	p.billboard.Update(camMatrix, FreeBillBoard::Alignment::screen, nullptr, p.transf); 
 }
 
 // -----------------------------------------------------------------
