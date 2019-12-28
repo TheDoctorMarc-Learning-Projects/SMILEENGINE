@@ -457,13 +457,13 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	writer.Key("Particle Emitter");
 
 	writer.StartObject();
-	writer.Key("Active Emitter: ");
+	writer.Key("Active");
 	writer.Bool(active);
 	
-	writer.Key("Max Particles: ");
+	writer.Key("Max Particles");
 	writer.Uint(data.emissionData.maxParticles);
 	   
-	writer.Key("Bounding Box");
+	writer.Key("Bounding Box Radius");
 	writer.Double(GetParent()->GetBoundingData().OBB.Size().Length());
 
 	
@@ -471,22 +471,22 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	bool alphaBlend = (data.blendmode == blendMode::ALPHA_BLEND) ? true : false;
 	if (alphaBlend == true)
 	{
-		writer.Int(1);
+		writer.String("ALPHA BLEND");
 	}
 	else
 	{
-		writer.Int(2);
+		writer.String("ADDITIVE");
 	}
 	bool oneRange = (data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
 	writer.Key("One Range");
 	writer.Bool(oneRange);
+
+	writer.Key("Speed"); 
+	writer.StartArray(); 
 	if (data.emissionData.randomSpeed.first == true)
 	{
 		
 			// Two ranges
-			writer.StartObject();
-			writer.Key("Random Range");
-			writer.StartObject();
 			writer.Key("First Range");
 			writer.StartArray();
 			writer.Double(data.emissionData.randomSpeed.second.first.x);
@@ -505,29 +505,21 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 				writer.Double(data.emissionData.randomSpeed.second.second.z);
 				writer.EndArray();
 			}
-			
-			
-			
-			writer.EndObject();
-			writer.EndObject();
+
 		
 		
 	}
 	else
 	{
-		writer.StartObject();
 		writer.Key("Emitter Speed");
-		writer.StartObject();
 		writer.StartArray();
 		writer.Double(data.initialState.speed.x);
 		writer.Double(data.initialState.speed.y);
 		writer.Double(data.initialState.speed.z);
 		writer.EndArray();
-		writer.EndObject();
-		writer.EndObject();
 		
 	}
-
+	writer.EndArray();
 	
 
 
@@ -546,11 +538,11 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 
 	writer.Key("Has Random Color");
 	writer.Bool(data.emissionData.randomColor.first);
+
+	writer.Key("Color");
+	writer.StartArray();
 	if (data.emissionData.randomColor.first == true)
 	{
-		writer.StartObject();
-		writer.Key("Random Color");
-		writer.StartObject();
 		writer.Key("Random Initial Color");
 		writer.StartArray();
 		writer.Double(data.emissionData.randomColor.second.first.x);
@@ -565,13 +557,8 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Double(data.emissionData.randomColor.second.second.z);
 		writer.Double(data.emissionData.randomColor.second.second.w);
 		writer.EndArray();
-		writer.EndObject();
-		writer.EndObject();
 	}
 	else {
-		writer.StartObject();
-		writer.Key("Color");
-		writer.StartObject();
 		writer.Key("Initial Color");
 		writer.StartArray();
 		writer.Double(data.initialState.color.first.x);
@@ -586,9 +573,8 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Double(data.initialState.color.second.z);
 		writer.Double(data.initialState.color.second.w);
 		writer.EndArray();
-		writer.EndObject();
 	}
-
+	writer.EndArray();
 	
 	
 	writer.Key("Initial Emitter Size");
@@ -614,7 +600,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	writer.Key("Emitter Spawn Time:");
 	writer.Double(data.emissionData.time);
 
-	writer.Key("Burst: ");
+	writer.Key("Burst Time");
 	writer.Double(data.emissionData.burstTime);
 	
 	
@@ -625,9 +611,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	writer.Double(data.emissionData.spawnRadius.z);
 	writer.EndArray();
 
-	writer.StartObject();
-	writer.Key("Particles Texture");
-	writer.StartObject();
+	
 	writer.Key("Texture Active");
 	writer.Bool(data.initialState.tex.first);
 	writer.Key("Texture Path");
@@ -654,26 +638,20 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	writer.Key("Number of Columns: ");
 	writer.Int(mesh->tileData->nCols);
 
-	writer.EndObject();
-	writer.EndObject();
-
+	
 	writer.Key("Expiration Time:");
 	writer.Double(data.emissionData.expireTime);
 
-	
 
 	// Particles
-	writer.StartObject();
 	writer.Key("Particles");
-	writer.StartObject();
 	writer.StartArray();
 
-	for (int i = 0; i <= data.emissionData.maxParticles; ++i)
+	for (int i = 0; i < data.emissionData.maxParticles; ++i)
 	{
 		writer.StartObject();
 		writer.Key("Particle");
 		writer.StartObject();
-		writer.StartArray();
 
 		writer.Key("Active");
 		writer.Bool(particles.at(i).currentState.active);
@@ -692,7 +670,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Double(particles.at(i).currentState.currentLifeTime);
 		
 
-		writer.Key("Particles Color");
+		writer.Key("Particle Color");
 		writer.StartArray();
 		writer.Double(particles.at(i).currentState.color.x);
 		writer.Double(particles.at(i).currentState.color.y);
@@ -701,30 +679,27 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.EndArray();
 
 
-		writer.Key("Particles Size");
+		writer.Key("Particle Size");
 		writer.Double(particles.at(i).currentState.size);
 		
-		writer.Key("Particles Transparency");
-		
+		writer.Key("Transparency");
 		writer.Double(particles.at(i).currentState.transparency);
 		
-		writer.Key("Particles Tile Index");
+		writer.Key("Tile Index");
 		writer.Uint(particles.at(i).currentState.tileIndex);
 	
-		writer.Key("Particles Last Tile Frame");
+		writer.Key("Last Tile Frame");
 		writer.Double(particles.at(i).currentState.lastTileframe);
 		
-		writer.Key("Particles Need Tile Update");
+		writer.Key("Need Tile Update");
 		writer.Bool(particles.at(i).currentState.needTileUpdate);
 		
 
-		writer.EndArray();
 		writer.EndObject();
 		writer.EndObject();
 	}
 	writer.EndArray();
-	writer.EndObject();
-	writer.EndObject();
+
 
 	writer.EndObject();
 	writer.EndObject();
