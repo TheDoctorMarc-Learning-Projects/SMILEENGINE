@@ -995,6 +995,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
 			static bool randomColor = emitter->data.emissionData.randomColor.first;
+			static bool gravity = emitter->data.emissionData.gravity;
+			static float initialSize;
+			static float finalSize;
 
 			if (ImGui::CollapsingHeader("Particle Speed"))
 			{
@@ -1081,17 +1084,18 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					if (ImGui::DragFloat3("Speed", speed, 5.f, 0.0f, 100.f))
 						emitter->data.initialState.speed = math::float3(speed);
 				}
-
-
-				
-
+				ImGui::Checkbox("Gravity", &gravity);
+				if (gravity == true)
+				{
+					emitter->data.emissionData.gravity = true;
+				}
+				else
+				{
+					emitter->data.emissionData.gravity = false;
+				}
 			}
-
 			if (ImGui::CollapsingHeader("Particle Life"))
 			{
-
-
-
 				if (ImGui::DragFloat("Initial Life", &initialLife, 0.1f, 0.1f, 5.f))
 				{
 					emitter->data.initialState.life.first = initialLife;
@@ -1100,7 +1104,6 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				{
 					emitter->data.initialState.life.second = LifeOverTime;
 				}
-
 			}
 
 				if (ImGui::CollapsingHeader("Particle Color"))
@@ -1133,7 +1136,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				}
 				if (ImGui::CollapsingHeader("Particle Spawn"))
 				{
-					if (ImGui::BeginMenu("Change Shape"))
+					if (ImGui::Button("Change Shape"))
 					{
 						if (ImGui::MenuItem("Circle"))
 						{
@@ -1149,10 +1152,15 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 							emitter->data.emissionData.shape = emmissionShape::CONE;
 
 						}
-
-						ImGui::End();
 					}
-
+					if (ImGui::DragFloat("Initial Size", &initialSize, 0.1f,0.1f,5.f))
+					{
+						emitter->data.initialState.size.first = initialSize;
+					}
+					if (ImGui::DragFloat("Final Size", &finalSize, 0.1f,0.1f,5.f))
+					{
+						emitter->data.initialState.size.second = finalSize;
+					}
 					if (ImGui::DragFloat("Time", &time, 0.1f, 0.1f, 1.f))
 					{
 						emitter->data.emissionData.time = time;
