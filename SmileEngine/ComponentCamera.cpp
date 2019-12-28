@@ -66,7 +66,7 @@ void ComponentCamera::ComputeSpatialData()
 void ComponentCamera::Update(float dt)
 {
 
-	// If the current looking camera is not myself, fuck the logic!
+	// If the current looking camera is not myself, fuck the logic! // TODO: ERASE CALCULATE VIEW 
 	if (App->renderer3D->targetCamera != this)
 	{
 		if (App->scene_intro->generalDbug)

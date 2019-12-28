@@ -70,7 +70,6 @@ public:
 	ComponentParticleEmitter* GetEmitter() const;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; };
 	uint GetID() const { return randomID; };
-
 	BoundingData GetBoundingData() const { return boundingData; }; 
 	GameObject* GetParent() const { return parent; };
 	std::string GetName() const { return name; };

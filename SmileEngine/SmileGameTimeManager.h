@@ -42,6 +42,7 @@ namespace TimeManager
 			gameClock.Stop();
 		//	App->serialization->LoadScene("Library/Scenes/scene.json");
 			App->SetDtMultiplier(1.F);
+			App->renderer3D->SwitchCamera();
     	//	App->window->SetFullscreen(0, (SDL_bool)false);
 			App->scene_intro->generalDbug = !App->scene_intro->generalDbug;
 		}
