@@ -374,7 +374,7 @@ void GameObject::SetupBounding()
 	if (childObjects.size() == 0)
 	{
 		if (GetMesh() == nullptr)
-			return; 
+			goto Default; 
 		
 		// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
 		math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
@@ -396,7 +396,8 @@ void GameObject::SetupBounding()
 	
 	transfGlobalMat = GetTransform()->GetGlobalMatrix();
 
-	// what here haha -> for the mom an arbitrarily-sized box at the right location
+	// Arbitrarily-sized box at the right location
+	Default:
 	boundingData.OBB.SetNegativeInfinity();
 	boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3)));
 	boundingData.AABB.SetNegativeInfinity();

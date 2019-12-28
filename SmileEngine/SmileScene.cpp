@@ -158,11 +158,11 @@ void SmileScene::DrawObjects()
 	// (debug)
 	objectCandidatesAfterFrustrumPrune = drawObjects.size();
 
-	/*for (auto& obj : drawObjects)
-		obj->Draw();*/
-
-	for (auto& obj : rootObj->childObjects) // TODO) JUST TESTING PARTICLES, DELETE THIS
+	for (auto& obj : drawObjects)
 		obj->Draw();
+
+	/*for (auto& obj : rootObj->childObjects) // TODO) JUST TESTING PARTICLES, DELETE THIS
+		obj->Draw();*/
 
 	drawObjects.clear(); 
 }
@@ -468,4 +468,8 @@ void CreateFireWork()
 	emmiterComp->mesh->tileData = DBG_NEW TileData;
 	emmiterComp->mesh->tileData->nCols = emmiterComp->mesh->tileData->nRows = 7;
 	emmiterComp->mesh->tileData->maxTiles = 46;
+
+	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
+	emitter->Start(); 
+	App->spatial_tree->OnStaticChange(emitter, true); 
 }
