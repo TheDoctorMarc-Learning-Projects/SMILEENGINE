@@ -458,7 +458,7 @@ void GameObject::Draw()
     ComponentMesh* mesh = GetMesh(); if (mesh) mesh->Draw(); 
     
 	auto* emitter = GetEmitter(); 
-	if (emitter)
+	if (emitter && emitter->active)
 		emitter->Draw(); 
 }
 

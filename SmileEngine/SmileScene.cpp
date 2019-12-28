@@ -437,7 +437,6 @@ math::LineSegment SmileScene::TraceRay(float2 normMousePos)
 void CreateFireWork()
 {
 	App->scene_intro->rocketoAction = false; 
-
 	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
 	AllData data;
 	data.initialState.life = std::pair(1.f, 0.2f);

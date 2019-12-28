@@ -231,7 +231,8 @@ void ComponentParticleEmitter::SpawnParticle()
 	p.currentState.transparency = data.initialState.transparency;
 	p.currentState.life = data.initialState.life.first;
 	p.currentState.size = data.initialState.size.first;
-	
+	auto scale = float3::FromScalar(p.currentState.size);
+	 
 	// Initial speed and color can be random:
 	bool randomC = data.emissionData.randomColor.first;
 	p.currentState.color = (randomC) ? (p.currentState.randomData.color = GetRandomRange4(data.emissionData.randomColor.second)) : data.initialState.color.first;
@@ -250,14 +251,10 @@ void ComponentParticleEmitter::SpawnParticle()
 			p.currentState.randomData.speed = GetRandomRange(data.emissionData.randomSpeed.second.first);
 		}
 	}
-	
 		 
-
 	// 4) Set particle Transform
 	p.transf.parentMatrix = GetParent()->GetTransform()->GetGlobalMatrix(); 
-	p.transf.UpdateGlobalMatrix(math::float4x4::FromTRS(GetSpawnPos(), float4x4::identity, float3::one));
-
-	// Particle billboard will be updated in Update (XD)
+	p.transf.UpdateGlobalMatrix(math::float4x4::FromTRS(GetSpawnPos(), float4x4::identity, scale));
 }
 
 float3 ComponentParticleEmitter::GetSpawnPos()
@@ -350,7 +347,7 @@ inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
 	
 	if ((p.currentState.lastTileframe += dt) >= data.initialState.tex.second)
 	{
-		p.currentState.tileIndex = ((p.currentState.tileIndex + 1) < mesh->tileData->maxTiles) ?
+		p.currentState.tileIndex = ((p.currentState.tileIndex + 1) < mesh->tileData->maxTiles -1) ?
 			(p.currentState.tileIndex + 1) : 0; 
 		p.currentState.lastTileframe = 0.f; 
 		p.currentState.needTileUpdate = true;

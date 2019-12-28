@@ -754,6 +754,7 @@ static void ObjectRecursiveNode(GameObject* obj)
 
 	if (obj)
 	{
+		ImGui::PushID(obj); 
 		if (ImGui::TreeNode(obj->GetName().c_str()))
 		{
 			 
@@ -768,7 +769,7 @@ static void ObjectRecursiveNode(GameObject* obj)
 			
 			ImGui::TreePop();
 		}
-		
+		ImGui::PopID(); 
 	}
 
 }
@@ -786,6 +787,7 @@ void panelData::HierarchySpace::Execute(bool& ret)
 
 	ImGui::Begin("Hierarchy ", &showHierarchy); 
 		
+	uint index = 0; 
 	for (auto& obj : App->scene_intro->rootObj->GetImmidiateChildren())
 		ObjectRecursiveNode(obj);
 
@@ -986,18 +988,40 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float speed[3];
 			static float randomSpeedFirst[3];
 			static float randomSpeedSecond[3];
-			static float burstTime;
-			static float initialLife;
-			static float LifeOverTime;
-			static float transp;
+			static float burstTime = emitter->data.emissionData.burstTime;
+			static float initialLife = emitter->data.initialState.life.first;
+			static float LifeOverTime = emitter->data.initialState.life.second;
+			static float transp = emitter->data.initialState.transparency;
 			static float time = emitter->data.emissionData.time;
-			static float spawnRadius[3]; 
+			static float spawnRadius[3];
+			for (int i = 0; i < 3; ++i)
+				spawnRadius[i] = emitter->data.emissionData.spawnRadius[i];
 			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
 			static bool randomColor = emitter->data.emissionData.randomColor.first;
 			static bool gravity = emitter->data.emissionData.gravity;
-			static float initialSize;
-			static float finalSize;
+			static float initialSize = emitter->data.initialState.size.first;
+			static float finalSize = emitter->data.initialState.size.second;
+
+
+			static int maxParticles = emitter->data.emissionData.maxParticles;
+			static bool alphaBlend = (emitter->data.blendmode == blendMode::ALPHA_BLEND) ? true : false; 
+			std::string blendMode = (alphaBlend) ? "Alpha Blend" : "Additive"; 
+			if (ImGui::CollapsingHeader("General Data"))
+			{
+				if (ImGui::DragInt("Max particles", &maxParticles, 5, 100, 1000))
+				{
+					emitter->SetMaxParticles((uint)maxParticles);
+				}
+
+				static float bounding = emitter->GetParent()->GetBoundingData().OBB.Size().Length();
+				if (ImGui::DragFloat("Emitter Bounding Radius", &bounding, 0.1f, 0.1f, 5.f))
+					emitter->GetParent()->ResizeBounding(bounding);
+
+				ImGui::Text(std::string("Current Blend Mode: " + blendMode).c_str());
+				emitter->data.blendmode = (ImGui::Checkbox("Alpha Blend", &alphaBlend)) ? blendMode::ALPHA_BLEND : blendMode::ADDITIVE;
+			
+			}
 
 			if (ImGui::CollapsingHeader("Particle Speed"))
 			{
@@ -1010,17 +1034,16 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 				if (emitter->data.emissionData.randomSpeed.first == true)
 				{
-					for (int i = 0; i < 3; ++i)
-						randomSpeedFirst[i] = emitter->data.emissionData.randomSpeed.second.first[i];
-
 
 					ImGui::Checkbox("One Range", &oneRange);
 					if (oneRange == true) {
-
-
-
+						
 						if (ImGui::DragFloat3("Range", randomSpeedFirst, 0.5f, 0.0f, 100.f))
 						{
+							for (int i = 0; i < 3; ++i)
+								if (randomSpeedFirst[i] < 0.f)
+									randomSpeedFirst[i] = 0.f;
+
 							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
 							emitter->data.emissionData.randomSpeed.second.second = math::float3::inf;
 						}
@@ -1145,10 +1168,6 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 						emitter->data.initialState.size.second = finalSize;
 					}
 				
-					static float bounding = emitter->GetParent()->GetBoundingData().OBB.Size().Length(); 
-					if (ImGui::DragFloat("Emitter Bounding Radius", &bounding, 0.1f, 0.1f, 5.f))
-						emitter->GetParent()->ResizeBounding(bounding); 
-					
 				}
 
 				if (ImGui::CollapsingHeader("Particle Spawn"))
@@ -1257,16 +1276,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 				}
 
-				static int maxParticles = emitter->data.emissionData.maxParticles; 
-				if (ImGui::CollapsingHeader("General Data"))
-				{
-					if (ImGui::DragInt("Max particles", &maxParticles, 5, 100, 1000))
-					{
-						emitter->SetMaxParticles((uint)maxParticles);
-						
-					}
-				}
-
+			
 				if (ImGui::CollapsingHeader("Expiration"))
 				{
 					ImGui::TextColored(ImVec4(1, 0, 0, 1), "Caution, espiration time will disable the emitter"); 
