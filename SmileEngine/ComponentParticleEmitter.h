@@ -87,7 +87,6 @@ struct AllData
 
 	// Initial State
 	InitialState initialState;
-
 	// Modes
 	blendMode blendmode = blendMode::ALPHA_BLEND;
 	lightMode lightmode = lightMode::NONE; // TODO: maybe not :( 
@@ -118,6 +117,7 @@ public:
 	void SetNewTexture(const char* path); 
 	void SetMaxParticles(uint maxParticles);
 	AllData GetData() { return data; };
+	void OnSave(rapidjson::Writer<rapidjson::StringBuffer>& writer);
 
 private: 
 	// start

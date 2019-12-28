@@ -8,6 +8,7 @@
 #include <fstream>
 #include "JSONParser.h"
 #include "SmileUtilitiesModule.h"
+#include "ComponentParticleEmitter.h"
 #include <filesystem>
 #include "SmileApp.h"
 #include "ComponentTypes.h"
@@ -188,8 +189,19 @@ bool SmileSerialization::SaveSceneNode(GameObject* obj, rapidjson::Writer<rapidj
 
 		writer.EndObject();
 		writer.EndObject();
+
+
 	}
+
 	// - - - - - - - - - - - - (end camera)
+
+	//Component emitter
+	auto emitter = obj->GetEmitter();
+	if(emitter)
+		emitter->OnSave(writer);
+	
+	
+	//end component emitter
 
 	writer.EndArray();
 	// - - - - - - - - - - - - - - - - - - - - (end Components)

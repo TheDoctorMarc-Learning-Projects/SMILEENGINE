@@ -449,3 +449,284 @@ void ComponentParticleEmitter::SetMaxParticles(uint maxParticles)
 	if (lastUsedParticle > particles.size())
 		lastUsedParticle = particles.size(); 
 }
+
+void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>& writer)
+{
+	
+	writer.StartObject();
+	writer.Key("Particle Emitter");
+
+	writer.StartObject();
+	writer.Key("Active Emitter: ");
+	writer.Bool(active);
+	
+	writer.Key("Max Particles: ");
+	writer.Uint(data.emissionData.maxParticles);
+	   
+	writer.Key("Bounding Box");
+	writer.Double(GetParent()->GetBoundingData().OBB.Size().Length());
+
+	
+	writer.Key("Blend Mode");
+	bool alphaBlend = (data.blendmode == blendMode::ALPHA_BLEND) ? true : false;
+	if (alphaBlend == true)
+	{
+		writer.Int(1);
+	}
+	else
+	{
+		writer.Int(2);
+	}
+	bool oneRange = (data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
+	writer.Key("One Range");
+	writer.Bool(oneRange);
+	if (data.emissionData.randomSpeed.first == true)
+	{
+		
+			// Two ranges
+			writer.StartObject();
+			writer.Key("Random Range");
+			writer.StartObject();
+			writer.Key("First Range");
+			writer.StartArray();
+			writer.Double(data.emissionData.randomSpeed.second.first.x);
+			writer.Double(data.emissionData.randomSpeed.second.first.y);
+			writer.Double(data.emissionData.randomSpeed.second.first.z);
+			writer.EndArray();
+			
+
+			
+			if (oneRange == false)
+			{
+				writer.Key("Second Range");
+				writer.StartArray();
+				writer.Double(data.emissionData.randomSpeed.second.second.x);
+				writer.Double(data.emissionData.randomSpeed.second.second.y);
+				writer.Double(data.emissionData.randomSpeed.second.second.z);
+				writer.EndArray();
+			}
+			
+			
+			
+			writer.EndObject();
+			writer.EndObject();
+		
+		
+	}
+	else
+	{
+		writer.StartObject();
+		writer.Key("Emitter Speed");
+		writer.StartObject();
+		writer.StartArray();
+		writer.Double(data.initialState.speed.x);
+		writer.Double(data.initialState.speed.y);
+		writer.Double(data.initialState.speed.z);
+		writer.EndArray();
+		writer.EndObject();
+		writer.EndObject();
+		
+	}
+
+	
+
+
+	writer.Key("Gravity");
+	writer.Bool(data.emissionData.gravity);
+
+
+	
+	writer.Key("Initial Life");
+	writer.Double(data.initialState.life.first);
+	writer.Key("Life Decrease");
+	writer.Double(data.initialState.life.second);
+	
+
+	
+
+	writer.Key("Has Random Color");
+	writer.Bool(data.emissionData.randomColor.first);
+	if (data.emissionData.randomColor.first == true)
+	{
+		writer.StartObject();
+		writer.Key("Random Color");
+		writer.StartObject();
+		writer.Key("Random Initial Color");
+		writer.StartArray();
+		writer.Double(data.emissionData.randomColor.second.first.x);
+		writer.Double(data.emissionData.randomColor.second.first.y);
+		writer.Double(data.emissionData.randomColor.second.first.z);
+		writer.Double(data.emissionData.randomColor.second.first.w);
+		writer.EndArray();
+		writer.Key("Random Second Color");
+		writer.StartArray();
+		writer.Double(data.emissionData.randomColor.second.second.x);
+		writer.Double(data.emissionData.randomColor.second.second.y);
+		writer.Double(data.emissionData.randomColor.second.second.z);
+		writer.Double(data.emissionData.randomColor.second.second.w);
+		writer.EndArray();
+		writer.EndObject();
+		writer.EndObject();
+	}
+	else {
+		writer.StartObject();
+		writer.Key("Color");
+		writer.StartObject();
+		writer.Key("Initial Color");
+		writer.StartArray();
+		writer.Double(data.initialState.color.first.x);
+		writer.Double(data.initialState.color.first.y);
+		writer.Double(data.initialState.color.first.z);
+		writer.Double(data.initialState.color.first.w);
+		writer.EndArray();
+		writer.Key("Final Color");
+		writer.StartArray();
+		writer.Double(data.initialState.color.second.x);
+		writer.Double(data.initialState.color.second.y);
+		writer.Double(data.initialState.color.second.z);
+		writer.Double(data.initialState.color.second.w);
+		writer.EndArray();
+		writer.EndObject();
+	}
+
+	
+	
+	writer.Key("Initial Emitter Size");
+	writer.Double(data.initialState.size.first);
+	writer.Key("Final Emitter Size");
+	writer.Double(data.initialState.size.second);
+
+	writer.Key("Spawn Shape: ");
+
+	if (data.emissionData.shape == emmissionShape::CIRCLE)
+	{
+		writer.String("CIRCLE");
+	}
+	if (data.emissionData.shape == emmissionShape::CONE)
+	{
+		writer.String("CONE");
+	}
+	if (data.emissionData.shape == emmissionShape::SPHERE)
+	{
+		writer.String("SPHERE");
+	}
+
+	writer.Key("Emitter Spawn Time:");
+	writer.Double(data.emissionData.time);
+
+	writer.Key("Burst: ");
+	writer.Double(data.emissionData.burstTime);
+	
+	
+	writer.Key("Emitter Spawn Radius");
+	writer.StartArray();
+	writer.Double(data.emissionData.spawnRadius.x);
+	writer.Double(data.emissionData.spawnRadius.y);
+	writer.Double(data.emissionData.spawnRadius.z);
+	writer.EndArray();
+
+	writer.StartObject();
+	writer.Key("Particles Texture");
+	writer.StartObject();
+	writer.Key("Texture Active");
+	writer.Bool(data.initialState.tex.first);
+	writer.Key("Texture Path");
+	writer.String(data.emissionData.texPath.c_str());
+	writer.Key("Transparency");
+	writer.Double(data.initialState.transparency);
+	writer.Key("Tiling");
+	if (data.initialState.tex.second > 0.f)
+	{
+		writer.Bool(true);
+	}
+	else
+	{
+		writer.Bool(false);
+	}
+	
+	writer.Key("Texture Animation Speed: ");
+	writer.Double(data.initialState.tex.second);
+
+	writer.Key("Number of Tiles: ");
+	writer.Int(mesh->tileData->maxTiles);
+	writer.Key("Number of Rows: ");
+	writer.Int(mesh->tileData->nRows);
+	writer.Key("Number of Columns: ");
+	writer.Int(mesh->tileData->nCols);
+
+	writer.EndObject();
+	writer.EndObject();
+
+	writer.Key("Expiration Time:");
+	writer.Double(data.emissionData.expireTime);
+
+	
+
+	// Particles
+	writer.StartObject();
+	writer.Key("Particles");
+	writer.StartObject();
+	writer.StartArray();
+
+	for (int i = 0; i <= data.emissionData.maxParticles; ++i)
+	{
+		writer.StartObject();
+		writer.Key("Particle");
+		writer.StartObject();
+		writer.StartArray();
+
+		writer.Key("Active");
+		writer.Bool(particles.at(i).currentState.active);
+		
+		writer.Key("Speed");
+		writer.StartArray();
+		writer.Double(particles.at(i).currentState.speed.x);
+		writer.Double(particles.at(i).currentState.speed.y);
+		writer.Double(particles.at(i).currentState.speed.z);
+		writer.EndArray();
+
+		writer.Key("Life");
+		writer.Double(particles.at(i).currentState.life);
+
+		writer.Key("Current Life Time");
+		writer.Double(particles.at(i).currentState.currentLifeTime);
+		
+
+		writer.Key("Particles Color");
+		writer.StartArray();
+		writer.Double(particles.at(i).currentState.color.x);
+		writer.Double(particles.at(i).currentState.color.y);
+		writer.Double(particles.at(i).currentState.color.z);
+		writer.Double(particles.at(i).currentState.color.w);
+		writer.EndArray();
+
+
+		writer.Key("Particles Size");
+		writer.Double(particles.at(i).currentState.size);
+		
+		writer.Key("Particles Transparency");
+		
+		writer.Double(particles.at(i).currentState.transparency);
+		
+		writer.Key("Particles Tile Index");
+		writer.Uint(particles.at(i).currentState.tileIndex);
+	
+		writer.Key("Particles Last Tile Frame");
+		writer.Double(particles.at(i).currentState.lastTileframe);
+		
+		writer.Key("Particles Need Tile Update");
+		writer.Bool(particles.at(i).currentState.needTileUpdate);
+		
+
+		writer.EndArray();
+		writer.EndObject();
+		writer.EndObject();
+	}
+	writer.EndArray();
+	writer.EndObject();
+	writer.EndObject();
+
+	writer.EndObject();
+	writer.EndObject();
+	
+}
