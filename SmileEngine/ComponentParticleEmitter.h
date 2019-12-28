@@ -69,7 +69,7 @@ enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
 struct EmissionData
 {
 	bool gravity = true; 
-	uint_fast8_t maxParticles = 100;
+	uint maxParticles = 100;
 	std::string texPath = "empty"; 
 	std::pair<bool, std::pair<float3, float3>> randomSpeed;
 	std::pair<bool, std::pair<float4, float4>> randomColor; 
@@ -116,6 +116,7 @@ public:
 	void CleanUp(); 
 	void Enable() { active = true; data.emissionData.expireTime = 0.f; };
 	void SetNewTexture(const char* path); 
+	void SetMaxParticles(uint maxParticles);
 	AllData GetData() { return data; };
 
 private: 

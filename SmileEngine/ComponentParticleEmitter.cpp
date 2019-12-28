@@ -28,6 +28,9 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent)
 
 	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);
 	pVariableFunctions.push_back(&ComponentParticleEmitter::SpeedUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::SizeUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::ColorUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::AnimUpdate);
 }
 
 ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent, AllData data) : data(data)
@@ -439,4 +442,13 @@ void ComponentParticleEmitter::SetNewTexture(const char* path)
 		
 	this->data.initialState.tex.first = true;
 	App->resources->UpdateResourceReferenceCount(texture->GetUID(), particles.size());
+}
+
+
+// -----------------------------------------------------------------
+void ComponentParticleEmitter::SetMaxParticles(uint maxParticles)
+{
+	particles.resize(data.emissionData.maxParticles = maxParticles); 
+	if (lastUsedParticle > particles.size())
+		lastUsedParticle = particles.size(); 
 }

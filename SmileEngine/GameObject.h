@@ -101,6 +101,7 @@ public:
 	//void PositionTransformAtMeshCenter();
 	void SetupBounding();  
 	void UpdateBounding();
+	void ResizeBounding(float size); 
 
 		// Static stuff
 	void SetStatic(bool isStatic); 

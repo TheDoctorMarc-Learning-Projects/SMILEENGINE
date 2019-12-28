@@ -398,8 +398,15 @@ void GameObject::SetupBounding()
 
 	// Arbitrarily-sized box at the right location
 	Default:
+	ResizeBounding(0.3f); 
+}
+
+void GameObject::ResizeBounding(float size)
+{
+	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix();
+
 	boundingData.OBB.SetNegativeInfinity();
-	boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3)));
+	boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), size)));
 	boundingData.AABB.SetNegativeInfinity();
 	boundingData.AABB.Enclose(boundingData.OBB);
 }

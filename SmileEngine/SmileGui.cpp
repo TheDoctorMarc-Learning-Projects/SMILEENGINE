@@ -986,11 +986,11 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float speed[3];
 			static float randomSpeedFirst[3];
 			static float randomSpeedSecond[3];
-			static float time;
 			static float burstTime;
 			static float initialLife;
 			static float LifeOverTime;
 			static float transp;
+			static float time = emitter->data.emissionData.time;
 			static float spawnRadius[3]; 
 			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
@@ -1134,6 +1134,23 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					}
 					
 				}
+				if (ImGui::CollapsingHeader("Particle Size"))
+				{
+					if (ImGui::DragFloat("Initial Size", &initialSize, 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.initialState.size.first = initialSize;
+					}
+					if (ImGui::DragFloat("Final Size", &finalSize, 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.initialState.size.second = finalSize;
+					}
+				
+					static float bounding = emitter->GetParent()->GetBoundingData().OBB.Size().Length(); 
+					if (ImGui::DragFloat("Emitter Bounding Radius", &bounding, 0.1f, 0.1f, 5.f))
+						emitter->GetParent()->ResizeBounding(bounding); 
+					
+				}
+
 				if (ImGui::CollapsingHeader("Particle Spawn"))
 				{
 					if (ImGui::Button("Change Shape"))
@@ -1153,19 +1170,13 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 						}
 					}
-					if (ImGui::DragFloat("Initial Size", &initialSize, 0.1f,0.1f,5.f))
-					{
-						emitter->data.initialState.size.first = initialSize;
-					}
-					if (ImGui::DragFloat("Final Size", &finalSize, 0.1f,0.1f,5.f))
-					{
-						emitter->data.initialState.size.second = finalSize;
-					}
-					if (ImGui::DragFloat("Time", &time, 0.1f, 0.1f, 1.f))
+
+					if (ImGui::DragFloat("Spawn Time", &time, 0.02f, 0.02f, 1.f))
 					{
 						emitter->data.emissionData.time = time;
 					}
 
+					
 					ImGui::Checkbox("Burst", &burst);
 					
 					if (burst)
@@ -1179,6 +1190,8 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					}
 					else
 						emitter->data.emissionData.burstTime = 0.f; 
+
+
 
 					if (ImGui::DragFloat("Spawn Radius x", &spawnRadius[0], 0.1f, 0.1f, 5.f))
 					{
@@ -1244,7 +1257,16 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 				}
 
-				
+				static int maxParticles = emitter->data.emissionData.maxParticles; 
+				if (ImGui::CollapsingHeader("General Data"))
+				{
+					if (ImGui::DragInt("Max particles", &maxParticles, 5, 100, 1000))
+					{
+						emitter->SetMaxParticles((uint)maxParticles);
+						
+					}
+				}
+
 				if (ImGui::CollapsingHeader("Expiration"))
 				{
 					ImGui::TextColored(ImVec4(1, 0, 0, 1), "Caution, espiration time will disable the emitter"); 
