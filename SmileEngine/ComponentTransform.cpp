@@ -73,6 +73,7 @@ void ComponentTransform::SetGlobalMatrix(float4x4 mat)
 	{
 		float4x4 parentMat = dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix();
 		localMatrix = parentMat.Inverted() * (globalMatrix = mat);
+		localMatrix.Decompose(position, rotation, scale); 
 	}
 	else
 		localMatrix =  (globalMatrix = mat);
