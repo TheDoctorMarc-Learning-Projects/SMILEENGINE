@@ -24,10 +24,13 @@ private:
 	void FillMenuFunctionsVector(); 
 	bool GenerateGUI(); 
 	
+public: 
+	bool pause = false;
 
 private: 
 	std::vector<void(*)(bool&)> menuFunctions;
 	bool inMenu = false;
+
 
 	friend class SmileSetup;
 };

@@ -63,6 +63,7 @@ namespace TimeManager
 			gameClock.Start();
 		}
 
+		App->scene_intro->pause = !App->scene_intro->pause;
 		isPaused = !isPaused; 
 	}; 
  

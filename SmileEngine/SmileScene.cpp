@@ -31,6 +31,7 @@
 #include "imgui/ImGuizmo.h"
 
 #include "Resources_Components_Include.h"
+#include "SmileGameTimeManager.h"
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
 {
@@ -107,7 +108,9 @@ void CreateRocketo()
 // Update
 update_status SmileScene::Update(float dt)
 {
-	rootObj->Update(dt); 
+	if(!pause)
+		rootObj->Update(dt);
+	 
 	DrawObjects();
 	//HandleGizmo();
 
@@ -155,7 +158,10 @@ void SmileScene::DrawObjects()
 	// (debug)
 	objectCandidatesAfterFrustrumPrune = drawObjects.size();
 
-	for (auto& obj : drawObjects)
+	/*for (auto& obj : drawObjects)
+		obj->Draw();*/
+
+	for (auto& obj : rootObj->childObjects) // TODO) JUST TESTING PARTICLES, DELETE THIS
 		obj->Draw();
 
 	drawObjects.clear(); 

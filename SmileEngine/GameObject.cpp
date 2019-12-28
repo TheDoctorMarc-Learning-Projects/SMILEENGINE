@@ -179,52 +179,6 @@ void GameObject::Update(float dt)
 
 }
 
-void GameObject::DrawAxis()
-{
-	math::float3 transfPos = dynamic_cast<ComponentTransform*>(GetComponent(TRANSFORM))->GetGlobalPosition(); 
-	glLineWidth(5); 
-	glBegin(GL_LINES);
-
-	// Line
-	glColor3f(1, 0, 0);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	
-	// Head
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineHead);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z - (GLfloat)debugLineHead);
-
-	// Line
-	glColor3f(0, 1, 0);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y + (GLfloat)debugLineSize, (GLfloat)transfPos.z);
-
-	// Head
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y + (GLfloat)debugLineSize, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineHead, (GLfloat)transfPos.y + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y + (GLfloat)debugLineSize, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x - (GLfloat)debugLineHead, (GLfloat)transfPos.y + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.z - (GLfloat)debugLineHead);
-
-
-	//Line
-	glColor3f(0, 0, 1);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize);
-
-	// Head
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize - (GLfloat)debugLineHead);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize);
-	glVertex3f((GLfloat)transfPos.x - (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize - (GLfloat)debugLineHead);
-
-
-	glEnd(); 
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glLineWidth(1);
-}
-
 void GameObject::CleanUp()
 {
 	// 0) Remove from octree!!!!
@@ -494,6 +448,10 @@ void GameObject::SetStatic(bool isStatic)
 void GameObject::Draw()
 {
     ComponentMesh* mesh = GetMesh(); if (mesh) mesh->Draw(); 
+    
+	auto* emitter = GetEmitter(); 
+	if (emitter)
+		emitter->Draw(); 
 }
 
 void GameObject::ShowTransformInspector()

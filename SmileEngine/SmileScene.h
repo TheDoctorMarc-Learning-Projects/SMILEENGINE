@@ -48,6 +48,7 @@ private:
  
 
 public:
+	bool pause = false; 
 	GameObject* rootObj = nullptr;
 	GameObject* selectedObj = nullptr; 
 	ComponentMesh* selected_mesh = nullptr;
