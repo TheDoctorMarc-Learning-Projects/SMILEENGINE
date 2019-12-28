@@ -31,6 +31,13 @@ public:
 		UpdateGlobalMatrix(globalMatrix); 
 	}
 
+	inline void ChangeScale(float3 scale)
+	{
+		localMatrix = localMatrix.FromTRS(localMatrix.TranslatePart(), localMatrix.RotatePart(), scale);
+		UpdateLocalMatrix(localMatrix);
+	}
+
+
 	friend class ComponentParticleEmitter; 
 };
 

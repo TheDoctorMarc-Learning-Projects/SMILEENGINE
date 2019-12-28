@@ -51,14 +51,10 @@ void ComponentParticleEmitter::PushFunctions()
 	auto initialState = this->data.initialState;
 
 	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);
-	//if ((initialState.speed.IsZero() == false) || this->data.emissionData.randomSpeed.first)
-		pVariableFunctions.push_back(&ComponentParticleEmitter::SpeedUpdate);
-//	if (initialState.size.second != initialState.size.first)
-		pVariableFunctions.push_back(&ComponentParticleEmitter::SizeUpdate);
-	//if ((initialState.color.second.Equals(initialState.color.first) == false) || this->data.emissionData.randomColor.first)
-		pVariableFunctions.push_back(&ComponentParticleEmitter::ColorUpdate);
-
-		pVariableFunctions.push_back(&ComponentParticleEmitter::AnimUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::SpeedUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::SizeUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::ColorUpdate);
+	pVariableFunctions.push_back(&ComponentParticleEmitter::AnimUpdate);
 
 }
 
@@ -310,7 +306,7 @@ float3 ComponentParticleEmitter::GetSpawnPos()
 // ----------------------------------------------------------------- Update Values
 inline void ComponentParticleEmitter::LifeUpdate(Particle& p, float dt)
 {
-	// This is placeholder 
+	p.currentState.currentLifeTime += dt; 
 
 	if ((p.currentState.life -= data.initialState.life.second * dt) <= 0.f)
 	{
@@ -326,7 +322,11 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	
 	// Add the speed to the particle transform pos. Update the billboard too. Gravity? Yet another variable in the emitter xd
 	auto pos = p.transf.globalMatrix.TranslatePart();
-	p.transf.globalMatrix.SetTranslatePart(pos += (data.emissionData.randomSpeed.first) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed * dt));
+	float3 delta = (data.emissionData.randomSpeed.first) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed * dt); 
+	if (data.emissionData.gravity)
+		delta += float3(0, -GLOBAL_GRAVITY * p.currentState.currentLifeTime / 1000, 0); 
+
+	p.transf.globalMatrix.SetTranslatePart(pos += delta);
 
 	// Update camera distance
 	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();
@@ -373,15 +373,13 @@ inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::SizeUpdate(Particle& p, float dt)
 {
-	/*auto t = p.transf.GetGlobalMatrix();
+	auto t = p.transf.GetGlobalMatrix();
 	float initVal = data.initialState.size.first;
 	float endVal = data.initialState.size.second;
 	float lifePercentatge = 1 - (p.currentState.life / data.initialState.life.first);
 	p.currentState.size = initVal + lifePercentatge * (endVal - initVal);
 	auto sc = float3::FromScalar(p.currentState.size); 
-	t.RemoveScale(); 
-	t.Scale(sc);
-	p.transf.UpdateGlobalMatrix(t); */
+	p.transf.ChangeScale(sc); 
 }
 
 // ----------------------------------------------------------------- [Utilities]
