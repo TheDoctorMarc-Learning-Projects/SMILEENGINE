@@ -112,8 +112,8 @@ public:
 
 public: 
 	void Update(float dt = 0); 
+	void Draw();
 	void CleanUp(); 
-	void OnSave();
 	void Enable() { active = true; data.emissionData.expireTime = 0.f; };
 	void SetNewTexture(const char* path); 
 	AllData GetData() { return data; };
@@ -123,9 +123,7 @@ private:
 	void SetupMesh(); 
 	void SetupTexture(); 
 	void PushFunctions(); 
-	
-	// draw
-	void Draw();  
+
 
 	// spawn
 	void SpawnParticle(); 
@@ -144,13 +142,10 @@ private:
 	inline void ColorUpdate(Particle& p, float dt);
 	inline void AnimUpdate(Particle& p, float dt); 
 
-	
 private: 
 	uint_fast8_t lastUsedParticle = 0;
 	std::vector<Particle> particles, drawParticles; 
-	
 	std::vector<function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
-
 	
 public: 
 	ResourceMeshPlane* mesh = nullptr; 

@@ -44,6 +44,7 @@ private:
 	float dtNoMulti; 
 	float dtMulti = 1.F;
 	float	dt;
+	bool pause; 
 	bool    terminated;
 	std::list<SmileModule*> list_Modules;
 

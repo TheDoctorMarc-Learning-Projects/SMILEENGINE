@@ -12,6 +12,7 @@
 #include "ComponentTransform.h"
 #include "SmileFileSystem.h"
 #include "ResourceTexture.h"
+#include "SmileGameTimeManager.h"
 
 // TODO: copy the initial values! Maybe have an instance of "initialValues" predefined too for the default ctor 
 
@@ -119,19 +120,6 @@ void ComponentParticleEmitter::CleanUp()
 	particles.clear();
 }
 
-void ComponentParticleEmitter::OnSave()
-{
-	rapidjson::StringBuffer buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-
-	writer.StartObject();
-	writer.Key("Particles");
-
-	const char* output = buffer.GetString();
-	std::string dirPath;
-	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), PARTICLES_FOLDER, "particle", "json");
-}
-
 // -----------------------------------------------------------------
 void ComponentParticleEmitter::Update(float dt)
 {
@@ -159,10 +147,6 @@ void ComponentParticleEmitter::Update(float dt)
 	else
 		DefaultSpawnAction(dt); 
 		
-	 	 
- 
-	// Finally Draw
-	Draw(); 
 }
 
 // -----------------------------------------------------------------
@@ -310,7 +294,7 @@ inline void ComponentParticleEmitter::LifeUpdate(Particle& p, float dt)
 
 	if ((p.currentState.life -= data.initialState.life.second * dt) <= 0.f)
 	{
-		p.currentState.life = 0.f;
+		p.currentState.life = p.currentState.currentLifeTime = 0.f;
 		p.camDist = -floatMax; 
 	}
 		
@@ -338,6 +322,8 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
 {
+	if (data.emissionData.randomColor.first)
+		return;
 
 	float4 initVal = (data.emissionData.randomColor.first) ? p.currentState.randomData.color : data.initialState.color.first; 
 	float4 endVal = data.initialState.color.second; 

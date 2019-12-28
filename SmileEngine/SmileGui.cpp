@@ -1269,9 +1269,11 @@ void panelData::PlaySpace::Execute(bool& ret)
 		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 	if (ImGui::Button(playStop.c_str(), ImVec2(100, 20)))
 		TimeManager::PlayButton();
+		
 	ImGui::SameLine(); 
 	if (ImGui::Button(pauseResume.c_str(), ImVec2(100, 20)))
 		TimeManager::PauseButton();
+		
 	ImGui::SameLine();
 	if (ImGui::Button("|> ||", ImVec2(100, 20)))
 		playOne++;
@@ -1282,6 +1284,7 @@ void panelData::PlaySpace::Execute(bool& ret)
 	{
 		if (pauseResume == "Resume")
 		{
+			App->gui->pause = !App->gui->pause;
 			LOG("Played one frame!!"); 
 			TimeManager::PlayOneButton();
 			playOne++;
