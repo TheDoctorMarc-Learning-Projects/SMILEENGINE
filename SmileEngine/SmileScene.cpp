@@ -51,6 +51,9 @@ bool SmileScene::Start()
 	// Scene -> must already have cameras and it also created octree
     App->serialization->LoadScene("Library/Scenes/scene.json", true);
 	
+	// Emitter
+	for (int i = 0; i < 2; ++i)
+		CreateSmoke(smokepos[i]); 
 	return true;
 }
 
@@ -90,6 +93,12 @@ void CreateRocketo()
 	rocketo->Start();
 	rocketo->SetStatic(false); 
 	App->spatial_tree->OnStaticChange(rocketo, rocketo->GetStatic());
+
+	// Pos in smoke 
+	int index = std::get<int>(RNG::GetRandomValue(0, 1)); 
+	float3 pos = App->scene_intro->smokepos[index];
+	auto transf = rocketo->GetTransform()->GetGlobalMatrix(); 
+	rocketo->GetTransform()->SetGlobalMatrix(float4x4::FromTRS(pos, float4x4::identity, float3::one)); 
 }
 
 
@@ -424,40 +433,30 @@ math::LineSegment SmileScene::TraceRay(float2 normMousePos)
 
 void CreateSmoke(float3 pos)
 {
-	/*GameObject* emitter = App->io
+	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
 	AllData data;
-	data.initialState.life = std::pair(1.f, 0.2f);
+	data.initialState.life = std::pair(0.5f, 0.2f);
 	data.emissionData.time = 0.03f;
 	data.emissionData.maxParticles = 1000; 
-	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
-
-	// To test animated sheet (do with smoke): 
+	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-0.5f, 2.f, -0.5f), float3(0.5f, 2.f, 0.5f)));
 	data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("smokesheet.dds");
 	data.initialState.tex = std::pair(true, 0.1f);
-
-	// Burst
 	data.emissionData.burstTime = 1.f; 
+	data.emissionData.gravity = false; 
+	data.initialState.color.first = float4(0.2f, 0.2f, 0.2f, 0.5f); 
+	data.initialState.color.second = float4(0.8f, 0.8f, 0.8f, 0.5f);
 
-	// Shape
-	/*data.emissionData.shape = emmissionShape::CIRCLE; 
-	data.emissionData.spawnRadius = float3(10, 10, 10); */
-
-	// Color for fire (do not set alpha to 1, better show alpha blending)
-	/*data.initialState.color.first = float4(1, 0, 0, 1);
-	data.initialState.color.second = float4(0, 0, 1, 1);*/
-	/*auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
 	emitter->AddComponent((Component*)emmiterComp);
-
-	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix()); 
-
 	
-	emmiterComp->mesh->tileData = DBG_NEW TileData;
 	emmiterComp->mesh->tileData->nCols = emmiterComp->mesh->tileData->nRows = 7;
 	emmiterComp->mesh->tileData->maxTiles = 46;
 
-	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
 	emitter->Start(); 
-	App->spatial_tree->OnStaticChange(emitter, true); */
+	auto mat = emitter->GetTransform()->GetGlobalMatrix(); 
+	mat.SetTranslatePart(pos); 
+	emitter->GetTransform()->SetGlobalMatrix(mat); 
+	App->spatial_tree->OnStaticChange(emitter, true); 
 }
 
 void CreateFireWork()
@@ -467,24 +466,32 @@ void CreateFireWork()
 	AllData data;
 
 	data.initialState.life.first = 0.4;
-	data.initialState.life.second = 0.2;
+	data.initialState.life.second = 0.6;
 
-	data.initialState.size.first = 0.5;
-	data.initialState.size.second = 1.5;
+	float variantSize = std::get<float>(RNG::GetRandomValue(0.f, 0.5f));
+	data.initialState.size.first = 0.5f + variantSize;
+	data.initialState.size.second = 1.5f + variantSize;
 
 	data.emissionData.randomSpeed.first = true;
-	data.emissionData.randomSpeed.second.first = float3(15, 15, 5);
+	float variantSp = std::get<float>(RNG::GetRandomValue(-5.f, 5.f)); 
+	data.emissionData.randomSpeed.second.first = float3(23 + variantSp, 23 + variantSp, 5 + variantSp);
 
 	data.emissionData.gravity = true;
 	data.emissionData.time = 0.001;
-	data.emissionData.expireTime = 1.f;
+
+	for (int i = 0; i < 3; ++i)
+		data.initialState.color.first[i] = std::get<float>(RNG::GetRandomValue(0.f, 1.f)); 
+	data.initialState.color.first[3] = 1.f; 
+	for (int i = 0; i < 3; ++i)
+		data.initialState.color.second[i] = std::get<float>(RNG::GetRandomValue(0.f, 1.f));
+	data.initialState.color.second[3] = 0.f;
 
 	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
 	emitter->AddComponent((Component*)emmiterComp);
 	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix());
 
-	
 	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
 	emitter->Start();
+	emmiterComp->data.emissionData.expireTime = 1.5f;
 	App->spatial_tree->OnStaticChange(emitter, true);
 }

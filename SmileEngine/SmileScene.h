@@ -64,5 +64,6 @@ public:
 	uint objectCandidatesAfterFrustrumPrune = 0;
 
 public: 
+	float3 smokepos[2] = { float3(0, 2, 0), float3(10, 2, 10) }; 
 	bool rocketoAction = false; 
 };
