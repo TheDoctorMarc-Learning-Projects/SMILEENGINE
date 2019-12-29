@@ -1,3 +1,18 @@
+# Introduction
+
+Smile Engine is a game engine created for the the subject Video Game Engines made by Marc Doctor and Eric Navarro. In our engine, we have implemented a Particle System that we will explain later.
+
+# Team
+
+* Marc Doctor: [Github Account](https://github.com/thedoctormarc)
+
+![Marc](https://github.com/VictorTirado/Town-Hall-Defense/blob/master/wiki_sources/Marc.png?raw=true)
+
+* Eric Navarro: [Github Account](https://github.com/lakaens)
+
+![Eric](https://github.com/VictorTirado/Town-Hall-Defense/blob/master/wiki_sources/Eric.PNG?raw=true)
+
+
 
 	(:D) OVERVIEW (:D)
 
