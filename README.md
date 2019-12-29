@@ -52,23 +52,31 @@ You can create a new particle in the menu creation, emitter. It will appear a em
 There are several sections.
 
 ## Settings
-General data Section: the maximum number of particles, the size of the bounding and the blend mode can be changed.
+### General data Section:
+the maximum number of particles, the size of the bounding and the blend mode can be changed.
 Every time the maxparticles variable is altered, the particles buffer is resized. 
 
-Particle Speed Section: you can decide if the speed is random and if being random you want a range or two to do the random, if it is not random, the user decides it and you can decide if you want gravity or not.
+### Particle Speed Section: 
+you can decide if the speed is random and if being random you want a range or two to do the random, if it is not random, the user decides it and you can decide if you want gravity or not.
 
-Particle Life Section: you can change the initial life and the decrease of this.
+### Particle Life Section:
+you can change the initial life and the decrease of this.
 
-Particle Color Section: you can decide if you want a random color or not, if not you have a color palette to choose two colors, the initial and the final
+### Particle Color Section: 
+you can decide if you want a random color or not, if not you have a color palette to choose two colors, the initial and the final
 
-Particle Size Section: you can decide which initial and final size you want for the particles.
+### Particle Size Section: 
+you can decide which initial and final size you want for the particles.
 
-Particle Spawn Section: you can change the shape for the emission of the particles, the spawn time, if you want burst and the spawn radius for each shape.
+### Particle Spawn Section: 
+you can change the shape for the emission of the particles, the spawn time, if you want burst and the spawn radius for each shape.
 
-Particle Texture Section: you can decide if the particles have texture, if they have, you can decide the transparency of them and you can change the texture if you want.
+### Particle Texture Section: 
+you can decide if the particles have texture, if they have, you can decide the transparency of them and you can change the texture if you want.
 Particles can have an animation if specified, and the user decides the tiling to use a classic spritesheet. 
 
-Expiration Section: you can decide the expiration time for the emitter.
+### Expiration Section: 
+you can decide the expiration time for the emitter.
 
 # Video
 
