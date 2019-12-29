@@ -135,8 +135,7 @@ void ComponentParticleEmitter::Update(float dt)
 			data.emissionData.expireTime = 0.f; 
 			return; 
 		}
-		
-	camMatrix = App->scene_intro->gameCamera->GetViewMatrixF(); 
+	
 
 	// Loop particles. Quickly discard inactive ones. Execute only needed functions 
 	for (int i = 0; i < particles.size(); ++i)
@@ -234,8 +233,8 @@ void ComponentParticleEmitter::SpawnParticle()
 	auto scale = float3::FromScalar(p.currentState.size);
 	 
 	// Initial speed and color can be random:
-	bool randomC = data.emissionData.randomColor.first;
-	p.currentState.color = (randomC) ? (p.currentState.randomData.color = GetRandomRange4(data.emissionData.randomColor.second)) : data.initialState.color.first;
+	bool randomC = data.emissionData.randomColor;
+	p.currentState.color = (randomC) ? (p.currentState.randomData.color = GetRandomRange4(std::pair(float4::zero, float4::one))) : data.initialState.color.first;
 	bool randomS = data.emissionData.randomSpeed.first; 
 	
 	if (randomS == false) {
@@ -313,6 +312,7 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	p.transf.globalMatrix.SetTranslatePart(pos += delta);
 
 	// Update camera distance
+	auto camMatrix = App->scene_intro->gameCamera->GetViewMatrixF(); 
 	p.camDist = (p.transf.globalMatrix.TranslatePart() - camMatrix.TranslatePart()).Length();
 
 	// Update Billboard
@@ -322,10 +322,10 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
 {
-	if (data.emissionData.randomColor.first)
+	if (data.emissionData.randomColor)
 		return;
 
-	float4 initVal = (data.emissionData.randomColor.first) ? p.currentState.randomData.color : data.initialState.color.first; 
+	float4 initVal = (data.emissionData.randomColor) ? p.currentState.randomData.color : data.initialState.color.first; 
 	float4 endVal = data.initialState.color.second; 
 
 	if (endVal.IsFinite() == false)
@@ -337,7 +337,6 @@ inline void ComponentParticleEmitter::ColorUpdate(Particle& p, float dt)
 
     // c = init + inverse percentage * range 
 }
-
 
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::AnimUpdate(Particle& p, float dt)
@@ -454,7 +453,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 {
 	
 	writer.StartObject();
-	writer.Key("Particle Emitter");
+	writer.Key("Emitter");
 
 	writer.StartObject();
 	writer.Key("Active");
@@ -481,6 +480,10 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	writer.Key("One Range");
 	writer.Bool(oneRange);
 
+
+	writer.Key("Has Random Speed");
+	writer.Bool(data.emissionData.randomSpeed.first);
+
 	writer.Key("Speed"); 
 	writer.StartArray(); 
 	if (data.emissionData.randomSpeed.first == true)
@@ -495,70 +498,42 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 			writer.EndArray();
 			
 
-			
+			auto value = float3(666); 
 			if (oneRange == false)
-			{
+				value = data.emissionData.randomSpeed.second.second; 
+			
+
 				writer.Key("Second Range");
 				writer.StartArray();
-				writer.Double(data.emissionData.randomSpeed.second.second.x);
-				writer.Double(data.emissionData.randomSpeed.second.second.y);
-				writer.Double(data.emissionData.randomSpeed.second.second.z);
+				writer.Double(value.x);
+				writer.Double(value.y);
+				writer.Double(value.z);
 				writer.EndArray();
-			}
-
+		
 		
 		
 	}
 	else
 	{
-		writer.Key("Emitter Speed");
-		writer.StartArray();
 		writer.Double(data.initialState.speed.x);
 		writer.Double(data.initialState.speed.y);
 		writer.Double(data.initialState.speed.z);
-		writer.EndArray();
-		
 	}
 	writer.EndArray();
 	
-
-
 	writer.Key("Gravity");
 	writer.Bool(data.emissionData.gravity);
 
-
-	
 	writer.Key("Initial Life");
 	writer.Double(data.initialState.life.first);
 	writer.Key("Life Decrease");
 	writer.Double(data.initialState.life.second);
 	
-
-	
-
 	writer.Key("Has Random Color");
-	writer.Bool(data.emissionData.randomColor.first);
+	writer.Bool(data.emissionData.randomColor);
 
-	writer.Key("Color");
-	writer.StartArray();
-	if (data.emissionData.randomColor.first == true)
+	if (data.emissionData.randomColor == false)
 	{
-		writer.Key("Random Initial Color");
-		writer.StartArray();
-		writer.Double(data.emissionData.randomColor.second.first.x);
-		writer.Double(data.emissionData.randomColor.second.first.y);
-		writer.Double(data.emissionData.randomColor.second.first.z);
-		writer.Double(data.emissionData.randomColor.second.first.w);
-		writer.EndArray();
-		writer.Key("Random Second Color");
-		writer.StartArray();
-		writer.Double(data.emissionData.randomColor.second.second.x);
-		writer.Double(data.emissionData.randomColor.second.second.y);
-		writer.Double(data.emissionData.randomColor.second.second.z);
-		writer.Double(data.emissionData.randomColor.second.second.w);
-		writer.EndArray();
-	}
-	else {
 		writer.Key("Initial Color");
 		writer.StartArray();
 		writer.Double(data.initialState.color.first.x);
@@ -573,16 +548,16 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Double(data.initialState.color.second.z);
 		writer.Double(data.initialState.color.second.w);
 		writer.EndArray();
+
+
 	}
-	writer.EndArray();
 	
-	
-	writer.Key("Initial Emitter Size");
+	writer.Key("Initial Particle Size");
 	writer.Double(data.initialState.size.first);
-	writer.Key("Final Emitter Size");
+	writer.Key("Final Particle Size");
 	writer.Double(data.initialState.size.second);
 
-	writer.Key("Spawn Shape: ");
+	writer.Key("Spawn Shape");
 
 	if (data.emissionData.shape == emmissionShape::CIRCLE)
 	{
@@ -597,7 +572,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.String("SPHERE");
 	}
 
-	writer.Key("Emitter Spawn Time:");
+	writer.Key("Emitter Spawn Time");
 	writer.Double(data.emissionData.time);
 
 	writer.Key("Burst Time");
@@ -618,28 +593,19 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	writer.String(data.emissionData.texPath.c_str());
 	writer.Key("Transparency");
 	writer.Double(data.initialState.transparency);
-	writer.Key("Tiling");
-	if (data.initialState.tex.second > 0.f)
-	{
-		writer.Bool(true);
-	}
-	else
-	{
-		writer.Bool(false);
-	}
 	
-	writer.Key("Texture Animation Speed: ");
+	writer.Key("Texture Animation Speed");
 	writer.Double(data.initialState.tex.second);
 
-	writer.Key("Number of Tiles: ");
+	writer.Key("Number of Tiles");
 	writer.Int(mesh->tileData->maxTiles);
-	writer.Key("Number of Rows: ");
+	writer.Key("Number of Rows");
 	writer.Int(mesh->tileData->nRows);
-	writer.Key("Number of Columns: ");
+	writer.Key("Number of Columns");
 	writer.Int(mesh->tileData->nCols);
 
 	
-	writer.Key("Expiration Time:");
+	writer.Key("Expiration Time");
 	writer.Double(data.emissionData.expireTime);
 
 
@@ -670,7 +636,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Double(particles.at(i).currentState.currentLifeTime);
 		
 
-		writer.Key("Particle Color");
+		writer.Key("Color");
 		writer.StartArray();
 		writer.Double(particles.at(i).currentState.color.x);
 		writer.Double(particles.at(i).currentState.color.y);
@@ -679,7 +645,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.EndArray();
 
 
-		writer.Key("Particle Size");
+		writer.Key("Size");
 		writer.Double(particles.at(i).currentState.size);
 		
 		writer.Key("Transparency");

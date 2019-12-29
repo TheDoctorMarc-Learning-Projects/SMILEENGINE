@@ -332,6 +332,75 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				break;
 			}
 
+			case EMITTER:
+			{
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Emitter
+			    bool active = object["Active"].GetBool(); 
+				uint maxParticles = object["Max Particles"].GetInt(); 
+				float boundingBoxRadius = object["Bounding Box Radius"].GetFloat(); 
+				std::string blendModeString = object["Blend Mode"].GetString(); 
+				blendMode blendMode = (blendModeString == "ALPHA BLEND") ? blendMode::ALPHA_BLEND : blendMode::ADDITIVE; 
+				bool hasRandomSpeed = object["Has Random Speed"].GetBool(); 
+				auto Speed = object["Speed"].GetArray();
+				float3 SpeedFirstRange, SpeedSecondRange;
+				if (hasRandomSpeed)
+				{
+					for (rapidjson::SizeType i = 0; i < Speed.Size(); i++)
+					{
+						const rapidjson::Value& range = Speed[i];
+
+						if (i == 1)
+						{
+							for (rapidjson::SizeType i = 0; i < range.Size(); i++)
+								SpeedFirstRange[i] = range[i].GetDouble();
+						}
+						else if (i == 3)
+						{
+							for (rapidjson::SizeType i = 0; i < range.Size(); i++)
+								SpeedSecondRange[i] = range[i].GetDouble();
+						}
+
+					}
+				}
+				else
+				{
+					for (rapidjson::SizeType i = 0; i < Speed.Size(); i++)
+						SpeedFirstRange[i] = Speed[i].GetDouble();
+				}
+				bool gravity = object["Gravity"].GetBool();
+				float initialLife = object["Initial Life"].GetFloat();
+				float lifeDecrease = object["Life Decrease"].GetFloat();
+				bool hasRandomColor = object["Has Random Color"].GetBool(); 
+				float initialParticleSize = object["Initial Particle Size"].GetFloat(); 
+				float finalParticleSize = object["Final Particle Size"].GetFloat();
+				std::string spawnShapeString = object["Spawn Shape"].GetString(); 
+				emmissionShape shape = emmissionShape::CIRCLE; 
+				if(spawnShapeString ==  "SPHERE")
+					shape = emmissionShape::SPHERE;
+				else if (spawnShapeString == "CONE")
+					shape = emmissionShape::CONE;
+				float emitterSpawnTime = object["Emitter Spawn Time"].GetFloat(); 
+				float burstTime = object["Burst Time"].GetFloat();
+				auto radius = object["Emitter Spawn Radius"].GetArray();
+				float3 spawnRadius = float3(5.f); 
+				for (rapidjson::SizeType i = 0; i < radius.Size(); i++)
+					spawnRadius[i] = radius[i].GetFloat();
+				bool textureActive = object["Texture Active"].GetBool();
+				std::string texturePath = object["Texture Path"].GetString(); 
+				float transp = object["Transparency"].GetFloat(); 
+				float animSpeed  = object["Texture Animation Speed"].GetFloat();
+				uint maxTiles = object["Number of Tiles"].GetInt();
+				uint nRows = object["Number of Rows"].GetInt();
+				uint nCols = object["Number of Columns"].GetInt();
+				float expirationTime = object["Expiration Time"].GetFloat();
+
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Emitter
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Particles
+				 
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Particles
+				break; 
+			}
+
 			default:
 				break;
 			}
@@ -371,7 +440,8 @@ void SmileSerialization::LoadScene(const char* path, bool startup)
 	}
 
 	// 4) Then Load
-	LoadSceneNode(nullptr, doc["GameObject"], doc)->Start();  // starts root 
+	rapidjson::Value& value = doc["GameObject"]; 
+	LoadSceneNode(nullptr, value, doc)->Start();  // starts root 
 	// 5) Afterwards, create Octree again
 	App->spatial_tree->CreateOctree(math::AABB(float3(-100, -100, -100), float3(100, 100, 100)));
 }

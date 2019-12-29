@@ -998,7 +998,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				spawnRadius[i] = emitter->data.emissionData.spawnRadius[i];
 			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
-			static bool randomColor = emitter->data.emissionData.randomColor.first;
+			static bool randomColor = emitter->data.emissionData.randomColor;
 			static bool gravity = emitter->data.emissionData.gravity;
 			static float initialSize = emitter->data.initialState.size.first;
 			static float finalSize = emitter->data.initialState.size.second;
@@ -1134,11 +1134,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					ImGui::Checkbox("Random Color", &randomColor);
 					if (randomColor == true)
 					{
-						if (ImGui::Button("Generate Random Color"))
-						{
-							emitter->data.emissionData.randomColor.first = randomColor;
-							emitter->data.emissionData.randomColor.second = std::pair(float4::zero,float4::one);
-						}
+						emitter->data.emissionData.randomColor = randomColor;
 					}
 					else
 					{

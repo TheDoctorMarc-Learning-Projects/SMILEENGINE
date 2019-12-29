@@ -72,7 +72,7 @@ struct EmissionData
 	uint maxParticles = 100;
 	std::string texPath = "empty"; 
 	std::pair<bool, std::pair<float3, float3>> randomSpeed;
-	std::pair<bool, std::pair<float4, float4>> randomColor; 
+	bool randomColor; 
 	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
 		currentBustTime = 0.f, expireTime = 0.f, totalTime = 0.f;
 	float3 spawnRadius = float3(5.f); // the radius or inner + outer
@@ -114,32 +114,35 @@ public:
 	void Draw();
 	void CleanUp(); 
 	void Enable() { active = true; data.emissionData.expireTime = 0.f; };
+
+	// Setters & Getters
 	void SetNewTexture(const char* path); 
 	void SetMaxParticles(uint maxParticles);
 	AllData GetData() { return data; };
+	
+	// Save & Load
 	void OnSave(rapidjson::Writer<rapidjson::StringBuffer>& writer);
 
 private: 
-	// start
+	// Start
 	void SetupMesh(); 
 	void SetupTexture(); 
 	void PushFunctions(); 
 
-
-	// spawn
+	// Spawn
 	void SpawnParticle(); 
 	void BurstAction(float dt); 
 	void DefaultSpawnAction(float dt); 
 	float3 GetSpawnPos(); 
 
-	// utilities
+	// Utilities
 	float3 GetRandomRange(std::variant<float3, std::pair<float3, float3>> ranges);
 	float4 GetRandomRange4(std::variant<float4, std::pair<float4, float4>> ranges);
 
-	// cool
+	// Particle Updation
 	inline void LifeUpdate(Particle& p, float dt);
 	inline void SpeedUpdate(Particle& p, float dt);
-	inline void SizeUpdate(Particle& p, float dt); // TODO 
+	inline void SizeUpdate(Particle& p, float dt);  
 	inline void ColorUpdate(Particle& p, float dt);
 	inline void AnimUpdate(Particle& p, float dt); 
 
@@ -152,8 +155,6 @@ public:
 	ResourceMeshPlane* mesh = nullptr; 
 	ResourceTexture* texture = nullptr; 
 	AllData data;
-	// a pointer for easier access: 
-	float4x4 camMatrix; 
 	
 };
 
