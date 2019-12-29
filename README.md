@@ -84,7 +84,6 @@ you can decide the expiration time for the emitter.
 
 # Video
 
-![Video](https://www.youtube.com/watch?v=licm-ktYF5o)
 [![Watch the video](https://i.imgur.com/vKb2F1B.png)](https://www.youtube.com/watch?v=licm-ktYF5o)
 
 
