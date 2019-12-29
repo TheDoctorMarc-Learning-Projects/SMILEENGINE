@@ -1,6 +1,6 @@
 # Introduction
 
-Smile Engine is a game engine created for the the subject Video Game Engines made by Marc Doctor and Eric Navarro. In our engine, we have implemented a Particle System that we will explain later.
+Smile Engine is a game engine created for the the subject Video Game Engines in CITM, UPC, made by Marc Doctor and Eric Navarro. In our engine, we have implemented a Particle System that we will explain later.
 
 # Team
 
