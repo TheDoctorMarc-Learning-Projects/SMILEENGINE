@@ -74,7 +74,7 @@ struct EmissionData
 	std::pair<bool, std::pair<float3, float3>> randomSpeed;
 	bool randomColor; 
 	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
-		currentBustTime = 0.f, expireTime = 0.f, totalTime = 0.f;
+		currentBurstTime = 0.f, expireTime = 0.f, totalTime = 0.f;
 	float3 spawnRadius = float3(5.f); // the radius or inner + outer
 	emmissionShape shape = emmissionShape::CONE;
 };
@@ -147,7 +147,7 @@ private:
 	inline void AnimUpdate(Particle& p, float dt); 
 
 private: 
-	uint_fast8_t lastUsedParticle = 0;
+	uint lastUsedParticle = 0;
 	std::vector<Particle> particles, drawParticles; 
 	std::vector<function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
 	
@@ -155,7 +155,9 @@ public:
 	ResourceMeshPlane* mesh = nullptr; 
 	ResourceTexture* texture = nullptr; 
 	AllData data;
-	
+
+
+	friend class SmileSerialization;
 };
 
 

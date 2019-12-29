@@ -156,9 +156,9 @@ void ComponentParticleEmitter::BurstAction(float dt)
 {
 	static bool burst = false;
 
-	if ((data.emissionData.currentBustTime += dt) >= data.emissionData.burstTime)
+	if ((data.emissionData.currentBurstTime += dt) >= data.emissionData.burstTime)
 	{
-		data.emissionData.currentBustTime = 0;
+		data.emissionData.currentBurstTime = 0;
 		burst = !burst;
 	}
 
@@ -194,7 +194,7 @@ void ComponentParticleEmitter::Draw()
 
 
 // -----------------------------------------------------------------
-inline static int FindAvailableParticleIndex(std::vector<Particle>& particles, uint_fast8_t& lastUsedParticle)
+inline static int FindAvailableParticleIndex(std::vector<Particle>& particles, uint& lastUsedParticle)
 {
 	for (int i = lastUsedParticle; i < particles.size(); i++) 
 	{
@@ -461,6 +461,9 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	
 	writer.Key("Max Particles");
 	writer.Uint(data.emissionData.maxParticles);
+
+	writer.Key("Last Used Particle");
+	writer.Uint(lastUsedParticle);
 	   
 	writer.Key("Bounding Box Radius");
 	writer.Double(GetParent()->GetBoundingData().OBB.Size().Length());
@@ -534,19 +537,31 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 
 	if (data.emissionData.randomColor == false)
 	{
+		auto value = float4(666,666,666,666);
+		auto value2 = float4(666,666,666,666);
+		if (data.initialState.color.first.IsFinite())
+		{
+			value = data.initialState.color.first;
+			
+		}
+		if (data.initialState.color.second.IsFinite())
+		{
+			value2 = data.initialState.color.second;
+
+		}
 		writer.Key("Initial Color");
 		writer.StartArray();
-		writer.Double(data.initialState.color.first.x);
-		writer.Double(data.initialState.color.first.y);
-		writer.Double(data.initialState.color.first.z);
-		writer.Double(data.initialState.color.first.w);
+		writer.Double(value.x);
+		writer.Double(value.y);
+		writer.Double(value.z);
+		writer.Double(value.w);
 		writer.EndArray();
 		writer.Key("Final Color");
 		writer.StartArray();
-		writer.Double(data.initialState.color.second.x);
-		writer.Double(data.initialState.color.second.y);
-		writer.Double(data.initialState.color.second.z);
-		writer.Double(data.initialState.color.second.w);
+		writer.Double(value2.x);
+		writer.Double(value2.y);
+		writer.Double(value2.z);
+		writer.Double(value2.w);
 		writer.EndArray();
 
 
@@ -577,8 +592,19 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 
 	writer.Key("Burst Time");
 	writer.Double(data.emissionData.burstTime);
+
+	writer.Key("Current Time");
+	writer.Double(data.emissionData.currenTime);
+
+	writer.Key("Current Burst Time");
+	writer.Double(data.emissionData.currentBurstTime);
+
+	writer.Key("Total Time");
+	writer.Double(data.emissionData.totalTime);
 	
-	
+	writer.Key("Expiration Time");
+	writer.Double(data.emissionData.expireTime);
+
 	writer.Key("Emitter Spawn Radius");
 	writer.StartArray();
 	writer.Double(data.emissionData.spawnRadius.x);
@@ -605,8 +631,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 	writer.Int(mesh->tileData->nCols);
 
 	
-	writer.Key("Expiration Time");
-	writer.Double(data.emissionData.expireTime);
+	
 
 
 	// Particles
@@ -660,7 +685,58 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Key("Need Tile Update");
 		writer.Bool(particles.at(i).currentState.needTileUpdate);
 		
+		writer.Key("Random Speed");
+		writer.StartArray();
+		auto value = float3(666);
+		if (particles.at(i).currentState.randomData.speed.IsFinite() == false)
+		{
+			value.x = particles.at(i).currentState.randomData.speed.x;
+			value.y = particles.at(i).currentState.randomData.speed.y;
+			value.z = particles.at(i).currentState.randomData.speed.z;
+		}
+		writer.Double(value.x);
+		writer.Double(value.y);
+		writer.Double(value.z);
+		writer.EndArray();
 
+
+
+		writer.Key("Random Color");
+		writer.StartArray();
+		auto valueC = float4(666,666,666,666);
+		if (particles.at(i).currentState.randomData.color.IsFinite() == false)
+		{
+			valueC.x = particles.at(i).currentState.randomData.color.x;
+			valueC.y = particles.at(i).currentState.randomData.color.y;
+			valueC.z = particles.at(i).currentState.randomData.color.z;
+			valueC.w = particles.at(i).currentState.randomData.color.w;
+		}
+		writer.Double(valueC.x);
+		writer.Double(valueC.y);
+		writer.Double(valueC.z);
+		writer.Double(valueC.w);
+		writer.EndArray();
+
+		writer.Key("Cam Distance");
+		writer.Double(particles.at(i).camDist);
+
+		writer.Key("Global Matrix");
+		float* m = particles.at(i).transf.globalMatrix.ptr();
+		writer.StartArray();
+		for (int i = 0; i < 16; ++i)
+		{
+			writer.Double(m[i]);
+		}
+		writer.EndArray();
+
+		writer.Key("Local Matrix");
+		float* mLocal = particles.at(i).transf.localMatrix.ptr();
+		writer.StartArray();
+		for (int i = 0; i < 16; ++i)
+		{
+			writer.Double(mLocal[i]);
+		}
+		writer.EndArray();
 		writer.EndObject();
 		writer.EndObject();
 	}

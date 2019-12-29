@@ -1248,8 +1248,8 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 						if (tiling)
 						{
 							ImGui::DragFloat("Animation Speed", &emitter->data.initialState.tex.second, 0.05f, 0.f, 1.f); // bug with 0 speed
-							if (tileData == nullptr)
-								tileData = DBG_NEW TileData;
+							
+							
 							static int maxTiles = 0, nRows = 0, nCols = 0;
 							ImGui::InputInt("Number of Tiles", (int*)&tileData->maxTiles);
 							ImGui::InputInt("Number of Rows", (int*)&tileData->nCols);

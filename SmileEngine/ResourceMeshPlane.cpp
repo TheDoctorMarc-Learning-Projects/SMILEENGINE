@@ -5,6 +5,7 @@
 ResourceMeshPlane::ResourceMeshPlane(SmileUUID uuid, ownMeshType type, std::string path, float4 color, TileData* tileData, float size) : ResourceMesh(uuid, type, path), color(color), tileData(tileData), size(size)
 {
 	GenerateOwnMeshData(size);
+	tileData = DBG_NEW TileData;
 	/*if(color.IsFinite())
 		LoadOnMemory(color);*/
 }

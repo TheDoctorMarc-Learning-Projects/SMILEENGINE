@@ -39,6 +39,7 @@ public:
 
 
 	friend class ComponentParticleEmitter; 
+	friend class SmileSerialization; 
 };
 
 

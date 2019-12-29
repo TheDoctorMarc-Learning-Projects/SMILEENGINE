@@ -9,6 +9,7 @@
 #include "JSONParser.h"
 #include "SmileUtilitiesModule.h"
 #include "ComponentParticleEmitter.h"
+#include "ResourceMeshPlane.h"
 #include <filesystem>
 #include "SmileApp.h"
 #include "ComponentTypes.h"
@@ -337,6 +338,7 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Emitter
 			    bool active = object["Active"].GetBool(); 
 				uint maxParticles = object["Max Particles"].GetInt(); 
+				uint lastUsedParticle = object["Last Used Particle"].GetInt(); 
 				float boundingBoxRadius = object["Bounding Box Radius"].GetFloat(); 
 				std::string blendModeString = object["Blend Mode"].GetString(); 
 				blendMode blendMode = (blendModeString == "ALPHA BLEND") ? blendMode::ALPHA_BLEND : blendMode::ADDITIVE; 
@@ -370,7 +372,24 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				bool gravity = object["Gravity"].GetBool();
 				float initialLife = object["Initial Life"].GetFloat();
 				float lifeDecrease = object["Life Decrease"].GetFloat();
-				bool hasRandomColor = object["Has Random Color"].GetBool(); 
+				bool hasRandomColor = object["Has Random Color"].GetBool();
+				auto color1 = object["Initial Color"].GetArray();
+				auto color2 = object["Final Color"].GetArray();
+				float4 Color = float4::inf;
+				float4 Color2 = float4::inf;
+				if (hasRandomColor == false)
+				{
+					if(color1[0].GetDouble() == 666)
+					{
+						goto next;
+					}
+					for (rapidjson::SizeType i = 0; i < color1.Size(); i++)
+						Color[i] = color1[i].GetDouble();
+					for (rapidjson::SizeType i = 0; i < color2.Size(); i++)
+						Color2[i] = color2[i].GetDouble();
+
+				}
+				next:
 				float initialParticleSize = object["Initial Particle Size"].GetFloat(); 
 				float finalParticleSize = object["Final Particle Size"].GetFloat();
 				std::string spawnShapeString = object["Spawn Shape"].GetString(); 
@@ -381,6 +400,11 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 					shape = emmissionShape::CONE;
 				float emitterSpawnTime = object["Emitter Spawn Time"].GetFloat(); 
 				float burstTime = object["Burst Time"].GetFloat();
+				float currentTime = object["Current Time"].GetFloat();
+				float currentBurstTime = object["Current Burst Time"].GetFloat();
+				float totalTime = object["Total Time"].GetFloat();
+				float expirationTime = object["Expiration Time"].GetFloat();
+
 				auto radius = object["Emitter Spawn Radius"].GetArray();
 				float3 spawnRadius = float3(5.f); 
 				for (rapidjson::SizeType i = 0; i < radius.Size(); i++)
@@ -392,11 +416,118 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				uint maxTiles = object["Number of Tiles"].GetInt();
 				uint nRows = object["Number of Rows"].GetInt();
 				uint nCols = object["Number of Columns"].GetInt();
-				float expirationTime = object["Expiration Time"].GetFloat();
 
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Emitter
+				AllData data;
+				data.blendmode = blendMode;
+				//emission data
+				data.emissionData.burstTime = burstTime;
+				data.emissionData.totalTime = totalTime;
+				data.emissionData.time = emitterSpawnTime;
+				data.emissionData.currentBurstTime = currentBurstTime;
+				data.emissionData.currenTime = currentTime;
+				data.emissionData.expireTime = expirationTime;
+				data.emissionData.gravity = gravity;
+				data.emissionData.maxParticles = maxParticles;
+				data.emissionData.randomColor = hasRandomColor;
+
+				data.emissionData.randomSpeed.first = hasRandomSpeed;
+				if (hasRandomSpeed) {
+					data.emissionData.randomSpeed.second.first = SpeedFirstRange;
+					if (SpeedSecondRange.x == 666.f) {
+						data.emissionData.randomSpeed.second.second = float3::inf;
+					}
+				}
+				data.emissionData.shape = shape;
+				data.emissionData.spawnRadius = spawnRadius;
+				data.emissionData.texPath = texturePath;
+				//initial state
+				if (Color.IsFinite() == true) {
+					data.initialState.color.first = Color;
+					data.initialState.color.second = Color2;
+				}
+				data.initialState.life.first = initialLife;
+				data.initialState.life.second = lifeDecrease;
+				data.initialState.size.first = initialParticleSize;
+				data.initialState.size.second = finalParticleSize;
+
+				if (hasRandomSpeed == false) {
+					data.initialState.speed = SpeedFirstRange;
+				}
+
+				data.initialState.tex.first = textureActive;
+				data.initialState.tex.second = animSpeed;
+				data.initialState.transparency = transp;
+				ComponentParticleEmitter* emitter = DBG_NEW ComponentParticleEmitter(obj, data);
+				emitter->lastUsedParticle = lastUsedParticle;
+				obj->ResizeBounding(boundingBoxRadius);
+				emitter->active = active;
+				emitter->mesh->tileData->maxTiles = maxTiles;
+				emitter->mesh->tileData->nCols = nCols;
+				emitter->mesh->tileData->nRows = nRows;
+
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Particles
-				 
+				auto particles = object["Particles"].GetArray();
+				int counter = 0;
+				for (auto& particleNode : particles)
+				{
+					auto particle = particleNode["Particle"].GetObjectA();
+					auto active = particle["Active"].GetBool();
+					auto speed = particle["Speed"].GetArray();
+					float3 Speed;
+					for (rapidjson::SizeType i = 0; i < speed.Size(); i++)
+						Speed[i] = speed[i].GetDouble();
+					
+					auto life = particle["Life"].GetFloat();
+					auto currentLifeTime = particle["Current Life Time"].GetFloat();
+					auto color = particle["Color"].GetArray();
+					float4 Color;
+					for (rapidjson::SizeType i = 0; i < color.Size(); i++)
+						Color[i] = color[i].GetDouble();
+
+					auto randomcolor = particle["Random Color"].GetArray();
+					float4 RandomColor = float4::inf;
+
+					if (randomcolor[0].GetDouble() != 666)
+					{
+						for (rapidjson::SizeType i = 0; i < randomcolor.Size(); i++)
+							RandomColor[i] = randomcolor[i].GetDouble();
+					}
+
+					auto randomspeed = particle["Random Speed"].GetArray();
+					float4 RandomSpeed = float4::inf;
+
+					if (randomspeed[0].GetDouble() != 666)
+					{
+						for (rapidjson::SizeType i = 0; i < randomspeed.Size(); i++)
+							RandomSpeed[i] = randomspeed[i].GetDouble();
+					}
+
+					
+
+					auto camDistance = particle["Cam Distance"].GetFloat();
+					auto size = particle["Size"].GetFloat();
+					auto transparency = particle["Transparency"].GetFloat();
+					auto tileIndex = particle["Tile Index"].GetInt();
+					auto lastTileFrame = particle["Last Tile Frame"].GetFloat();
+					auto needTileUpdate = particle["Need Tile Update"].GetBool();
+
+
+
+					emitter->particles.at(i).currentState.active = active;
+					emitter->particles.at(i).currentState.color = Color;
+					emitter->particles.at(i).currentState.currentLifeTime = currentLifeTime;
+					emitter->particles.at(i).currentState.lastTileframe = lastTileFrame;
+					emitter->particles.at(i).currentState.life = life;
+					emitter->particles.at(i).currentState.needTileUpdate = needTileUpdate;
+					emitter->particles.at(i).currentState.size = size;
+					emitter->particles.at(i).currentState.speed = Speed;
+					emitter->particles.at(i).currentState.tileIndex = tileIndex;
+					emitter->particles.at(i).currentState.transparency = transparency;
+					emitter->particles.at(i).transf.globalMatrix = obj->GetParent()->GetTransform()->GetGlobalMatrix();
+
+					counter++;
+				}
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Particles
 				break; 
 			}
