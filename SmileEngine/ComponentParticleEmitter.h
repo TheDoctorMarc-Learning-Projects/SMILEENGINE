@@ -46,9 +46,6 @@ struct Particle
 	bool operator<(Particle& other) { return this->camDist > other.camDist; }
 };
 
-// Once the particle system is created, this initialState is set to the recieved values 
-// 1) Initial Value 2) Value over time, or no value (false)
-
 struct InitialState
 {
 	// This Variables will be updated each frame if they have value over time (Current order: 0->5)
@@ -61,9 +58,8 @@ struct InitialState
 
 };
 
-enum class emmissionShape { CIRCLE, SPHERE, CONE }; // ... 
+enum class emmissionShape { CIRCLE, SPHERE, CONE }; 
 enum class blendMode { ADDITIVE, ALPHA_BLEND };
-enum class lightMode { PER_EMITTER, PER_PARTICLE, NONE };
 
 
 struct EmissionData
@@ -89,7 +85,7 @@ struct AllData
 	InitialState initialState;
 	// Modes
 	blendMode blendmode = blendMode::ALPHA_BLEND;
-	lightMode lightmode = lightMode::NONE; // TODO: maybe not :( 
+
 };
 
 
@@ -101,7 +97,7 @@ class ResourceTexture;
 class GameObject; 
 class ComponentTransform; 
 
-#define GLOBAL_GRAVITY 9.8f 
+#define GLOBAL_GRAVITY 0.5f 
 class ComponentParticleEmitter: public Component
 {
 public: 

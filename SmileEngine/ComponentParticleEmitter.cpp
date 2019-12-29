@@ -312,7 +312,7 @@ inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 	auto pos = p.transf.globalMatrix.TranslatePart();
 	float3 delta = (p.currentState.randomData.speed.IsFinite()) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed * dt);
 	if (data.emissionData.gravity)
-		delta += float3(0, -GLOBAL_GRAVITY * p.currentState.currentLifeTime / 1000, 0); 
+		delta += float3(0, -GLOBAL_GRAVITY * p.currentState.currentLifeTime * dt, 0); 
 
 	p.transf.globalMatrix.SetTranslatePart(pos += delta);
 

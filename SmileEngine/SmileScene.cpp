@@ -51,9 +51,6 @@ bool SmileScene::Start()
 	// Scene -> must already have cameras and it also created octree
     App->serialization->LoadScene("Library/Scenes/scene.json", true);
 	
-	// Emitter
-	for (int i = 0; i < 2; ++i)
-		CreateSmoke(smokepos[i]); 
 	return true;
 }
 
