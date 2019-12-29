@@ -84,8 +84,7 @@ you can decide the expiration time for the emitter.
 
 # Video
 
-One minute video speed-up that shows the process of authoring scenes in your editor, especially
-with your core technology from the last assignment (captured from the computer, not mobile).
+
 
 
 
