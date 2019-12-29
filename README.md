@@ -10,7 +10,7 @@ Smile Engine is a game engine created for the the subject Video Game Engines mad
 
 ## Individual work:
 
-- Main Core of Particle System.
+- Particle System.
 
 - Inspector for the Emitter of particles.
 
