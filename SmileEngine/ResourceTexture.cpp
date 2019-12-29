@@ -12,8 +12,14 @@
 
 void ResourceTexture::LoadOnMemory(const char* path)
 {
+	if (!path)
+		path = filePath.c_str(); 
+
+	FreeMemory(); 
+
 	textureInfo = DBG_NEW textureData; 
 
+	
 	ILuint tempID;
 	ilGenImages(1, &tempID);
 	ilBindImage(tempID);
@@ -21,18 +27,13 @@ void ResourceTexture::LoadOnMemory(const char* path)
 
 	if ((bool)success)
 	{
-		ILinfo img_info;
+		/*ILinfo img_info;
 		iluGetImageInfo(&img_info);
 
-		if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
+		if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)*/
 			iluFlipImage();
 
-		ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
-
-		this->textureInfo->texture = ilGetData();
-		this->textureInfo->width = (uint)ilGetInteger(IL_IMAGE_WIDTH);
-		this->textureInfo->height = (uint)ilGetInteger(IL_IMAGE_HEIGHT);
-		this->textureInfo->path = path;
+		ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
 		glGenTextures(1, (GLuint*)&textureInfo->id_texture);
 		glBindTexture(GL_TEXTURE_2D, (GLuint)textureInfo->id_texture);
@@ -46,11 +47,19 @@ void ResourceTexture::LoadOnMemory(const char* path)
 
 		glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_FORMAT), (GLuint)ilGetInteger(IL_IMAGE_WIDTH),
 			(GLuint)ilGetInteger(IL_IMAGE_HEIGHT), 0, ilGetInteger(IL_IMAGE_FORMAT), GL_UNSIGNED_BYTE,
-			this->textureInfo->texture);
+			ilGetData());
+ 
+
+		this->textureInfo->texture = ilGetData();
+		this->textureInfo->width = (uint)ilGetInteger(IL_IMAGE_WIDTH);
+		this->textureInfo->height = (uint)ilGetInteger(IL_IMAGE_HEIGHT);
+		this->textureInfo->path = path;
 	}
 	else
 		LOG("Error trying to load a texture image :( %s", iluErrorString(ilGetError()));
 
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 	ilDeleteImages(1, &tempID);
 }
 
@@ -75,13 +84,13 @@ void ResourceTexture::LoadCheckersOnMemory()
 		}
 	}
 
-	ILinfo img_info;
+	/*ILinfo img_info;
 	iluGetImageInfo(&img_info);
 
-	if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)
+	if (img_info.Origin != IL_ORIGIN_LOWER_LEFT)*/
 		iluFlipImage();
 
-	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
 	glGenTextures(1, (GLuint*)&textureInfo->id_texture);
 	glBindTexture(GL_TEXTURE_2D, (GLuint)textureInfo->id_texture);
@@ -106,6 +115,9 @@ void ResourceTexture::LoadCheckersOnMemory()
 
 void ResourceTexture::FreeMemory()
 {
+	if (textureInfo == nullptr)
+		return; 
+
 	if (textureInfo->texture != nullptr)
 	{
 		glDeleteTextures(1, (GLuint*)&textureInfo->texture);

@@ -30,6 +30,7 @@
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
 
+#include "Resources_Components_Include.h"
 #include "SmileGameTimeManager.h"
 
 SmileScene::SmileScene(SmileApp* app, bool start_enabled) : SmileModule(app, start_enabled)
@@ -78,12 +79,39 @@ bool SmileScene::Reset() // similar, but root needs a transform after being clea
 	return true;
 }
 
+void CreateRocketo()
+{
+	App->scene_intro->rocketoAction = true; 
+
+	std::vector<Component*> comps;
+	comps.push_back((Component*)DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "RocketoMesh"));
+	comps.push_back((Component*)DBG_NEW ComponentVolatile(0.5f, &CreateFireWork, float3(1, 30, 0)));
+	GameObject* rocketo = DBG_NEW GameObject(comps, "rocketo", App->scene_intro->rootObj);
+	rocketo->Start();
+	rocketo->SetStatic(false); 
+	App->spatial_tree->OnStaticChange(rocketo, rocketo->GetStatic());
+
+	// Pos in smoke 
+	int index = std::get<int>(RNG::GetRandomValue(0, 1)); 
+	float3 pos = App->scene_intro->smokepos[index];
+	auto transf = rocketo->GetTransform()->GetGlobalMatrix(); 
+	rocketo->GetTransform()->SetGlobalMatrix(float4x4::FromTRS(pos, float4x4::identity, float3::one)); 
+}
+
+
 // Update
 update_status SmileScene::Update(float dt)
 {
-	rootObj->Update(); 
+	if(!pause)
+		rootObj->Update(dt);
+	 
 	DrawObjects();
 	//HandleGizmo();
+
+	// TODO: firework with input 
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN && rocketoAction == false)
+		CreateRocketo(); 
+
 
 	if (generalDbug == true)
 	{
@@ -126,6 +154,9 @@ void SmileScene::DrawObjects()
 
 	for (auto& obj : drawObjects)
 		obj->Draw();
+
+	/*for (auto& obj : rootObj->childObjects) // TODO) JUST TESTING PARTICLES, DELETE THIS
+		obj->Draw();*/
 
 	drawObjects.clear(); 
 }
@@ -176,14 +207,20 @@ void SmileScene::DrawGrid()
 	glLineWidth(lineWidth);
 	glColor3f(1, 1, 1);
 	glBegin(GL_LINES);
-	for (float i = 0; i <= MAXLINES; i++)
+	for (float i = 0; i < MAXLINES; i++)
 	{
+		if(i == 15)
+			glColor3f(0.2f, 1.0f, 0.2f);
+		else
+			glColor3f(1, 1, 1);
+
 		glVertex3f(i - MAXLINES * linesLength, 0, -MAXLINES * linesLength);
 		glVertex3f(i - MAXLINES * linesLength, 0, MAXLINES * linesLength);
 		glVertex3f(-MAXLINES * linesLength, 0, i - MAXLINES * linesLength);
 		glVertex3f(MAXLINES * linesLength, 0, i - MAXLINES * linesLength);
 	}
 	glEnd();
+	glColor3f(1, 1, 1);
 	glLineWidth(lineWidth);
 
 }
@@ -333,9 +370,11 @@ ComponentMesh* SmileScene::FindRayIntersection(math::LineSegment ray)
 	{
 		// Get the mesh  
 		ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(gameObject->GetComponent(MESH));
-		ModelMeshData* mesh_info = (mesh) ? mesh->GetResourceMesh()->model_mesh : nullptr;
-		if (mesh_info == nullptr)
+		auto mesh_inf = mesh->GetResourceMesh()->GetMeshData(); 
+		if (mesh_inf.index() == 1 || std::get<ModelMeshData*>(mesh_inf) == nullptr) // TODO: this skips own meshes (Plane etc) so either consider them or do not have them clickable (particle planes)
 			continue;
+
+		auto mesh_info = std::get<ModelMeshData*>(mesh_inf);
 		// Find intersection then with mesh triangles
 		for (int i = 0; i < mesh_info->num_vertex; i += 9) // 3 vertices * 3 coords (x,y,z) 
 		{
@@ -387,4 +426,70 @@ float2 SmileScene::GetNormalizedMousePos(int mouse_x, int mouse_y)
 math::LineSegment SmileScene::TraceRay(float2 normMousePos)
 {
 	return App->renderer3D->targetCamera->calcFrustrum.UnProjectLineSegment(normMousePos.x, normMousePos.y);
+}
+
+void CreateSmoke(float3 pos)
+{
+	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
+	AllData data;
+	data.initialState.life = std::pair(0.5f, 0.2f);
+	data.emissionData.time = 0.03f;
+	data.emissionData.maxParticles = 1000; 
+	data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-0.5f, 2.f, -0.5f), float3(0.5f, 2.f, 0.5f)));
+	data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("smokesheet.dds");
+	data.initialState.tex = std::pair(true, 0.1f);
+	data.emissionData.burstTime = 1.f; 
+	data.emissionData.gravity = false; 
+	data.initialState.color.first = float4(0.2f, 0.2f, 0.2f, 0.5f); 
+	data.initialState.color.second = float4(0.8f, 0.8f, 0.8f, 0.5f);
+
+	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+	emitter->AddComponent((Component*)emmiterComp);
+	
+	emmiterComp->mesh->tileData->nCols = emmiterComp->mesh->tileData->nRows = 7;
+	emmiterComp->mesh->tileData->maxTiles = 46;
+
+	emitter->Start(); 
+	auto mat = emitter->GetTransform()->GetGlobalMatrix(); 
+	mat.SetTranslatePart(pos); 
+	emitter->GetTransform()->SetGlobalMatrix(mat); 
+	App->spatial_tree->OnStaticChange(emitter, true); 
+}
+
+void CreateFireWork()
+{
+	App->scene_intro->rocketoAction = false;
+	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
+	AllData data;
+
+	data.initialState.life.first = 0.4f;
+	data.initialState.life.second = std::get<float>(RNG::GetRandomValue(0.6f, 1.f));
+
+	float variantSize = std::get<float>(RNG::GetRandomValue(0.f, 1.5f));
+	data.initialState.size.first = 0.5f;
+	data.initialState.size.second = 0.5f + variantSize;
+
+	data.emissionData.randomSpeed.first = true;
+	float variantSp = std::get<float>(RNG::GetRandomValue(-5.f, 5.f)); 
+	data.emissionData.randomSpeed.second.first = float3(23 + variantSp, 23 + variantSp, 5 + variantSp);
+
+	data.emissionData.gravity = true;
+	data.emissionData.time = 0.001;
+
+	for (int i = 0; i < 3; ++i)
+		data.initialState.color.first[i] = std::get<float>(RNG::GetRandomValue(0.f, 1.f)); 
+	data.initialState.color.first[3] = 1.f; 
+	for (int i = 0; i < 3; ++i)
+		data.initialState.color.second[i] = std::get<float>(RNG::GetRandomValue(0.f, 1.f));
+	data.initialState.color.second[3] = 0.f;
+
+	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+	emitter->AddComponent((Component*)emmiterComp);
+	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix());
+
+	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
+	emitter->Start();
+	emmiterComp->data.emissionData.expireTime = std::get<float>(RNG::GetRandomValue(0.5f, 1.5f));
+	emmiterComp->destroyOnFinish = true; 
+	App->spatial_tree->OnStaticChange(emitter, true);
 }

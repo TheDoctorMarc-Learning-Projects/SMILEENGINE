@@ -45,6 +45,13 @@ bool SmileGameObjectManager::Start()
 // -----------------------------------------------------------------
 update_status SmileGameObjectManager::Update(float dt)
 {
+	if (toDestroy.size() > 0)
+	{
+		for (auto it = toDestroy.begin(); it != toDestroy.end(); ++it)
+			DestroyObject((*it)); 
+
+		toDestroy.clear(); 
+	}
 
 	return UPDATE_CONTINUE;
 }

@@ -63,21 +63,21 @@ void ComponentCamera::ComputeSpatialData()
 }
 
 // ----------------------------------------------------------------- 
-void ComponentCamera::Update()
+void ComponentCamera::Update(float dt)
 {
 
-	// If the current looking camera is not myself, fuck the logic!
+	// If the current looking camera is not myself, fuck the logic! // TODO: ERASE CALCULATE VIEW 
 	if (App->renderer3D->targetCamera != this)
 	{
-		if (App->scene_intro->generalDbug)
+		/*if (App->scene_intro->generalDbug)
 			frustrum->DebugPlanes();
-
+		frustrum->CalculatePlanes();*/
+	//	CalculateViewMatrix(); 
 		return;
 	}
 	vec3 prevX = X, prevY = Y, prevZ = Z;
 	bool valid = true;
 
-	float dt = App->GetDT();
 	ComponentTransform* transf = parent->GetTransform();
 
 	// Check if the user clicks to select object 
@@ -312,12 +312,12 @@ void ComponentCamera::CalculateViewMatrix(bool updateTransform)
 		float data[16];
 		for (int i = 0; i <= 15; ++i)
 			data[i] = ViewMatrix.M[i];
-		float4x4 mat = float4x4(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
-	
-		if (mat.IsFinite() == false)
+		ViewMatrixF = float4x4(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
+		ViewMatrixFInverse = ViewMatrixF.Inverted(); 
+		if (ViewMatrixF.IsFinite() == false)
 			return; 
 		
-		parent->GetTransform()->ChangeRotation(Quat(mat));
+		parent->GetTransform()->ChangeRotation(Quat(ViewMatrixF));
 	}
 
 }

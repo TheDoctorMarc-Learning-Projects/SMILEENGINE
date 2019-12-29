@@ -28,10 +28,10 @@ namespace TimeManager
 
 	static void PlayButton() 
 	{
-		if (isPlaying == false)
+		if (isPlaying == false)        // TODO: save new mesh type and then save load 
 		{
 			gameClock.Start();
-			App->serialization->SaveScene();
+		//	App->serialization->SaveScene();
 			App->SetDtMultiplier(_timeData.gameTimeScale);
 			App->renderer3D->SwitchCamera(); 
 		//	App->window->SetFullscreen(SDL_WINDOW_FULLSCREEN, (SDL_bool)true);
@@ -40,8 +40,9 @@ namespace TimeManager
 		else
 		{
 			gameClock.Stop();
-			App->serialization->LoadScene("Library/Scenes/scene.json");
+		//	App->serialization->LoadScene("Library/Scenes/scene.json");
 			App->SetDtMultiplier(1.F);
+			App->renderer3D->SwitchCamera();
     	//	App->window->SetFullscreen(0, (SDL_bool)false);
 			App->scene_intro->generalDbug = !App->scene_intro->generalDbug;
 		}
@@ -63,6 +64,7 @@ namespace TimeManager
 			gameClock.Start();
 		}
 
+		App->scene_intro->pause = !App->scene_intro->pause;
 		isPaused = !isPaused; 
 	}; 
  

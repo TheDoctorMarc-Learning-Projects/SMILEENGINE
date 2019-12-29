@@ -13,6 +13,10 @@
 
 #define MAXLINES 30
 
+void CreateFireWork(); 
+void CreateSmoke(float3 pos); 
+
+class ResourceMeshPlane; 
 class SmileScene : public SmileModule
 {
 public:
@@ -45,6 +49,7 @@ private:
  
 
 public:
+	bool pause = false; 
 	GameObject* rootObj = nullptr;
 	GameObject* selectedObj = nullptr; 
 	ComponentMesh* selected_mesh = nullptr;
@@ -58,4 +63,7 @@ public:
 	uint objectCandidatesBeforeFrustrumPrune = 0; 
 	uint objectCandidatesAfterFrustrumPrune = 0;
 
+public: 
+	float3 smokepos[2] = { float3(0, 3.5f, 0), float3(10, 3.5f, 10) }; 
+	bool rocketoAction = false; 
 };

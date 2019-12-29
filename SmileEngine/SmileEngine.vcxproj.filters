@@ -28,9 +28,6 @@
     <Filter Include="Source\Modules\Objects\Components">
       <UniqueIdentifier>{b0f2f073-f558-468c-be37-2b482c0f11d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Objects\Components\Help">
-      <UniqueIdentifier>{390fd344-c8f1-4f58-84d3-191b3812c0fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\Objects\GameObjects">
       <UniqueIdentifier>{673905ac-cd3b-46b9-9d42-04b5db8fad3b}</UniqueIdentifier>
     </Filter>
@@ -40,14 +37,26 @@
     <Filter Include="Source\Modules\Objects\GameObjects\Template">
       <UniqueIdentifier>{8c4ec64b-97fd-4050-9792-261a9a2ca2df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Modules\Advanced">
-      <UniqueIdentifier>{fa2139e7-a954-4905-9c3d-506e470deaf2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Modules\Objects\Resources">
       <UniqueIdentifier>{b2d8de6c-f669-462d-bfee-93ba80f03981}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Modules\Basic">
       <UniqueIdentifier>{6b6ed6ff-14f7-41b9-818b-52d631e0a017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\Components\helper">
+      <UniqueIdentifier>{390fd344-c8f1-4f58-84d3-191b3812c0fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\helper">
+      <UniqueIdentifier>{dea3f1b1-dbb8-4e36-8f49-edee8a5ca4e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Objects\Resources\Helper">
+      <UniqueIdentifier>{41158fea-cb3e-4eb0-ae50-3be4efed87d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Particles">
+      <UniqueIdentifier>{fa2139e7-a954-4905-9c3d-506e470deaf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules\Particles\Helper">
+      <UniqueIdentifier>{07c2b344-88bb-4d30-ba75-bc0920a21cf8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,9 +123,6 @@
     <ClInclude Include="glmath.h">
       <Filter>Source\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Source\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="SmileGui.h">
       <Filter>Source\Modules\Basic</Filter>
     </ClInclude>
@@ -139,7 +145,7 @@
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
     <ClInclude Include="ComponentTypes.h">
-      <Filter>Source\Modules\Objects\Components\Help</Filter>
+      <Filter>Source\Modules\Objects\Components\helper</Filter>
     </ClInclude>
     <ClInclude Include="SafetyHandler.h">
       <Filter>Source\Tools</Filter>
@@ -162,23 +168,11 @@
     <ClInclude Include="ComponentCamera.h">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClInclude>
-    <ClInclude Include="SmileSpatialTree.h">
-      <Filter>Source\Modules\Advanced</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\ImGuizmo.h">
       <Filter>Source\Tools\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="SmileResourceManager.h">
-      <Filter>Source\Modules\Objects\Managers</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Source\Modules\Objects\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileMaterialImporter.h">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="SmileFileSystem.h">
-      <Filter>Source\Modules\Objects</Filter>
     </ClInclude>
     <ClInclude Include="SmileSerialization.h">
       <Filter>Source\Modules\Objects\Managers</Filter>
@@ -194,6 +188,48 @@
     </ClInclude>
     <ClInclude Include="parshapes\par_shapes.h">
       <Filter>Source\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource_Include.h">
+      <Filter>Source\Modules\Objects\Resources\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Component_Include.h">
+      <Filter>Source\Modules\Objects\Components\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources_Components_Include.h">
+      <Filter>Source\Modules\Objects\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileFileSystem.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileMaterialImporter.h">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileSpatialTree.h">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceMeshPlane.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeTransform.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeBillBoard.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentParticleEmitter.h">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="SmileResourceManager.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentVolatile.h">
+      <Filter>Source\Modules\Particles\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceSkybox.h">
+      <Filter>Source\Modules\Objects\Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -242,9 +278,6 @@
     <ClCompile Include="SmileSetup.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Source\Tools</Filter>
-    </ClCompile>
     <ClCompile Include="SmileGui.cpp">
       <Filter>Source\Modules\Basic</Filter>
     </ClCompile>
@@ -281,20 +314,8 @@
     <ClCompile Include="ComponentCamera.cpp">
       <Filter>Source\Modules\Objects\Components</Filter>
     </ClCompile>
-    <ClCompile Include="SmileSpatialTree.cpp">
-      <Filter>Source\Modules\Advanced</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\ImGuizmo.cpp">
       <Filter>Source\Tools\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileResourceManager.cpp">
-      <Filter>Source\Modules\Objects\Managers</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileMaterialImporter.cpp">
-      <Filter>Source\Modules\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="SmileFileSystem.cpp">
-      <Filter>Source\Modules\Objects</Filter>
     </ClCompile>
     <ClCompile Include="SmileSerialization.cpp">
       <Filter>Source\Modules\Objects\Managers</Filter>
@@ -307,6 +328,33 @@
     </ClCompile>
     <ClCompile Include="parshapes\par_shapes.cpp">
       <Filter>Source\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileFileSystem.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileMaterialImporter.cpp">
+      <Filter>Source\Modules\Objects\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileSpatialTree.cpp">
+      <Filter>Source\Modules\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceMeshPlane.cpp">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentParticleEmitter.cpp">
+      <Filter>Source\Modules\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="SmileResourceManager.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentVolatile.cpp">
+      <Filter>Source\Modules\Particles\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceSkybox.cpp">
+      <Filter>Source\Modules\Objects\Resources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

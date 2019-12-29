@@ -1,6 +1,8 @@
 #include "SmileResourceManager.h"
 #include "ResourceMesh.h"
+#include "ResourceMeshPlane.h"
 #include "ResourceTexture.h"
+#include "ResourceSkybox.h"
 #include "Resource.h"
 #include "SmileUtilitiesModule.h"
 #include "Utility.h"
@@ -21,16 +23,36 @@ bool SmileResourceManager::Start()
 	resources.insert(std::pair<SmileUUID, Resource*>(Sphere->GetUID(), (Resource*)Sphere));
 	Sphere->SetPreset(true);
 
+	Plane = DBG_NEW ResourceMeshPlane(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), ownMeshType::plane, "Default", float4(1, 0, 0, 1));
+	resources.insert(std::pair<SmileUUID, Resource*>(Plane->GetUID(), (Resource*)Plane));
+	Plane->SetPreset(true); 
+
 	checkersTexture = DBG_NEW ResourceTexture(dynamic_cast<RNG*>(App->utilities->GetUtility("RNG"))->GetRandomUUID(), RESOURCE_TEXTURE, "Checkers texture");
 	resources.insert(std::pair<SmileUUID, Resource*>(checkersTexture->GetUID(), (Resource*)checkersTexture));
 	checkersTexture->SetPreset(true);
 	checkersTexture->LoadCheckersOnMemory();
+
+	std::string paths[6] =
+	{
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("sky.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("black.dds"),
+		LIBRARY_TEXTURES_FOLDER_A + std::string("black.dds")
+	}; 
+	 
+
+	skybox = DBG_NEW ResourceSkybox(RNG::GetRandomUUID(), Resource_Type::RESOURCE_SKYBOX, paths, 4000.f);
+	resources.insert(std::pair<SmileUUID, Resource*>(skybox->GetUID(), (Resource*)skybox));
+	skybox->SetPreset(true);
 
 	return true; 
 }
 
 update_status SmileResourceManager::Update(float dt)
 {
+	skybox->Draw(); 
 	return update_status::UPDATE_CONTINUE; 
 }
 

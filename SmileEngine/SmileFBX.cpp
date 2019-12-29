@@ -75,9 +75,17 @@ void SmileFBX::Load(const char* path, std::string extension)
 		if (IsOwnModelExtension(extension) == false) // 1) If FBX not in folder, push it to folder. 2) If .model does not exist, generate it
 			LoadFBX(path);
 		else
-			LoadModel(path); 
+			LoadModel(path);
 
-    }
+	}
+	else if (IsTextureExtension(extension) == true)
+	{
+		auto hoverObj = std::get<GameObject*>(App->scene_intro->MouseOverMesh(App->input->GetMouseX(), 
+				App->input->GetMouseY(), false, false)); 
+		if(hoverObj)
+			AssignTextureToObj(path, hoverObj);
+	}
+
 }
 
 // ---------------------------------------------
@@ -97,7 +105,6 @@ static void OnFBXImportEnd(GameObject* parentObj, const aiScene* scene)
 
 void SmileFBX::LoadFBX(const char* path)
 {
-	GameObject* ret; 
 	char rawname[100];
 	const aiScene* scene = OnFBXImport(path, rawname);
 	bool success = scene && scene->HasMeshes(); 
@@ -204,9 +211,8 @@ void SmileFBX::LoadFBXnode(aiNode* node, const aiScene* scene)
 		aiMesh* aiMesh = scene->mMeshes[node->mMeshes[i]]; 
 
 		// Mesh
-		ModelMeshData* mesh_info = FillMeshBuffers(aiMesh, DBG_NEW ModelMeshData());
 		ResourceMesh* resMesh = dynamic_cast<ResourceMesh*>(App->resources->CreateNewResource(RESOURCE_MESH, "empty"));
-		resMesh->model_mesh = mesh_info;
+		resMesh->model_mesh = FillMeshBuffers(aiMesh, DBG_NEW ModelMeshData());
 		ComponentMesh* mesh = DBG_NEW ComponentMesh(resMesh->GetUID(), "Mesh");
 
 		// Materials
@@ -337,20 +343,28 @@ ModelMeshData* SmileFBX::FillMeshBuffers(aiMesh* new_mesh, ModelMeshData* mesh_i
 // ---------------------------------------------
 void SmileFBX::AssignTextureToObj(const char* path, GameObject* obj)
 {
-	std::string full_path, cleanPath, file; 
+	std::string full_path = "", cleanPath = "", file = ""; 
 	App->fs->SplitFilePath(path, &full_path, &cleanPath, &file);
 
+	// Gather or create the resource
 	ResourceTexture* res = (ResourceTexture*)App->resources->GetResourceByPath(path);
-
-	if (res)
-		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Material"));
-	else
+	if (res == nullptr)
 	{
 		res = (ResourceTexture*)App->resources->CreateNewResource(RESOURCE_TEXTURE, path);
 		res->LoadOnMemory(path);
-		obj->AddComponent((Component*)DBG_NEW ComponentMaterial(res->GetUID(), "Material"));
 	}
 
+	// If the object had no material, create it. Otherwise, make it point to the new texture 
+	auto objMat = obj->GetMaterial();
+	auto targetMat = (objMat) ? objMat : DBG_NEW ComponentMaterial(res->GetUID(), "Material");
+	if (targetMat != objMat)
+		obj->AddComponent((Component*)targetMat); 
+	else
+	{
+		targetMat->CleanUp(); // substract 1 to the previous texture resource count
+		App->resources->UpdateResourceReferenceCount(targetMat->myresourceID = res->GetUID(), 1); // now the material has a new resource texture id
+	}
+		
 }
 
 
@@ -493,7 +507,7 @@ std::string SmileFBX::SaveMaterial(const char* path)
 		size = ilSaveL(IL_DDS, NULL, 0);
 		if (size > 0) {
 			data = DBG_NEW ILubyte[size];
-			iluFlipImage();
+		//	iluFlipImage();
 			if (ilSaveL(IL_DDS, data, size) > 0)
 				App->fs->SaveUnique(output_file, data, size, LIBRARY_TEXTURES_FOLDER, rawname.c_str(), "dds");
 
@@ -561,9 +575,7 @@ bool SmileFBX::LoadModel(const char* path)
 		if (materialPath != "Empty")
 			AssignTextureToObj(materialPath.c_str(), child); 
 
-
 	}
-
 
 	// Add to octree!!! (adds recursive!!)
 	parentObj->Start();
@@ -734,6 +746,3 @@ void SmileFBX::SaveModel(GameObject* obj, const char* path)
 	std::string dirPath;
 	App->fs->SaveUnique(dirPath, output, buffer.GetSize(), LIBRARY_MODELS_FOLDER, obj->GetName().c_str(), "json");
 }
-
-
-

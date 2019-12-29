@@ -68,13 +68,23 @@ void ResourceMesh::FreeMemory()
 
 		RELEASE(model_mesh);
 	}
+
+
+	if (own_mesh != nullptr)
+		RELEASE(own_mesh); 
 }
 
 AABB ResourceMesh::GetEnclosingAABB()
 {
-	math::AABB ret;
+	math::AABB ret = math::AABB();
 	ret.SetNegativeInfinity();
-	ret.Enclose((math::float3*)model_mesh->vertex, model_mesh->num_vertex);
+	if (model_mesh)
+		ret.Enclose((math::float3*)model_mesh->vertex, model_mesh->num_vertex);
+	else
+	{
+		// TODO ??
+	}
+
 	return ret; 
 }
 

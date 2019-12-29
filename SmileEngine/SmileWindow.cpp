@@ -98,10 +98,6 @@ bool SmileWindow::CleanUp()
 	if(window != NULL)
 		SDL_DestroyWindow(window);
 
-	//Free surface
-	if (screen_surface != NULL)
-		SDL_FreeSurface(screen_surface);
-
 	//Quit SDL subsystems
 	SDL_Quit();
 	return true;

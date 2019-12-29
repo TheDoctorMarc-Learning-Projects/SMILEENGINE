@@ -20,9 +20,11 @@
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
 #include "ComponentMaterial.h"
-
+#include "ComponentParticleEmitter.h"
+#include "RNG.h"
 #include <filesystem>  
 #include "SmileGameTimeManager.h"
+#include "ResourceMeshPlane.h"
 
 // ----------------------------------------------------------------- [Minimal Containers to hold panel data: local to this .cpp]
 namespace panelData
@@ -183,8 +185,11 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		{
 			if (ImGui::MenuItem("Quit"))
 				ret = false;
-			if (ImGui::MenuItem("Save Scene"))
-				App->serialization->SaveScene(); 
+			if (ImGui::MenuItem("Save Scene")) {
+				App->serialization->SaveScene();
+				
+			}
+
 
 			if (ImGui::MenuItem("Load Scene"))
 				App->serialization->LoadScene("Library/Scenes/scene.json");
@@ -193,7 +198,7 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 		}
 
 	
-		GeometryGeneratorGui::Execute(); // CAUTION: this is a menu
+		GeometryGeneratorGui::Execute(); 
 
 		
 		if (ImGui::BeginMenu("View"))
@@ -286,14 +291,28 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 // ----------------------------------------------------------------- [Main Menu Bar: Geometry Generator GUI]
 void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 {
-	if (ImGui::BeginMenu("Geometry"))
+	if (ImGui::BeginMenu("Creation"))
 	{
-		// Primitive
-		if (ImGui::MenuItem("Create Cube"))
+		 
+		if (ImGui::MenuItem("Emitter"))
+		{
+			GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
+			AllData data;
+			data.initialState.life = std::pair(1.f, 0.2f);
+			data.emissionData.time = 0.03f;
+			data.emissionData.maxParticles = 1000;
+			data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
+			auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+			emitter->AddComponent((Component*)emmiterComp);
+			emitter->Start();
+			App->spatial_tree->OnStaticChange(emitter, true);
+		}
+
+		if (ImGui::MenuItem("Cube"))
 		{
 				// Create a mesh and an object
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Cube->GetUID(), "CubeMesh");
-				GameObject* obj = App->object_manager->CreateGameObject(mesh, "CUBE", App->scene_intro->rootObj);
+				GameObject* obj = App->object_manager->CreateGameObject(mesh, "Cube", App->scene_intro->rootObj);
 				obj->Start();
 
 				// TODO: check this ok
@@ -305,7 +324,7 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 		{
 			// Create a mesh and an object
 			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Sphere->GetUID(), "SphereMesh");
-			GameObject* obj = App->object_manager->CreateGameObject(mesh, "SPHERE", App->scene_intro->rootObj);
+			GameObject* obj = App->object_manager->CreateGameObject(mesh, "Sphere", App->scene_intro->rootObj);
 			obj->Start();
 
 			// TODO: check this ok
@@ -736,6 +755,7 @@ static void ObjectRecursiveNode(GameObject* obj)
 
 	if (obj)
 	{
+		ImGui::PushID(obj); 
 		if (ImGui::TreeNode(obj->GetName().c_str()))
 		{
 			 
@@ -750,7 +770,7 @@ static void ObjectRecursiveNode(GameObject* obj)
 			
 			ImGui::TreePop();
 		}
-		
+		ImGui::PopID(); 
 	}
 
 }
@@ -768,6 +788,7 @@ void panelData::HierarchySpace::Execute(bool& ret)
 
 	ImGui::Begin("Hierarchy ", &showHierarchy); 
 		
+	uint index = 0; 
 	for (auto& obj : App->scene_intro->rootObj->GetImmidiateChildren())
 		ObjectRecursiveNode(obj);
 
@@ -783,8 +804,8 @@ void panelData::InspectorSpace::Execute(bool& ret)
 		return;
 
 
-	ImGui::SetNextWindowSize(ImVec2(400, 500));
-	ImGui::SetNextWindowPos(ImVec2(870, 250));
+/*	ImGui::SetNextWindowSize(ImVec2(400, 500));
+	ImGui::SetNextWindowPos(ImVec2(870, 250));*/
 
 
 	static bool showInspector = true;
@@ -877,27 +898,48 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 	if (ImGui::TreeNode(c->GetName().c_str()))
 	{
+
+		bool active = c->active, lastActive = c->active;
+		ImGui::Checkbox("Active", &active);
+		if (active != lastActive)
+		{
+			if (active)
+				c->Enable();
+			else
+				c->Disable();
+			lastActive = active; 
+		}
+
+
+		if (c->active == false)
+		{
+			ImGui::TreePop();
+			return;
+		}
+
+
 		switch (c->GetComponentType())
 		{
 		case COMPONENT_TYPE::MATERIAL:
 		{
 			ComponentMaterial* mat = dynamic_cast<ComponentMaterial*>(c);
-			textureData* data = mat->GetTextureData(); 
+			textureData* data = mat->GetTextureData();
 
 			// TODO: show my linked resource's reference count
 			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mat->GetResourceTexture()->GetReferenceCount())).c_str());
 			ImGui::Text(std::string("Path: " + mat->GetTextureData()->path).c_str());
 			ImGui::Text(std::string("Size: " + std::to_string(mat->GetTextureData()->width) + " x " + std::to_string(mat->GetTextureData()->height)).c_str());
-			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)
+			if (ImGui::Button("Change Texture"))  
 			{
 				const std::filesystem::path& relativePath = "Assets/";
 				std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
 				ShellExecute(NULL, "open", absolutePath.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 			}
-			if (ImGui::Button("Change Texture to checkers")) 
-				App->fbx->AssignCheckersTextureToObj(mat->GetParent());
-	
-			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height)); 
+
+			ImGui::SliderFloat("Transparency", &mat->GetMaterialData()->transparency, 0.f, 1.f);
+
+
+			ImGui::Image((ImTextureID)data->id_texture, ImVec2(data->width, data->height));
 
 			break;
 		}
@@ -906,13 +948,13 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		{
 			ComponentMesh* mesh = dynamic_cast<ComponentMesh*>(c);
 			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mesh->GetResourceMesh()->GetReferenceCount())).c_str());
-			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetResourceMesh()->model_mesh->num_vertex)).c_str());
+			ImGui::Text(std::string("Number of vertices: " + std::to_string(mesh->GetResourceMesh()->GetNumVertex())).c_str());
 			ImGui::Text(std::string("Bounding sphere radius: " + std::to_string(mesh->GetParent()->GetBoundingSphereRadius())).c_str());
 			std::string type = ((mesh->GetMeshType() == MODEL) ? "Model" : "Primitive");
 			ImGui::Text(std::string("Type: " + type).c_str());
 
 			// debug
-			ImGui::Checkbox("Show vertex normals", &mesh->debugData.vertexNormals); 
+			ImGui::Checkbox("Show vertex normals", &mesh->debugData.vertexNormals);
 			ImGui::Checkbox("Show face normals", &mesh->debugData.faceNormals);
 			break;
 		}
@@ -920,30 +962,340 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 		case COMPONENT_TYPE::CAMERA:
 		{
 			ComponentCamera* cam = dynamic_cast<ComponentCamera*>(c);
-			renderingData camData = cam->GetRenderingData(); 
-			float fovY[1], pNearDist[1], pFarDist[1]; 
+			renderingData camData = cam->GetRenderingData();
+			float fovY[1], pNearDist[1], pFarDist[1];
 			fovY[0] = camData.fovYangle;
 			pNearDist[0] = camData.pNearDist;
 			pFarDist[0] = camData.pFarDist;
-			ImGui::InputFloat("Field Of View Y", fovY);  
-			ImGui::InputFloat("Distance to near plane", pNearDist); 
-			ImGui::InputFloat("Distance to far plane", pFarDist); 
+			ImGui::InputFloat("Field Of View Y", fovY);
+			ImGui::InputFloat("Distance to near plane", pNearDist);
+			ImGui::InputFloat("Distance to far plane", pFarDist);
 
 			if (keyState == KEY_DOWN)
 				cam->OnInspector(fovY, pNearDist, pFarDist);
 
+
+			break;
+		}
+
+		// TODO -> emitter!
+		case COMPONENT_TYPE::EMITTER:
+		{
+			ComponentParticleEmitter* emitter = dynamic_cast<ComponentParticleEmitter*>(c);
+			static float Pcol[4];
+			static float Scol[4];
+			static float speed[3];
+			static float randomSpeedFirst[3];
+			static float randomSpeedSecond[3];
+			static float3 randomSpeedSecondCapture = emitter->data.emissionData.randomSpeed.second.second;
+			static float burstTime = emitter->data.emissionData.burstTime;
+			static float initialLife = emitter->data.initialState.life.first;
+			static float LifeOverTime = emitter->data.initialState.life.second;
+			static float transp = emitter->data.initialState.transparency;
+			static float time = emitter->data.emissionData.time;
+			static float spawnRadius[3];
+			for (int i = 0; i < 3; ++i)
+				spawnRadius[i] = emitter->data.emissionData.spawnRadius[i];
+			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
+			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
+			static bool gravity = emitter->data.emissionData.gravity;
+			static float initialSize = emitter->data.initialState.size.first;
+			static float finalSize = emitter->data.initialState.size.second;
+		
+
+			static int maxParticles = emitter->data.emissionData.maxParticles;
+			static bool alphaBlend = (emitter->data.blendmode == blendMode::ALPHA_BLEND) ? true : false; 
+			std::string blendMode = (alphaBlend) ? "Alpha Blend" : "Additive"; 
+			if (ImGui::CollapsingHeader("General Data"))
+			{
+				if (ImGui::DragInt("Max particles", &maxParticles, 5, 100, 1000))
+				{
+					emitter->SetMaxParticles((uint)maxParticles);
+				}
+
+				static float bounding = emitter->GetParent()->GetBoundingData().OBB.Size().Length();
+				if (ImGui::DragFloat("Emitter Bounding Radius", &bounding, 0.1f, 0.1f, 5.f))
+					emitter->GetParent()->ResizeBounding(bounding);
+
+				ImGui::Text(std::string("Current Blend Mode: " + blendMode).c_str());
+				emitter->data.blendmode = (ImGui::Checkbox("Alpha Blend", &alphaBlend)) ? blendMode::ALPHA_BLEND : blendMode::ADDITIVE;
+			
+			}
+
+			if (ImGui::CollapsingHeader("Particle Speed"))
+			{
+				bool random = emitter->data.emissionData.randomSpeed.first;
+
+				ImGui::Checkbox("RandomSpeed", &emitter->data.emissionData.randomSpeed.first);
+
+				if (random && !emitter->data.emissionData.randomSpeed.first)
+					emitter->data.emissionData.randomSpeed.second.second = float3::inf;
+
+				if (emitter->data.emissionData.randomSpeed.first == true)
+				{
+
+					ImGui::Checkbox("One Range", &oneRange);
+					if (oneRange == true) {
+						for (int i = 0; i < 3; ++i)
+							if (randomSpeedFirst[i] < 0.f)
+								randomSpeedFirst[i] = 0.f;
+
+						if (ImGui::DragFloat3("Range", randomSpeedFirst, 0.5f, 0.0f, 100.f))
+						{
+							
+							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
+							randomSpeedSecondCapture = emitter->data.emissionData.randomSpeed.second.second; 
+							emitter->data.emissionData.randomSpeed.second.second = math::float3::inf;
+						}
+
+					}
+					else {
+
+						for (int i = 0; i < 3; ++i)
+							randomSpeedFirst[i] = emitter->data.emissionData.randomSpeed.second.first[i];
+					
+						if (ImGui::DragFloat("Min Value x", &randomSpeedFirst[0], 0.5f, -100, 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.first.x = randomSpeedFirst[0];
+						}
+						if (ImGui::DragFloat("Min Value y", &randomSpeedFirst[1], 0.5f, -100, 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.first.y = randomSpeedFirst[1];
+						}
+						if (ImGui::DragFloat("Min Value z", &randomSpeedFirst[2], 0.5f, -100, 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.first.z = randomSpeedFirst[2];
+						}
+
+						// Max value depends on Min value (it can be infinite previously)
+						bool infinite = emitter->data.emissionData.randomSpeed.second.second.IsFinite() == false;
+						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.x > emitter->data.emissionData.randomSpeed.second.second.x))
+							emitter->data.emissionData.randomSpeed.second.second.x = emitter->data.emissionData.randomSpeed.second.first.x;
+						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.y > emitter->data.emissionData.randomSpeed.second.second.y))
+							emitter->data.emissionData.randomSpeed.second.second.y = emitter->data.emissionData.randomSpeed.second.first.y;
+						if (infinite || (emitter->data.emissionData.randomSpeed.second.first.z > emitter->data.emissionData.randomSpeed.second.second.z))
+							emitter->data.emissionData.randomSpeed.second.second.z = emitter->data.emissionData.randomSpeed.second.first.z;
+
+						for (int i = 0; i < 3; ++i)
+							randomSpeedSecond[i] = emitter->data.emissionData.randomSpeed.second.second[i];
+
+						// Range from min values to a hypotetical maximum
+						if (ImGui::DragFloat("Max Value x", &randomSpeedSecond[0], 0.5f, randomSpeedFirst[0], 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.second.x = randomSpeedSecond[0];
+						}
+						if (ImGui::DragFloat("Max Value y", &randomSpeedSecond[1], 0.5f, randomSpeedFirst[1], 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.second.y = randomSpeedSecond[1];
+						}
+						if (ImGui::DragFloat("Max Value z", &randomSpeedSecond[2], 0.5f, randomSpeedFirst[2], 100))
+						{
+							emitter->data.emissionData.randomSpeed.second.second.z = randomSpeedSecond[2];
+						}
+
+						// Check again that the user did not introduce a smaller second value than the first one
+						if (emitter->data.emissionData.randomSpeed.second.first.x > emitter->data.emissionData.randomSpeed.second.second.x)
+							emitter->data.emissionData.randomSpeed.second.second.x = emitter->data.emissionData.randomSpeed.second.first.x;
+						if (emitter->data.emissionData.randomSpeed.second.first.y > emitter->data.emissionData.randomSpeed.second.second.y)
+							emitter->data.emissionData.randomSpeed.second.second.y = emitter->data.emissionData.randomSpeed.second.first.y;
+						if (emitter->data.emissionData.randomSpeed.second.first.z > emitter->data.emissionData.randomSpeed.second.second.z)
+							emitter->data.emissionData.randomSpeed.second.second.z = emitter->data.emissionData.randomSpeed.second.first.z;
+
+						// If swapping between options, the second range could be preserved:
+						if (emitter->data.emissionData.randomSpeed.second.first.Equals(emitter->data.emissionData.randomSpeed.second.second))
+							if (randomSpeedSecondCapture.IsFinite())
+								emitter->data.emissionData.randomSpeed.second.second = randomSpeedSecondCapture; 
+					}
+				}
+				else {
+					for (int i = 0; i < 3; ++i)
+						speed[i] = emitter->data.initialState.speed[i];
+
+					if (ImGui::DragFloat3("Speed", speed, 5.f, 0.0f, 100.f))
+						emitter->data.initialState.speed = math::float3(speed);
+				}
+				ImGui::Checkbox("Gravity", &gravity);
+				if (gravity == true)
+				{
+					emitter->data.emissionData.gravity = true;
+				}
+				else
+				{
+					emitter->data.emissionData.gravity = false;
+				}
+			}
+			if (ImGui::CollapsingHeader("Particle Life"))
+			{
+				if (ImGui::DragFloat("Initial Life", &initialLife, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.life.first = initialLife;
+				}
+				if (ImGui::DragFloat("Life Decrease", &LifeOverTime, 0.1f, 0.1f, 5.f))
+				{
+					emitter->data.initialState.life.second = LifeOverTime;
+				}
+			}
+
+				if (ImGui::CollapsingHeader("Particle Color"))
+				{
+					ImGui::Checkbox("Random Color", &emitter->data.emissionData.randomColor);
+					if (emitter->data.emissionData.randomColor == false)
+					{
+						ImGui::Text("Principal Color");
+						ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
+
+						if (ImGui::Button("Set Initial Color"))
+						{
+							emitter->data.initialState.color.first = math::float4(Pcol);
+						}
+						ImGui::SameLine();
+						if (ImGui::Button("Set Final Color"))
+						{
+							emitter->data.initialState.color.second = math::float4(Pcol);
+						}
+
+					}
+						
+					
+				}
+				if (ImGui::CollapsingHeader("Particle Size"))
+				{
+					if (ImGui::DragFloat("Initial Size", &initialSize, 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.initialState.size.first = initialSize;
+					}
+					if (ImGui::DragFloat("Final Size", &finalSize, 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.initialState.size.second = finalSize;
+					}
 				
-			break; 
+				}
+
+				if (ImGui::CollapsingHeader("Particle Spawn"))
+				{
+					if (ImGui::CollapsingHeader("Change Shape"))
+					{
+						if (ImGui::Button("Circle"))
+						{
+							emitter->data.emissionData.shape = emmissionShape::CIRCLE;
+
+						}
+						else if (ImGui::Button("Sphere"))
+						{
+							emitter->data.emissionData.shape = emmissionShape::SPHERE;
+						}
+						else if (ImGui::Button("Cone"))
+						{
+							emitter->data.emissionData.shape = emmissionShape::CONE;
+
+						}
+					}
+
+					if (ImGui::DragFloat("Spawn Time", &time, 0.02f, 0.02f, 1.f))
+					{
+						emitter->data.emissionData.time = time;
+					}
+
+					
+					ImGui::Checkbox("Burst", &burst);
+					
+					if (burst)
+					{
+
+						if (ImGui::DragFloat("Burst Time", &burstTime, 0.f, 0.1f, 1.f))
+						{
+							emitter->data.emissionData.burstTime = burstTime;
+						}
+
+					}
+					else
+						emitter->data.emissionData.burstTime = 0.f; 
+
+
+
+					if (ImGui::DragFloat("Spawn Radius x", &spawnRadius[0], 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.emissionData.spawnRadius.x = spawnRadius[0];
+					}
+					if (ImGui::DragFloat("Spawn Radius y", &spawnRadius[1], 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.emissionData.spawnRadius.y = spawnRadius[1];
+					}
+					if (ImGui::DragFloat("Spawn Radius z", &spawnRadius[2], 0.1f, 0.1f, 5.f))
+					{
+						emitter->data.emissionData.spawnRadius.z = spawnRadius[2];
+					}
+				}
+				if (ImGui::CollapsingHeader("Particle Texture")) {
+
+					
+					ImGui::Checkbox("Texture", &emitter->data.initialState.tex.first);
+					if (emitter->data.initialState.tex.first == true) {
+						static char texturePath[512];
+						ImGui::Text("Texture Path: %s", emitter->data.emissionData.texPath.c_str());
+
+						if(emitter->texture != nullptr)
+							ImGui::Image((ImTextureID)emitter->texture->GetTextureData()->id_texture, ImVec2(100, 100));
+
+						if (ImGui::InputText("Texture Path", texturePath, 512))
+						{
+							std::string path(texturePath);
+							if (path.find(".dds") != std::string::npos && !path.empty())
+								emitter->SetNewTexture(texturePath);
+
+						}
+
+						if (ImGui::DragFloat("Transparency threshold", &transp, 0.1f, 0.f, 1.f))
+						{
+							emitter->data.initialState.transparency = transp;
+						}
+
+						static bool tiling = emitter->data.initialState.tex.second > 0.f;
+						ImGui::Checkbox("Tiling", &tiling);
+						auto tileData = emitter->mesh->tileData;
+						if (tiling)
+						{
+							ImGui::DragFloat("Animation Speed", &emitter->data.initialState.tex.second, 0.05f, 0.f, 1.f); // bug with 0 speed
+							
+							
+							static int maxTiles = 0, nRows = 0, nCols = 0;
+							ImGui::InputInt("Number of Tiles", (int*)&tileData->maxTiles);
+							ImGui::InputInt("Number of Rows", (int*)&tileData->nCols);
+							ImGui::InputInt("Number of Columns", (int*)&tileData->nRows);
+
+						}
+						else
+						{
+							if (tileData != nullptr)
+							{
+								tileData->Reset();
+								emitter->mesh->own_mesh->ResetUvs(); 
+								emitter->data.initialState.tex.second = 0.f;
+							}
+
+						}
+
+					}
+
+
+				}
+
+			
+				if (ImGui::CollapsingHeader("Expiration"))
+				{
+					ImGui::TextColored(ImVec4(1, 0, 0, 1), "Caution, espiration time will disable the emitter"); 
+					ImGui::InputFloat("Expiration Time", &emitter->data.emissionData.expireTime, 0.1f, 5.f); 
+
+				}
+
+			break;
 		}
 
 		default:
 		{
 			break;
 		}
-
-			
 		}
-
 
 		ImGui::TreePop();
 	}
@@ -975,9 +1327,11 @@ void panelData::PlaySpace::Execute(bool& ret)
 		| ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
 	if (ImGui::Button(playStop.c_str(), ImVec2(100, 20)))
 		TimeManager::PlayButton();
+		
 	ImGui::SameLine(); 
 	if (ImGui::Button(pauseResume.c_str(), ImVec2(100, 20)))
 		TimeManager::PauseButton();
+		
 	ImGui::SameLine();
 	if (ImGui::Button("|> ||", ImVec2(100, 20)))
 		playOne++;
@@ -988,6 +1342,7 @@ void panelData::PlaySpace::Execute(bool& ret)
 	{
 		if (pauseResume == "Resume")
 		{
+			App->gui->pause = !App->gui->pause;
 			LOG("Played one frame!!"); 
 			TimeManager::PlayOneButton();
 			playOne++;

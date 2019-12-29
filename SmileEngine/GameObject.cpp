@@ -3,6 +3,8 @@
 #include "Component.h"
 #include "ComponentMesh.h"
 #include "ComponentTransform.h"
+#include "ComponentParticleEmitter.h"
+#include "ComponentVolatile.h"
 #include "ComponentCamera.h"
 #include "Glew/include/GL/glew.h" 
 #include "SmileSpatialTree.h"
@@ -12,6 +14,13 @@
 #include "ComponentMaterial.h"
 #include "ResourceMesh.h"
 #include <map>
+#include "FreeBillBoard.h"
+
+GameObject::~GameObject()
+{
+	if (billboard)
+		RELEASE(billboard);
+}
 
 GameObject::GameObject(GameObject* parent)
 {
@@ -144,7 +153,7 @@ void GameObject::Disable()
 			obj->Disable();
 }
 
-void GameObject::Update()
+void GameObject::Update(float dt)
 {
 	if (active == false)
 		return; 
@@ -153,63 +162,21 @@ void GameObject::Update()
 	for (auto& comp : components)
 		if (comp)
 			if (comp->active == true)
-				comp->Update();
+				comp->Update(dt);
 
 	// 2) Children (gameObjects)
 	for (auto& obj : childObjects)
 		if(obj->IsActive())
-			obj->Update();
+			obj->Update(dt);
+
+	// Testing billboard
+	if (billboard)
+		billboard->Update(App->scene_intro->gameCamera->GetViewMatrixF(), billboard->alignment, GetTransform());
 	
 	// Lastly debug stuff :) 
 	if(App->scene_intro->generalDbug)
 		Debug();
 
-}
-
-void GameObject::DrawAxis()
-{
-	math::float3 transfPos = dynamic_cast<ComponentTransform*>(GetComponent(TRANSFORM))->GetGlobalPosition(); 
-	glLineWidth(5); 
-	glBegin(GL_LINES);
-
-	// Line
-	glColor3f(1, 0, 0);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	
-	// Head
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineHead);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z - (GLfloat)debugLineHead);
-
-	// Line
-	glColor3f(0, 1, 0);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y + (GLfloat)debugLineSize, (GLfloat)transfPos.z);
-
-	// Head
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y + (GLfloat)debugLineSize, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineHead, (GLfloat)transfPos.y + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y + (GLfloat)debugLineSize, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x - (GLfloat)debugLineHead, (GLfloat)transfPos.y + (GLfloat)debugLineSize - (GLfloat)debugLineHead, (GLfloat)transfPos.z - (GLfloat)debugLineHead);
-
-
-	//Line
-	glColor3f(0, 0, 1);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize);
-
-	// Head
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize);
-	glVertex3f((GLfloat)transfPos.x + (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize - (GLfloat)debugLineHead);
-	glVertex3f((GLfloat)transfPos.x, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize);
-	glVertex3f((GLfloat)transfPos.x - (GLfloat)debugLineHead, (GLfloat)transfPos.y, (GLfloat)transfPos.z + (GLfloat)debugLineSize - (GLfloat)debugLineHead);
-
-
-	glEnd(); 
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glLineWidth(1);
 }
 
 void GameObject::CleanUp()
@@ -260,6 +227,7 @@ bool GameObject::AddComponent(Component* comp)
 
 	return false;
 } 
+
 
 void GameObject::SetParent(GameObject* parent)
 {
@@ -405,31 +373,40 @@ void GameObject::SetupBounding()
 	// No child objects = case A) 
 	if (childObjects.size() == 0)
 	{
-		ModelMeshData* data = (GetMesh()) ? GetMesh()->GetResourceMesh()->model_mesh : nullptr;
-		if (data)
-		{
-			// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
-			math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
-			
-			// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
-			boundingData.OBB = temp; 
-			boundingData.OBB.Transform(transfGlobalMat);
+		if (GetMesh() == nullptr)
+			goto Default; 
+		
+		// Setup a fake AABB, at first setup with no min-max coords, then build it upon the mesh vertex buffer
+		math::AABB temp = GetMesh()->GetResourceMesh()->GetEnclosingAABB();
 
-			// Now calculate the real AABB: it must "contain" or "encompass" the OBB
-			boundingData.AABB.SetNegativeInfinity();
-			boundingData.AABB.Enclose(boundingData.OBB); 
-	
-
+		if (temp.IsFinite() == false || temp.IsDegenerate() == true)
 			return; 
-		}
 
+		// Now the fake AABB has proper min-max coords, copy it to the OBB. Then, rotate it  
+		boundingData.OBB = temp;
+		boundingData.OBB.Transform(transfGlobalMat);
+
+		// Now calculate the real AABB: it must "contain" or "encompass" the OBB
+		boundingData.AABB.SetNegativeInfinity();
+		boundingData.AABB.Enclose(boundingData.OBB);
+
+		return;
+	
 	}
 	
 	transfGlobalMat = GetTransform()->GetGlobalMatrix();
 
-	// what here haha -> for the mom an arbitrarily-sized box at the right location
+	// Arbitrarily-sized box at the right location
+	Default:
+	ResizeBounding(0.3f); 
+}
+
+void GameObject::ResizeBounding(float size)
+{
+	float4x4 transfGlobalMat = GetTransform()->GetGlobalMatrix();
+
 	boundingData.OBB.SetNegativeInfinity();
-	boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), 0.3)));
+	boundingData.OBB.SetFrom((math::Sphere(transfGlobalMat.TranslatePart(), size)));
 	boundingData.AABB.SetNegativeInfinity();
 	boundingData.AABB.Enclose(boundingData.OBB);
 }
@@ -479,11 +456,17 @@ void GameObject::SetStatic(bool isStatic)
 void GameObject::Draw()
 {
     ComponentMesh* mesh = GetMesh(); if (mesh) mesh->Draw(); 
+    
+	auto* emitter = GetEmitter(); 
+	if (emitter && emitter->active)
+		emitter->Draw(); 
 }
 
 void GameObject::ShowTransformInspector()
 {
+
 	KEY_STATE keyState = App->input->GetKey(SDL_SCANCODE_KP_ENTER);
+
 
 	auto GetStringFrom3Values = [](float3 xyz, bool append) -> std::string
 	{
@@ -495,6 +478,19 @@ void GameObject::ShowTransformInspector()
 	};
 
 	ComponentTransform* transf = GetTransform();
+
+	// reset
+	if (ImGui::Button("Reset"))
+	{
+		transf->ChangePosition(float3::zero);
+		transf->ChangeScale(float3::one);
+		transf->ChangeRotation(Quat::identity);
+
+		if (billboard)
+			RELEASE(billboard);
+	}
+
+
 	math::float3 pos = transf->GetPosition();
 	math::float3 rot = transf->GetRotation().ToEulerXYZ();
 	math::float3 degRot = RadToDeg(rot);
@@ -502,23 +498,71 @@ void GameObject::ShowTransformInspector()
 	float p[3] = { pos.x, pos.y, pos.z };
 	float r[3] = { degRot.x, degRot.y, degRot.z };
 	float s[3] = { sc.x, sc.y, sc.z };
-	ImGui::InputFloat3("Position", p); // , -500, 500);
-	ImGui::InputFloat3("Rotation", r); // , -359.999, 359.999);
-	ImGui::InputFloat3("Scale", s); // , 0, 500);
+	ImGui::DragFloat3("Position", p);
+	ImGui::DragFloat3("Rotation", r);
+	ImGui::DragFloat3("Scale", s);
 
 	// (info)
-	ImGui::Text(std::string("Global Center: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
+	ImGui::Text(std::string("Global Position: " + GetStringFrom3Values(transf->GetGlobalPosition(), true)).c_str());
+	ImGui::Text(std::string("Global Rotation: " + GetStringFrom3Values(transf->GetGlobalMatrix().RotatePart().ToEulerXYZ(), true)).c_str());
+	ImGui::Text(std::string("Global Scale: " + GetStringFrom3Values(transf->GetGlobalMatrix().GetScale(), true)).c_str());
 
-	if (keyState != KEY_DOWN)
-		return;
 
-	math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
-	float radR[3] = { radRot.x, radRot.y, radRot.z };
+	// Billboard
+	if (billboard == nullptr)
+	{
+		if (ImGui::CollapsingHeader("Add Billboard"))
+		{
+			auto alignment = FreeBillBoard::Alignment::noAlignment;
+			if (ImGui::Button("Axis", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::axis;
+			if (ImGui::Button("Screen", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::screen;
+			if (ImGui::Button("World", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::world;
 
-	float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
-	transf->UpdateTransform(values);
+			if (alignment != FreeBillBoard::Alignment::noAlignment)
+			{
+				billboard = DBG_NEW FreeBillBoard;
+				billboard->alignment = alignment;
+			}
+				
+		}
+
+	}
+	else
+	{
+		if (ImGui::CollapsingHeader("Edit Billboard"))
+		{
+			auto alignment = FreeBillBoard::Alignment::noAlignment;
+			if (ImGui::Button("Axis", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::axis;
+			if (ImGui::Button("Screen", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::screen;
+			if (ImGui::Button("World", ImVec2(100, 20)))
+				alignment = FreeBillBoard::Alignment::world;
+			if (ImGui::Button("Delete", ImVec2(100, 20)))
+				RELEASE(billboard);
+
+			if (alignment != FreeBillBoard::Alignment::noAlignment)
+				billboard->alignment = alignment;
+		}
+	}
+
+
+		if (keyState != KEY_DOWN)
+			return;
+
+		
+
+		math::float3 radRot = math::DegToRad(math::float3(r[0], r[1], r[2]));
+		float radR[3] = { radRot.x, radRot.y, radRot.z };
+
+		float values[3][3] = { {p[0], p[1], p[2]}, {radR[0], radR[1], radR[2]} , {s[0], s[1], s[2]} };
+		transf->UpdateTransform(values);
+
+	
 }
-
 ComponentTransform* GameObject::GetTransform() const
 {
 	return dynamic_cast<ComponentTransform*>(components[TRANSFORM]);
@@ -538,3 +582,26 @@ ComponentMaterial* GameObject::GetMaterial() const
 {
 	return dynamic_cast<ComponentMaterial*>(components[MATERIAL]);
 }
+
+ComponentParticleEmitter * GameObject::GetEmitter() const
+{
+	return dynamic_cast<ComponentParticleEmitter*>(components[EMITTER]);
+}
+
+GameObject* GameObject::Find(std::string name) const
+{
+	for (auto& c : childObjects)
+	{
+		if (c->name == name)
+			return c;
+		else
+		{
+			auto ret = c->Find(name); 
+			if (ret)
+				return ret; 
+		}
+	}
+
+	return nullptr;
+}
+

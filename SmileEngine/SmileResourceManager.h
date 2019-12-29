@@ -7,7 +7,8 @@ class Resource;
 enum Resource_Type;
 class ResourceMesh; 
 class ResourceTexture; 
-
+class ResourceMeshPlane; 
+class ResourceSkybox; 
 class SmileResourceManager : public SmileModule
 {
 public:
@@ -27,10 +28,14 @@ public:
 	void UpdateResourceReferenceCount(SmileUUID resource, int add); // add is either 1 or -1
 
 public: 
+	Resource* CreateMaterialFromPath(const char* path); 
+
+public: 
+	ResourceMeshPlane* Plane;
 	ResourceMesh* Cube;
 	ResourceMesh* Sphere;
 	ResourceTexture* checkersTexture;
-private:
+	ResourceSkybox* skybox; 
 	std::map<SmileUUID, Resource*> resources;
 
 

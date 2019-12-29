@@ -2,7 +2,6 @@
 #include "SmileApp.h"
 #include "SmileScene.h"
 
-
 ComponentTransform::ComponentTransform()
 {
 	SetName("Transform"); 
@@ -32,7 +31,6 @@ ComponentTransform::ComponentTransform(float3 position)
 
 ComponentTransform::~ComponentTransform()
 {
-
 }
 
 
@@ -70,8 +68,16 @@ void ComponentTransform::CalculateLocalMatrix(bool updateBounding)
 
 void ComponentTransform::SetGlobalMatrix(float4x4 mat)
 {
-	globalMatrix = mat;
-	CalculateLocalMatrix();
+	LOG("Object has a position before global update --> (%f,%f,%f)", GetGlobalPosition().x, GetGlobalPosition().y, GetGlobalPosition().z); 
+	if (parent != nullptr && parent != App->scene_intro->rootObj)
+	{
+		float4x4 parentMat = dynamic_cast<ComponentTransform*>(parent->GetParent()->GetComponent(TRANSFORM))->GetGlobalMatrix();
+		localMatrix = parentMat.Inverted() * (globalMatrix = mat);
+		localMatrix.Decompose(position, rotation, scale); 
+	}
+	else
+		localMatrix =  (globalMatrix = mat);
+	LOG("Object has a position after global update --> (%f,%f,%f)", GetGlobalPosition().x, GetGlobalPosition().y, GetGlobalPosition().z);
 }
 
 void ComponentTransform::SetLocalMatrix(float4x4 mat)
@@ -93,11 +99,6 @@ void ComponentTransform::ChangePosition(float3 pos, bool recalculateMatrixes, bo
 	position = pos; 
 	if(recalculateMatrixes)
 		CalculateLocalMatrix(updateBounding);
-}
-
-void ComponentTransform::SetGlobalPosition(float3 pos)
-{
-	globalMatrix.SetTranslatePart(pos); 
 }
 
 void ComponentTransform::AccumulatePosition(vec3 delta)

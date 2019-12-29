@@ -1,0 +1,24 @@
+{
+  
+  "GameObject": [
+    {
+      "Name": "Golem",
+      "Transform": {
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
+        "Scale": [ 1.0, 1.0, 1.0 ]
+      }
+    }
+  ],
+  "Meshes": [
+    {
+      "path": "/library/meshes/1_mesh1.smilemesh",
+      "materialPath": "Library/Textures/golem.dds",
+      "Transform": {
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Rotation": [ 0.0, 0.0, 0.0, 1.0 ],
+        "Scale": [ 1.0, 1.0, 1.0 ]
+      }
+    }
+  ]
+}

@@ -8,6 +8,8 @@
 #include "MathGeoLib/include/Geometry/AABB.h"
  
 class ResourceMesh;
+struct ModelMeshData;
+struct ownMeshData; 
 
 enum Mesh_Type
 {
@@ -48,7 +50,10 @@ public:
 	ResourceMesh* GetResourceMesh();
 
 private: 
-	// Internal Creation
+	void DefaultDraw(ModelMeshData*);
+	void OwnDraw(ownMeshData*);
+	void DrawBegin(); 
+	void DrawEnd(); 
 
 	// Debug
 	void DebugDraw(); 

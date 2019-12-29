@@ -43,7 +43,9 @@ private:
 
 public: 
 	bool debug = false; // todo: change this with the ui to draw normals, etc 
+	std::vector<GameObject*> toDestroy;
 
 private: 
 	std::map<std::string, par_shapes_mesh*(*)()> primitiveMap;
+
 };

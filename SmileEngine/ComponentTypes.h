@@ -7,8 +7,10 @@ enum COMPONENT_TYPE : uint
 	TRANSFORM,
 	MESH,
 	MATERIAL,
-	LIGHT,
 	CAMERA,
+	EMITTER,
+	VOLATILE,
+	LIGHT,
 	MAX_COMPONENT_TYPES,
 	NO_TYPE
 };
@@ -22,6 +24,7 @@ struct textureData
 	std::string path = "empty";
 	ILubyte* texture = nullptr;
 	std::string format = "empty"; 
+	float transparency = 0.f; 
 };
 
 // AABBs
@@ -42,4 +45,7 @@ static std::map<std::string, COMPONENT_TYPE> componentTypeMap =
 	{ "Mesh", MESH},
 	{ "Material", MATERIAL},
 	{ "Camera", CAMERA},
+	{ "Emitter", EMITTER},
+	{ "Volatile", VOLATILE}, // TODO: SAVE LOAD 
+	{ "Light", LIGHT}, // TODO: SAVE LOAD 
 }; 

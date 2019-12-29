@@ -8,7 +8,13 @@
 #include "ComponentTypes.h"
 #include "MathGeoLib/include/Geometry/AABB.h"
 #include  "MathGeoLib/include/Geometry/OBB.h"
-#include "SmileSetup.h"
+#include "MathGeoLib/include/MathGeoLib.h"
+
+#ifdef NDEBUG //no debug
+#pragma comment (lib, "MathGeoLib/libx86/ReleaseLib/MathGeoLib.lib") 
+#else
+#pragma comment (lib, "MathGeoLib/libx86/DebugLib/MathGeoLib.lib") 
+#endif
 
 #define debugLineSize 1.8
 #define debugLineHead 0.3
@@ -18,6 +24,7 @@ class ComponentMesh;
 class ComponentTransform; 
 class ComponentCamera; 
 class ComponentMaterial;
+class ComponentParticleEmitter;
 
 struct BoundingData
 {
@@ -27,9 +34,11 @@ struct BoundingData
 
 struct DebugData
 {
-	bool AABB = true; 
-	bool OBB = true; 
+	bool AABB = false; 
+	bool OBB = false; 
 };
+
+class FreeBillBoard; 
 
 // ----------------------------------------------------------------- [GameObject]
 class GameObject
@@ -39,7 +48,7 @@ public:
 	GameObject(std::string name = "no name", GameObject* parent = nullptr);  
 	GameObject(Component* comp, std::string name = "no name", GameObject* parent = nullptr);
 	GameObject(std::vector<Component*> components, std::string name = "no name", GameObject* parent = nullptr);
-	~GameObject() {}; 
+	~GameObject(); 
 
 private:
 	void FillComponentBuffers();
@@ -58,9 +67,9 @@ public:
 	ComponentMesh* GetMesh() const;
 	ComponentCamera* GetCamera() const;
 	ComponentMaterial* GetMaterial() const;
+	ComponentParticleEmitter* GetEmitter() const;
 	std::array<Component*, COMPONENT_TYPE::MAX_COMPONENT_TYPES> GetComponents() const { return components; };
 	uint GetID() const { return randomID; };
-
 	BoundingData GetBoundingData() const { return boundingData; }; 
 	GameObject* GetParent() const { return parent; };
 	std::string GetName() const { return name; };
@@ -68,12 +77,14 @@ public:
 	std::vector<GameObject*> GetImmidiateChildren() const;
 	float GetBoundingSphereRadius() const;
 	bool GetStatic() const { return isStatic; };
- 
-	
+
+	// search
+	GameObject* Find(std::string name) const; 
+
 		// Main functions 
 	virtual void Start(); 
 	virtual void Enable(); 
-	virtual void Update();
+	virtual void Update(float dt);
 	void PostUpdate() { toDraw = false; for (auto& child : childObjects) child->PostUpdate(); };
 	void Draw(); 
 	virtual void Disable();
@@ -82,7 +93,6 @@ public:
 		// Other
 	virtual void OnTransform(bool updateBounding = true);
 	bool IsActive() const { return active; };
-	void DrawAxis(); // todo: delete this
 	void ShowTransformInspector(); 
 
 		// Bounding and mesh stuff
@@ -90,6 +100,7 @@ public:
 	//void PositionTransformAtMeshCenter();
 	void SetupBounding();  
 	void UpdateBounding();
+	void ResizeBounding(float size); 
 
 		// Static stuff
 	void SetStatic(bool isStatic); 
@@ -108,6 +119,12 @@ private:
 	std::string name; 
 	GameObject* parent = nullptr; 
 	BoundingData boundingData; 
+
+
+	
+
+	// may have one of these
+	FreeBillBoard* billboard = nullptr; 
 
 	friend class SmileGameObjectManager; 
 	friend class ComponentCamera; 

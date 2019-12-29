@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MathGeoLib/include/Math/float3.h"
+#include "MathGeoLib/include/Math/float4x4.h"
 #include "MathGeoLib/include/Math/float2.h"
 #include "MathGeoLib/include/Geometry/Frustum.h"
 
@@ -50,7 +51,7 @@ struct renderingData
 public: 
 	// Fov
 	float fovYangle = 60.f;
-	float pNearDist = 1.f, pFarDist = 512.f;
+	float pNearDist = 1.f, pFarDist = 5000.f;
 	float ratio = InitRatio();
 
 	// Use this to compute the radio!
@@ -75,7 +76,7 @@ public:
 	~ComponentCamera();
 
 
-	void Update(); 
+	void Update(float dt = 0); 
 	
 	// Do stuff 
 	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference = false);
@@ -90,12 +91,15 @@ public:
 
 	// Getters
 	float* GetViewMatrix();
+	math::float4x4 GetViewMatrixF() const { return ViewMatrixF; };
+	math::float4x4 GetViewMatrixFinverse() const { return ViewMatrixFInverse; };
 	float* GetViewMatrixTransposed();
 	mat4x4 GetViewMatrixTransposedA();
 	float* GetViewMatrixInverse();
 	float GetScrollSpeed(float dt, float zScroll);
 	renderingData GetRenderingData() const { return _renderingData; };
 	Frustrum* GetFrustrum() const { return frustrum; };
+	math::Frustum GetCalcFrustrum() const { return calcFrustrum; };
 
 	void ComputeSpatialData();
 private:
@@ -105,6 +109,7 @@ private:
 
 private:
 	mat4x4 ViewMatrix, ViewMatrixInverse;
+	math::float4x4 ViewMatrixF, ViewMatrixFInverse; 
 	Frustrum* frustrum = nullptr;
 	renderingData _renderingData;
 
