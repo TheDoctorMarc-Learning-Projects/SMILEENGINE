@@ -302,10 +302,9 @@ inline void ComponentParticleEmitter::LifeUpdate(Particle& p, float dt)
 // -----------------------------------------------------------------
 inline void ComponentParticleEmitter::SpeedUpdate(Particle& p, float dt)
 {
-	
 	// Add the speed to the particle transform pos. Update the billboard too. Gravity? Yet another variable in the emitter xd
 	auto pos = p.transf.globalMatrix.TranslatePart();
-	float3 delta = (data.emissionData.randomSpeed.first) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed * dt); 
+	float3 delta = (p.currentState.randomData.speed.IsFinite()) ? (p.currentState.randomData.speed * dt) : (data.initialState.speed * dt);
 	if (data.emissionData.gravity)
 		delta += float3(0, -GLOBAL_GRAVITY * p.currentState.currentLifeTime / 1000, 0); 
 

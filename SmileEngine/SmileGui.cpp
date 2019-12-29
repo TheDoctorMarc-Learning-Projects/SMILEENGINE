@@ -989,6 +989,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			static float speed[3];
 			static float randomSpeedFirst[3];
 			static float randomSpeedSecond[3];
+			static float3 randomSpeedSecondCapture = emitter->data.emissionData.randomSpeed.second.second;
 			static float burstTime = emitter->data.emissionData.burstTime;
 			static float initialLife = emitter->data.initialState.life.first;
 			static float LifeOverTime = emitter->data.initialState.life.second;
@@ -999,11 +1000,10 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				spawnRadius[i] = emitter->data.emissionData.spawnRadius[i];
 			static bool burst = emitter->data.emissionData.burstTime > 0.f; 
 			static bool oneRange = (emitter->data.emissionData.randomSpeed.second.second.IsFinite()) ? false : true;
-			static bool randomColor = emitter->data.emissionData.randomColor;
 			static bool gravity = emitter->data.emissionData.gravity;
 			static float initialSize = emitter->data.initialState.size.first;
 			static float finalSize = emitter->data.initialState.size.second;
-
+		
 
 			static int maxParticles = emitter->data.emissionData.maxParticles;
 			static bool alphaBlend = (emitter->data.blendmode == blendMode::ALPHA_BLEND) ? true : false; 
@@ -1038,14 +1038,15 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 					ImGui::Checkbox("One Range", &oneRange);
 					if (oneRange == true) {
-						
+						for (int i = 0; i < 3; ++i)
+							if (randomSpeedFirst[i] < 0.f)
+								randomSpeedFirst[i] = 0.f;
+
 						if (ImGui::DragFloat3("Range", randomSpeedFirst, 0.5f, 0.0f, 100.f))
 						{
-							for (int i = 0; i < 3; ++i)
-								if (randomSpeedFirst[i] < 0.f)
-									randomSpeedFirst[i] = 0.f;
-
+							
 							emitter->data.emissionData.randomSpeed.second.first = math::float3(randomSpeedFirst);
+							randomSpeedSecondCapture = emitter->data.emissionData.randomSpeed.second.second; 
 							emitter->data.emissionData.randomSpeed.second.second = math::float3::inf;
 						}
 
@@ -1102,6 +1103,10 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 						if (emitter->data.emissionData.randomSpeed.second.first.z > emitter->data.emissionData.randomSpeed.second.second.z)
 							emitter->data.emissionData.randomSpeed.second.second.z = emitter->data.emissionData.randomSpeed.second.first.z;
 
+						// If swapping between options, the second range could be preserved:
+						if (emitter->data.emissionData.randomSpeed.second.first.Equals(emitter->data.emissionData.randomSpeed.second.second))
+							if (randomSpeedSecondCapture.IsFinite())
+								emitter->data.emissionData.randomSpeed.second.second = randomSpeedSecondCapture; 
 					}
 				}
 				else {
@@ -1135,12 +1140,8 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 				if (ImGui::CollapsingHeader("Particle Color"))
 				{
-					ImGui::Checkbox("Random Color", &randomColor);
-					if (randomColor == true)
-					{
-						emitter->data.emissionData.randomColor = randomColor;
-					}
-					else
+					ImGui::Checkbox("Random Color", &emitter->data.emissionData.randomColor);
+					if (emitter->data.emissionData.randomColor == false)
 					{
 						ImGui::Text("Principal Color");
 						ImGui::ColorPicker4("Color", Pcol, ImGuiColorEditFlags_AlphaBar);
@@ -1154,7 +1155,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 						{
 							emitter->data.initialState.color.second = math::float4(Pcol);
 						}
+
 					}
+						
 					
 				}
 				if (ImGui::CollapsingHeader("Particle Size"))
