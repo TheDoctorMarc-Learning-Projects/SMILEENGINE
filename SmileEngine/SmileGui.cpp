@@ -929,14 +929,12 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 			ImGui::Text(std::string("Attached resource reference count: " + std::to_string(mat->GetResourceTexture()->GetReferenceCount())).c_str());
 			ImGui::Text(std::string("Path: " + mat->GetTextureData()->path).c_str());
 			ImGui::Text(std::string("Size: " + std::to_string(mat->GetTextureData()->width) + " x " + std::to_string(mat->GetTextureData()->height)).c_str());
-			if (ImGui::Button("Change Texture")) // TODO: filesystem (muahahahaha)
+			if (ImGui::Button("Change Texture"))  
 			{
 				const std::filesystem::path& relativePath = "Assets/";
 				std::filesystem::path& absolutePath = std::filesystem::canonical(relativePath);
 				ShellExecute(NULL, "open", absolutePath.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 			}
-			if (ImGui::Button("Change Texture to checkers"))
-				App->fbx->AssignCheckersTextureToObj(mat->GetParent());
 
 			ImGui::SliderFloat("Transparency", &mat->GetMaterialData()->transparency, 0.f, 1.f);
 
