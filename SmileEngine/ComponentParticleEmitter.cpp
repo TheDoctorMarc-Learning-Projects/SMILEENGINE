@@ -23,7 +23,7 @@ ComponentParticleEmitter::ComponentParticleEmitter(GameObject* parent)
 	SetName("Emitter"); 
 
 	SetupMesh();
-	//data.emissionData.spawnRadius = float3(1.f);
+
 	particles.resize(data.emissionData.maxParticles);
 
 	pVariableFunctions.push_back(&ComponentParticleEmitter::LifeUpdate);

@@ -291,10 +291,24 @@ void panelData::mainMenuSpace::Execute(bool& ret)
 // ----------------------------------------------------------------- [Main Menu Bar: Geometry Generator GUI]
 void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 {
-	if (ImGui::BeginMenu("Geometry"))
+	if (ImGui::BeginMenu("Creation"))
 	{
-		// Primitive
-		if (ImGui::MenuItem("Create Cube"))
+		 
+		if (ImGui::MenuItem("Emitter"))
+		{
+			GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
+			AllData data;
+			data.initialState.life = std::pair(1.f, 0.2f);
+			data.emissionData.time = 0.03f;
+			data.emissionData.maxParticles = 1000;
+			data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
+			auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+			emitter->AddComponent((Component*)emmiterComp);
+			emitter->Start();
+			App->spatial_tree->OnStaticChange(emitter, true);
+		}
+
+		if (ImGui::MenuItem("Cube"))
 		{
 				// Create a mesh and an object
 				ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Cube->GetUID(), "CubeMesh");
@@ -1218,7 +1232,10 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					if (emitter->data.initialState.tex.first == true) {
 						static char texturePath[512];
 						ImGui::Text("Texture Path: %s", emitter->data.emissionData.texPath.c_str());
-						ImGui::Image((ImTextureID)emitter->texture->GetTextureData()->id_texture, ImVec2(100, 100));
+
+						if(emitter->texture != nullptr)
+							ImGui::Image((ImTextureID)emitter->texture->GetTextureData()->id_texture, ImVec2(100, 100));
+
 						if (ImGui::InputText("Texture Path", texturePath, 512))
 						{
 							std::string path(texturePath);

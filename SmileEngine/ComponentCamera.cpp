@@ -72,7 +72,7 @@ void ComponentCamera::Update(float dt)
 		if (App->scene_intro->generalDbug)
 			frustrum->DebugPlanes();
 		frustrum->CalculatePlanes();
-		CalculateViewMatrix(); 
+	//	CalculateViewMatrix(); 
 		return;
 	}
 	vec3 prevX = X, prevY = Y, prevZ = Z;
