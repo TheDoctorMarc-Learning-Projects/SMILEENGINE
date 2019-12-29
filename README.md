@@ -90,4 +90,4 @@ you can decide the expiration time for the emitter.
 
 
 * [Link to our repository](https://github.com/thedoctormarc/SMILEENGINE)
-* [Link to our last release]()
+* [Link to our last release](https://github.com/thedoctormarc/SMILEENGINE/releases/tag/Assignment3)
