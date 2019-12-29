@@ -24,4 +24,5 @@ Individual work:
 
 
 
-* [Link to our repository](https://github.com/VictorTirado/SMILEENGINE)
+* [Link to our repository](https://github.com/thedoctormarc/SMILEENGINE)
+* [Link to our last release]()
