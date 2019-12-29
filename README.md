@@ -12,8 +12,6 @@ Smile Engine is a game engine created for the the subject Video Game Engines mad
 
 - Main Core of Particle System.
 
-- Inspector for the Emitter of particles.
-
 - Load and Save for the emitter and particles.
 
 
