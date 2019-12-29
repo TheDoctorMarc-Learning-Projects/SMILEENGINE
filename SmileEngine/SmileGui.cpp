@@ -318,19 +318,6 @@ void panelData::mainMenuSpace::GeometryGeneratorGui::Execute()
 
 
 		}
-
-		if (ImGui::MenuItem("Create Plane"))
-		{
-			// Create a mesh and an object
-			ComponentMesh* mesh = DBG_NEW ComponentMesh(App->resources->Plane->GetUID(), "PlaneMesh");
-			GameObject* obj = App->object_manager->CreateGameObject(mesh, "Plane", App->scene_intro->rootObj);
-			obj->GetTransform()->ChangeScale(float3(10.f, 10.f, 10.f)); 
-			obj->Start();
-
-			// TODO: check this ok -> if used by particles, no static !!!
-			App->spatial_tree->OnStaticChange(obj, obj->GetStatic());
-
-		}
 		
 		ImGui::EndMenu(); 
 	}
@@ -1051,6 +1038,9 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 					}
 					else {
 
+						for (int i = 0; i < 3; ++i)
+							randomSpeedFirst[i] = emitter->data.emissionData.randomSpeed.second.first[i];
+					
 						if (ImGui::DragFloat("Min Value x", &randomSpeedFirst[0], 0.5f, -100, 100))
 						{
 							emitter->data.emissionData.randomSpeed.second.first.x = randomSpeedFirst[0];

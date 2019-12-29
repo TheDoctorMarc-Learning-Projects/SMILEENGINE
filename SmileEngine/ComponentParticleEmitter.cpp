@@ -375,6 +375,10 @@ float3 ComponentParticleEmitter::GetRandomRange(std::variant<float3, std::pair<f
 	if (ranges.index() == 0)
 	{
 		auto range = std::get<float3>(ranges);
+		range.x = math::Abs(range.x); 
+		range.y = math::Abs(range.y);
+		range.z = math::Abs(range.z);
+
 		ret.x = std::get<float>(RNG::GetRandomValue(-range.x / 2, range.x / 2));
 		ret.y = std::get<float>(RNG::GetRandomValue(-range.y / 2, range.y / 2));
 		ret.z = std::get<float>(RNG::GetRandomValue(-range.z / 2, range.z / 2));
@@ -661,12 +665,16 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Double(particles.at(i).currentState.currentLifeTime);
 		
 
+		float4 colorValue(666, 666, 666, 666); 
+		if (particles.at(i).currentState.color.IsFinite())
+			colorValue = particles.at(i).currentState.color;
+
 		writer.Key("Color");
 		writer.StartArray();
-		writer.Double(particles.at(i).currentState.color.x);
-		writer.Double(particles.at(i).currentState.color.y);
-		writer.Double(particles.at(i).currentState.color.z);
-		writer.Double(particles.at(i).currentState.color.w);
+		writer.Double(colorValue.x);
+		writer.Double(colorValue.y);
+		writer.Double(colorValue.z);
+		writer.Double(colorValue.w);
 		writer.EndArray();
 
 
@@ -688,7 +696,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Key("Random Speed");
 		writer.StartArray();
 		auto value = float3(666);
-		if (particles.at(i).currentState.randomData.speed.IsFinite() == false)
+		if (particles.at(i).currentState.randomData.speed.IsFinite() == true)
 		{
 			value.x = particles.at(i).currentState.randomData.speed.x;
 			value.y = particles.at(i).currentState.randomData.speed.y;
@@ -704,7 +712,7 @@ void ComponentParticleEmitter::OnSave(rapidjson::Writer<rapidjson::StringBuffer>
 		writer.Key("Random Color");
 		writer.StartArray();
 		auto valueC = float4(666,666,666,666);
-		if (particles.at(i).currentState.randomData.color.IsFinite() == false)
+		if (particles.at(i).currentState.randomData.color.IsFinite() == true)
 		{
 			valueC.x = particles.at(i).currentState.randomData.color.x;
 			valueC.y = particles.at(i).currentState.randomData.color.y;

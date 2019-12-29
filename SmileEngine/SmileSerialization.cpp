@@ -373,12 +373,13 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				float initialLife = object["Initial Life"].GetFloat();
 				float lifeDecrease = object["Life Decrease"].GetFloat();
 				bool hasRandomColor = object["Has Random Color"].GetBool();
-				auto color1 = object["Initial Color"].GetArray();
-				auto color2 = object["Final Color"].GetArray();
 				float4 Color = float4::inf;
 				float4 Color2 = float4::inf;
 				if (hasRandomColor == false)
 				{
+					auto color1 = object["Initial Color"].GetArray();
+					auto color2 = object["Final Color"].GetArray();
+
 					if(color1[0].GetDouble() == 666)
 					{
 						goto next;
@@ -434,8 +435,8 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				data.emissionData.randomSpeed.first = hasRandomSpeed;
 				if (hasRandomSpeed) {
 					data.emissionData.randomSpeed.second.first = SpeedFirstRange;
-					if (SpeedSecondRange.x == 666.f) {
-						data.emissionData.randomSpeed.second.second = float3::inf;
+					if (SpeedSecondRange.x != 666.f) {
+						data.emissionData.randomSpeed.second.second = SpeedSecondRange;
 					}
 				}
 				data.emissionData.shape = shape;
@@ -481,9 +482,12 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 					auto life = particle["Life"].GetFloat();
 					auto currentLifeTime = particle["Current Life Time"].GetFloat();
 					auto color = particle["Color"].GetArray();
-					float4 Color;
-					for (rapidjson::SizeType i = 0; i < color.Size(); i++)
-						Color[i] = color[i].GetDouble();
+					float4 Color = float4::inf;
+					if (color[0].GetDouble() != 666)
+					{
+						for (rapidjson::SizeType i = 0; i < color.Size(); i++)
+							Color[i] = color[i].GetDouble();
+					}
 
 					auto randomcolor = particle["Random Color"].GetArray();
 					float4 RandomColor = float4::inf;
@@ -524,11 +528,25 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 					emitter->particles.at(i).currentState.speed = Speed;
 					emitter->particles.at(i).currentState.tileIndex = tileIndex;
 					emitter->particles.at(i).currentState.transparency = transparency;
-					emitter->particles.at(i).transf.globalMatrix = obj->GetParent()->GetTransform()->GetGlobalMatrix();
+					emitter->particles.at(i).camDist = camDistance; 
+					emitter->particles.at(i).transf.parentMatrix = obj->GetParent()->GetTransform()->GetGlobalMatrix();
+					float localMat[16], globalMat[16]; 
+					auto localMatArray = particle["Local Matrix"].GetArray();
+					auto globalMatArray = particle["Global Matrix"].GetArray();
+					for (rapidjson::SizeType i = 0; i < localMatArray.Size(); i++)
+						localMat[i] = localMatArray[i].GetDouble();
+					for (rapidjson::SizeType i = 0; i < globalMatArray.Size(); i++)
+						globalMat[i] = globalMatArray[i].GetDouble();
+
+					// TODO: update transform 
 
 					counter++;
 				}
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Particles
+
+
+				obj->AddComponent(emitter);
+
 				break; 
 			}
 

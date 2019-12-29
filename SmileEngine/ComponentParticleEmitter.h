@@ -28,7 +28,7 @@ struct CurrentState
 	float3 speed;
 	float size;
 	float transparency;
-	float4 color;
+	float4 color = float4::inf;
 	uint tileIndex = 0;  
 	float lastTileframe = 0.f; 
 	bool needTileUpdate = false; 
@@ -71,8 +71,8 @@ struct EmissionData
 	bool gravity = true; 
 	uint maxParticles = 100;
 	std::string texPath = "empty"; 
-	std::pair<bool, std::pair<float3, float3>> randomSpeed;
-	bool randomColor; 
+	std::pair<bool, std::pair<float3, float3>> randomSpeed = std::pair(false, std::pair(float3::inf, float3::inf));
+	bool randomColor = false; 
 	float time = 0.5f, burstTime = 0.f, currenTime = 0.f,
 		currentBurstTime = 0.f, expireTime = 0.f, totalTime = 0.f;
 	float3 spawnRadius = float3(5.f); // the radius or inner + outer
