@@ -27,6 +27,9 @@ Smile Engine is a game engine created for the the subject Video Game Engines mad
 
 # Short explanation of the main core sub-systems
 
+In the last two deliveries we have performed the following tasks:
+serialization of scenes, for saving / loading them, import for meshes and materials, implementation for game objects, components(camera, material, mesh, transform), resource manager of the previous components, ui of inspectors and configurations and quadtree.
+
 # Detailed explanation of last assignment sub-system
 
 (two animated gif that shows editor and in-game functionality)
