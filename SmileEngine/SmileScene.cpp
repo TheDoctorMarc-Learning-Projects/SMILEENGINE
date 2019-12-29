@@ -50,19 +50,7 @@ bool SmileScene::Start()
 
 	// Scene -> must already have cameras and it also created octree
     App->serialization->LoadScene("Library/Scenes/scene.json", true);
-
-	// Test emitter here: 
 	
- 
-	//GameObject* emitter = App->object_manager->CreateGameObject("Emitter", rootObj);
-	//AllData data; 
-	//data.initialState.life = std::pair(1.f, 0.2f);
-	//data.emissionData.time = 0.1f;
-	////data.emissionData.texPath = LIBRARY_TEXTURES_FOLDER_A + std::string("JapanFlag.dds"); 
-	//data.emissionData.randomSpeed = std::pair(true, std::pair(float3(-2.f, 2.f, -2.f), float3(2.f, 2.f, 2.f)));
-	//data.initialState.color.first = float4(1, 0, 0, 1); 
-	//data.initialState.color.second = float4(0, 0, 1, 1); 
-	//emitter->AddComponent((Component*)DBG_NEW ComponentParticleEmitter(emitter, data));
 	return true;
 }
 
@@ -434,10 +422,9 @@ math::LineSegment SmileScene::TraceRay(float2 normMousePos)
 	return App->renderer3D->targetCamera->calcFrustrum.UnProjectLineSegment(normMousePos.x, normMousePos.y);
 }
 
-void CreateFireWork()
+void CreateSmoke(float3 pos)
 {
-	App->scene_intro->rocketoAction = false; 
-	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
+	/*GameObject* emitter = App->io
 	AllData data;
 	data.initialState.life = std::pair(1.f, 0.2f);
 	data.emissionData.time = 0.03f;
@@ -458,7 +445,7 @@ void CreateFireWork()
 	// Color for fire (do not set alpha to 1, better show alpha blending)
 	/*data.initialState.color.first = float4(1, 0, 0, 1);
 	data.initialState.color.second = float4(0, 0, 1, 1);*/
-	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+	/*auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
 	emitter->AddComponent((Component*)emmiterComp);
 
 	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix()); 
@@ -470,5 +457,20 @@ void CreateFireWork()
 
 	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
 	emitter->Start(); 
-	App->spatial_tree->OnStaticChange(emitter, true); 
+	App->spatial_tree->OnStaticChange(emitter, true); */
+}
+
+void CreateFireWork()
+{
+	App->scene_intro->rocketoAction = false;
+	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
+	AllData data;
+
+	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
+	emitter->AddComponent((Component*)emmiterComp);
+	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix());
+
+	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
+	emitter->Start();
+	App->spatial_tree->OnStaticChange(emitter, true);
 }

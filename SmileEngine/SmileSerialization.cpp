@@ -333,7 +333,7 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				break;
 			}
 
-		/*	case EMITTER:
+			case EMITTER:
 			{
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  Emitter
 			    bool active = object["Active"].GetBool(); 
@@ -548,7 +548,7 @@ GameObject* SmileSerialization::LoadSceneNode(GameObject* parent, rapidjson::Val
 				obj->AddComponent(emitter);
 
 				break; 
-			}*/
+			}
 
 			default:
 				break;

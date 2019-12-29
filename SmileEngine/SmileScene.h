@@ -14,6 +14,7 @@
 #define MAXLINES 30
 
 void CreateFireWork(); 
+void CreateSmoke(float3 pos); 
 
 class ResourceMeshPlane; 
 class SmileScene : public SmileModule

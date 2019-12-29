@@ -1175,18 +1175,18 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 
 				if (ImGui::CollapsingHeader("Particle Spawn"))
 				{
-					if (ImGui::Button("Change Shape"))
+					if (ImGui::CollapsingHeader("Change Shape"))
 					{
-						if (ImGui::MenuItem("Circle"))
+						if (ImGui::Button("Circle"))
 						{
 							emitter->data.emissionData.shape = emmissionShape::CIRCLE;
 
 						}
-						else if (ImGui::MenuItem("Sphere"))
+						else if (ImGui::Button("Sphere"))
 						{
 							emitter->data.emissionData.shape = emmissionShape::SPHERE;
 						}
-						else if (ImGui::MenuItem("Cone"))
+						else if (ImGui::Button("Cone"))
 						{
 							emitter->data.emissionData.shape = emmissionShape::CONE;
 
@@ -1286,7 +1286,7 @@ void panelData::InspectorSpace::ComponentData(Component* c)
 				if (ImGui::CollapsingHeader("Expiration"))
 				{
 					ImGui::TextColored(ImVec4(1, 0, 0, 1), "Caution, espiration time will disable the emitter"); 
-					ImGui::DragFloat("Expiration Time", &emitter->data.emissionData.expireTime, 0.1f, 1.f, 10.f); 
+					ImGui::InputFloat("Expiration Time", &emitter->data.emissionData.expireTime, 0.1f, 5.f); 
 
 				}
 
