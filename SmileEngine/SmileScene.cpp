@@ -466,10 +466,24 @@ void CreateFireWork()
 	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
 	AllData data;
 
+	data.initialState.life.first = 0.4;
+	data.initialState.life.second = 0.2;
+
+	data.initialState.size.first = 0.5;
+	data.initialState.size.second = 1.5;
+
+	data.emissionData.randomSpeed.first = true;
+	data.emissionData.randomSpeed.second.first = float3(15, 15, 5);
+
+	data.emissionData.gravity = true;
+	data.emissionData.time = 0.001;
+	data.emissionData.expireTime = 1.f;
+
 	auto emmiterComp = DBG_NEW ComponentParticleEmitter(emitter, data);
 	emitter->AddComponent((Component*)emmiterComp);
 	emitter->GetTransform()->SetGlobalMatrix(App->scene_intro->rootObj->Find("rocketo")->GetTransform()->GetGlobalMatrix());
 
+	
 	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
 	emitter->Start();
 	App->spatial_tree->OnStaticChange(emitter, true);
