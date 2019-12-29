@@ -65,10 +65,12 @@ you can change the initial life and the decrease of this.
 ### Particle Color Section: 
 you can decide if you want a random color or not, if not you have a color palette to choose two colors, the initial and the final
 
-![Eric](https://github.com/thedoctormarc/SMILEENGINE/blob/master/WebDocs/color.gif?raw=true)
+![Color](https://github.com/thedoctormarc/SMILEENGINE/blob/master/WebDocs/color.gif?raw=true)
 
 ### Particle Size Section: 
 you can decide which initial and final size you want for the particles.
+
+![Size](https://github.com/thedoctormarc/SMILEENGINE/blob/master/WebDocs/size.gif?raw=true)
 
 ### Particle Spawn Section: 
 you can change the shape for the emission of the particles, the spawn time, if you want burst and the spawn radius for each shape.
