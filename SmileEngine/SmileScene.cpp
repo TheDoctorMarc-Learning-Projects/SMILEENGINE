@@ -465,12 +465,12 @@ void CreateFireWork()
 	GameObject* emitter = App->object_manager->CreateGameObject("Emitter", App->scene_intro->rootObj);
 	AllData data;
 
-	data.initialState.life.first = 0.4;
-	data.initialState.life.second = 0.6;
+	data.initialState.life.first = 0.4f;
+	data.initialState.life.second = std::get<float>(RNG::GetRandomValue(0.6f, 1.f));
 
-	float variantSize = std::get<float>(RNG::GetRandomValue(0.f, 0.5f));
-	data.initialState.size.first = 0.5f + variantSize;
-	data.initialState.size.second = 1.5f + variantSize;
+	float variantSize = std::get<float>(RNG::GetRandomValue(0.f, 1.5f));
+	data.initialState.size.first = 0.5f;
+	data.initialState.size.second = 0.5f + variantSize;
 
 	data.emissionData.randomSpeed.first = true;
 	float variantSp = std::get<float>(RNG::GetRandomValue(-5.f, 5.f)); 
@@ -492,6 +492,7 @@ void CreateFireWork()
 
 	// VERY IMPORTANT, CALL START, IT WILL SETUP THE BOUNDING BOX
 	emitter->Start();
-	emmiterComp->data.emissionData.expireTime = 1.5f;
+	emmiterComp->data.emissionData.expireTime = std::get<float>(RNG::GetRandomValue(0.5f, 1.5f));
+	emmiterComp->destroyOnFinish = true; 
 	App->spatial_tree->OnStaticChange(emitter, true);
 }

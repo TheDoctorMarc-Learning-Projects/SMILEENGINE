@@ -130,9 +130,15 @@ void ComponentParticleEmitter::Update(float dt)
 	if(data.emissionData.expireTime > 0.f)
 		if ((data.emissionData.totalTime += dt) >= data.emissionData.expireTime)
 		{
-			Disable(); 
-			data.emissionData.totalTime = 0.f; 
-			data.emissionData.expireTime = 0.f; 
+			if (destroyOnFinish == false)
+			{
+				Disable();
+				data.emissionData.totalTime = 0.f;
+				data.emissionData.expireTime = 0.f;
+			}
+			else
+				App->object_manager->toDestroy.push_back(GetParent()); 
+		
 			return; 
 		}
 	

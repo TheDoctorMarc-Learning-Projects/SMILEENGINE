@@ -152,6 +152,7 @@ private:
 	std::vector<function> pVariableFunctions; // They co-relate by order to particle state variables (Current order: 0->5)
 	
 public: 
+	bool destroyOnFinish = false; 
 	ResourceMeshPlane* mesh = nullptr; 
 	ResourceTexture* texture = nullptr; 
 	AllData data;
