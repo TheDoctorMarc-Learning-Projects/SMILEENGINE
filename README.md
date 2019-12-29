@@ -12,6 +12,8 @@ Smile Engine is a game engine created for the the subject Video Game Engines mad
 
 - Main Core of Particle System.
 
+- Inspector for the Emitter of particles.
+
 - Load and Save for the emitter and particles.
 
 
@@ -37,6 +39,14 @@ For our Particle System, first of all, we created an emitter, that contains the 
 For The Initial State we have initial life and decreasing life, speed, initial and final size, transparency, color and texture.
 For The Emission Data we have gravity, number of maximum particles, random speed, random color, time of spawn, burst time, current time, current burst time, expire time, total time, shape (CONE, CIRCLE, SPHERE) and spawn radius for those shapes.
 We have implemented blend mode that can be additive or alpha blend.
+
+
+
+## Basic Workflow 
+Particles are stored in a buffer, and we keep track of the last used particle so that when a particle has to be spawned, we search in the buffer for the index and get an inactive one. Each particle has an orientation, given by a transform and a billboard, that makes the particle always look at the camera. 
+In order to be drawn, all particles use just one mesh, and one texture if specified, and they are drawn according to the current settings. 
+Particles are sorted from farthest to nearest in relation with the camera, so that the ones further are drawn first and therefore a nearer one will be painted "on top". 
+The particle system can go on forever or have a termination time, where it can delete the object attached to it, or just be disabled.
 
 You can create a new particle in the menu creation, emitter. It will appear a emitter in the scene and the inspector will be active for the emitter. In the inspector you can personalize the emitter however you want. 
 There are several sections.
