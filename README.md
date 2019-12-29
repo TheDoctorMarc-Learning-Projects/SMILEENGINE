@@ -10,7 +10,7 @@ Smile Engine is a game engine created for the the subject Video Game Engines mad
 
 * Eric Navarro: [Github Account](https://github.com/lakaens)
 
-![Eric](https://github.com/VictorTirado/Town-Hall-Defense/blob/master/wiki_sources/Eric.PNG?raw=true)
+![Eric](https://github.com/thedoctormarc/SMILENGINE/blob/master/WebDocs/Eric.PNG?raw=true)
 
 
 
