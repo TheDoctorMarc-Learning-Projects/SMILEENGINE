@@ -51,7 +51,9 @@ The particle system can go on forever or have a termination time, where it can d
 You can create a new particle in the menu creation, emitter. It will appear a emitter in the scene and the inspector will be active for the emitter. In the inspector you can personalize the emitter however you want. 
 There are several sections.
 
+## Settings
 General data Section: the maximum number of particles, the size of the bounding and the blend mode can be changed.
+Every time the maxparticles variable is altered, the particles buffer is resized. 
 
 Particle Speed Section: you can decide if the speed is random and if being random you want a range or two to do the random, if it is not random, the user decides it and you can decide if you want gravity or not.
 
@@ -64,8 +66,10 @@ Particle Size Section: you can decide which initial and final size you want for 
 Particle Spawn Section: you can change the shape for the emission of the particles, the spawn time, if you want burst and the spawn radius for each shape.
 
 Particle Texture Section: you can decide if the particles have texture, if they have, you can decide the transparency of them and you can change the texture if you want.
+Particles can have an animation if specified, and the user decides the tiling to use a classic spritesheet. 
 
 Expiration Section: you can decide the expiration time for the emitter.
+
 # Video
 
 One minute video speed-up that shows the process of authoring scenes in your editor, especially
