@@ -85,7 +85,7 @@ you can decide the expiration time for the emitter.
 # Video
 
 [![Watch the video](https://www.youtube.com/watch?v=PlgubThgJPw)
-
+[![Watch the video](https://i.imgur.com/vKb2F1B.png)](https://www.youtube.com/watch?v=PlgubThgJPw)
 
 
 * [Link to our repository](https://github.com/thedoctormarc/SMILEENGINE)
