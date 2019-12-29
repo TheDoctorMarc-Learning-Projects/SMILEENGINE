@@ -4,7 +4,7 @@ Smile Engine is a game engine created for the the subject Video Game Engines mad
 
 # Team
 
-* Marc Doctor: [Github Account](https://github.com/thedoctormarc)
+### Marc Doctor: [Github Account](https://github.com/thedoctormarc)
 
 ![Marc](https://github.com/thedoctormarc/SMILEENGINE/blob/master/WebDocs/marc.png?raw=true)
 
@@ -16,7 +16,8 @@ Smile Engine is a game engine created for the the subject Video Game Engines mad
 
 - Load and Save for the emitter and particles.
 
-* Eric Navarro: [Github Account](https://github.com/lakaens)
+
+### Eric Navarro: [Github Account](https://github.com/lakaens)
 
 ![Eric](https://github.com/thedoctormarc/SMILEENGINE/blob/master/WebDocs/Eric.PNG?raw=true)
 
